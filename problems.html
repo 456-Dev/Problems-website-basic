@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Second Page</title>
+</head>
+<body>
+
+  <h1>Previously Submitted Prompts </h1>
+  <ul id="promptsList"></ul>
+  
+  <div id="linkBack"></div>
+
+
+  <script>
+    // 1. Retrieve the prompts array from localStorage
+    const storedPrompts = JSON.parse(localStorage.getItem('prompts')) || [];
+
+    // 2. Grab the <ul> element, which will hold our list of prompts
+    const promptsList = document.getElementById('promptsList');
+
+    linkBack.innerHTML = `
+        <a href="index.html"> Submit more problems</a>
+        `;
+
+    // 3. Loop through each prompt in the array
+    storedPrompts.forEach((promptText, index) => {
+      // Create an <li> element for each prompt
+      const listItem = document.createElement('li');
+
+      // Make each prompt a clickable link. We’ll link to page3.html in this example.
+      // We’ll also pass an index parameter in the URL (e.g., ?promptIndex=2).
+      listItem.innerHTML = `
+        <a href="page3.html?promptIndex=${index}">${promptText}</a>
+      `;
+
+      // Finally, add this <li> to the <ul>.
+      promptsList.appendChild(listItem);
+
+    
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Welcome to 456solutions.com !</title>
+</head>
+<body>
+
+  <h1>Welcome to 456solutions.com !</h1>
+  <p>What is your Problem:</p>
+
+  <!-- A simple text input and a button to submit -->
+  <input type="text" id="userPrompt" placeholder="Type your prompt" />
+  <button id="submitBtn">Submit Problem</button>
+
+  <!-- This is where we’ll insert a link to the second page after submission -->
+  <div id="linkContainer"></div>
+
+  <script>
+    // Grabbing elements from the page
+    const submitBtn = document.getElementById('submitBtn');
+    const userPromptInput = document.getElementById('userPrompt');
+    const linkContainer = document.getElementById('linkContainer');
+
+    // Listen for clicks on the "Submit Prompt" button
+    submitBtn.addEventListener('click', function() {
+      const promptText = userPromptInput.value.trim();
+      if (!promptText) {
+        alert("Please enter some text first!");
+        return;
+      }
+
+      // --- Store the prompt in localStorage ---
+      // 1. Grab existing prompts from localStorage (if any):
+      let storedPrompts = JSON.parse(localStorage.getItem('prompts')) || [];
+      // 2. Add the new prompt to the array:
+      storedPrompts.push(promptText);
+      // 3. Re-save the updated array into localStorage:
+      localStorage.setItem('prompts', JSON.stringify(storedPrompts));
+
+      // --- Create a hyperlink to the second page ---
+      linkContainer.innerHTML = `
+        <p>Your problem has been saved!</p>
+        <a href="problems.html">Go to the second page to see all prompts</a>
+      `;
+    });
+  </script>
+</body>
+</html>
