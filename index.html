@@ -7,10 +7,10 @@
 <body>
 
   <h1>Welcome to 456solutions.com !</h1>
-  <p>What is your Problem:</p>
+  <p>What is your Problem?:</p>
 
   <!-- A simple text input and a button to submit -->
-  <input type="text" id="userPrompt" placeholder="Type your prompt" />
+  <input type="text" id="userPrompt" placeholder="Type your problem, use #'s if you feel so inclined" />
   <button id="submitBtn">Submit Problem</button>
 
   <!-- This is where we’ll insert a link to the second page after submission -->
@@ -40,8 +40,8 @@
 
       // --- Create a hyperlink to the second page ---
       linkContainer.innerHTML = `
-        <p>Your problem has been saved!</p>
-        <a href="problems.html">Go to the second page to see all prompts</a>
+        <p>Your problem has been submitted!</p>
+        <a href="problems.html">Go to the "Problems" page to see all other submitted prompts</a>
       `;
     });
   </script>
