@@ -11,15 +11,19 @@
   <a href="index.html">Submit another problem</a>
 
   <script>
-    const GOOGLE_SHEET_API_URL = "https://script.google.com/macros/s/AKfycbyhxApIeJnpHdTSxNu3cSC2RBDObI58Gn1pOZ0PXUzc9eYImloiE5yHv26suQa0VUUlxw/exec?fetch=1";
+    const GOOGLE_SHEET_API_URL = "https://script.google.com/macros/s/AKfycbwmcYIfsbuQBKHllHyDBhbGQrQfA0ijJgA67opAISnNupjrMbhL24b5m6A42Y93Y3Q6kQ/exec";
 
     async function fetchProblems() {
       try {
         const response = await fetch(GOOGLE_SHEET_API_URL);
         const data = await response.json();
-        
+
         let problemList = document.getElementById("problemList");
-        problemList.innerHTML = data.map(problem => `<li>${problem.timestamp} - ${problem.text}</li>`).join("");
+        if (data.error) {
+          problemList.innerHTML = "<p>Error fetching data: " + data.error + "</p>";
+        } else {
+          problemList.innerHTML = data.map(problem => `<li>${problem.timestamp} - ${problem.text}</li>`).join("");
+        }
       } catch (error) {
         console.error("Error fetching problems:", error);
         document.getElementById("problemList").innerHTML = "<p>Failed to load problems.</p>";
