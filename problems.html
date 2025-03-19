@@ -2,43 +2,32 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Second Page</title>
+  <title>All Submitted Problems</title>
 </head>
 <body>
 
-  <h1>Previously Submitted Prompts </h1>
-  <ul id="promptsList"></ul>
-  
-  <div id="linkBack"></div>
-
+  <h1>All Submitted Problems</h1>
+  <ul id="problemList"></ul>
+  <a href="index.html">Submit another problem</a>
 
   <script>
-    // 1. Retrieve the prompts array from localStorage
-    const storedPrompts = JSON.parse(localStorage.getItem('prompts')) || [];
+    const GOOGLE_SHEET_API_URL = "https://script.google.com/macros/s/AKfycbz7vOePlnS1WhIZvILhSp5fMqdRJQWesonhAsAjt3v3e4AflA11D3KJVULSLlYkDhVF/exec?fetch=1";
 
-    // 2. Grab the <ul> element, which will hold our list of prompts
-    const promptsList = document.getElementById('promptsList');
+    async function fetchProblems() {
+      try {
+        const response = await fetch(GOOGLE_SHEET_API_URL);
+        const data = await response.json();
+        
+        let problemList = document.getElementById("problemList");
+        problemList.innerHTML = data.map(problem => `<li>${problem.timestamp} - ${problem.text}</li>`).join("");
+      } catch (error) {
+        console.error("Error fetching problems:", error);
+        document.getElementById("problemList").innerHTML = "<p>Failed to load problems.</p>";
+      }
+    }
 
-    linkBack.innerHTML = `
-        <a href="index.html"> Submit more problems</a>
-        `;
-
-    // 3. Loop through each prompt in the array
-    storedPrompts.forEach((promptText, index) => {
-      // Create an <li> element for each prompt
-      const listItem = document.createElement('li');
-
-      // Make each prompt a clickable link. We’ll link to page3.html in this example.
-      // We’ll also pass an index parameter in the URL (e.g., ?promptIndex=2).
-      listItem.innerHTML = `
-        <a href="page3.html?promptIndex=${index}">${promptText}</a>
-      `;
-
-      // Finally, add this <li> to the <ul>.
-      promptsList.appendChild(listItem);
-
-    
-    });
+    fetchProblems();
   </script>
+
 </body>
 </html>

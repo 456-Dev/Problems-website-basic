@@ -2,48 +2,58 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Welcome to 456solutions.com !</title>
+  <title>Welcome to 456solutions.com!</title>
 </head>
 <body>
 
-  <h1>Welcome to 456solutions.com !</h1>
-  <p>What is your Problem?:</p>
+  <h1>Welcome to 456solutions.com!</h1>
+  <p>What is your Problem?</p>
 
-  <!-- A simple text input and a button to submit -->
+  <!-- User input field -->
   <input type="text" id="userPrompt" placeholder="Type your problem, use #'s if you feel so inclined" />
   <button id="submitBtn">Submit Problem</button>
 
-  <!-- This is where we’ll insert a link to the second page after submission -->
+  <!-- Confirmation message -->
   <div id="linkContainer"></div>
 
   <script>
-    // Grabbing elements from the page
-    const submitBtn = document.getElementById('submitBtn');
-    const userPromptInput = document.getElementById('userPrompt');
-    const linkContainer = document.getElementById('linkContainer');
+    // Replace with your Google Apps Script Web App URL
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz7vOePlnS1WhIZvILhSp5fMqdRJQWesonhAsAjt3v3e4AflA11D3KJVULSLlYkDhVF/exec";
 
-    // Listen for clicks on the "Submit Prompt" button
-    submitBtn.addEventListener('click', function() {
+    document.getElementById('submitBtn').addEventListener('click', async function () {
+      const userPromptInput = document.getElementById('userPrompt');
+      const linkContainer = document.getElementById('linkContainer');
+
       const promptText = userPromptInput.value.trim();
       if (!promptText) {
         alert("Please enter some text first!");
         return;
       }
 
-      // --- Store the prompt in localStorage ---
-      // 1. Grab existing prompts from localStorage (if any):
-      let storedPrompts = JSON.parse(localStorage.getItem('prompts')) || [];
-      // 2. Add the new prompt to the array:
-      storedPrompts.push(promptText);
-      // 3. Re-save the updated array into localStorage:
-      localStorage.setItem('prompts', JSON.stringify(storedPrompts));
+      // --- Send data to Google Sheets ---
+      try {
+        const response = await fetch(GOOGLE_SCRIPT_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: "text=" + encodeURIComponent(promptText),
+        });
 
-      // --- Create a hyperlink to the second page ---
-      linkContainer.innerHTML = `
-        <p>Your problem has been submitted!</p>
-        <a href="problems.html">Go to the "Problems" page to see all other submitted prompts</a>
-      `;
+        const result = await response.text();
+        if (result.includes("Saved!")) {
+          linkContainer.innerHTML = `
+            <p>Your problem has been submitted!</p>
+            <a href="problems.html">Go to the "Problems" page to see all other submitted prompts</a>
+          `;
+          userPromptInput.value = ""; // Clear input field
+        } else {
+          alert("Error saving your problem. Please try again.");
+        }
+      } catch (error) {
+        alert("Something went wrong. Check your internet connection.");
+        console.error(error);
+      }
     });
   </script>
+
 </body>
 </html>
