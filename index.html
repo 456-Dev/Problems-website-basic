@@ -3,15 +3,40 @@
 <head>
   <meta charset="UTF-8">
   <title>Welcome to 456solutions.com!</title>
+  <style>
+    body {
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h1 {
+      height: 10vh;
+      display: flex;
+      align-items: center;
+      font-weight: bold;
+      margin: 0;
+    }
+
+    .input-container {
+      height: 20vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+  </style>
 </head>
 <body>
-
-  <h1>Welcome to 456solutions.com!</h1>
-  <p>What is your Problem?</p>
+  <h1>What is your Problem?:</h1>
 
   <!-- User input field -->
-  <input type="text" id="userPrompt" placeholder="Type your problem, use #'s if you feel so inclined" />
-  <button id="submitBtn">Submit Problem</button>
+  <div class="input-container">
+    <input type="text" id="userPrompt" placeholder="Type your problem, use #'s if you feel so inclined" />
+    <button id="submitBtn">Submit Problem</button>
+  </div>
 
   <!-- Confirmation message -->
   <div id="linkContainer"></div>
