@@ -1,37 +1,1038 @@
-<!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>All Submitted Problems</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Times New Roman', Times, serif;
+      height: 100vh;
+      overflow: hidden;
+      background-color: #fff;
+      color: #333;
+    }
+
+    h1 {
+      text-align: center;
+      margin: 10px 0;
+      font-size: 24px;
+      padding: 0 10px;
+      color: #333;
+    }
+
+    .columns-container {
+      display: flex;
+      height: calc(100vh - 50px);
+      gap: 10px;
+      padding: 10px;
+    }
+
+    .column {
+      flex: 1;
+      overflow-y: auto;
+      padding: 5px;
+      background-color: #f8f9fa;
+      border-radius: 8px;
+    }
+
+    .column-header {
+      position: sticky;
+      top: 0;
+      background-color: #666666;
+      color: white;
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+      text-align: center;
+      font-size: 16px;
+      font-weight: bold;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .problem-card {
+      border: 1px solid #e0e0e0;
+      margin-bottom: 8px;
+      padding: 12px;
+      border-radius: 8px;
+      background-color: #fff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .problem-text {
+      font-size: 14px;
+      line-height: 1.5;
+      margin-bottom: 12px;
+      word-wrap: break-word;
+      color: #333;
+    }
+
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: #999;
+      border-top: 1px solid #e0e0e0;
+      padding-top: 8px;
+    }
+
+    .footer-left {
+      display: flex;
+      gap: 12px;
+    }
+
+    .reaction-btn {
+      background: none;
+      border: 1px solid #ddd;
+      padding: 4px 8px;
+      cursor: pointer;
+      font-size: 16px;
+      border-radius: 4px;
+      transition: all 0.2s;
+      color: #333;
+    }
+
+    .reaction-btn:hover {
+      background-color: #e0e0e0;
+    }
+
+    .footer-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .hashtags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .hashtag {
+      background-color: #f0f0f0;
+      color: #666666;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+    }
+
+    .back-link {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #666666;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 24px;
+      text-decoration: none;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      font-size: 16px;
+      z-index: 1000;
+    }
+
+    .back-link:active {
+      background-color: #555555;
+      transform: scale(0.98);
+    }
+
+    /* Custom scrollbar */
+    .column::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .column::-webkit-scrollbar-track {
+      background: #f8f9fa;
+    }
+
+    .column::-webkit-scrollbar-thumb {
+      background: #e0e0e0;
+      border-radius: 3px;
+    }
+
+    .column::-webkit-scrollbar-thumb:hover {
+      background: #d0d0d0;
+    }
+
+    /* Mobile responsiveness */
+    @media (max-width: 768px) {
+      body {
+        overflow: auto;
+      }
+
+      h1 {
+        font-size: 20px;
+        margin: 15px 0;
+      }
+
+      .columns-container {
+        flex-direction: column;
+        height: auto;
+        gap: 15px;
+        padding: 10px;
+      }
+
+      .column {
+        height: auto;
+        max-height: 400px; /* Show roughly 3 cards */
+        margin-bottom: 15px;
+        overflow-y: auto;
+      }
+
+      .problem-card {
+        padding: 10px;
+      }
+
+      /* Show a subtle gradient at the bottom to indicate more content */
+      .column::after {
+        content: '';
+        position: sticky;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 20px;
+        background: linear-gradient(transparent, #f8f9fa);
+        pointer-events: none;
+      }
+
+      .footer-left {
+        gap: 8px;
+      }
+
+      .reaction-btn {
+        padding: 6px 10px;
+        font-size: 18px;
+      }
+
+      .back-link {
+        bottom: 10px;
+        right: 10px;
+        padding: 10px 20px;
+        font-size: 14px;
+      }
+
+      .column-header {
+        position: sticky;
+        top: 0;
+        margin-bottom: 15px;
+        z-index: 1;
+      }
+
+      .poem {
+        font-size: 8px;
+        top: 5px;
+        right: 5px;
+        max-width: 120px;
+      }
+    }
+
+    /* Small mobile devices */
+    @media (max-width: 380px) {
+      .columns-container {
+        padding: 5px;
+      }
+
+      .column {
+        max-height: 350px; /* Slightly smaller for very small screens */
+      }
+
+      .problem-card {
+        padding: 8px;
+      }
+
+      .problem-text {
+        font-size: 13px;
+      }
+
+      .reaction-btn {
+        padding: 4px 8px;
+        font-size: 16px;
+      }
+
+      .hashtag {
+        font-size: 11px;
+      }
+    }
+
+    /* Reaction button states */
+    .reaction-btn[data-reacted="true"] {
+      background-color: #e0e0e0;
+      border-color: #ddd;
+    }
+
+    .reaction-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .reaction-btn span {
+      display: inline-block;
+      min-width: 15px;
+      text-align: center;
+      color: #333;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+
+    .reaction-btn.animate {
+      animation: pulse 0.3s ease;
+    }
+
+    .emoji {
+      filter: none;
+      opacity: 1;
+      display: inline-block;
+      transform: scale(1.1);
+    }
+
+    .reaction-btn[data-reacted="true"] .emoji {
+      opacity: 1;
+    }
+
+    .column-header .emoji {
+      opacity: 1;
+      transform: scale(1.2);
+    }
+
+    /* Hover state */
+    .reaction-btn:hover .emoji {
+      opacity: 1;
+    }
+
+    /* Animation for emoji when clicked */
+    @keyframes emojiPulse {
+      0% { transform: scale(1.1); }
+      50% { transform: scale(1.3); }
+      100% { transform: scale(1.1); }
+    }
+
+    .reaction-btn.animate .emoji {
+      animation: emojiPulse 0.3s ease;
+    }
+
+    /* Add styles for the poem */
+    .poem {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 9px;
+      text-align: right;
+      font-style: italic;
+      color: #666666;
+      line-height: 1.2;
+      max-width: 150px;
+      font-family: 'Times New Roman', Times, serif;
+    }
+  </style>
 </head>
 <body>
-
-  <h1>All Submitted Problems</h1>
-  <ul id="problemList"></ul>
-  <a href="index.html">Submit another problem</a>
+  <h1>Recent Problems</h1>
+  <div class="columns-container">
+    <div class="column" id="column1">
+      <div class="column-header">Most 🔥</div>
+    </div>
+    <div class="column" id="column2">
+      <div class="column-header">Most 😂</div>
+    </div>
+    <div class="column" id="column3">
+      <div class="column-header">Latest Problems</div>
+    </div>
+  </div>
+  <a href="index.html" class="back-link">+ New Problem</a>
 
   <script>
-    const GOOGLE_SHEET_API_URL = "https://script.google.com/macros/s/AKfycbxiCuLacqeqIqE8ul-BMRGT3XEEgIWmKr9EROyO97EHriXwygXM6_J8cJELo4TQvMUNWQ/exec";
+    const GOOGLE_SHEET_API_URL = "https://script.google.com/macros/s/AKfycby_aAI3djnLE6i0fV2oEIXt51KR5H5IlgH0bMRM4qKa5PSGOgEwM1eVmT2ERQGY5NnYyw/exec";
+
+    function createProblemCard(problem) {
+      const hashtags = [problem.hashtag1, problem.hashtag2, problem.hashtag3]
+        .filter(tag => tag && tag.length > 0);
+      
+      const hashtagsHtml = hashtags.length > 0 
+        ? hashtags.map(tag => `<span class="hashtag">${tag}</span>`).join('')
+        : '';
+
+      const date = new Date(problem.timestamp);
+      const timeString = date.toLocaleString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+      });
+
+      return `
+        <div class="problem-card" data-timestamp="${problem.timestamp}">
+          <div class="problem-text">${problem.problem}</div>
+          <div class="card-footer">
+            <div class="footer-left">
+              <button class="reaction-btn" onclick="handleReaction(this, 'fire', '${problem.timestamp}')" 
+                      ${problem.fireCount > 0 ? 'data-reacted="true"' : ''}>
+                <span class="emoji">🔥</span> <span>${problem.fireCount || 0}</span>
+              </button>
+              <button class="reaction-btn" onclick="handleReaction(this, 'laugh', '${problem.timestamp}')"
+                      ${problem.laughCount > 0 ? 'data-reacted="true"' : ''}>
+                <span class="emoji">😂</span> <span>${problem.laughCount || 0}</span>
+              </button>
+              <button class="reaction-btn" onclick="handleReaction(this, 'trash', '${problem.timestamp}')"
+                      ${problem.trashCount > 0 ? 'data-reacted="true"' : ''}>
+                <span class="emoji">🗑️</span> <span>${problem.trashCount || 0}</span>
+              </button>
+            </div>
+            <div class="footer-right">
+              ${hashtagsHtml}
+              <span class="timestamp">${timeString}</span>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Debounce function to prevent spam clicking
+    function debounce(func, wait) {
+      let timeout;
+      return function executedFunction(...args) {
+        const later = () => {
+          clearTimeout(timeout);
+          func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+      };
+    }
+
+    async function handleReaction(button, type, timestamp) {
+      if (button.disabled) return;
+      
+      const countSpan = button.querySelector('span');
+      const currentCount = parseInt(countSpan.textContent);
+      
+      // Disable button and add loading state
+      button.disabled = true;
+      const originalText = button.innerHTML;
+      
+      // Optimistic update
+      countSpan.textContent = currentCount + 1;
+      button.classList.add('animate');
+      
+      try {
+        const response = await fetch(GOOGLE_SHEET_API_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: `action=react&reactionType=${type}&timestamp=${encodeURIComponent(timestamp)}`
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          // Update was successful
+          button.setAttribute('data-reacted', 'true');
+          countSpan.textContent = result.newCount;
+        } else {
+          // Revert on failure
+          countSpan.textContent = currentCount;
+          console.error('Reaction failed:', result.error);
+          alert('Failed to update reaction. Please try again.');
+        }
+      } catch (error) {
+        // Revert on error
+        countSpan.textContent = currentCount;
+        console.error('Error updating reaction:', error);
+        alert('Failed to update reaction. Please try again.');
+      } finally {
+        // Re-enable button and remove loading state
+        button.disabled = false;
+        button.innerHTML = originalText;
+        
+        // Remove animation class after animation completes
+        setTimeout(() => {
+          button.classList.remove('animate');
+        }, 300);
+      }
+    }
+
+    // Debounced version of handleReaction
+    const debouncedHandleReaction = debounce(handleReaction, 500);
 
     async function fetchProblems() {
       try {
         const response = await fetch(GOOGLE_SHEET_API_URL);
         const data = await response.json();
 
-        let problemList = document.getElementById("problemList");
         if (data.error) {
-          problemList.innerHTML = "<p>Error fetching data: " + data.error + "</p>";
+          document.querySelectorAll('.column').forEach(col => {
+            col.innerHTML += "<p>Error fetching data: " + data.error + "</p>";
+          });
         } else {
-          problemList.innerHTML = data.map(problem => `<li>${problem.timestamp} - ${problem.text}</li>`).join("");
+          // Most fire emojis (sorted by fireCount)
+          const mostFire = [...data].sort((a, b) => {
+            const fireCountA = parseInt(a.fireCount) || 0;
+            const fireCountB = parseInt(b.fireCount) || 0;
+            return fireCountB - fireCountA;
+          });
+          
+          // Most laugh emojis (sorted by laughCount)
+          const mostLaugh = [...data].sort((a, b) => {
+            const laughCountA = parseInt(a.laughCount) || 0;
+            const laughCountB = parseInt(b.laughCount) || 0;
+            return laughCountB - laughCountA;
+          });
+
+          // Latest problems (sorted by row number, most recent first)
+          const newest = [...data].reverse(); // Reverse the array to get most recent entries first
+
+          // Populate columns
+          document.getElementById('column1').innerHTML = 
+            `<div class="column-header">Most 🔥</div>` +
+            mostFire.map(createProblemCard).join('');
+          
+          document.getElementById('column2').innerHTML = 
+            `<div class="column-header">Most 😂</div>` +
+            mostLaugh.map(createProblemCard).join('');
+          
+          document.getElementById('column3').innerHTML = 
+            `<div class="column-header">Latest Problems</div>` +
+            newest.map(createProblemCard).join('');
         }
       } catch (error) {
         console.error("Error fetching problems:", error);
-        document.getElementById("problemList").innerHTML = "<p>Failed to load problems.</p>";
+        document.querySelectorAll('.column').forEach(col => {
+          col.innerHTML += "<p>Failed to load problems.</p>";
+        });
       }
     }
 
     fetchProblems();
   </script>
+</body>
+</html>
 
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>All Submitted Problems</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Times New Roman', Times, serif;
+      height: 100vh;
+      overflow: hidden;
+      background-color: #fff;
+      color: #333;
+    }
+
+    h1 {
+      text-align: center;
+      margin: 10px 0;
+      font-size: 24px;
+      padding: 0 10px;
+      color: #333;
+    }
+
+    .columns-container {
+      display: flex;
+      height: calc(100vh - 50px);
+      gap: 10px;
+      padding: 10px;
+    }
+
+    .column {
+      flex: 1;
+      overflow-y: auto;
+      padding: 5px;
+      background-color: #f8f9fa;
+      border-radius: 8px;
+    }
+
+    .column-header {
+      position: sticky;
+      top: 0;
+      background-color: #666666;
+      color: white;
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+      text-align: center;
+      font-size: 16px;
+      font-weight: bold;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .problem-card {
+      border: 1px solid #e0e0e0;
+      margin-bottom: 8px;
+      padding: 12px;
+      border-radius: 8px;
+      background-color: #fff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .problem-text {
+      font-size: 14px;
+      line-height: 1.5;
+      margin-bottom: 12px;
+      word-wrap: break-word;
+      color: #333;
+    }
+
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: #999;
+      border-top: 1px solid #e0e0e0;
+      padding-top: 8px;
+    }
+
+    .footer-left {
+      display: flex;
+      gap: 12px;
+    }
+
+    .reaction-btn {
+      background: none;
+      border: 1px solid #ddd;
+      padding: 4px 8px;
+      cursor: pointer;
+      font-size: 16px;
+      border-radius: 4px;
+      transition: all 0.2s;
+      color: #333;
+    }
+
+    .reaction-btn:hover {
+      background-color: #e0e0e0;
+    }
+
+    .footer-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .hashtags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .hashtag {
+      background-color: #f0f0f0;
+      color: #666666;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+    }
+
+    .back-link {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #666666;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 24px;
+      text-decoration: none;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      font-size: 16px;
+      z-index: 1000;
+    }
+
+    .back-link:active {
+      background-color: #555555;
+      transform: scale(0.98);
+    }
+
+    /* Custom scrollbar */
+    .column::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .column::-webkit-scrollbar-track {
+      background: #f8f9fa;
+    }
+
+    .column::-webkit-scrollbar-thumb {
+      background: #e0e0e0;
+      border-radius: 3px;
+    }
+
+    .column::-webkit-scrollbar-thumb:hover {
+      background: #d0d0d0;
+    }
+
+    /* Mobile responsiveness */
+    @media (max-width: 768px) {
+      body {
+        overflow: auto;
+      }
+
+      h1 {
+        font-size: 20px;
+        margin: 15px 0;
+      }
+
+      .columns-container {
+        flex-direction: column;
+        height: auto;
+        gap: 15px;
+        padding: 10px;
+      }
+
+      .column {
+        height: auto;
+        max-height: 400px; /* Show roughly 3 cards */
+        margin-bottom: 15px;
+        overflow-y: auto;
+      }
+
+      .problem-card {
+        padding: 10px;
+      }
+
+      /* Show a subtle gradient at the bottom to indicate more content */
+      .column::after {
+        content: '';
+        position: sticky;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 20px;
+        background: linear-gradient(transparent, #f8f9fa);
+        pointer-events: none;
+      }
+
+      .footer-left {
+        gap: 8px;
+      }
+
+      .reaction-btn {
+        padding: 6px 10px;
+        font-size: 18px;
+      }
+
+      .back-link {
+        bottom: 10px;
+        right: 10px;
+        padding: 10px 20px;
+        font-size: 14px;
+      }
+
+      .column-header {
+        position: sticky;
+        top: 0;
+        margin-bottom: 15px;
+        z-index: 1;
+      }
+    }
+
+    /* Small mobile devices */
+    @media (max-width: 380px) {
+      .columns-container {
+        padding: 5px;
+      }
+
+      .column {
+        max-height: 350px; /* Slightly smaller for very small screens */
+      }
+
+      .problem-card {
+        padding: 8px;
+      }
+
+      .problem-text {
+        font-size: 13px;
+      }
+
+      .reaction-btn {
+        padding: 4px 8px;
+        font-size: 16px;
+      }
+
+      .hashtag {
+        font-size: 11px;
+      }
+    }
+
+    /* Reaction button states */
+    .reaction-btn[data-reacted="true"] {
+      background-color: #e0e0e0;
+      border-color: #ddd;
+    }
+
+    .reaction-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .reaction-btn span {
+      display: inline-block;
+      min-width: 15px;
+      text-align: center;
+      color: #333;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+
+    .reaction-btn.animate {
+      animation: pulse 0.3s ease;
+    }
+
+    .emoji {
+      filter: none;
+      opacity: 1;
+      display: inline-block;
+      transform: scale(1.1);
+    }
+
+    .reaction-btn[data-reacted="true"] .emoji {
+      opacity: 1;
+    }
+
+    .column-header .emoji {
+      opacity: 1;
+      transform: scale(1.2);
+    }
+
+    /* Hover state */
+    .reaction-btn:hover .emoji {
+      opacity: 1;
+    }
+
+    /* Animation for emoji when clicked */
+    @keyframes emojiPulse {
+      0% { transform: scale(1.1); }
+      50% { transform: scale(1.3); }
+      100% { transform: scale(1.1); }
+    }
+
+    .reaction-btn.animate .emoji {
+      animation: emojiPulse 0.3s ease;
+    }
+
+    /* Add styles for the poem */
+    .poem {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 9px;
+      text-align: right;
+      font-style: italic;
+      color: #666666;
+      line-height: 1.2;
+      max-width: 150px;
+      font-family: 'Times New Roman', Times, serif;
+    }
+
+    /* Adjust poem visibility on mobile */
+    @media (max-width: 768px) {
+      .poem {
+        font-size: 8px;
+        top: 5px;
+        right: 5px;
+        max-width: 120px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="poem">
+    Share your coding strife,<br>
+    React with emojis bright,<br>
+    Solutions take flight.
+  </div>
+  <h1>Recent Problems</h1>
+  <div class="columns-container">
+    <div class="column" id="column1">
+      <div class="column-header">Most 🔥</div>
+    </div>
+    <div class="column" id="column2">
+      <div class="column-header">Most 😂</div>
+    </div>
+    <div class="column" id="column3">
+      <div class="column-header">Latest Problems</div>
+    </div>
+  </div>
+  <a href="index.html" class="back-link">+ New Problem</a>
+
+  <script>
+    const GOOGLE_SHEET_API_URL = "https://script.google.com/macros/s/AKfycby_aAI3djnLE6i0fV2oEIXt51KR5H5IlgH0bMRM4qKa5PSGOgEwM1eVmT2ERQGY5NnYyw/exec";
+
+    function createProblemCard(problem) {
+      const hashtags = [problem.hashtag1, problem.hashtag2, problem.hashtag3]
+        .filter(tag => tag && tag.length > 0);
+      
+      const hashtagsHtml = hashtags.length > 0 
+        ? hashtags.map(tag => `<span class="hashtag">${tag}</span>`).join('')
+        : '';
+
+      const date = new Date(problem.timestamp);
+      const timeString = date.toLocaleString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+      });
+
+      return `
+        <div class="problem-card" data-timestamp="${problem.timestamp}">
+          <div class="problem-text">${problem.problem}</div>
+          <div class="card-footer">
+            <div class="footer-left">
+              <button class="reaction-btn" onclick="handleReaction(this, 'fire', '${problem.timestamp}')" 
+                      ${problem.fireCount > 0 ? 'data-reacted="true"' : ''}>
+                <span class="emoji">🔥</span> <span>${problem.fireCount || 0}</span>
+              </button>
+              <button class="reaction-btn" onclick="handleReaction(this, 'laugh', '${problem.timestamp}')"
+                      ${problem.laughCount > 0 ? 'data-reacted="true"' : ''}>
+                <span class="emoji">😂</span> <span>${problem.laughCount || 0}</span>
+              </button>
+              <button class="reaction-btn" onclick="handleReaction(this, 'trash', '${problem.timestamp}')"
+                      ${problem.trashCount > 0 ? 'data-reacted="true"' : ''}>
+                <span class="emoji">🗑️</span> <span>${problem.trashCount || 0}</span>
+              </button>
+            </div>
+            <div class="footer-right">
+              ${hashtagsHtml}
+              <span class="timestamp">${timeString}</span>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Debounce function to prevent spam clicking
+    function debounce(func, wait) {
+      let timeout;
+      return function executedFunction(...args) {
+        const later = () => {
+          clearTimeout(timeout);
+          func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+      };
+    }
+
+    async function handleReaction(button, type, timestamp) {
+      if (button.disabled) return;
+      
+      const countSpan = button.querySelector('span');
+      const currentCount = parseInt(countSpan.textContent);
+      
+      // Disable button and add loading state
+      button.disabled = true;
+      const originalText = button.innerHTML;
+      
+      // Optimistic update
+      countSpan.textContent = currentCount + 1;
+      button.classList.add('animate');
+      
+      try {
+        const response = await fetch(GOOGLE_SHEET_API_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: `action=react&reactionType=${type}&timestamp=${encodeURIComponent(timestamp)}`
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          // Update was successful
+          button.setAttribute('data-reacted', 'true');
+          countSpan.textContent = result.newCount;
+        } else {
+          // Revert on failure
+          countSpan.textContent = currentCount;
+          console.error('Reaction failed:', result.error);
+          alert('Failed to update reaction. Please try again.');
+        }
+      } catch (error) {
+        // Revert on error
+        countSpan.textContent = currentCount;
+        console.error('Error updating reaction:', error);
+        alert('Failed to update reaction. Please try again.');
+      } finally {
+        // Re-enable button and remove loading state
+        button.disabled = false;
+        button.innerHTML = originalText;
+        
+        // Remove animation class after animation completes
+        setTimeout(() => {
+          button.classList.remove('animate');
+        }, 300);
+      }
+    }
+
+    // Debounced version of handleReaction
+    const debouncedHandleReaction = debounce(handleReaction, 500);
+
+    async function fetchProblems() {
+      try {
+        const response = await fetch(GOOGLE_SHEET_API_URL);
+        const data = await response.json();
+
+        if (data.error) {
+          document.querySelectorAll('.column').forEach(col => {
+            col.innerHTML += "<p>Error fetching data: " + data.error + "</p>";
+          });
+        } else {
+          // Most fire emojis (sorted by fireCount)
+          const mostFire = [...data].sort((a, b) => {
+            const fireCountA = parseInt(a.fireCount) || 0;
+            const fireCountB = parseInt(b.fireCount) || 0;
+            return fireCountB - fireCountA;
+          });
+          
+          // Most laugh emojis (sorted by laughCount)
+          const mostLaugh = [...data].sort((a, b) => {
+            const laughCountA = parseInt(a.laughCount) || 0;
+            const laughCountB = parseInt(b.laughCount) || 0;
+            return laughCountB - laughCountA;
+          });
+
+          // Latest problems (sorted by row number, most recent first)
+          const newest = [...data].reverse(); // Reverse the array to get most recent entries first
+
+          // Populate columns
+          document.getElementById('column1').innerHTML = 
+            `<div class="column-header">Most 🔥</div>` +
+            mostFire.map(createProblemCard).join('');
+          
+          document.getElementById('column2').innerHTML = 
+            `<div class="column-header">Most 😂</div>` +
+            mostLaugh.map(createProblemCard).join('');
+          
+          document.getElementById('column3').innerHTML = 
+            `<div class="column-header">Latest Problems</div>` +
+            newest.map(createProblemCard).join('');
+        }
+      } catch (error) {
+        console.error("Error fetching problems:", error);
+        document.querySelectorAll('.column').forEach(col => {
+          col.innerHTML += "<p>Failed to load problems.</p>";
+        });
+      }
+    }
+
+    fetchProblems();
+  </script>
 </body>
 </html>
