@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trash Problems</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Times New Roman', Times, serif;
+      background-color: #fff;
+      color: #333;
+    }
+    .explanation {
+      background-color: #f0f0f0;
+      padding: 10px;
+      text-align: center;
+      font-size: 14px;
+      border-bottom: 1px solid #ddd;
+    }
+    h1 {
+      text-align: center;
+      margin: 20px 0 10px;
+      font-size: 24px;
+    }
+    .problem-list {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 10px;
+    }
+    .problem-card {
+      border: 1px solid #e0e0e0;
+      margin-bottom: 10px;
+      padding: 10px;
+      background-color: #fff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .card-tags {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+      font-size: 12px;
+    }
+    .hashtags {
+      display: flex;
+      gap: 4px;
+    }
+    .hashtag {
+      background-color: #f0f0f0;
+      color: #666;
+      padding: 2px 6px;
+      font-size: 12px;
+    }
+    .timestamp {
+      font-size: 12px;
+      color: #999;
+    }
+    .problem-text {
+      font-size: 14px;
+      line-height: 1.5;
+      margin-bottom: 6px;
+    }
+    .response-container {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+    .response-container input {
+      flex: 1;
+      padding: 4px;
+      font-size: 12px;
+    }
+    .submit-btn {
+      padding: 4px 8px;
+      font-size: 12px;
+      cursor: pointer;
+      border: none;
+      background-color: #ddd;
+      border-radius: 0;
+    }
+    .card-footer {
+      display: flex;
+      gap: 12px;
+      font-size: 12px;
+      margin-top: 4px;
+    }
+    .reaction-btn {
+      background: none;
+      border: none;
+      padding: 2px 4px;
+      cursor: pointer;
+      font-size: 16px;
+      outline: none;
+    }
+    .reaction-btn .emoji {
+      margin-right: 2px;
+    }
+    .reaction-number {
+      font-size: 12px;
+      vertical-align: middle;
+    }
+    .pagination {
+      text-align: center;
+      margin: 20px;
+    }
+    .pagination button {
+      padding: 8px 16px;
+      margin: 0 5px;
+      font-size: 14px;
+      border: 1px solid #ddd;
+      background-color: #f8f9fa;
+      cursor: pointer;
+    }
+    .pagination button:hover {
+      background-color: #e0e0e0;
+    }
+    .nav-link {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #666;
+      color: #fff;
+      padding: 12px 24px;
+      text-decoration: none;
+      font-size: 16px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+  <!-- Explanation Section -->
+  <div class="explanation">
+    <p>Only problems where the trash score is greater than the sum of fire and laugh scores are included in this list.</p>
+    <p>
+      They are sorted from highest to lowest based on (trash score - (fire score + laugh score)).
+      Problems with a higher fire+laugh score than trash score are removed from the trash pile.
+    </p>
+  </div>
+  <h1>Trash Problems</h1>
+  <div class="problem-list" id="trashList"></div>
+  <div class="pagination">
+    <button id="prevPage" onclick="prevPage()">Prev</button>
+    <button id="nextPage" onclick="nextPage()">Next</button>
+  </div>
+  <a href="problems.html" class="nav-link">Back to Problems</a>
+  
+  <script>
+    const GOOGLE_SHEET_API_URL = "https://script.google.com/macros/s/AKfycbx0A9ly-CgpYxWGJyiGddc8qHGYKOq5dS23Nc20q91J3C8q46vW2Nv2t-2k_8pBzx-ykA/exec";
+    const PAGE_SIZE = 10;
+    let trashProblems = [];
+    let currentPage = 0;
+    
+    // Creates a card for each trash problem with reaction buttons and a response field.
+    function createProblemCard(problem, scoreDiff) {
+      // Format timestamp as MM/DD/YY HH:MM
+      const d = new Date(problem.timestamp);
+      const month = ('0' + (d.getMonth() + 1)).slice(-2);
+      const day = ('0' + d.getDate()).slice(-2);
+      const year = ('0' + (d.getFullYear() % 100)).slice(-2);
+      const hours = ('0' + d.getHours()).slice(-2);
+      const minutes = ('0' + d.getMinutes()).slice(-2);
+      const formattedDate = `${month}/${day}/${year} ${hours}:${minutes}`;
+      
+      // Prepare hashtags HTML if available.
+      const hashtags = [problem.hashtag1, problem.hashtag2, problem.hashtag3]
+        .filter(tag => tag && tag.length > 0);
+      const hashtagsHtml = hashtags.length > 0
+        ? hashtags.map(tag => `<span class="hashtag">${tag}</span>`).join(' ')
+        : '';
+      
+      // Create a unique id for the response input.
+      const safeId = "response" + Math.random().toString().slice(2);
+      
+      return `
+        <div class="problem-card" data-timestamp="${problem.timestamp}">
+          <div class="card-tags">
+            <div class="hashtags">${hashtagsHtml}</div>
+            <div class="timestamp">${formattedDate}</div>
+          </div>
+          <div class="problem-text">${problem.problem}</div>
+          <div class="card-tags">
+          </div>
+          <div class="response-container">
+            <input type="text" id="response-${safeId}" placeholder="Write a response..." />
+            <button class="submit-btn" onclick="submitResponse('${problem.timestamp}', 'response-${safeId}')">Submit Response</button>
+          </div>
+          <div class="card-footer">
+            <button class="reaction-btn" onclick="handleReaction(this, 'fire', '${problem.timestamp}')" ${problem.fireCount > 0 ? 'data-reacted="true"' : ''}>
+              <span class="emoji">🔥</span><span class="reaction-number">${problem.fireCount || 0}</span>
+            </button>
+            <button class="reaction-btn" onclick="handleReaction(this, 'laugh', '${problem.timestamp}')" ${problem.laughCount > 0 ? 'data-reacted="true"' : ''}>
+              <span class="emoji">😂</span><span class="reaction-number">${problem.laughCount || 0}</span>
+            </button>
+            <button class="reaction-btn" onclick="handleReaction(this, 'trash', '${problem.timestamp}')" ${problem.trashCount > 0 ? 'data-reacted="true"' : ''}>
+              <span class="emoji">🗑️</span><span class="reaction-number">${problem.trashCount || 0}</span>
+            </button>
+          </div>
+        </div>
+      `;
+    }
+    
+    // Render the current page of trash problems.
+    function renderPage() {
+      const container = document.getElementById("trashList");
+      container.innerHTML = "";
+      const start = currentPage * PAGE_SIZE;
+      const end = start + PAGE_SIZE;
+      const pageItems = trashProblems.slice(start, end);
+      container.innerHTML = pageItems.map(item => createProblemCard(item, item.diff)).join('');
+    }
+    
+    function nextPage() {
+      if ((currentPage + 1) * PAGE_SIZE < trashProblems.length) {
+        currentPage++;
+        renderPage();
+      }
+    }
+    
+    function prevPage() {
+      if (currentPage > 0) {
+        currentPage--;
+        renderPage();
+      }
+    }
+    
+    // Handles reaction button clicks.
+    async function handleReaction(button, type, timestamp) {
+      if (button.disabled) return;
+      const numberSpan = button.querySelector('.reaction-number');
+      const currentCount = parseInt(numberSpan.textContent);
+      button.disabled = true;
+      const originalHTML = button.innerHTML;
+      numberSpan.textContent = currentCount + 1;
+      button.classList.add('animate');
+  
+      try {
+        const response = await fetch(GOOGLE_SHEET_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: `action=react&reactionType=${type}&timestamp=${encodeURIComponent(timestamp)}`
+        });
+        const result = await response.json();
+        if (result.success) {
+          button.setAttribute('data-reacted', 'true');
+          numberSpan.textContent = result.newCount;
+        } else {
+          numberSpan.textContent = currentCount;
+          alert('Failed to update reaction. Please try again.');
+        }
+      } catch (error) {
+        console.error('Error updating reaction:', error);
+        numberSpan.textContent = currentCount;
+        alert('Failed to update reaction. Please try again.');
+      } finally {
+        button.disabled = false;
+        button.innerHTML = originalHTML;
+        setTimeout(() => {
+          button.classList.remove('animate');
+        }, 300);
+      }
+    }
+    
+    // Submits a user response.
+    async function submitResponse(timestamp, inputId) {
+      const input = document.getElementById(inputId);
+      const responseText = input.value;
+      if (!responseText) {
+        alert("Please enter a response before submitting.");
+        return;
+      }
+      try {
+        const response = await fetch(GOOGLE_SHEET_API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: `action=respond&timestamp=${encodeURIComponent(timestamp)}&response=${encodeURIComponent(responseText)}`
+        });
+        const result = await response.text();
+        if (result.includes("Saved")) {
+          alert("Response submitted successfully!");
+          input.value = "";
+        } else {
+          alert("Failed to save response.");
+        }
+      } catch (error) {
+        console.error("Error submitting response:", error);
+        alert("There was an error submitting your response.");
+      }
+    }
+    
+    // Fetch problems, filter by trash criteria, compute score diff, sort, and render.
+    async function fetchProblems() {
+      try {
+        const response = await fetch(GOOGLE_SHEET_API_URL);
+        const data = await response.json();
+        // Filter: include only problems where trash > (fire + laugh)
+        let filtered = data.filter(problem => {
+          const fire = parseInt(problem.fireCount) || 0;
+          const laugh = parseInt(problem.laughCount) || 0;
+          const trash = parseInt(problem.trashCount) || 0;
+          return trash > (fire + laugh);
+        }).map(problem => {
+          const fire = parseInt(problem.fireCount) || 0;
+          const laugh = parseInt(problem.laughCount) || 0;
+          const trash = parseInt(problem.trashCount) || 0;
+          return {
+            ...problem,
+            diff: trash - (fire + laugh)
+          };
+        });
+        // Sort by the computed difference in descending order.
+        filtered.sort((a, b) => b.diff - a.diff);
+        trashProblems = filtered;
+        currentPage = 0;
+        renderPage();
+      } catch (error) {
+        console.error("Error fetching problems:", error);
+        document.getElementById("trashList").innerHTML = "<p>Failed to load trash problems.</p>";
+      }
+    }
+    
+    fetchProblems();
+  </script>
+</body>
+</html>

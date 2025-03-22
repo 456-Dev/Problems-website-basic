@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Welcome to 456solutions.com!</title>
+  <title>Welcome to 456solutions.org!</title>
   <style>
     body {
       margin: 0;
@@ -13,18 +13,25 @@
       align-items: center;
       padding: 20px;
       box-sizing: border-box;
+      font-family: Arial, sans-serif;
     }
 
-    h1 {
-      height: 10vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 900;
-      margin: 0 0 20px 0;
-      width: 100%;
+    /* Main Heading */
+    .main-title {
+      font-size: 36px;
+      color: #666;
+      font-weight: bold;
+      margin: 0;
       text-align: center;
-      font-size: 48px;
+      line-height: 1.2;
+    }
+
+    /* Subheading */
+    .sub-title {
+      font-size: 120px;
+      font-weight: 700;
+      margin: 20px 0;
+      text-align: center;
     }
 
     .input-container {
@@ -41,7 +48,19 @@
       height: 30vh;
       min-height: 150px;
       resize: vertical;
+      width: 100%;
       font-family: 'Times New Roman', Times, serif;
+      font-size: 16px;
+      padding: 10px;
+      box-sizing: border-box;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #userPrompt::placeholder {
+      text-align: center;
+      line-height: 30vh; /* This matches the height of the input */
     }
 
     .input-label {
@@ -49,6 +68,21 @@
       color: #666;
       align-self: flex-start;
       margin-left: 5%;
+    }
+
+    #submitBtn {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 8px;
+      border: 2px solid #007bff;
+      background: none;
+      transition: all 0.2s;
+    }
+
+    #submitBtn:hover {
+      background-color: #f0f8ff;
+      transform: scale(1.05);
     }
 
     .reaction-section {
@@ -90,6 +124,8 @@
       border-radius: 5px;
       background-color: #f9f9f9;
       display: none;
+      width: 90%;
+      max-width: 800px;
     }
 
     .hashtag {
@@ -97,18 +133,40 @@
       font-weight: bold;
     }
 
+    /* Bottom info section */
+    .info-section {
+      margin-top: auto;
+      text-align: center;
+      padding: 20px 0;
+    }
+
+    .info-section p {
+      margin: 0 0 10px 0;
+      font-weight: bold;
+    }
+
+    .info-section ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+      font-size: 16px;
+    }
+
+    .info-section li {
+      margin: 5px 0;
+    }
+
     /* Mobile responsiveness */
     @media (max-width: 768px) {
-      h1 {
-        font-size: 32px;
+      .main-title {
+        font-size: 28px;
       }
 
-      .input-container {
-        width: 95%;
+      .sub-title {
+        font-size: 22px;
       }
 
       #userPrompt {
-        width: 95%;
         font-size: 14px;
       }
 
@@ -116,14 +174,42 @@
         font-size: 14px;
       }
     }
+
+    /* Update the counter styles */
+    .stats-container {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      font-size: 12px;
+      color: #666;
+      background-color: rgba(255, 255, 255, 0.9);
+      padding: 5px 10px;
+      border-radius: 4px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      z-index: 1000;
+      display: flex;
+      gap: 15px;
+    }
+
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
   </style>
 </head>
 <body>
-  <h1>What Is Your Problem?</h1>
+  <!-- Main Title -->
+  <h1 class="main-title">WELCOME TO: 456solutions.org</h1>
+  <!-- Sub Title -->
+  <h2 class="sub-title">What Is Your Problem?</h2>
 
   <div class="input-container">
-    <label class="input-label">Describe your problem (include up to 3 #hashtags):</label>
-    <input type="text" id="userPrompt" placeholder="Type your problem here. Example: My code isn't working #bug #help" />
+    <input 
+      type="text" 
+      id="userPrompt" 
+      placeholder="Describe your problem here. Please use up to 3 hashtags to help link problems" 
+    />
     <button id="submitBtn">Submit Problem</button>
   </div>
 
@@ -137,10 +223,50 @@
 
   <div id="linkContainer"></div>
 
+  <!-- Info Section at Bottom -->
+  <div class="info-section">
+    <p>This website is:</p>
+    <ul>
+      <li>Fully Anonymous</li>
+      <li>Fully Open Source</li>
+      <li>Free from A.I.</li>
+    </ul>
+  </div>
+
+  <div class="stats-container">
+    <div class="stat-item">
+      👁️ <span id="viewCount">...</span>
+    </div>
+    <div class="stat-item">
+      📝 <span id="problemCount">...</span>
+    </div>
+  </div>
+
   <script>
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby_aAI3djnLE6i0fV2oEIXt51KR5H5IlgH0bMRM4qKa5PSGOgEwM1eVmT2ERQGY5NnYyw/exec";
-    let savedProblemText = "";
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx0A9ly-CgpYxWGJyiGddc8qHGYKOq5dS23Nc20q91J3C8q46vW2Nv2t-2k_8pBzx-ykA/exec";
     let savedTimestamp = "";
+
+    async function updateStats() {
+      try {
+        const response = await fetch(GOOGLE_SCRIPT_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: "action=getstats"
+        });
+        
+        const result = await response.json();
+        if (result.viewCount) {
+          document.getElementById('viewCount').textContent = result.viewCount;
+        }
+        if (result.problemCount) {
+          document.getElementById('problemCount').textContent = result.problemCount;
+        }
+      } catch (error) {
+        console.error("Error updating stats:", error);
+        document.getElementById('viewCount').textContent = "?";
+        document.getElementById('problemCount').textContent = "?";
+      }
+    }
 
     document.getElementById('submitBtn').addEventListener('click', async function () {
       const userPromptInput = document.getElementById('userPrompt');
@@ -229,8 +355,7 @@
         });
         
         // Assume success even if the response indicates an error
-        // (since you mentioned it's actually working despite the error message)
-        clickedButton.innerHTML = type === 'fire' ? '🔥 <span>+1</span>' : '�� <span>+1</span>';
+        clickedButton.innerHTML = type === 'fire' ? '🔥 <span>+1</span>' : '😂 <span>+1</span>';
         
         // Disable all reaction buttons after one is clicked
         buttons.forEach(btn => { 
@@ -244,11 +369,10 @@
       } catch (error) {
         console.error("Error:", error);
         
-        // Even on connection error, still treat as success to avoid confusion
-        // since you mentioned the data is being saved correctly
+        // Even on connection error, still treat as success
         clickedButton.innerHTML = type === 'fire' ? '🔥 <span>+1</span>' : '😂 <span>+1</span>';
         
-        // Disable all reaction buttons after one is clicked
+        // Disable all reaction buttons
         buttons.forEach(btn => { 
           btn.disabled = true; 
         });
@@ -257,6 +381,9 @@
           '<p style="color:green;margin-top:10px;">Thanks for your reaction!</p>';
       }
     }
+
+    // Call this when the page loads
+    updateStats();
   </script>
 </body>
 </html>

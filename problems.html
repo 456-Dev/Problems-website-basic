@@ -1,518 +1,3 @@
-<html>
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>All Submitted Problems</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Times New Roman', Times, serif;
-      height: 100vh;
-      overflow: hidden;
-      background-color: #fff;
-      color: #333;
-    }
-
-    h1 {
-      text-align: center;
-      margin: 10px 0;
-      font-size: 24px;
-      padding: 0 10px;
-      color: #333;
-    }
-
-    .columns-container {
-      display: flex;
-      height: calc(100vh - 50px);
-      gap: 10px;
-      padding: 10px;
-    }
-
-    .column {
-      flex: 1;
-      overflow-y: auto;
-      padding: 5px;
-      background-color: #f8f9fa;
-      border-radius: 8px;
-    }
-
-    .column-header {
-      position: sticky;
-      top: 0;
-      background-color: #666666;
-      color: white;
-      padding: 12px;
-      border-radius: 6px;
-      margin-bottom: 10px;
-      text-align: center;
-      font-size: 16px;
-      font-weight: bold;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-
-    .problem-card {
-      border: 1px solid #e0e0e0;
-      margin-bottom: 8px;
-      padding: 12px;
-      border-radius: 8px;
-      background-color: #fff;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-
-    .problem-text {
-      font-size: 14px;
-      line-height: 1.5;
-      margin-bottom: 12px;
-      word-wrap: break-word;
-      color: #333;
-    }
-
-    .card-footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 12px;
-      color: #999;
-      border-top: 1px solid #e0e0e0;
-      padding-top: 8px;
-    }
-
-    .footer-left {
-      display: flex;
-      gap: 12px;
-    }
-
-    .reaction-btn {
-      background: none;
-      border: 1px solid #ddd;
-      padding: 4px 8px;
-      cursor: pointer;
-      font-size: 16px;
-      border-radius: 4px;
-      transition: all 0.2s;
-      color: #333;
-    }
-
-    .reaction-btn:hover {
-      background-color: #e0e0e0;
-    }
-
-    .footer-right {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .hashtags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 4px;
-    }
-
-    .hashtag {
-      background-color: #f0f0f0;
-      color: #666666;
-      padding: 2px 8px;
-      border-radius: 12px;
-      font-size: 12px;
-    }
-
-    .back-link {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background-color: #666666;
-      color: white;
-      padding: 12px 24px;
-      border-radius: 24px;
-      text-decoration: none;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      font-size: 16px;
-      z-index: 1000;
-    }
-
-    .back-link:active {
-      background-color: #555555;
-      transform: scale(0.98);
-    }
-
-    /* Custom scrollbar */
-    .column::-webkit-scrollbar {
-      width: 6px;
-    }
-
-    .column::-webkit-scrollbar-track {
-      background: #f8f9fa;
-    }
-
-    .column::-webkit-scrollbar-thumb {
-      background: #e0e0e0;
-      border-radius: 3px;
-    }
-
-    .column::-webkit-scrollbar-thumb:hover {
-      background: #d0d0d0;
-    }
-
-    /* Mobile responsiveness */
-    @media (max-width: 768px) {
-      body {
-        overflow: auto;
-      }
-
-      h1 {
-        font-size: 20px;
-        margin: 15px 0;
-      }
-
-      .columns-container {
-        flex-direction: column;
-        height: auto;
-        gap: 15px;
-        padding: 10px;
-      }
-
-      .column {
-        height: auto;
-        max-height: 400px; /* Show roughly 3 cards */
-        margin-bottom: 15px;
-        overflow-y: auto;
-      }
-
-      .problem-card {
-        padding: 10px;
-      }
-
-      /* Show a subtle gradient at the bottom to indicate more content */
-      .column::after {
-        content: '';
-        position: sticky;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        height: 20px;
-        background: linear-gradient(transparent, #f8f9fa);
-        pointer-events: none;
-      }
-
-      .footer-left {
-        gap: 8px;
-      }
-
-      .reaction-btn {
-        padding: 6px 10px;
-        font-size: 18px;
-      }
-
-      .back-link {
-        bottom: 10px;
-        right: 10px;
-        padding: 10px 20px;
-        font-size: 14px;
-      }
-
-      .column-header {
-        position: sticky;
-        top: 0;
-        margin-bottom: 15px;
-        z-index: 1;
-      }
-
-      .poem {
-        font-size: 8px;
-        top: 5px;
-        right: 5px;
-        max-width: 120px;
-      }
-    }
-
-    /* Small mobile devices */
-    @media (max-width: 380px) {
-      .columns-container {
-        padding: 5px;
-      }
-
-      .column {
-        max-height: 350px; /* Slightly smaller for very small screens */
-      }
-
-      .problem-card {
-        padding: 8px;
-      }
-
-      .problem-text {
-        font-size: 13px;
-      }
-
-      .reaction-btn {
-        padding: 4px 8px;
-        font-size: 16px;
-      }
-
-      .hashtag {
-        font-size: 11px;
-      }
-    }
-
-    /* Reaction button states */
-    .reaction-btn[data-reacted="true"] {
-      background-color: #e0e0e0;
-      border-color: #ddd;
-    }
-
-    .reaction-btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-    .reaction-btn span {
-      display: inline-block;
-      min-width: 15px;
-      text-align: center;
-      color: #333;
-    }
-
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.2); }
-      100% { transform: scale(1); }
-    }
-
-    .reaction-btn.animate {
-      animation: pulse 0.3s ease;
-    }
-
-    .emoji {
-      filter: none;
-      opacity: 1;
-      display: inline-block;
-      transform: scale(1.1);
-    }
-
-    .reaction-btn[data-reacted="true"] .emoji {
-      opacity: 1;
-    }
-
-    .column-header .emoji {
-      opacity: 1;
-      transform: scale(1.2);
-    }
-
-    /* Hover state */
-    .reaction-btn:hover .emoji {
-      opacity: 1;
-    }
-
-    /* Animation for emoji when clicked */
-    @keyframes emojiPulse {
-      0% { transform: scale(1.1); }
-      50% { transform: scale(1.3); }
-      100% { transform: scale(1.1); }
-    }
-
-    .reaction-btn.animate .emoji {
-      animation: emojiPulse 0.3s ease;
-    }
-
-    /* Add styles for the poem */
-    .poem {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      font-size: 9px;
-      text-align: right;
-      font-style: italic;
-      color: #666666;
-      line-height: 1.2;
-      max-width: 150px;
-      font-family: 'Times New Roman', Times, serif;
-    }
-  </style>
-</head>
-<body>
-  <h1>Recent Problems EMOJI'S are broke</h1>
-  <div class="columns-container">
-    <div class="column" id="column1">
-      <div class="column-header">Most 🔥</div>
-    </div>
-    <div class="column" id="column2">
-      <div class="column-header">Most 😂</div>
-    </div>
-    <div class="column" id="column3">
-      <div class="column-header">Latest Problems</div>
-    </div>
-  </div>
-  <a href="index.html" class="back-link">+ New Problem</a>
-
-  <script>
-    const GOOGLE_SHEET_API_URL = "https://script.google.com/macros/s/AKfycby_aAI3djnLE6i0fV2oEIXt51KR5H5IlgH0bMRM4qKa5PSGOgEwM1eVmT2ERQGY5NnYyw/exec";
-
-    function createProblemCard(problem) {
-      const hashtags = [problem.hashtag1, problem.hashtag2, problem.hashtag3]
-        .filter(tag => tag && tag.length > 0);
-      
-      const hashtagsHtml = hashtags.length > 0 
-        ? hashtags.map(tag => `<span class="hashtag">${tag}</span>`).join('')
-        : '';
-
-      const date = new Date(problem.timestamp);
-      const timeString = date.toLocaleString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        hour: 'numeric',
-        minute: '2-digit',
-        hour12: true
-      });
-
-      return `
-        <div class="problem-card" data-timestamp="${problem.timestamp}">
-          <div class="problem-text">${problem.problem}</div>
-          <div class="card-footer">
-            <div class="footer-left">
-              <button class="reaction-btn" onclick="handleReaction(this, 'fire', '${problem.timestamp}')" 
-                      ${problem.fireCount > 0 ? 'data-reacted="true"' : ''}>
-                <span class="emoji">🔥</span> <span>${problem.fireCount || 0}</span>
-              </button>
-              <button class="reaction-btn" onclick="handleReaction(this, 'laugh', '${problem.timestamp}')"
-                      ${problem.laughCount > 0 ? 'data-reacted="true"' : ''}>
-                <span class="emoji">😂</span> <span>${problem.laughCount || 0}</span>
-              </button>
-              <button class="reaction-btn" onclick="handleReaction(this, 'trash', '${problem.timestamp}')"
-                      ${problem.trashCount > 0 ? 'data-reacted="true"' : ''}>
-                <span class="emoji">🗑️</span> <span>${problem.trashCount || 0}</span>
-              </button>
-            </div>
-            <div class="footer-right">
-              ${hashtagsHtml}
-              <span class="timestamp">${timeString}</span>
-            </div>
-          </div>
-        </div>
-      `;
-    }
-
-    // Debounce function to prevent spam clicking
-    function debounce(func, wait) {
-      let timeout;
-      return function executedFunction(...args) {
-        const later = () => {
-          clearTimeout(timeout);
-          func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-      };
-    }
-
-    async function handleReaction(button, type, timestamp) {
-      if (button.disabled) return;
-      
-      const countSpan = button.querySelector('span');
-      const currentCount = parseInt(countSpan.textContent);
-      
-      // Disable button and add loading state
-      button.disabled = true;
-      const originalText = button.innerHTML;
-      
-      // Optimistic update
-      countSpan.textContent = currentCount + 1;
-      button.classList.add('animate');
-      
-      try {
-        const response = await fetch(GOOGLE_SHEET_API_URL, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-          body: `action=react&reactionType=${type}&timestamp=${encodeURIComponent(timestamp)}`
-        });
-
-        const result = await response.json();
-
-        if (result.success) {
-          // Update was successful
-          button.setAttribute('data-reacted', 'true');
-          countSpan.textContent = result.newCount;
-        } else {
-          // Revert on failure
-          countSpan.textContent = currentCount;
-          console.error('Reaction failed:', result.error);
-          alert('Failed to update reaction. Please try again.');
-        }
-      } catch (error) {
-        // Revert on error
-        countSpan.textContent = currentCount;
-        console.error('Error updating reaction:', error);
-        alert('Failed to update reaction. Please try again.');
-      } finally {
-        // Re-enable button and remove loading state
-        button.disabled = false;
-        button.innerHTML = originalText;
-        
-        // Remove animation class after animation completes
-        setTimeout(() => {
-          button.classList.remove('animate');
-        }, 300);
-      }
-    }
-
-    // Debounced version of handleReaction
-    const debouncedHandleReaction = debounce(handleReaction, 500);
-
-    async function fetchProblems() {
-      try {
-        const response = await fetch(GOOGLE_SHEET_API_URL);
-        const data = await response.json();
-
-        if (data.error) {
-          document.querySelectorAll('.column').forEach(col => {
-            col.innerHTML += "<p>Error fetching data: " + data.error + "</p>";
-          });
-        } else {
-          // Most fire emojis (sorted by fireCount)
-          const mostFire = [...data].sort((a, b) => {
-            const fireCountA = parseInt(a.fireCount) || 0;
-            const fireCountB = parseInt(b.fireCount) || 0;
-            return fireCountB - fireCountA;
-          });
-          
-          // Most laugh emojis (sorted by laughCount)
-          const mostLaugh = [...data].sort((a, b) => {
-            const laughCountA = parseInt(a.laughCount) || 0;
-            const laughCountB = parseInt(b.laughCount) || 0;
-            return laughCountB - laughCountA;
-          });
-
-          // Latest problems (sorted by row number, most recent first)
-          const newest = [...data].reverse(); // Reverse the array to get most recent entries first
-
-          // Populate columns
-          document.getElementById('column1').innerHTML = 
-            `<div class="column-header">Most 🔥</div>` +
-            mostFire.map(createProblemCard).join('');
-          
-          document.getElementById('column2').innerHTML = 
-            `<div class="column-header">Most 😂</div>` +
-            mostLaugh.map(createProblemCard).join('');
-          
-          document.getElementById('column3').innerHTML = 
-            `<div class="column-header">Latest Problems</div>` +
-            newest.map(createProblemCard).join('');
-        }
-      } catch (error) {
-        console.error("Error fetching problems:", error);
-        document.querySelectorAll('.column').forEach(col => {
-          col.innerHTML += "<p>Failed to load problems.</p>";
-        });
-      }
-    }
-
-    fetchProblems();
-  </script>
-</body>
-</html>
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -524,10 +9,29 @@
       margin: 0;
       padding: 0;
       font-family: 'Times New Roman', Times, serif;
-      height: 100vh;
-      overflow: hidden;
+      min-height: 100vh;
       background-color: #fff;
       color: #333;
+      overflow-y: auto; /* Enable scrolling on body */
+    }
+    
+    /* New Trash Button Style */
+    .trash-button {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      padding: 8px 16px;
+      background-color: #666;
+      color: #fff;
+      text-decoration: none;
+      border: none;
+      font-size: 14px;
+      border-radius: 0;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      z-index: 1000;
+    }
+    .trash-button:hover {
+      background-color: #555;
     }
 
     h1 {
@@ -539,18 +43,16 @@
     }
 
     .columns-container {
-      display: flex;
-      height: calc(100vh - 50px);
-      gap: 10px;
+      display: block;
+      max-width: 800px;
+      margin: 0 auto;
       padding: 10px;
+      padding-bottom: 80px; /* Add space for the fixed back button */
     }
 
     .column {
-      flex: 1;
-      overflow-y: auto;
-      padding: 5px;
-      background-color: #f8f9fa;
-      border-radius: 8px;
+      width: 100%;
+      height: 100%;
     }
 
     .column-header {
@@ -559,79 +61,112 @@
       background-color: #666666;
       color: white;
       padding: 12px;
-      border-radius: 6px;
       margin-bottom: 10px;
       text-align: center;
       font-size: 16px;
       font-weight: bold;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      z-index: 2;
+    }
+
+    .problem-list {
+      flex: 1;
+      overflow-y: auto;
     }
 
     .problem-card {
       border: 1px solid #e0e0e0;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
       padding: 12px;
-      border-radius: 8px;
       background-color: #fff;
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      border-radius: 0;
     }
 
-    .problem-text {
-      font-size: 14px;
-      line-height: 1.5;
-      margin-bottom: 12px;
-      word-wrap: break-word;
-      color: #333;
-    }
-
-    .card-footer {
+    .card-header {
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      font-size: 12px;
-      color: #999;
-      border-top: 1px solid #e0e0e0;
-      padding-top: 8px;
-    }
-
-    .footer-left {
-      display: flex;
-      gap: 12px;
-    }
-
-    .reaction-btn {
-      background: none;
-      border: 1px solid #ddd;
-      padding: 4px 8px;
-      cursor: pointer;
-      font-size: 16px;
-      border-radius: 4px;
-      transition: all 0.2s;
-      color: #333;
-    }
-
-    .reaction-btn:hover {
-      background-color: #e0e0e0;
-    }
-
-    .footer-right {
-      display: flex;
-      align-items: center;
-      gap: 8px;
+      align-items: flex-start;
+      margin-bottom: 12px;
     }
 
     .hashtags {
       display: flex;
-      flex-wrap: wrap;
       gap: 4px;
     }
 
     .hashtag {
       background-color: #f0f0f0;
       color: #666666;
-      padding: 2px 8px;
-      border-radius: 12px;
+      padding: 2px 6px;
+      border-radius: 0;
       font-size: 12px;
+    }
+
+    .problem-text {
+      font-size: 14px;
+      line-height: 1.5;
+      flex: 1;
+      margin-right: 12px;
+      word-wrap: break-word;
+      color: #333;
+    }
+
+    .timestamp {
+      font-size: 12px;
+      color: #999;
+      white-space: nowrap;
+    }
+
+    .card-footer {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .reaction-btn {
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      font-size: 16px;
+      outline: none;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .reaction-number {
+      font-size: 14px;
+      color: #666;
+    }
+
+    .response-container {
+      display: flex;
+      gap: 8px;
+    }
+
+    .response-container input {
+      flex: 1;
+      padding: 8px;
+      font-size: 14px;
+      border: 1px solid #ddd;
+      border-radius: 0;
+    }
+
+    .submit-btn {
+      padding: 8px 16px;
+      font-size: 14px;
+      cursor: pointer;
+      border: none;
+      background-color: #eee;
+      border-radius: 0;
+    }
+
+    .submit-btn:hover {
+      background-color: #ddd;
     }
 
     .back-link {
@@ -641,397 +176,543 @@
       background-color: #666666;
       color: white;
       padding: 12px 24px;
-      border-radius: 24px;
+      border-radius: 0;
       text-decoration: none;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
       font-size: 16px;
       z-index: 1000;
     }
-
     .back-link:active {
       background-color: #555555;
       transform: scale(0.98);
     }
 
-    /* Custom scrollbar */
+    .pagination {
+      text-align: center;
+      margin-top: 6px;
+    }
+    .pagination button {
+      padding: 4px 8px;
+      font-size: 12px;
+      margin: 2px;
+      border: 1px solid #ddd;
+      background-color: #f8f9fa;
+      cursor: pointer;
+      border-radius: 0;
+    }
+    .pagination button:hover {
+      background-color: #e0e0e0;
+    }
+
     .column::-webkit-scrollbar {
       width: 6px;
     }
-
     .column::-webkit-scrollbar-track {
       background: #f8f9fa;
     }
-
     .column::-webkit-scrollbar-thumb {
       background: #e0e0e0;
-      border-radius: 3px;
     }
-
     .column::-webkit-scrollbar-thumb:hover {
       background: #d0d0d0;
     }
 
-    /* Mobile responsiveness */
     @media (max-width: 768px) {
       body {
         overflow: auto;
       }
-
       h1 {
         font-size: 20px;
         margin: 15px 0;
       }
-
       .columns-container {
         flex-direction: column;
         height: auto;
         gap: 15px;
         padding: 10px;
       }
-
       .column {
         height: auto;
-        max-height: 400px; /* Show roughly 3 cards */
+        max-height: 400px;
         margin-bottom: 15px;
         overflow-y: auto;
       }
-
       .problem-card {
-        padding: 10px;
+        padding: 6px;
       }
-
-      /* Show a subtle gradient at the bottom to indicate more content */
-      .column::after {
-        content: '';
-        position: sticky;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        height: 20px;
-        background: linear-gradient(transparent, #f8f9fa);
-        pointer-events: none;
+      .problem-text {
+        font-size: 12px;
       }
-
-      .footer-left {
-        gap: 8px;
+      .submit-btn {
+        padding: 4px 8px;
+        font-size: 12px;
       }
-
-      .reaction-btn {
-        padding: 6px 10px;
-        font-size: 18px;
-      }
-
       .back-link {
         bottom: 10px;
         right: 10px;
         padding: 10px 20px;
         font-size: 14px;
       }
-
       .column-header {
-        position: sticky;
-        top: 0;
         margin-bottom: 15px;
-        z-index: 1;
       }
     }
 
-    /* Small mobile devices */
-    @media (max-width: 380px) {
-      .columns-container {
-        padding: 5px;
-      }
-
-      .column {
-        max-height: 350px; /* Slightly smaller for very small screens */
-      }
-
-      .problem-card {
-        padding: 8px;
-      }
-
-      .problem-text {
-        font-size: 13px;
-      }
-
-      .reaction-btn {
-        padding: 4px 8px;
-        font-size: 16px;
-      }
-
-      .hashtag {
-        font-size: 11px;
-      }
+    /* Add styles for the filter controls */
+    .filter-controls {
+      display: flex;
+      gap: 10px;
+      padding: 10px;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 15px;
     }
 
-    /* Reaction button states */
-    .reaction-btn[data-reacted="true"] {
-      background-color: #e0e0e0;
-      border-color: #ddd;
+    .sort-select {
+      padding: 8px;
+      border: 1px solid #666666;
+      border-radius: 0;
+      font-family: 'Times New Roman', Times, serif;
+      background-color: white;
+      min-width: 150px;
     }
 
-    .reaction-btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
+    .search-input {
+      padding: 8px;
+      border: 1px solid #666666;
+      border-radius: 0;
+      font-family: 'Times New Roman', Times, serif;
+      width: 200px;
     }
 
-    .reaction-btn span {
-      display: inline-block;
-      min-width: 15px;
-      text-align: center;
+    /* Add these styles to your existing CSS */
+    .responses-section {
+      margin-top: 10px;
+      border-top: 1px solid #eee;
+      padding-top: 10px;
+      animation: fadeIn 0.3s ease-in;
+    }
+
+    .responses-toggle {
+      background: none;
+      border: 1px solid #ddd;
+      color: #666;
+      font-size: 12px;
+      cursor: pointer;
+      padding: 6px 12px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s ease;
+    }
+
+    .responses-toggle:hover {
+      background: #f5f5f5;
       color: #333;
     }
 
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.2); }
-      100% { transform: scale(1); }
+    .responses-list {
+      display: none;
+      margin-left: 10px;
     }
 
-    .reaction-btn.animate {
-      animation: pulse 0.3s ease;
+    .responses-list.show {
+      display: block;
     }
 
-    .emoji {
-      filter: none;
-      opacity: 1;
-      display: inline-block;
-      transform: scale(1.1);
+    .response-item {
+      border-left: 2px solid #eee;
+      padding: 8px;
+      margin: 4px 0;
+      font-size: 12px;
     }
 
-    .reaction-btn[data-reacted="true"] .emoji {
-      opacity: 1;
+    .response-text {
+      color: #333;
+      margin-bottom: 4px;
     }
 
-    .column-header .emoji {
-      opacity: 1;
-      transform: scale(1.2);
+    .response-date {
+      color: #999;
+      font-size: 11px;
     }
 
-    /* Hover state */
-    .reaction-btn:hover .emoji {
-      opacity: 1;
+    .response-area {
+      margin: 10px 0;
     }
 
-    /* Animation for emoji when clicked */
-    @keyframes emojiPulse {
-      0% { transform: scale(1.1); }
-      50% { transform: scale(1.3); }
-      100% { transform: scale(1.1); }
+    .responses-section {
+      margin-top: 10px;
+      border-top: 1px solid #eee;
+      padding-top: 10px;
+      animation: fadeIn 0.3s ease-in;
     }
 
-    .reaction-btn.animate .emoji {
-      animation: emojiPulse 0.3s ease;
-    }
-
-    /* Add styles for the poem */
-    .poem {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      font-size: 9px;
-      text-align: right;
-      font-style: italic;
-      color: #666666;
-      line-height: 1.2;
-      max-width: 150px;
-      font-family: 'Times New Roman', Times, serif;
-    }
-
-    /* Adjust poem visibility on mobile */
-    @media (max-width: 768px) {
-      .poem {
-        font-size: 8px;
-        top: 5px;
-        right: 5px;
-        max-width: 120px;
-      }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
   </style>
 </head>
 <body>
-  <div class="poem">
+  <!-- Trash button in the top right corner -->
+  <a href="trash.html" class="trash-button">Trash</a>
+
+  <!-- Optional poem snippet (positioned below the trash button if necessary) -->
+  <div class="poem" style="position:absolute; top:50px; right:10px; font-size:9px; text-align:right; font-style:italic; color:#666; line-height:1.2; max-width:150px;">
     Share your coding strife,<br>
     React with emojis bright,<br>
     Solutions take flight.
   </div>
+
   <h1>Recent Problems</h1>
+
+  <div class="filter-controls">
+    <select class="sort-select" onchange="handleSort(this.value)">
+      <option value="fire">Most 🔥</option>
+      <option value="laugh">Most 😂</option>
+      <option value="latest">Latest Problems</option>
+    </select>
+    <input type="text" 
+           class="search-input" 
+           placeholder="Search problems..." 
+           onkeyup="handleSearch(this.value)">
+  </div>
+
   <div class="columns-container">
-    <div class="column" id="column1">
-      <div class="column-header">Most 🔥</div>
-    </div>
-    <div class="column" id="column2">
-      <div class="column-header">Most 😂</div>
-    </div>
-    <div class="column" id="column3">
-      <div class="column-header">Latest Problems</div>
+    <div class="column">
+      <div class="column-header" id="listHeader">Most 🔥</div>
+      <div class="problem-list" id="problemList"></div>
+      <div class="pagination">
+        <button id="prevBtn" onclick="prevPage()">Prev</button>
+        <span class="page-counter">
+          Page <span id="currentPageNum">1</span> of <span id="totalPages">1</span>
+        </span>
+        <button id="nextBtn" onclick="nextPage()">Next</button>
+      </div>
     </div>
   </div>
+  
   <a href="index.html" class="back-link">+ New Problem</a>
 
   <script>
-    const GOOGLE_SHEET_API_URL = "https://script.google.com/macros/s/AKfycby_aAI3djnLE6i0fV2oEIXt51KR5H5IlgH0bMRM4qKa5PSGOgEwM1eVmT2ERQGY5NnYyw/exec";
+    const GOOGLE_SHEET_API_URL = "https://script.google.com/macros/s/AKfycbx0A9ly-CgpYxWGJyiGddc8qHGYKOq5dS23Nc20q91J3C8q46vW2Nv2t-2k_8pBzx-ykA/exec";
+    let allProblems = [];
+    let displayedProblems = [];
+    let currentPage = 0;
+    const PAGE_SIZE = 10;
+    let submittedResponses = new Set(); // Will reset on page refresh
+
+    function hasSubmittedResponse(timestamp) {
+      return submittedResponses.has(timestamp);
+    }
+
+    function formatDate(date) {
+      const d = new Date(date);
+      const month = ('0' + (d.getMonth() + 1)).slice(-2);
+      const day = ('0' + d.getDate()).slice(-2);
+      const year = ('0' + (d.getFullYear() % 100)).slice(-2);
+      const hours = ('0' + d.getHours()).slice(-2);
+      const minutes = ('0' + d.getMinutes()).slice(-2);
+      return `${month}/${day}/${year} ${hours}:${minutes}`;
+    }
 
     function createProblemCard(problem) {
+      const safeId = "response" + Math.random().toString().slice(2);
+      const hasSubmitted = hasSubmittedResponse(problem.timestamp);
+      
       const hashtags = [problem.hashtag1, problem.hashtag2, problem.hashtag3]
         .filter(tag => tag && tag.length > 0);
-      
-      const hashtagsHtml = hashtags.length > 0 
+      const hashtagsHtml = hashtags.length > 0
         ? hashtags.map(tag => `<span class="hashtag">${tag}</span>`).join('')
         : '';
 
-      const date = new Date(problem.timestamp);
-      const timeString = date.toLocaleString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        hour: 'numeric',
-        minute: '2-digit',
-        hour12: true
-      });
+      const responsesSection = problem.responses && problem.responses.length > 0 && hasSubmitted
+        ? `
+          <div class="responses-section">
+            <button class="responses-toggle" onclick="toggleResponses(this)">
+              <span class="toggle-icon">▶</span>
+              View ${problem.responses.length} solution${problem.responses.length > 1 ? 's' : ''}
+            </button>
+            <div class="responses-list">
+              ${problem.responses.map(response => {
+                const responseDate = new Date(response.submittedAt);
+                const formattedResponseDate = formatDate(responseDate);
+                return `
+                  <div class="response-item">
+                    <div class="response-text">${response.response}</div>
+                    <div class="response-date">${formattedResponseDate}</div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        `
+        : '';
 
       return `
         <div class="problem-card" data-timestamp="${problem.timestamp}">
+          <div class="card-header">
+            <div class="hashtags">${hashtagsHtml}</div>
+            <div class="timestamp">${formatDate(problem.timestamp)}</div>
+          </div>
+          
           <div class="problem-text">${problem.problem}</div>
+          
+          <div class="response-area" id="responseArea-${safeId}">
+            ${!hasSubmitted ? `
+              <div class="response-container">
+                <input
+                  type="text"
+                  id="response-${safeId}"
+                  placeholder="Write a response..."
+                />
+                <button class="submit-btn"
+                  onclick="submitResponse('${problem.timestamp}', 'response-${safeId}', 'responseArea-${safeId}')"
+                >Submit Response</button>
+              </div>
+            ` : ''}
+            ${responsesSection}
+          </div>
+
           <div class="card-footer">
-            <div class="footer-left">
-              <button class="reaction-btn" onclick="handleReaction(this, 'fire', '${problem.timestamp}')" 
-                      ${problem.fireCount > 0 ? 'data-reacted="true"' : ''}>
-                <span class="emoji">🔥</span> <span>${problem.fireCount || 0}</span>
+            <div class="emoji-container">
+              <button class="reaction-btn"
+                onclick="handleReaction(this, 'fire', '${problem.timestamp}')"
+                ${problem.fireCount > 0 ? 'data-reacted="true"' : ''}>
+                <span class="emoji">🔥</span>
+                <span class="reaction-number">${problem.fireCount || 0}</span>
               </button>
-              <button class="reaction-btn" onclick="handleReaction(this, 'laugh', '${problem.timestamp}')"
-                      ${problem.laughCount > 0 ? 'data-reacted="true"' : ''}>
-                <span class="emoji">😂</span> <span>${problem.laughCount || 0}</span>
+              <button class="reaction-btn"
+                onclick="handleReaction(this, 'laugh', '${problem.timestamp}')"
+                ${problem.laughCount > 0 ? 'data-reacted="true"' : ''}>
+                <span class="emoji">😂</span>
+                <span class="reaction-number">${problem.laughCount || 0}</span>
               </button>
-              <button class="reaction-btn" onclick="handleReaction(this, 'trash', '${problem.timestamp}')"
-                      ${problem.trashCount > 0 ? 'data-reacted="true"' : ''}>
-                <span class="emoji">🗑️</span> <span>${problem.trashCount || 0}</span>
+              <button class="reaction-btn"
+                onclick="handleReaction(this, 'trash', '${problem.timestamp}')"
+                ${problem.trashCount > 0 ? 'data-reacted="true"' : ''}>
+                <span class="emoji">🗑️</span>
+                <span class="reaction-number">${problem.trashCount || 0}</span>
               </button>
-            </div>
-            <div class="footer-right">
-              ${hashtagsHtml}
-              <span class="timestamp">${timeString}</span>
             </div>
           </div>
         </div>
       `;
     }
 
-    // Debounce function to prevent spam clicking
-    function debounce(func, wait) {
-      let timeout;
-      return function executedFunction(...args) {
-        const later = () => {
-          clearTimeout(timeout);
-          func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-      };
-    }
-
     async function handleReaction(button, type, timestamp) {
       if (button.disabled) return;
-      
-      const countSpan = button.querySelector('span');
-      const currentCount = parseInt(countSpan.textContent);
-      
-      // Disable button and add loading state
+      const numberSpan = button.querySelector('.reaction-number');
+      const currentCount = parseInt(numberSpan.textContent);
       button.disabled = true;
-      const originalText = button.innerHTML;
-      
-      // Optimistic update
-      countSpan.textContent = currentCount + 1;
+      const originalHTML = button.innerHTML;
+      numberSpan.textContent = currentCount + 1;
       button.classList.add('animate');
-      
+
       try {
         const response = await fetch(GOOGLE_SHEET_API_URL, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
           body: `action=react&reactionType=${type}&timestamp=${encodeURIComponent(timestamp)}`
         });
-
         const result = await response.json();
-
         if (result.success) {
-          // Update was successful
           button.setAttribute('data-reacted', 'true');
-          countSpan.textContent = result.newCount;
+          numberSpan.textContent = result.newCount;
         } else {
-          // Revert on failure
-          countSpan.textContent = currentCount;
-          console.error('Reaction failed:', result.error);
+          numberSpan.textContent = currentCount;
           alert('Failed to update reaction. Please try again.');
         }
       } catch (error) {
-        // Revert on error
-        countSpan.textContent = currentCount;
         console.error('Error updating reaction:', error);
+        numberSpan.textContent = currentCount;
         alert('Failed to update reaction. Please try again.');
       } finally {
-        // Re-enable button and remove loading state
         button.disabled = false;
-        button.innerHTML = originalText;
-        
-        // Remove animation class after animation completes
+        button.innerHTML = originalHTML;
         setTimeout(() => {
           button.classList.remove('animate');
         }, 300);
       }
     }
 
-    // Debounced version of handleReaction
-    const debouncedHandleReaction = debounce(handleReaction, 500);
+    async function submitResponse(timestamp, inputId, responseAreaId) {
+      const input = document.getElementById(inputId);
+      const responseText = input.value;
+      if (!responseText) {
+        alert("Please enter a response before submitting.");
+        return;
+      }
+
+      const responseArea = document.getElementById(responseAreaId);
+      const originalContent = responseArea.innerHTML;
+      responseArea.innerHTML = '<div style="text-align: center; color: #666;">Submitting...</div>';
+
+      try {
+        const response = await fetch(GOOGLE_SHEET_API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: `action=respond&timestamp=${encodeURIComponent(timestamp)}&response=${encodeURIComponent(responseText)}`
+        });
+        
+        const result = await response.text();
+        
+        if (result.includes("Saved")) {
+          // Add to session-only Set instead of localStorage
+          submittedResponses.add(timestamp);
+          
+          // Refresh the problems to show the new response
+          await fetchProblems();
+          handleSort(document.querySelector('.sort-select').value);
+        } else {
+          alert("Failed to save response.");
+          responseArea.innerHTML = originalContent;
+        }
+      } catch (error) {
+        console.error("Error submitting response:", error);
+        alert("There was an error submitting your response.");
+        responseArea.innerHTML = originalContent;
+      }
+    }
 
     async function fetchProblems() {
       try {
         const response = await fetch(GOOGLE_SHEET_API_URL);
         const data = await response.json();
-
         if (data.error) {
-          document.querySelectorAll('.column').forEach(col => {
-            col.innerHTML += "<p>Error fetching data: " + data.error + "</p>";
-          });
-        } else {
-          // Most fire emojis (sorted by fireCount)
-          const mostFire = [...data].sort((a, b) => {
-            const fireCountA = parseInt(a.fireCount) || 0;
-            const fireCountB = parseInt(b.fireCount) || 0;
-            return fireCountB - fireCountA;
-          });
-          
-          // Most laugh emojis (sorted by laughCount)
-          const mostLaugh = [...data].sort((a, b) => {
-            const laughCountA = parseInt(a.laughCount) || 0;
-            const laughCountB = parseInt(b.laughCount) || 0;
-            return laughCountB - laughCountA;
-          });
-
-          // Latest problems (sorted by row number, most recent first)
-          const newest = [...data].reverse(); // Reverse the array to get most recent entries first
-
-          // Populate columns
-          document.getElementById('column1').innerHTML = 
-            `<div class="column-header">Most 🔥</div>` +
-            mostFire.map(createProblemCard).join('');
-          
-          document.getElementById('column2').innerHTML = 
-            `<div class="column-header">Most 😂</div>` +
-            mostLaugh.map(createProblemCard).join('');
-          
-          document.getElementById('column3').innerHTML = 
-            `<div class="column-header">Latest Problems</div>` +
-            newest.map(createProblemCard).join('');
+          document.getElementById('problemList').innerHTML = 
+            "<p>Error fetching data: " + data.error + "</p>";
+          return;
         }
+        allProblems = data;
+        handleSort('fire'); // Default sort by fire
       } catch (error) {
         console.error("Error fetching problems:", error);
-        document.querySelectorAll('.column').forEach(col => {
-          col.innerHTML += "<p>Failed to load problems.</p>";
-        });
+        document.getElementById('problemList').innerHTML = 
+          "<p>Failed to load problems.</p>";
       }
     }
 
+    function shouldDisplayProblem(problem) {
+      const trashCount = parseInt(problem.trashCount) || 0;
+      const fireCount = parseInt(problem.fireCount) || 0;
+      const laughCount = parseInt(problem.laughCount) || 0;
+      
+      // Filter out if trash count > 3
+      if (trashCount > 3) return false;
+      
+      // Filter out if trash count > (fire + laugh)
+      if (trashCount > (fireCount + laughCount)) return false;
+      
+      return true;
+    }
+
+    function handleSort(sortType) {
+      const header = document.getElementById('listHeader');
+      currentPage = 0;
+      
+      // First filter out problematic posts
+      const filteredProblems = allProblems.filter(shouldDisplayProblem);
+      
+      switch(sortType) {
+        case 'fire':
+          displayedProblems = [...filteredProblems].sort((a, b) => 
+            (parseInt(b.fireCount) || 0) - (parseInt(a.fireCount) || 0));
+          header.textContent = 'Most 🔥';
+          break;
+        case 'laugh':
+          displayedProblems = [...filteredProblems].sort((a, b) => 
+            (parseInt(b.laughCount) || 0) - (parseInt(a.laughCount) || 0));
+          header.textContent = 'Most 😂';
+          break;
+        case 'latest':
+          displayedProblems = [...filteredProblems].reverse();
+          header.textContent = 'Latest Problems';
+          break;
+      }
+      renderCurrentPage();
+    }
+
+    function handleSearch(searchText) {
+      if (!searchText.trim()) {
+        handleSort(document.querySelector('.sort-select').value);
+        return;
+      }
+      
+      const searchLower = searchText.toLowerCase();
+      // Apply both the trash filter and search filter
+      displayedProblems = allProblems
+        .filter(shouldDisplayProblem)
+        .filter(problem => 
+          problem.problem.toLowerCase().includes(searchLower) ||
+          [problem.hashtag1, problem.hashtag2, problem.hashtag3]
+            .filter(Boolean)
+            .some(tag => tag.toLowerCase().includes(searchLower))
+        );
+      
+      currentPage = 0;
+      document.getElementById('listHeader').textContent = `Search Results: "${searchText}"`;
+      renderCurrentPage();
+    }
+
+    function renderCurrentPage() {
+      const start = currentPage * PAGE_SIZE;
+      const end = start + PAGE_SIZE;
+      const pageItems = displayedProblems.slice(start, end);
+      
+      document.getElementById('problemList').innerHTML = 
+        pageItems.map(createProblemCard).join('');
+        
+      // Update pagination buttons and counter
+      const totalPages = Math.ceil(displayedProblems.length / PAGE_SIZE);
+      document.getElementById('prevBtn').disabled = currentPage === 0;
+      document.getElementById('nextBtn').disabled = 
+        (currentPage + 1) * PAGE_SIZE >= displayedProblems.length;
+      
+      // Update page counter
+      document.getElementById('currentPageNum').textContent = currentPage + 1;
+      document.getElementById('totalPages').textContent = totalPages;
+    }
+
+    // Add scroll to top function
+    function scrollToTop() {
+      document.querySelector('.columns-container').scrollTop = 0;
+    }
+
+    // Update the nextPage and prevPage functions to include scroll to top
+    function nextPage() {
+      if ((currentPage + 1) * PAGE_SIZE < displayedProblems.length) {
+        currentPage++;
+        renderCurrentPage();
+        scrollToTop();
+      }
+    }
+
+    function prevPage() {
+      if (currentPage > 0) {
+        currentPage--;
+        renderCurrentPage();
+        scrollToTop();
+      }
+    }
+
+    // Add this new function to handle toggling responses
+    function toggleResponses(button) {
+      const responsesList = button.nextElementSibling;
+      const toggleIcon = button.querySelector('.toggle-icon');
+      
+      if (responsesList.classList.contains('show')) {
+        responsesList.classList.remove('show');
+        toggleIcon.textContent = '▶';
+      } else {
+        responsesList.classList.add('show');
+        toggleIcon.textContent = '▼';
+      }
+    }
+
+    // Initialize the page
     fetchProblems();
   </script>
 </body>

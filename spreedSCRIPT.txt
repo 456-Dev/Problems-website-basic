@@ -1,0 +1,258 @@
+/**
+ * Main entry point for GET/POST requests
+ */
+function doPost(e) {
+  try {
+    // Always open your spreadsheet:
+    var ss = SpreadsheetApp.openById("1H_Mmpf52RK1E8QD1ZUttAbx9Mx2PNCcsqPKX7BrJ9TE");
+
+    // Handle stats request
+    if (e.parameter.action === 'getstats') {
+      return getStats();
+    }
+
+    // If this is a reaction (fire, laugh, trash)
+    if (e.parameter.action === 'react') {
+      var sheet = ss.getSheetByName("Problems"); // or ss.getSheetByName("Problems") if you named your main sheet
+      return handleReaction(sheet, e);
+    }
+
+    // If this is a user response to a problem
+    if (e.parameter.action === 'respond') {
+      return handleResponse(ss, e);
+    }
+
+    // Otherwise, handle normal problem submission
+    var sheet = ss.getSheetByName("Problems"); // or ss.getSheetByName("Problems")
+    var problem = e.parameter.problem || '';
+    var hashtag1 = e.parameter.hashtag1 || '';
+    var hashtag2 = e.parameter.hashtag2 || '';
+    var hashtag3 = e.parameter.hashtag3 || '';
+
+    // Reaction columns
+    var fireCount = 0;
+    var laughCount = 0;
+    var trashCount = 0;
+
+    // If a timestamp wasn't sent, make a fresh one
+    var timestamp = e.parameter.timestamp || new Date().toISOString();
+
+    if (!problem) {
+      return ContentService
+        .createTextOutput("Error: No problem text received")
+        .setMimeType(ContentService.MimeType.TEXT);
+    }
+
+    // Append a new row to your "Problems" sheet
+    sheet.appendRow([
+      problem,     // Col A
+      hashtag1,    // Col B
+      hashtag2,    // Col C
+      hashtag3,    // Col D
+      fireCount,   // Col E
+      laughCount,  // Col F
+      trashCount,  // Col G
+      timestamp    // Col H
+    ]);
+
+    return ContentService
+      .createTextOutput("Saved!")
+      .setMimeType(ContentService.MimeType.TEXT);
+
+  } catch (error) {
+    return ContentService
+      .createTextOutput("Error: " + error.message)
+      .setMimeType(ContentService.MimeType.TEXT);
+  }
+}
+
+/**
+ * Handle GET (list all problems)
+ */
+function doGet(e) {
+  try {
+    var ss = SpreadsheetApp.openById("1H_Mmpf52RK1E8QD1ZUttAbx9Mx2PNCcsqPKX7BrJ9TE");
+    var problemsSheet = ss.getSheetByName("Problems");
+    var responsesSheet = ss.getSheetByName("Responses");
+    
+    var problems = problemsSheet.getDataRange().getValues();
+    var responses = responsesSheet.getDataRange().getValues();
+    
+    // Create a map of responses by timestamp
+    var responseMap = {};
+    for (var i = 1; i < responses.length; i++) {
+      var timestamp = responses[i][0];
+      if (!responseMap[timestamp]) {
+        responseMap[timestamp] = [];
+      }
+      responseMap[timestamp].push({
+        response: responses[i][1],
+        submittedAt: responses[i][2]
+      });
+    }
+
+    var problemsList = [];
+    // Skip header row
+    for (var i = 1; i < problems.length; i++) {
+      problemsList.push({
+        problem: problems[i][0],
+        hashtag1: problems[i][1],
+        hashtag2: problems[i][2],
+        hashtag3: problems[i][3],
+        fireCount: problems[i][4] || 0,
+        laughCount: problems[i][5] || 0,
+        trashCount: problems[i][6] || 0,
+        timestamp: problems[i][7],
+        responses: responseMap[problems[i][7]] || []
+      });
+    }
+
+    return ContentService
+      .createTextOutput(JSON.stringify(problemsList))
+      .setMimeType(ContentService.MimeType.JSON);
+
+  } catch (error) {
+    return ContentService
+      .createTextOutput(JSON.stringify({ error: error.message }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+/**
+ * Handle Reaction (fire, laugh, trash)
+ */
+function handleReaction(sheet, e) {
+
+  Logger.log("handleResponse called. Timestamp=%s, response=%s", e.parameter.timestamp, e.parameter.response);
+  try {
+    var timestamp = e.parameter.timestamp;
+    var reactionType = e.parameter.reactionType;
+
+    // Get all rows in the "Problems" sheet
+    var data = sheet.getDataRange().getValues();
+    var rowIndex = -1;
+
+    // Find the row with matching timestamp (column H, index 7)
+    for (var i = 1; i < data.length; i++) {
+      if (data[i][7] === timestamp) {
+        rowIndex = i + 1; // +1 because Sheets are 1-indexed
+        break;
+      }
+    }
+
+    if (rowIndex === -1) {
+      throw new Error("Problem not found with timestamp: " + timestamp);
+    }
+
+    // Identify which column to update
+    var columnIndex;
+    switch (reactionType) {
+      case 'fire':
+        columnIndex = 5; // Column E
+        break;
+      case 'laugh':
+        columnIndex = 6; // Column F
+        break;
+      case 'trash':
+        columnIndex = 7; // Column G
+        break;
+      default:
+        throw new Error("Invalid reaction type: " + reactionType);
+    }
+
+    // Update the cell's count
+    var currentCount = sheet.getRange(rowIndex, columnIndex).getValue() || 0;
+    sheet.getRange(rowIndex, columnIndex).setValue(currentCount + 1);
+
+    return ContentService
+      .createTextOutput(JSON.stringify({
+        success: true,
+        newCount: currentCount + 1
+      }))
+      .setMimeType(ContentService.MimeType.JSON);
+
+  } catch (error) {
+    return ContentService
+      .createTextOutput(JSON.stringify({
+        success: false,
+        error: error.message
+      }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+/**
+ * Handle user response to a problem
+ * This will store each response in the "Responses" sheet.
+ */
+
+
+function handleResponse(ss, e) {
+  try {
+    var timestamp = e.parameter.timestamp;
+    var userResponse = e.parameter.response;
+
+    if (!timestamp || !userResponse) {
+      throw new Error("Missing timestamp or response text");
+    }
+
+    // Get or create the "Responses" sheet
+    var responseSheet = ss.getSheetByName("Responses");
+    if (!responseSheet) {
+      // If you want to automatically create it if it doesn't exist:
+      responseSheet = ss.insertSheet("Responses");
+      // Optionally, set a header row
+      responseSheet.appendRow(["Timestamp", "Response", "Submitted At"]);
+    }
+    
+
+    // Append the new response
+    responseSheet.appendRow([
+      timestamp,
+      userResponse,
+      new Date() // submission time
+    ]);
+
+    return ContentService
+      .createTextOutput("Saved Response!")
+      .setMimeType(ContentService.MimeType.TEXT);
+
+  } catch (error) {
+    return ContentService
+      .createTextOutput("Error saving response: " + error.message)
+      .setMimeType(ContentService.MimeType.TEXT);
+  }
+}
+
+// Add these new functions
+function getStats() {
+  try {
+    var ss = SpreadsheetApp.openById("1H_Mmpf52RK1E8QD1ZUttAbx9Mx2PNCcsqPKX7BrJ9TE");
+    var configSheet = ss.getSheetByName("Config");
+    var problemsSheet = ss.getSheetByName("Problems");
+    
+    // Create Config sheet if it doesn't exist
+    if (!configSheet) {
+      configSheet = ss.insertSheet("Config");
+      configSheet.getRange("A1").setValue(0); // Initialize view count
+    }
+    
+    // Get and increment view count
+    var viewCount = configSheet.getRange("A1").getValue() || 0;
+    viewCount++;
+    configSheet.getRange("A1").setValue(viewCount);
+    
+    // Get problem count (subtract 1 for header row if you have one)
+    var problemCount = Math.max(0, problemsSheet.getLastRow() - 1);
+    
+    return ContentService.createTextOutput(JSON.stringify({
+      viewCount: viewCount,
+      problemCount: problemCount
+    })).setMimeType(ContentService.MimeType.JSON);
+    
+  } catch (error) {
+    return ContentService.createTextOutput(JSON.stringify({
+      error: error.message
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+}
