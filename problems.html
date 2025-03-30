@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <title>All Submitted Problems</title>
   <style>
     body {
@@ -69,6 +69,29 @@
       z-index: 2;
     }
 
+    /* Make space within the .column-header for both the text and the filters */
+    .header-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    /* If you want them side by side on larger screens, you could do:
+       .header-inner {
+         display: flex;
+         flex-direction: row;
+         justify-content: space-between;
+         align-items: center;
+       }
+    */
+
+    /* Keep "Most 🔥" visually distinct from the filter controls */
+    .list-header-text {
+      font-size: 16px;
+      font-weight: bold;
+    }
+
     .problem-list {
       flex: 1;
       overflow-y: auto;
@@ -118,14 +141,7 @@
       white-space: nowrap;
     }
 
-    .card-footer {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 12px;
-      padding-bottom: 12px;
-      border-bottom: 1px solid #eee;
-    }
-
+  
     .reaction-btn {
       background: none;
       border: none;
@@ -256,33 +272,9 @@
       .column-header {
         margin-bottom: 15px;
       }
-    }
-
-    /* Add styles for the filter controls */
-    .filter-controls {
-      display: flex;
-      gap: 10px;
-      padding: 10px;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 15px;
-    }
-
-    .sort-select {
-      padding: 8px;
-      border: 1px solid #666666;
-      border-radius: 0;
-      font-family: 'Times New Roman', Times, serif;
-      background-color: white;
-      min-width: 150px;
-    }
-
-    .search-input {
-      padding: 8px;
-      border: 1px solid #666666;
-      border-radius: 0;
-      font-family: 'Times New Roman', Times, serif;
-      width: 200px;
+      .header-inner {
+        gap: 6px;
+      }
     }
 
     /* Add these styles to your existing CSS */
@@ -342,6 +334,12 @@
       margin: 10px 0;
     }
 
+    .emoji-container {
+        display: flex;       /* or inline-flex */
+        gap: 8px;            /* optional: spacing between buttons */
+        align-items: center; /* optional: vertically center buttons */
+    }
+
     .responses-section {
       margin-top: 10px;
       border-top: 1px solid #eee;
@@ -359,31 +357,31 @@
   <!-- Trash button in the top right corner -->
   <a href="trash.html" class="trash-button">Trash</a>
 
-  <!-- Optional poem snippet (positioned below the trash button if necessary) -->
-  <div class="poem" style="position:absolute; top:50px; right:10px; font-size:9px; text-align:right; font-style:italic; color:#666; line-height:1.2; max-width:150px;">
-    Share your coding strife,<br>
-    React with emojis bright,<br>
-    Solutions take flight.
-  </div>
-
-  <h1>Recent Problems</h1>
-
-  <div class="filter-controls">
-    <select class="sort-select" onchange="handleSort(this.value)">
-      <option value="fire">Most 🔥</option>
-      <option value="laugh">Most 😂</option>
-      <option value="latest">Latest Problems</option>
-    </select>
-    <input type="text" 
-           class="search-input" 
-           placeholder="Search problems..." 
-           onkeyup="handleSearch(this.value)">
-  </div>
+  <h1>Submit a Solution to a problem to view existing solutions</h1>
 
   <div class="columns-container">
     <div class="column">
-      <div class="column-header" id="listHeader">Most 🔥</div>
+      <!-- Move the filters into the same sticky header -->
+      <div class="column-header">
+        <!-- Put both the text and filter controls in a flex container -->
+        <div class="header-inner">
+          <div class="list-header-text" id="listHeaderText">Most 🔥</div>
+          <div class="filter-controls">
+            <select class="sort-select" onchange="handleSort(this.value)">
+              <option value="fire">Most 🔥</option>
+              <option value="laugh">Most 😂</option>
+              <option value="latest" selected> Latest Problems</option>
+            </select>
+            <input type="text" 
+                   class="search-input" 
+                   placeholder="Search problems..." 
+                   onkeyup="handleSearch(this.value)">
+          </div>
+        </div>
+      </div>
+      
       <div class="problem-list" id="problemList"></div>
+
       <div class="pagination">
         <button id="prevBtn" onclick="prevPage()">Prev</button>
         <span class="page-counter">
@@ -421,14 +419,21 @@
     function createProblemCard(problem) {
       const safeId = "response" + Math.random().toString().slice(2);
       const hasSubmitted = hasSubmittedResponse(problem.timestamp);
+
       
+
+      const totalResponses = problem.responses ? problem.responses.length : 0;
+      const placeholderText = totalResponses > 0
+        ? `Suggest a Solution - ${totalResponses} Solutions available`
+        : "Suggest a Solution - Be the first!";
+
       const hashtags = [problem.hashtag1, problem.hashtag2, problem.hashtag3]
         .filter(tag => tag && tag.length > 0);
       const hashtagsHtml = hashtags.length > 0
         ? hashtags.map(tag => `<span class="hashtag">${tag}</span>`).join('')
         : '';
 
-      const responsesSection = problem.responses && problem.responses.length > 0 && hasSubmitted
+      const responsesSection = (problem.responses && problem.responses.length > 0 && hasSubmitted)
         ? `
           <div class="responses-section">
             <button class="responses-toggle" onclick="toggleResponses(this)">
@@ -461,18 +466,22 @@
           <div class="problem-text">${problem.problem}</div>
           
           <div class="response-area" id="responseArea-${safeId}">
-            ${!hasSubmitted ? `
-              <div class="response-container">
-                <input
-                  type="text"
-                  id="response-${safeId}"
-                  placeholder="Write a response..."
-                />
-                <button class="submit-btn"
-                  onclick="submitResponse('${problem.timestamp}', 'response-${safeId}', 'responseArea-${safeId}')"
-                >Submit Response</button>
-              </div>
-            ` : ''}
+            ${
+              !hasSubmitted
+                ? `
+                  <div class="response-container">
+                    <input
+                      type="text"
+                      id="response-${safeId}"
+                      placeholder="${placeholderText}"
+                    />
+                    <button class="submit-btn"
+                      onclick="submitResponse('${problem.timestamp}', 'response-${safeId}', 'responseArea-${safeId}')"
+                    >Submit Solution</button>
+                  </div>
+                `
+                : ''
+            }
             ${responsesSection}
           </div>
 
@@ -587,7 +596,7 @@
           return;
         }
         allProblems = data;
-        handleSort('fire'); // Default sort by fire
+        handleSort('latest'); // Default sort by fire
       } catch (error) {
         console.error("Error fetching problems:", error);
         document.getElementById('problemList').innerHTML = 
@@ -599,18 +608,16 @@
       const trashCount = parseInt(problem.trashCount) || 0;
       const fireCount = parseInt(problem.fireCount) || 0;
       const laughCount = parseInt(problem.laughCount) || 0;
-      
-      // Filter out if trash count > 3
-      if (trashCount > 3) return false;
+   
       
       // Filter out if trash count > (fire + laugh)
-      if (trashCount > (fireCount + laughCount)) return false;
+      if (trashCount > (fireCount + laughCount) && trashCount > 2) return false;
       
       return true;
     }
 
     function handleSort(sortType) {
-      const header = document.getElementById('listHeader');
+      const headerText = document.getElementById('listHeaderText');
       currentPage = 0;
       
       // First filter out problematic posts
@@ -620,16 +627,16 @@
         case 'fire':
           displayedProblems = [...filteredProblems].sort((a, b) => 
             (parseInt(b.fireCount) || 0) - (parseInt(a.fireCount) || 0));
-          header.textContent = 'Most 🔥';
+          headerText.textContent = 'Most 🔥';
           break;
         case 'laugh':
           displayedProblems = [...filteredProblems].sort((a, b) => 
             (parseInt(b.laughCount) || 0) - (parseInt(a.laughCount) || 0));
-          header.textContent = 'Most 😂';
+          headerText.textContent = 'Most 😂';
           break;
         case 'latest':
           displayedProblems = [...filteredProblems].reverse();
-          header.textContent = 'Latest Problems';
+          headerText.textContent = 'Latest Problems';
           break;
       }
       renderCurrentPage();
@@ -653,7 +660,7 @@
         );
       
       currentPage = 0;
-      document.getElementById('listHeader').textContent = `Search Results: "${searchText}"`;
+      document.getElementById('listHeaderText').textContent = `Search Results: "${searchText}"`;
       renderCurrentPage();
     }
 
