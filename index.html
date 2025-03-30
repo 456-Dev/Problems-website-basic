@@ -65,22 +65,23 @@
 
     .main-title {
       position: fixed;       /* Fix it to the viewport */
-      bottom: 20px;          /* Same bottom spacing as stats container */
-      right: 20px;           /* Align it to the right edge */
+      bottom: 120px;          /* Same bottom spacing as stats container */
+      right: -90px;           /* Align it to the right edge */
       margin: 0;             /* Remove default margin */
       font-size: 36px;       /* Keep your original font size (optional) */
       color: #cecece;        /* Keep your original color (optional) */
       font-family: 'Times New Roman', Times, serif;
       font-weight: bold;     /* Keep your original style (optional) */
       z-index: 2000;         /* Ensure it stays on top if needed */
+      rotate: -90deg;w
     }
 
 
     /* Subheading */
     .sub-title {
-      font-size: 100px;
-      font-weight: 600;
-      margin: 20px 0;
+      font-size: 7vw;
+      font-weight: 900;
+      margin: 10px 0;
       font-family: 'Times New Roman', Times, serif;
       text-align: center;
     }
@@ -189,13 +190,7 @@
 
     /* Mobile responsiveness */
     @media (max-width: 768px) {
-      .main-title {
-        font-size: 28px;
-      }
-
-      .sub-title {
-        font-size: 22px;
-      }
+   
 
       #userPrompt {
         font-size: 14px;
@@ -232,14 +227,10 @@
   </style>
 </head>
 <body>
-  <!-- "About" link in top-right corner -->
-  <div class="about-link" onclick="showAbout()">About</div>
 
-  <!-- Main Title -->
 
-  
   <!-- Sub Title -->
-  <h2 class="sub-title">What Is Your Problem
+  <h2 class="sub-title">What Is Your <br> Problem?!
 
   </h2>
 
@@ -289,7 +280,11 @@
     </div>
   </div>
 
-  <h1 class="main-title">456solutions.org</h1>
+  <div class="about-link" onclick="showAbout()">About</div>
+
+  <h1 class="main-title">456solutions.org
+
+  </h1>
 
   <script>
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzlf362RKBOqFQMk8bsMKiCR1bNJtZx6bex4GyUNBzW2NuOdSRHujqBbrWKiH8OqlgriQ/exec";
