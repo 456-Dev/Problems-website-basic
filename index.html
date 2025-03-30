@@ -19,7 +19,7 @@
     }
 
     .about-link {
-      position: absolute;
+      position: fixed;
       bottom: 20px;
       cursor: pointer;
       font-family: 'Times New Roman', Times, serif;
@@ -73,13 +73,13 @@
       font-family: 'Times New Roman', Times, serif;
       font-weight: bold;     /* Keep your original style (optional) */
       z-index: 2000;         /* Ensure it stays on top if needed */
-      rotate: -90deg;w
+      rotate: -90deg;
     }
 
 
     /* Subheading */
     .sub-title {
-      font-size: 7vw;
+      font-size: 10vw;
       font-weight: 900;
       margin: 10px 0;
       font-family: 'Times New Roman', Times, serif;
@@ -94,6 +94,7 @@
       align-items: center;
       gap: 15px;
       margin-bottom: 20px;
+  
     }
 
     #userPrompt {
@@ -250,15 +251,12 @@
   </div>
 
   <div class="input-container">
-    <input 
-      type="text" 
-      id="userPrompt" 
-      placeholder="Describe your issue in detail. Hopefully someone will provide a solution!" 
-    />
+    <textarea 
+    id="userPrompt" 
+    placeholder="Describe your issue in detail. Hopefully someone will provide a solution!"></textarea>
     <button id="submitBtn">Share your problem anonymously</button>
   </div>
 
-  <div id="problemPreview"></div>
   
   <div class="reaction-section" id="reactionSection">
     <p>Thank you for submitting! Add a reaction?</p>
@@ -369,10 +367,6 @@
 
         const result = await response.text();
         if (result.includes("Saved!")) {
-          // Show preview with highlighted hashtags
-          const previewText = promptText.replace(/#\w+/g, match => `<span class="hashtag">${match}</span>`);
-          document.getElementById('problemPreview').innerHTML = previewText;
-          document.getElementById('problemPreview').style.display = 'block';
           
           // Show reaction section
           document.getElementById('reactionSection').style.display = 'block';
