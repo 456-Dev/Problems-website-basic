@@ -20,8 +20,7 @@
 
     .about-link {
       position: absolute;
-      top: 10px;
-      right: 20px;
+      bottom: 20px;
       cursor: pointer;
       font-family: 'Times New Roman', Times, serif;
       font-size: 16px;
@@ -79,8 +78,8 @@
 
     /* Subheading */
     .sub-title {
-      font-size: 120px;
-      font-weight: 700;
+      font-size: 100px;
+      font-weight: 600;
       margin: 20px 0;
       font-family: 'Times New Roman', Times, serif;
       text-align: center;
@@ -221,6 +220,7 @@
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
       z-index: 1000;
       display: flex;
+      flex-direction: column;
       gap: 15px;
     }
 
@@ -239,7 +239,9 @@
 
   
   <!-- Sub Title -->
-  <h2 class="sub-title">What Is Your Problem?!</h2>
+  <h2 class="sub-title">What Is Your Problem
+
+  </h2>
 
   <!-- Modal containing original info section -->
   <div id="aboutModal" class="modal">
@@ -252,8 +254,6 @@
         <li>Fully Anonymous</li>
         <li>Fully Open Source</li>
         <li>Free from A.I.</li>
-        <li>https://github.com/456-Dev/Problems-website-basic</li>
-        <li>https://docs.google.com/spreadsheets/d/1H_Mmpf52RK1E8QD1ZUttAbx9Mx2PNCcsqPKX7BrJ9TE/edit?gid=0#gid=0</li>
       </ul>
     </div>
   </div>
@@ -264,7 +264,7 @@
       id="userPrompt" 
       placeholder="Describe your issue in detail. Hopefully someone will provide a solution!" 
     />
-    <button id="submitBtn">Share Problem Anonymously</button>
+    <button id="submitBtn">Share your problem anonymously</button>
   </div>
 
   <div id="problemPreview"></div>
@@ -279,17 +279,20 @@
 
   <div class="stats-container">
     <div class="stat-item">
-      Site Views <span id="viewCount">...</span>
+      Site Views: <span id="viewCount">...</span>
     </div>
     <div class="stat-item">
-      Problems Submitted <span id="problemCount">...</span>
+      Problems Submitted: <span id="problemCount">...</span>
+    </div>
+    <div class="stat-item">
+      Solutions Submitted: <span id="solutionCount">...</span>
     </div>
   </div>
 
   <h1 class="main-title">456solutions.org</h1>
 
   <script>
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx0A9ly-CgpYxWGJyiGddc8qHGYKOq5dS23Nc20q91J3C8q46vW2Nv2t-2k_8pBzx-ykA/exec";
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzlf362RKBOqFQMk8bsMKiCR1bNJtZx6bex4GyUNBzW2NuOdSRHujqBbrWKiH8OqlgriQ/exec";
     let savedTimestamp = "";
 
     // Show the About modal
@@ -317,10 +320,14 @@
         if (result.problemCount) {
           document.getElementById('problemCount').textContent = result.problemCount;
         }
+        if (result.solutionCount) {
+          document.getElementById('solutionCount').textContent = result.solutionCount;
+        }
       } catch (error) {
         console.error("Error updating stats:", error);
         document.getElementById('viewCount').textContent = "?";
         document.getElementById('problemCount').textContent = "?";
+        document.getElementById('solutionCount').textContent = "?";
       }
     }
 
