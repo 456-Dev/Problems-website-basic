@@ -24,9 +24,30 @@
       margin: 20px 0 10px;
       font-size: 24px;
     }
-    .problem-list {
-      max-width: 800px;
+    .columns-container {
+      display: flex;
+      flex-wrap: wrap; /* allow stacking on smaller screens */
+      max-width: 1200px;
       margin: 0 auto;
+      gap: 20px;
+      padding: 10px;
+    }
+    .column {
+      flex: 1;
+      min-width: 300px; /* prevent columns from shrinking too much */
+      background-color: #fafafa;
+      border: 1px solid #e0e0e0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .column-header {
+      background-color: #444;
+      color: #fff;
+      padding: 10px;
+      text-align: center;
+      font-size: 16px;
+      font-weight: bold;
+    }
+    .problem-list {
       padding: 10px;
     }
     .problem-card {
@@ -61,6 +82,7 @@
       font-size: 14px;
       line-height: 1.5;
       margin-bottom: 6px;
+      word-wrap: break-word;
     }
     .response-container {
       display: flex;
@@ -86,6 +108,7 @@
       gap: 12px;
       font-size: 12px;
       margin-top: 4px;
+      align-items: center;
     }
     .reaction-btn {
       background: none;
@@ -94,6 +117,9 @@
       cursor: pointer;
       font-size: 16px;
       outline: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
     }
     .reaction-btn .emoji {
       margin-right: 2px;
@@ -101,21 +127,6 @@
     .reaction-number {
       font-size: 12px;
       vertical-align: middle;
-    }
-    .pagination {
-      text-align: center;
-      margin: 20px;
-    }
-    .pagination button {
-      padding: 8px 16px;
-      margin: 0 5px;
-      font-size: 14px;
-      border: 1px solid #ddd;
-      background-color: #f8f9fa;
-      cursor: pointer;
-    }
-    .pagination button:hover {
-      background-color: #e0e0e0;
     }
     .nav-link {
       position: fixed;
@@ -135,26 +146,41 @@
   <div class="explanation">
     <p>Only problems where the trash score is greater than the sum of fire and laugh scores are included in this list.</p>
     <p>
-      They are sorted from highest to lowest based on (trash score - (fire score + laugh score)).
-      Problems with a higher fire+laugh score than trash score are removed from the trash pile.
+      Left Column: Sorted from least trash → most trash.<br>
+      Right Column: Sorted from most total emojis → least total emojis.<br>
+      (Total emojis = fire + laugh + trash)
     </p>
   </div>
   <h1>Trash Problems</h1>
-  <div class="problem-list" id="trashList"></div>
-  <div class="pagination">
-    <button id="prevPage" onclick="prevPage()">Prev</button>
-    <button id="nextPage" onclick="nextPage()">Next</button>
+
+  <!-- Two columns container -->
+  <div class="columns-container">
+
+    <!-- Left Column: least → most trashCount -->
+    <div class="column">
+      <div class="column-header">Least → Most Trash</div>
+      <div class="problem-list" id="trashListLeft"></div>
+    </div>
+
+    <!-- Right Column: most → least total emojis -->
+    <div class="column">
+      <div class="column-header">Most → Least Total Emojis</div>
+      <div class="problem-list" id="trashListRight"></div>
+    </div>
+    
   </div>
+
   <a href="problems.html" class="nav-link">Back to Problems</a>
   
   <script>
     const GOOGLE_SHEET_API_URL = "https://script.google.com/macros/s/AKfycbx0A9ly-CgpYxWGJyiGddc8qHGYKOq5dS23Nc20q91J3C8q46vW2Nv2t-2k_8pBzx-ykA/exec";
-    const PAGE_SIZE = 10;
-    let trashProblems = [];
-    let currentPage = 0;
     
-    // Creates a card for each trash problem with reaction buttons and a response field.
-    function createProblemCard(problem, scoreDiff) {
+    // We'll store two separate arrays for the two columns
+    let trashProblemsLeft = [];  // sorted by trashCount ASC
+    let trashProblemsRight = []; // sorted by totalEmojis DESC
+
+    // Creates a card for each trash problem
+    function createProblemCard(problem) {
       // Format timestamp as MM/DD/YY HH:MM
       const d = new Date(problem.timestamp);
       const month = ('0' + (d.getMonth() + 1)).slice(-2);
@@ -181,51 +207,31 @@
             <div class="timestamp">${formattedDate}</div>
           </div>
           <div class="problem-text">${problem.problem}</div>
-          <div class="card-tags">
-          </div>
           <div class="response-container">
             <input type="text" id="response-${safeId}" placeholder="Write a response..." />
-            <button class="submit-btn" onclick="submitResponse('${problem.timestamp}', 'response-${safeId}')">Submit Response</button>
+            <button class="submit-btn" onclick="submitResponse('${problem.timestamp}', 'response-${safeId}')">Submit</button>
           </div>
           <div class="card-footer">
-            <button class="reaction-btn" onclick="handleReaction(this, 'fire', '${problem.timestamp}')" ${problem.fireCount > 0 ? 'data-reacted="true"' : ''}>
+            <button class="reaction-btn"
+                    onclick="handleReaction(this, 'fire', '${problem.timestamp}')"
+                    ${problem.fireCount > 0 ? 'data-reacted="true"' : ''}>
               <span class="emoji">🔥</span><span class="reaction-number">${problem.fireCount || 0}</span>
             </button>
-            <button class="reaction-btn" onclick="handleReaction(this, 'laugh', '${problem.timestamp}')" ${problem.laughCount > 0 ? 'data-reacted="true"' : ''}>
+            <button class="reaction-btn"
+                    onclick="handleReaction(this, 'laugh', '${problem.timestamp}')"
+                    ${problem.laughCount > 0 ? 'data-reacted="true"' : ''}>
               <span class="emoji">😂</span><span class="reaction-number">${problem.laughCount || 0}</span>
             </button>
-            <button class="reaction-btn" onclick="handleReaction(this, 'trash', '${problem.timestamp}')" ${problem.trashCount > 0 ? 'data-reacted="true"' : ''}>
+            <button class="reaction-btn"
+                    onclick="handleReaction(this, 'trash', '${problem.timestamp}')"
+                    ${problem.trashCount > 0 ? 'data-reacted="true"' : ''}>
               <span class="emoji">🗑️</span><span class="reaction-number">${problem.trashCount || 0}</span>
             </button>
           </div>
         </div>
       `;
     }
-    
-    // Render the current page of trash problems.
-    function renderPage() {
-      const container = document.getElementById("trashList");
-      container.innerHTML = "";
-      const start = currentPage * PAGE_SIZE;
-      const end = start + PAGE_SIZE;
-      const pageItems = trashProblems.slice(start, end);
-      container.innerHTML = pageItems.map(item => createProblemCard(item, item.diff)).join('');
-    }
-    
-    function nextPage() {
-      if ((currentPage + 1) * PAGE_SIZE < trashProblems.length) {
-        currentPage++;
-        renderPage();
-      }
-    }
-    
-    function prevPage() {
-      if (currentPage > 0) {
-        currentPage--;
-        renderPage();
-      }
-    }
-    
+
     // Handles reaction button clicks.
     async function handleReaction(button, type, timestamp) {
       if (button.disabled) return;
@@ -266,7 +272,7 @@
     // Submits a user response.
     async function submitResponse(timestamp, inputId) {
       const input = document.getElementById(inputId);
-      const responseText = input.value;
+      const responseText = input.value.trim();
       if (!responseText) {
         alert("Please enter a response before submitting.");
         return;
@@ -290,37 +296,48 @@
       }
     }
     
-    // Fetch problems, filter by trash criteria, compute score diff, sort, and render.
+    // Fetch and filter problems, then fill each column
     async function fetchProblems() {
       try {
         const response = await fetch(GOOGLE_SHEET_API_URL);
         const data = await response.json();
-        // Filter: include only problems where trash > (fire + laugh)
-        let filtered = data.filter(problem => {
+
+        // Filter: only show problems where trash > (fire + laugh)
+        const trashed = data.filter(problem => {
           const fire = parseInt(problem.fireCount) || 0;
           const laugh = parseInt(problem.laughCount) || 0;
           const trash = parseInt(problem.trashCount) || 0;
           return trash > (fire + laugh);
-        }).map(problem => {
-          const fire = parseInt(problem.fireCount) || 0;
-          const laugh = parseInt(problem.laughCount) || 0;
-          const trash = parseInt(problem.trashCount) || 0;
-          return {
-            ...problem,
-            diff: trash - (fire + laugh)
-          };
         });
-        // Sort by the computed difference in descending order.
-        filtered.sort((a, b) => b.diff - a.diff);
-        trashProblems = filtered;
-        currentPage = 0;
-        renderPage();
+
+        // Sort for left column: trashCount ascending
+        trashProblemsLeft = [...trashed].sort((a, b) => {
+          const tA = parseInt(a.trashCount) || 0;
+          const tB = parseInt(b.trashCount) || 0;
+          return tA - tB;
+        });
+
+        // Sort for right column: total emojis (fire + laugh + trash) descending
+        trashProblemsRight = [...trashed].sort((a, b) => {
+          const totalA = (parseInt(a.fireCount)||0) + (parseInt(a.laughCount)||0) + (parseInt(a.trashCount)||0);
+          const totalB = (parseInt(b.fireCount)||0) + (parseInt(b.laughCount)||0) + (parseInt(b.trashCount)||0);
+          return totalB - totalA;
+        });
+
+        // Render both columns
+        document.getElementById("trashListLeft").innerHTML = 
+          trashProblemsLeft.map(item => createProblemCard(item)).join('');
+        document.getElementById("trashListRight").innerHTML = 
+          trashProblemsRight.map(item => createProblemCard(item)).join('');
+
       } catch (error) {
         console.error("Error fetching problems:", error);
-        document.getElementById("trashList").innerHTML = "<p>Failed to load trash problems.</p>";
+        document.getElementById("trashListLeft").innerHTML = "<p>Failed to load trash problems.</p>";
+        document.getElementById("trashListRight").innerHTML = "<p>Failed to load trash problems.</p>";
       }
     }
     
+    // On page load
     fetchProblems();
   </script>
 </body>
