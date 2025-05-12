@@ -1,0 +1,50 @@
+name: Build and deploy to GitHub Pages
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read      # to checkout the code
+  pages: write        # to deploy
+  id-token: write     # to verify the deployment origin
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # ① Check out source branch
+      - uses: actions/checkout@v4
+
+      # ② Inject Firebase secrets into the HTML/JS
+      - name: Substitute Firebase placeholders
+        run: |
+          find . -type f -name "*.html" -print0 \
+            | xargs -0 sed -i \
+            -e 's#__FIREBASE_API_KEY__#${{ secrets.FIREBASE_API_KEY }}#g' \
+            -e 's#__FIREBASE_AUTH_DOMAIN__#${{ secrets.FIREBASE_AUTH_DOMAIN }}#g' \
+            -e 's#__FIREBASE_PROJECT_ID__#${{ secrets.FIREBASE_PROJECT_ID }}#g'
+
+      # ③ (Optional) build step – skip if you work with raw HTML
+      # - run: npm ci && npm run build
+      #   env: { VITE_FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }} }
+
+      # ④ Upload the ready‑to‑serve folder as an artifact
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .   # change to ./dist if you ran a build
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deploy
+        uses: actions/deploy-pages@v4
