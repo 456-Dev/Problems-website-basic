@@ -1,41 +1,43 @@
-name: Build and deploy to GitHub Pages
+# .github/workflows/pages.yml  (name doesn’t matter as long as it’s *.yml)
+name: Build & deploy to GitHub Pages
 on:
   push:
     branches: [main]
 
 permissions:
-  contents: read      # to checkout the code
-  pages: write        # to deploy
-  id-token: write     # to verify the deployment origin
-
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
+  contents: read
+  pages: write
+  id-token: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      # ① Check out source branch
       - uses: actions/checkout@v4
 
-      # ② Inject Firebase secrets into the HTML/JS
+      # If you **build**, add it here.  Otherwise delete these two lines.
+      # - run: npm ci && npm run build
+      #   env:
+      #     VITE_FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
+
+      # Path where the HTML lives.
+      # Change "." to "dist" if you kept the build step above.
       - name: Substitute Firebase placeholders
         run: |
-          find . -type f -name "*.html" -print0 \
-            | xargs -0 sed -i \
+          TARGET="."        # or TARGET="dist"
+          find "$TARGET" -type f \( -name '*.html' -o -name '*.js' \) -print0 |
+          xargs -0 sed -i \
             -e 's#__FIREBASE_API_KEY__#${{ secrets.FIREBASE_API_KEY }}#g' \
             -e 's#__FIREBASE_AUTH_DOMAIN__#${{ secrets.FIREBASE_AUTH_DOMAIN }}#g' \
             -e 's#__FIREBASE_PROJECT_ID__#${{ secrets.FIREBASE_PROJECT_ID }}#g'
 
-      # ③ (Optional) build step – skip if you work with raw HTML
-      # - run: npm ci && npm run build
-      #   env: { VITE_FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }} }
+      # *** Diagnostic: keep while testing ***
+      - name: Peek at first few lines
+        run: head -n 15 ./index.html   # adjust to dist/index.html if needed
 
-      # ④ Upload the ready‑to‑serve folder as an artifact
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: .   # change to ./dist if you ran a build
+          path: .   # or dist
 
   deploy:
     needs: build
