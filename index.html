@@ -6,6 +6,46 @@
     <title>NYC Interactive Map - Draw Your Lines</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Problem Button Styles */
+        .problem-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            background-color: #000;
+            color: #fff;
+            text-decoration: none;
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 16px;
+            font-weight: bold;
+            border: 2px solid #000;
+            border-radius: 0;
+            z-index: 1000;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .problem-button:hover {
+            background-color: #fff;
+            color: #000;
+            transform: scale(1.05);
+        }
+        
+        .problem-button:active {
+            transform: scale(0.98);
+        }
+        
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            .problem-button {
+                top: 10px;
+                right: 10px;
+                padding: 10px 16px;
+                font-size: 14px;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -15,6 +55,8 @@
                 <div class="tagline">Daily Interview Series ~ 25 People, All Responses Included</div>
                 <div class="edition-info">Interactive Map Edition • <span id="current-date"></span></div>
             </div>
+            <!-- Problem Button -->
+            <a href="submit.html" class="problem-button">What is your problem?!</a>
         </header>
         
         <!-- Featured Questions Scroll -->
@@ -35,6 +77,11 @@
                     <!-- Map Controls -->
                     <div class="map-controls">
                         <button id="reset-view" title="Reset to NYC view">Reset</button>
+                    </div>
+                    
+                    <!-- Map Instructions for Mobile -->
+                    <div class="map-instructions">
+                        Click lines to watch questions
                     </div>
                 </div>
             </div>

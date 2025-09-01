@@ -224,10 +224,10 @@ class NYCRoutesMap {
         this.wheelRoutes = [...this.routes].sort(() => 0.5 - Math.random());
         this.updateWheelDisplay();
         
-        // Rotate every 4.5 seconds
+        // Rotate every 5 seconds
         this.featuredRotationInterval = setInterval(() => {
             this.rotateWheel();
-        }, 4500);
+        }, 5000);
     }
     
     updateWheelDisplay() {
@@ -247,15 +247,15 @@ class NYCRoutesMap {
         this.featuredScroll.innerHTML = `
             <div class="wheel-container">
                 <div class="wheel-item wheel-prev">
-                    <div class="featured-text">${this.cleanTitle(prevRoute.name)}</div>
+                    <div class="featured-text">${this.cleanTitle(prevRoute.name)}<span class="click-to-watch">click to watch</span></div>
                     <button class="featured-watch-btn" data-route-id="${prevRoute.id}">WATCH</button>
                 </div>
                 <div class="wheel-item wheel-current">
-                    <div class="featured-text">${this.cleanTitle(currentRoute.name)}</div>
+                    <div class="featured-text">${this.cleanTitle(currentRoute.name)}<span class="click-to-watch">click to watch</span></div>
                     <button class="featured-watch-btn" data-route-id="${currentRoute.id}">WATCH</button>
                 </div>
                 <div class="wheel-item wheel-next">
-                    <div class="featured-text">${this.cleanTitle(nextRoute.name)}</div>
+                    <div class="featured-text">${this.cleanTitle(nextRoute.name)}<span class="click-to-watch">click to watch</span></div>
                     <button class="featured-watch-btn" data-route-id="${nextRoute.id}">WATCH</button>
                 </div>
             </div>
@@ -283,7 +283,7 @@ class NYCRoutesMap {
             setTimeout(() => {
                 this.currentWheelIndex = (this.currentWheelIndex + 1) % this.wheelRoutes.length;
                 this.updateWheelDisplay();
-            }, 400); // Half of the animation duration
+            }, 600); // Half of the animation duration
         }
     }
     
