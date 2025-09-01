@@ -99,7 +99,7 @@ class NYCRoutesMap {
         
         // Keyboard events
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && this.modal.style.display === 'block') {
+            if (e.key === 'Escape' && this.modal.classList.contains('show')) {
                 this.closeModal();
             }
         });
@@ -111,36 +111,74 @@ class NYCRoutesMap {
             if (response.ok) {
                 const data = await response.json();
                 if (data.success) {
-                    this.routes = data.lines.map(route => ({
-                        id: route.id,
-                        name: route.name,
-                        color: route.color,
-                        width: route.width,
-                        videoId: route.videoId,
-                        gpsPoints: route.gpsPoints,
-                        videoType: route.video_type || 'fun'
-                    }));
-                    
-                    this.filteredRoutes = [...this.routes];
-                    this.hideLoading();
-                    this.renderRoutesList();
-                    this.addRoutesToMap();
-                    this.fitMapToAllRoutes();
-                    this.startFeaturedRotation();
-                    
+                    this.processRoutes(data.lines);
                     console.log(`Loaded ${this.routes.length} routes from data.json`);
-                } else {
-                    console.error('Failed to load routes:', data.error);
-                    this.showError('Failed to load routes from data.json');
+                    return;
                 }
-            } else {
-                console.error('Failed to fetch data.json');
-                this.showError('Could not load data.json');
             }
         } catch (error) {
-            console.error('Error loading routes from data.json:', error);
-            this.showError('Error loading routes');
+            console.warn('Failed to load data.json, using fallback data:', error);
         }
+        
+        // Fallback data for local development
+        this.loadFallbackData();
+    }
+    
+    loadFallbackData() {
+        const fallbackData = {
+            "success": true,
+            "lines": [
+                {
+                    "id": 1,
+                    "name": "What Is Reality? [QTD Episode 1]",
+                    "color": "#ff0001",
+                    "width": 4,
+                    "videoId": "https://youtube.com/shorts/IjyC9GufViY?si=Z8RGt-k2qyjU9xNL",
+                    "gpsPoints": "40.757224,-73.989873;40.756005,-73.990785;40.757176,-73.993531;40.758386,-73.992652;40.757241,-73.989884",
+                    "video_type": "philosophy"
+                },
+                {
+                    "id": 2,
+                    "name": "What Is The Most Important News Right? [QTD Episode 2]",
+                    "color": "#ff0001",
+                    "width": 4,
+                    "videoId": "https://youtube.com/shorts/GQb33Nq9Ltc?si=llHfLcmbTtFtpLr-",
+                    "gpsPoints": "40.735083,-73.991010;40.735034,-73.990538;40.735408,-73.989991;40.735717,-73.990785;40.735790,-73.991075;40.735376,-73.991203;40.735083,-73.991053",
+                    "video_type": "news"
+                },
+                {
+                    "id": 3,
+                    "name": "What Do You Think About Spider-Man? [QTD Episode 3]",
+                    "color": "#00ff00",
+                    "width": 4,
+                    "videoId": "https://youtube.com/shorts/QpUsgMcGHZI?si=09LL7WPLWSp1Hsq1",
+                    "gpsPoints": "40.827494,-73.911939;40.830774,-73.910437;40.831034,-73.911381;40.830936,-73.912368;40.831261,-73.913355;40.833339,-73.914084;40.834735,-73.917861;40.826780,-73.922539;40.827754,-73.925972;40.829345,-73.928633;40.832592,-73.925328;40.835157,-73.923912;40.836261,-73.922153;40.837560,-73.922238;40.838339,-73.923268",
+                    "video_type": "fun"
+                }
+            ]
+        };
+        
+        this.processRoutes(fallbackData.lines);
+        console.log(`Loaded ${this.routes.length} routes from fallback data`);
+    }
+    
+    processRoutes(lines) {
+        this.routes = lines.map(route => ({
+            id: route.id,
+            name: route.name,
+            color: route.color,
+            width: route.width,
+            videoId: route.videoId,
+            gpsPoints: route.gpsPoints,
+            videoType: route.video_type || 'fun'
+        }));
+        
+        this.filteredRoutes = [...this.routes];
+        this.hideLoading();
+        this.renderRoutesList();
+        this.addRoutesToMap();
+        this.fitMapToAllRoutes();
+        this.startFeaturedRotation();
     }
     
 
@@ -306,10 +344,16 @@ class NYCRoutesMap {
         document.querySelectorAll('.route-item').forEach(item => {
             item.classList.remove('active');
         });
-        document.querySelector(`[data-route-id="${route.id}"]`).classList.add('active');
+        const routeElement = document.querySelector(`[data-route-id="${route.id}"]`);
+        if (routeElement) {
+            routeElement.classList.add('active');
+        }
         
         // Focus on route on map
         this.focusOnRoute(route);
+        
+        // Open the video
+        this.openVideo(route.videoId, this.cleanTitle(route.name));
     }
     
     focusOnRoute(route) {
@@ -350,8 +394,17 @@ class NYCRoutesMap {
                 routeId: route.id
             });
             
-            // Add click handler
-            polyline.on('click', () => {
+            // Add click handler for both desktop and mobile
+            polyline.on('click', (e) => {
+                e.originalEvent.preventDefault();
+                e.originalEvent.stopPropagation();
+                this.selectRoute(route);
+            });
+            
+            // Add touch support for mobile
+            polyline.on('touchend', (e) => {
+                e.originalEvent.preventDefault();
+                e.originalEvent.stopPropagation();
                 this.selectRoute(route);
             });
             
@@ -450,7 +503,7 @@ class NYCRoutesMap {
         this.modalTitle.textContent = routeName || 'NYC Route';
         const embedUrl = `https://www.youtube.com/embed/${extractedId}?autoplay=1&rel=0`;
         this.youtubePlayer.src = embedUrl;
-        this.modal.style.display = 'block';
+        this.modal.classList.add('show');
         document.body.style.overflow = 'hidden';
     }
     
@@ -495,7 +548,7 @@ class NYCRoutesMap {
     }
     
     closeModal() {
-        this.modal.style.display = 'none';
+        this.modal.classList.remove('show');
         this.youtubePlayer.src = '';
         document.body.style.overflow = 'auto';
     }
