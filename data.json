@@ -1,0 +1,410 @@
+{
+  "success": true,
+  "lines": [
+    {
+      "id": 1,
+      "name": "What Is Reality? [QTD Episode 1]",
+      "color": "#ff0001",
+      "width": 4,
+      "videoId": "https://youtube.com/shorts/IjyC9GufViY?si=Z8RGt-k2qyjU9xNL",
+      "gpsPoints": "40.757224,-73.989873;40.756005,-73.990785;40.757176,-73.993531;40.758386,-73.992652;40.757241,-73.989884",
+      "video_type": "philosophy"
+    },
+    {
+      "id": 2,
+      "name": "What Is The Most Important News Right? [QTD Episode 2]",
+      "color": "#ff0001",
+      "width": 4,
+      "videoId": "https://youtube.com/shorts/GQb33Nq9Ltc?si=llHfLcmbTtFtpLr-",
+      "gpsPoints": "40.735083,-73.991010;40.735034,-73.990538;40.735408,-73.989991;40.735717,-73.990785;40.735790,-73.991075;40.735376,-73.991203;40.735083,-73.991053",
+      "video_type": "news"
+    },
+    {
+      "id": 3,
+      "name": "What Do You Think About Spider-Man? [QTD Episode 3]",
+      "color": "#00ff00",
+      "width": 4,
+      "videoId": "https://youtube.com/shorts/QpUsgMcGHZI?si=09LL7WPLWSp1Hsq1",
+      "gpsPoints": "40.827494,-73.911939;40.830774,-73.910437;40.831034,-73.911381;40.830936,-73.912368;40.831261,-73.913355;40.833339,-73.914084;40.834735,-73.917861;40.826780,-73.922539;40.827754,-73.925972;40.829345,-73.928633;40.832592,-73.925328;40.835157,-73.923912;40.836261,-73.922153;40.837560,-73.922238;40.838339,-73.923268",
+      "video_type": "fun"
+    },
+    {
+      "id": 4,
+      "name": "What Do You Think Of The Tariffs? [QTD Episode 4]",
+      "color": "#00ffde",
+      "width": 4,
+      "videoId": "https://youtube.com/shorts/ggy_9QycbK4?feature=share",
+      "gpsPoints": "40.765116,-73.973050;40.764824,-73.972406;40.759135,-73.976741",
+      "video_type": "news"
+    },
+    {
+      "id": 5,
+      "name": "Do You Feel Safe? [QTD Episode 5]",
+      "color": "#f3ff00",
+      "width": 4,
+      "videoId": "https://youtube.com/shorts/RZQ1Lo9qY1U?feature=share",
+      "gpsPoints": "40.711926,-74.011878;40.711584,-74.011180;40.711283,-74.010901;40.711226,-74.011095;40.711527,-74.011760;40.711844,-74.011953;40.711918,-74.011899",
+      "video_type": "news"
+    },
+    {
+      "id": 6,
+      "name": "What Do You Think About Ukraine? [QTD Episode 6]",
+      "color": "#0017ff",
+      "width": 4,
+      "videoId": "https://youtube.com/shorts/meHQTn5kHV0?feature=share",
+      "gpsPoints": "40.706659,-73.806581;40.702137,-73.804371;40.702739,-73.802354;40.701974,-73.802032;40.702495,-73.799908;40.707820,-73.802805;40.708773,-73.798921;40.710302,-73.799865;40.709684,-73.801496;40.708172,-73.802934;40.707749,-73.802805",
+      "video_type": "news"
+    },
+    {
+      "id": 7,
+      "name": "What Is The Most Important Invention Of All Time? [QTD Episode 7]",
+      "color": "#00ff00",
+      "width": 4,
+      "videoId": "https://youtube.com/shorts/meHQTn5kHV0?feature=share",
+      "gpsPoints": "40.746174,-73.890288;40.748417,-73.895416;40.749799,-73.884194;40.746093,-73.883657;40.744044,-73.885159;40.746158,-73.890288",
+      "video_type": "fun"
+    },
+    {
+      "id": 8,
+      "name": "What Do You Think About Capitalism? [QTD Episode 8]",
+      "color": "#ff00ff",
+      "width": 4,
+      "videoId": "https://youtube.com/shorts/dJhPmxO_eUk?feature=share",
+      "gpsPoints": "40.770978,-73.987076;40.760926,-73.994535",
+      "video_type": "philosophy"
+    },
+    {
+      "id": 9,
+      "name": "What Is Your Favorite Thing About Jersey City? [QTD Episode 9]",
+      "color": "#ff8900",
+      "width": 4,
+      "videoId": "https://youtube.com/shorts/T7LP8yUQPHI?feature=share",
+      "gpsPoints": "40.719505,-74.042240;40.720025,-74.042959;40.721643,-74.046103",
+      "video_type": "fun"
+    },
+    {
+      "id": 10,
+      "name": "What Do You Think About Death? [QTD Episode 13]",
+      "color": "#00ffde",
+      "width": 4,
+      "videoId": "https://youtube.com/shorts/dCKr29LgfAk?feature=share",
+      "gpsPoints": "40.765126,-73.973265;40.765581,-73.973050;40.766036,-73.973522;40.767125,-73.973329;40.768084,-73.973801;40.768247,-73.974960;40.768328,-73.975797;40.767174,-73.976870;40.767629,-73.978586;40.766914,-73.978951",
+      "video_type": "philosophy"
+    },
+    {
+      "id": 11,
+      "name": "Should The National Guard Takeover D.C.? [QTD Episode 14]",
+      "color": "#00ff00",
+      "width": 4,
+      "videoId": "https://youtube.com/shorts/CCQr3_nr_Os?feature=share",
+      "gpsPoints": "40.762971,-73.969831;40.754649,-73.975925",
+      "video_type": "news"
+    },
+    {
+      "id": 12,
+      "name": "What Could You Do To Make The Person Watching This Laugh? [QTD Episode 15]",
+      "color": "#ff0001",
+      "width": 4,
+      "videoId": "https://youtube.com/shorts/FJvmiNLb1FQ?feature=share",
+      "gpsPoints": "40.754112,-73.976730;40.752576,-73.977824;40.752340,-73.976988;40.753778,-73.975979;40.754128,-73.976752",
+      "video_type": "fun"
+    },
+    {
+      "id": 13,
+      "name": "What Do You Think About Communism? [QTD Episode 16]",
+      "color": "#00ffde",
+      "width": 4,
+      "videoId": "https://youtube.com/shorts/siRfBmzH_vg?feature=share",
+      "gpsPoints": "40.705862,-74.013326;40.704983,-74.013283;40.705032,-74.011502;40.706285,-74.011266;40.707179,-74.010623;40.707705,-74.011610",
+      "video_type": "philosophy"
+    },
+    {
+      "id": 14,
+      "name": "Where Will The Wolrd Be In 5 Years? [QTD Episode 17]",
+      "color": "#00ffde",
+      "width": 4,
+      "videoId": "https://youtube.com/shorts/Dv7jOXscej0?feature=share",
+      "gpsPoints": "40.715133,-74.002125;40.715507,-74.003026;40.714206,-74.003434;40.713929,-74.003069;40.714222,-74.002469;40.713572,-74.001310;40.714450,-74.000709;40.715117,-74.001997;40.716743,-74.001052;40.715686,-74.001524;40.715312,-74.000731;40.716109,-74.000087",
+      "video_type": "philosophy"
+    },
+    {
+      "id": 15,
+      "name": "What Is The Most Beautiful Thing You Have Ever Seen? [QTD Episode 18]",
+      "color": "#ff0001",
+      "width": 4,
+      "videoId": "https://youtube.com/shorts/lXSv8pVJ2IE?feature=share",
+      "gpsPoints": "40.709349,-73.960776;40.707625,-73.961120;40.706941,-73.961334;40.705900,-73.960176;40.702810,-73.965025;40.700467,-73.962708;40.701118,-73.961763",
+      "video_type": "fun"
+    },
+    {
+      "id": 16,
+      "name": "What Would Make Your Life Complete? [QTD Episode 19]",
+      "color": "#ff00ff",
+      "width": 4,
+      "videoId": "https://youtube.com/shorts/x8-ux9n55rk?feature=share",
+      "gpsPoints": "40.710748,-73.959918;40.714488,-73.957558;40.714066,-73.955884;40.714261,-73.955026;40.715497,-73.953910;40.717026,-73.956485;40.718164,-73.955197;40.721482,-73.960433;40.722581,-73.959339;40.724045,-73.961892",
+      "video_type": "philosophy"
+    },
+    {
+      "id": 17,
+      "name": "What Should Trump Tell Putin In Alaska? [QTD Episode 20]",
+      "color": "#0017ff",
+      "width": 4,
+      "videoId": "https://youtube.com/shorts/9v6s70_AcQw?feature=share",
+      "gpsPoints": "40.756138,-74.003263;40.756447,-74.004400;40.756187,-74.005172;40.754871,-74.005923;40.754220,-74.005601;40.753473,-74.003713;40.752681,-74.002136;40.752023,-74.001921;40.749186,-74.003820;40.747252,-74.005237;40.746033,-74.006009;40.744862,-74.006835;40.743464,-74.006932;40.742391,-74.007672;40.740448,-74.008101;40.739440,-74.008219",
+      "video_type": "news"
+    },
+    {
+      "id": 18,
+      "name": "What Would Be Your Superpower? [QTD Episode 21]",
+      "color": "#ff00ff",
+      "width": 4,
+      "videoId": "https://youtube.com/shorts/Qqo7LTnr7Fo?feature=share",
+      "gpsPoints": "40.757240,-73.989801;40.754804,-73.984085",
+      "video_type": "fun"
+    },
+    {
+      "id": 19,
+      "name": "How Would You Define Racism? [QTD Episode 25]",
+      "color": "#f3ff00",
+      "width": 4,
+      "videoId": "https://youtube.com/shorts/-BUwe1ahZKA?feature=share",
+      "gpsPoints": "40.766573,-73.962944;40.772325,-73.958652;40.770359,-73.954103",
+      "video_type": "philosophy"
+    },
+    {
+      "id": 20,
+      "name": "What Percentage Of The Internet Is Bots? [QTD Episode 26]",
+      "color": "#00ff00",
+      "width": 4,
+      "videoId": "https://youtube.com/shorts/gdGDHW8-Xx8?feature=share",
+      "gpsPoints": "40.805240,-73.939404;40.808971,-73.948309",
+      "video_type": "news"
+    },
+    {
+      "id": 21,
+      "name": "What Was The Last Thing You Were Afraid Of? [QTD Episode 27]",
+      "color": "#00ff00",
+      "width": 4,
+      "videoId": "https://youtube.com/shorts/fkWe39aToME?feature=share",
+      "gpsPoints": "40.803518,-73.967106;40.802154,-73.967750;40.799945,-73.968050;40.796761,-73.970218;40.793317,-73.972707;40.790734,-73.974531",
+      "video_type": "philosophy"
+    },
+    {
+      "id": 22,
+      "name": "How Excited Are You For The New Taylor Swift Album? [QTD Episode 28]",
+      "color": "#ff0001",
+      "width": 4,
+      "videoId": "https://youtube.com/shorts/OXHDMgMuaA0?feature=share",
+      "gpsPoints": "40.693014,-73.989884;40.693673,-73.990088;40.693774,-73.989782;40.694071,-73.989782;40.694100,-73.990265;40.693693,-73.990270;40.693091,-73.990560;40.692652,-73.990763",
+      "video_type": "fun"
+    },
+    {
+      "id": 23,
+      "name": "What Do You Think About Graffiti? [QTD Episode 29]",
+      "color": "#ff00ff",
+      "width": 4,
+      "videoId": "https://youtube.com/shorts/QFEFYTcB8CU?feature=share",
+      "gpsPoints": "40.701171,-73.986719;40.701130,-73.986456;40.701508,-73.986370;40.701577,-73.987432;40.702427,-73.987765;40.703810,-73.988623;40.704576,-73.988441;40.704418,-73.986526;40.702394,-73.986590;40.702491,-73.989658;40.703194,-73.989637;40.703126,-73.988714;40.702703,-73.988532;40.701597,-73.988618",
+      "video_type": "fun"
+    },
+    {
+      "id": 24,
+      "name": "What Should Happen Next In Gaza? [QTD Episode 30]",
+      "color": "#ff0001",
+      "width": 4,
+      "videoId": "https://youtube.com/shorts/LHmTnkB_5yk?feature=share",
+      "gpsPoints": "40.748479,-73.988553;40.748292,-73.988135;40.749950,-73.987813;40.750649,-73.987663;40.750479,-73.987341",
+      "video_type": "news"
+    },
+    {
+      "id": 25,
+      "name": "How Would You Define Climate Change? [QTD Episode 31]",
+      "color": "#00ff00",
+      "width": 4,
+      "videoId": "https://youtube.com/shorts/lJWjySNwfqA?feature=share",
+      "gpsPoints": "40.709967,-74.052014;40.708145,-74.035621;40.708731,-74.034333;40.706161,-74.034848;40.706551,-74.041500;40.706193,-74.043689;40.705055,-74.042830;40.704599,-74.042015;40.702549,-74.044933;40.703591,-74.047036;40.701996,-74.048710;40.700565,-74.048581;40.699166,-74.048796;40.696042,-74.051285;40.690879,-74.054890;40.691595,-74.056885;40.693059,-74.056349;40.694507,-74.058945;40.693937,-74.059460;40.693157,-74.057937;40.694995,-74.058731;40.696150,-74.057379;40.696492,-74.055877",
+      "video_type": "philosophy"
+    },
+    {
+      "id": 26,
+      "name": "What Is Your Spirit Animal? [QTD Episode 32]",
+      "color": "#ff0001",
+      "width": 4,
+      "videoId": "https://youtube.com/shorts/xBUoy5dZsNw?feature=share",
+      "gpsPoints": "40.701252,-74.016609;40.665714,-74.049568;40.644330,-74.072270",
+      "video_type": "fun"
+    },
+    {
+      "id": 27,
+      "name": "What Do You Think About Anarchy? [QTD Episode 33]",
+      "color": "#00ff00",
+      "width": 4,
+      "videoId": "https://youtube.com/shorts/KU6bgj1LrrA?feature=share",
+      "gpsPoints": "40.642800,-74.075317;40.641227,-74.075704;40.637970,-74.075875;40.636829,-74.076262;40.637725,-74.076895;40.638067,-74.077924;40.636715,-74.077967;40.635331,-74.078279;40.636349,-74.074244;40.636593,-74.073493;40.637863,-74.073676;40.637847,-74.075789",
+      "video_type": "philosophy"
+    },
+    {
+      "id": 28,
+      "name": "What Do You Think About ICE? [QTD Episode 34]",
+      "color": "#00ff00",
+      "width": 4,
+      "videoId": "https://youtube.com/shorts/GEZ7UDgWpB8?feature=share",
+      "gpsPoints": "40.749446,-73.992566;40.749235,-73.992019;40.750365,-73.991193;40.750601,-73.991708;40.750958,-73.992491",
+      "video_type": "news"
+    },
+    {
+      "id": 29,
+      "name": "What Should The Federal Reserve Do With Intrest Rates? [QTD Episode 35]",
+      "color": "#0017ff",
+      "width": 4,
+      "videoId": "https://youtube.com/shorts/24432hFtTgQ?feature=share",
+      "gpsPoints": "40.757818,-74.000859;40.757647,-74.000602;40.755843,-74.002007;40.756485,-74.003541",
+      "video_type": "news"
+    },
+    {
+      "id": 30,
+      "name": "What Makes You Laugh? [QTD Episode 36]",
+      "color": "#ff0001",
+      "width": 4,
+      "videoId": "https://youtube.com/shorts/aiPqMOuoc7k?feature=share",
+      "gpsPoints": "40.738150,-74.010408;40.735996,-74.010569;40.734264,-74.010773;40.734289,-74.011889;40.734069,-74.011867;40.734028,-74.010794;40.733622,-74.010826;40.733224,-74.010837;40.733313,-74.013948;40.733085,-74.013927",
+      "video_type": "fun"
+    },
+    {
+      "id": 31,
+      "name": "What Do You Remember From Y2K? [QTD Episode 38]",
+      "color": "#ff0001",
+      "width": 4,
+      "videoId": "https://youtube.com/shorts/darp48FrPfI?feature=share",
+      "gpsPoints": "40.768243,-73.982438;40.767789,-73.982449;40.767594,-73.982149;40.767626,-73.981462;40.767943,-73.981194;40.768422,-73.981301;40.768560,-73.981763;40.768511,-73.982267;40.768260,-73.982438",
+      "video_type": "fun"
+    },
+    {
+      "id": 32,
+      "name": "What Do You Think About Marriage [QTD Episode 39]",
+      "color": "#00ff00",
+      "width": 4,
+      "videoId": "https://youtube.com/shorts/RPECuXOo6Ho?feature=share",
+      "gpsPoints": "40.800346,-73.958030;40.799884,-73.957890;40.799478,-73.958030;40.799397,-73.956946;40.799307,-73.956002;40.798911,-73.955101;40.798383,-73.954286;40.798213,-73.953760;40.797929,-73.953749;40.797547,-73.954254;40.796963,-73.954436;40.796671,-73.953964;40.796557,-73.953213;40.796386,-73.953095;40.796192,-73.952387;40.795807,-73.952474;40.795580,-73.951808;40.794995,-73.951723;40.794687,-73.952216;40.794525,-73.951701;40.794233,-73.951530;40.793664,-73.951959;40.793080,-73.952366;40.793194,-73.952731",
+      "video_type": "philosophy"
+    },
+    {
+      "id": 33,
+      "name": "Where Would You Live, If Not America? [QTD Episode 40]",
+      "color": "#0017ff",
+      "width": 4,
+      "videoId": "https://youtube.com/shorts/Gcu8mwzDQOQ?feature=share",
+      "gpsPoints": "40.741654,-73.907562;40.742532,-73.914943;40.742889,-73.915801;40.742970,-73.916788;40.742743,-73.916896;40.742515,-73.917883;40.744838,-73.917389;40.745277,-73.921165;40.746916,-73.920854;40.747387,-73.925414",
+      "video_type": "fun"
+    },
+    {
+      "id": 34,
+      "name": "What Is Something You Regret? [Episode 41]",
+      "color": "#f3ff00",
+      "width": 4,
+      "videoId": "https://youtube.com/shorts/A2AdHvM0MC8?feature=share",
+      "gpsPoints": "40.744701,-73.948395;40.741728,-73.949446;40.742215,-73.951549;40.743206,-73.951420;40.741890,-73.954124;40.743091,-73.959916;40.744163,-73.959229;40.745105,-73.957727;40.744065,-73.953479",
+      "video_type": "philosophy"
+    },
+    {
+      "id": 35,
+      "name": "How Can We Improve Health Care? [QTD Episode 42]",
+      "color": "#00ffde",
+      "width": 4,
+      "videoId": "https://youtube.com/shorts/f__YsXTfAhQ?feature=share",
+      "gpsPoints": "40.744780,-73.975839;40.737892,-73.980902;40.736917,-73.978521;40.738184,-73.977555;40.737112,-73.974959;40.738135,-73.977512;40.743854,-73.973414;40.743253,-73.972148",
+      "video_type": "news"
+    },
+    {
+      "id": 36,
+      "name": "How Excited Are You For GTA VI? [QTD Episode 43]",
+      "color": "#00ff00",
+      "width": 4,
+      "videoId": "https://youtube.com/shorts/CZojcd5g9bg?feature=share",
+      "gpsPoints": "40.719396,-74.001951;40.725360,-73.996823",
+      "video_type": "fun"
+    },
+    {
+      "id": 37,
+      "name": "What Do You Think About Globalism? [QTD Episode 44]",
+      "color": "#f3ff00",
+      "width": 4,
+      "videoId": "https://youtube.com/shorts/AxtXBumCTnU?feature=share",
+      "gpsPoints": "40.740634,-73.989423;40.740934,-73.989305;40.741377,-73.989128;40.742128,-73.989058;40.742124,-73.988779;40.741970,-73.988693;40.741600,-73.988752;40.741385,-73.988607;40.741328,-73.988141;40.741767,-73.988242;40.742059,-73.987669;40.742498,-73.987749;40.742575,-73.987899;40.742677,-73.987808;40.742677,-73.987685;40.742624,-73.987626;40.742693,-73.987127;40.742928,-73.987384",
+      "video_type": "philosophy"
+    },
+    {
+      "id": 38,
+      "name": "What Do You Do For Fun? [QTD Episode 45]",
+      "color": "#f3ff00",
+      "width": 4,
+      "videoId": "https://youtube.com/shorts/dpTADw557Nk?feature=share",
+      "gpsPoints": "40.630686,-74.009232;40.625739,-74.016441;40.624437,-74.014210;40.623135,-74.015240;40.620531,-74.010777;40.615518,-74.016441;40.612719,-74.011721;40.607640,-74.017042;40.607054,-74.019874;40.604840,-74.021247;40.604710,-74.017643;40.602951,-74.019359;40.604579,-74.028542;40.607965,-74.034464;40.612002,-74.037811",
+      "video_type": "fun"
+    },
+    {
+      "id": 39,
+      "name": "What Do You Do For Your Community? [QTD Episode 46]",
+      "color": "#0017ff",
+      "width": 4,
+      "videoId": "https://youtube.com/shorts/-ThVlqm-JoY?feature=share",
+      "gpsPoints": "40.638607,-74.020818;40.644334,-74.014982;40.637696,-74.003997;40.641536,-73.999620;40.646872,-74.008631;40.648564,-74.006829;40.648694,-74.005885;40.647783,-74.004512;40.648434,-74.003396;40.649605,-74.004512",
+      "video_type": "philosophy"
+    },
+    {
+      "id": 40,
+      "name": "What Do You Think About China? [QTD Episode 47]",
+      "color": "#00ffde",
+      "width": 4,
+      "videoId": "https://youtube.com/shorts/dDHdp3OkeKY?feature=share",
+      "gpsPoints": "40.683729,-73.978705;40.684298,-73.978318;40.684030,-73.977460;40.682404,-73.976345;40.683152,-73.976269;40.683948,-73.976849;40.684371,-73.977621;40.685314,-73.978072;40.686582,-73.979112;40.686713,-73.978297",
+      "video_type": "news"
+    },
+    {
+      "id": 41,
+      "name": "Do You Believe In Aliens? [QTD Episode 48]",
+      "color": "#ff00ff",
+      "width": 4,
+      "videoId": "https://youtube.com/shorts/C9RQfViCTCQ?feature=share",
+      "gpsPoints": "40.758550,-73.988833;40.757835,-73.987106;40.758517,-73.986601;40.758826,-73.987503;40.759386,-73.987041;40.758858,-73.985636;40.759500,-73.985314;40.760401,-73.987449",
+      "video_type": "fun"
+    },
+    {
+      "id": 42,
+      "name": "What Advice Would You Give A 26 Year Old? [QTD Episode 49]",
+      "color": "#0017ff",
+      "width": 4,
+      "videoId": "https://youtube.com/shorts/Xp6k2KPCD3Q?feature=share",
+      "gpsPoints": "40.850158,-73.935715;40.849379,-73.933763;40.853061,-73.931017;40.853580,-73.932197",
+      "video_type": "philosophy"
+    },
+    {
+      "id": 43,
+      "name": "What Is Your Favorite Corporation? [QTD Episode 50]",
+      "color": "#00ffde",
+      "width": 4,
+      "videoId": "https://youtube.com/shorts/hB1_ceGMwZk?feature=share",
+      "gpsPoints": "40.573093,-73.980776;40.572506,-73.980690;40.572148,-73.983909;40.570145,-73.983480;40.570161,-73.983093;40.570161,-73.983480;40.572132,-73.983909;40.573044,-73.975798",
+      "video_type": "fun"
+    },
+    {
+      "id": 44,
+      "name": "What Is The Biggest Risk You Have Taken? [QTD Episode 51]",
+      "color": "#00ff00",
+      "width": 4,
+      "videoId": "https://youtube.com/shorts/0ebaM2G97LQ?feature=share",
+      "gpsPoints": "40.749039,-73.970111;40.749364,-73.970733;40.749745,-73.970358;40.749697,-73.970057;40.748600,-73.970776;40.749689,-73.970036;40.749640,-73.969574;40.749550,-73.969381;40.749412,-73.969274;40.748811,-73.969617;40.748698,-73.970025;40.747780,-73.970765;40.748600,-73.973061;40.749120,-73.972686;40.748413,-73.970915;40.748064,-73.971227;40.748430,-73.970948;40.748576,-73.970787",
+      "video_type": "philosophy"
+    },
+    {
+      "id": 45,
+      "name": "How Would You Define Love? [QTD Episode 52]",
+      "color": "#f3ff00",
+      "width": 4,
+      "videoId": "https://youtube.com/shorts/0hIj3x6u0l8?feature=share",
+      "gpsPoints": "40.716590,-73.995882;40.715648,-73.996333;40.715859,-73.995818;40.716558,-73.995796;40.718719,-73.994745;40.720523,-73.994123;40.724050,-73.992578",
+      "video_type": "philosophy"
+    }
+  ]
+}
