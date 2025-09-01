@@ -51,15 +51,22 @@ class NYCRoutesMap {
     
     setCurrentDate() {
         const dateElement = document.getElementById('current-date');
+        const dateHeaderElement = document.getElementById('current-date-header');
+        
+        const today = new Date();
+        const options = { 
+            weekday: 'long', 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+        };
+        const dateString = today.toLocaleDateString('en-US', options);
+        
         if (dateElement) {
-            const today = new Date();
-            const options = { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-            };
-            dateElement.textContent = today.toLocaleDateString('en-US', options);
+            dateElement.textContent = dateString;
+        }
+        if (dateHeaderElement) {
+            dateHeaderElement.textContent = dateString;
         }
     }
     
@@ -90,10 +97,9 @@ class NYCRoutesMap {
         // Search functionality
         this.searchInput.addEventListener('input', (e) => this.handleSearch(e.target.value));
         
-        // Filter buttons
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => this.handleFilter(e.target.dataset.filter));
-        });
+        // Filter dropdown
+        this.filterDropdown = document.getElementById('filter-dropdown');
+        this.filterDropdown.addEventListener('change', (e) => this.handleFilter(e.target.value));
         
         // Modal events
         this.closeBtn.addEventListener('click', () => this.closeModal());
@@ -173,6 +179,13 @@ class NYCRoutesMap {
             videoType: route.video_type || 'fun'
         }));
         
+        // Sort routes in reverse chronological order (highest episode number first)
+        this.routes.sort((a, b) => {
+            const episodeA = this.extractEpisodeNumber(a.name);
+            const episodeB = this.extractEpisodeNumber(b.name);
+            return episodeB - episodeA; // Reverse order (newest first)
+        });
+        
         this.filteredRoutes = [...this.routes];
         this.hideLoading();
         this.renderRoutesList();
@@ -209,12 +222,9 @@ class NYCRoutesMap {
         this.routesList.innerHTML = this.filteredRoutes.map(route => `
             <div class="route-item" data-route-id="${route.id}">
                 <div class="route-header">
-                    <div class="route-title">${this.cleanTitle(route.name)}</div>
+                    <div class="route-episode">${this.getEpisodeNumber(route.name)}</div>
+                    <div class="route-title">${this.splitTitleForDisplay(route.name)}</div>
                     <button class="route-watch-btn" data-route-id="${route.id}">WATCH</button>
-                </div>
-                <div class="route-meta">
-                    <div class="route-color" style="background-color: ${route.color}"></div>
-                    <span class="route-type">${this.getVideoTypeDisplay(route.videoType)}</span>
                 </div>
             </div>
         `).join('');
@@ -284,25 +294,31 @@ class NYCRoutesMap {
         
         this.featuredScroll.innerHTML = `
             <div class="wheel-container">
-                <div class="wheel-item wheel-prev">
-                    <div class="featured-text">${this.cleanTitle(prevRoute.name)}<span class="click-to-watch">click to watch</span></div>
-                    <button class="featured-watch-btn" data-route-id="${prevRoute.id}">WATCH</button>
+                <div class="wheel-item wheel-prev" data-route-id="${prevRoute.id}">
+                    <div class="featured-content">
+                        <div class="episode-number">${this.getEpisodeNumber(prevRoute.name)}</div>
+                        <div class="question-text">${this.cleanTitle(prevRoute.name)}</div>
+                    </div>
                 </div>
-                <div class="wheel-item wheel-current">
-                    <div class="featured-text">${this.cleanTitle(currentRoute.name)}<span class="click-to-watch">click to watch</span></div>
-                    <button class="featured-watch-btn" data-route-id="${currentRoute.id}">WATCH</button>
+                <div class="wheel-item wheel-current" data-route-id="${currentRoute.id}">
+                    <div class="featured-content">
+                        <div class="episode-number">${this.getEpisodeNumber(currentRoute.name)}</div>
+                        <div class="question-text">${this.cleanTitle(currentRoute.name)}</div>
+                    </div>
                 </div>
-                <div class="wheel-item wheel-next">
-                    <div class="featured-text">${this.cleanTitle(nextRoute.name)}<span class="click-to-watch">click to watch</span></div>
-                    <button class="featured-watch-btn" data-route-id="${nextRoute.id}">WATCH</button>
+                <div class="wheel-item wheel-next" data-route-id="${nextRoute.id}">
+                    <div class="featured-content">
+                        <div class="episode-number">${this.getEpisodeNumber(nextRoute.name)}</div>
+                        <div class="question-text">${this.cleanTitle(nextRoute.name)}</div>
+                    </div>
                 </div>
             </div>
         `;
         
-        // Add click listeners to watch buttons
-        document.querySelectorAll('.featured-watch-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const routeId = parseInt(btn.dataset.routeId);
+        // Add click listeners to wheel items
+        document.querySelectorAll('.wheel-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const routeId = parseInt(item.dataset.routeId);
                 const route = this.routes.find(r => r.id === routeId);
                 if (route) {
                     this.openVideo(route.videoId, this.cleanTitle(route.name));
@@ -328,6 +344,36 @@ class NYCRoutesMap {
     cleanTitle(title) {
         // Remove content in brackets and parentheses
         return title.replace(/\s*[\[\(][^\]\)]*[\]\)]\s*/g, '').trim();
+    }
+    
+    splitTitleForDisplay(title) {
+        // Split long titles into two lines only if really necessary
+        const cleanedTitle = this.cleanTitle(title);
+        const words = cleanedTitle.split(' ');
+        
+        // Only split if title is very long - be more conservative
+        if (words.length <= 6 || cleanedTitle.length <= 45) {
+            return `<span class="title-text">${cleanedTitle}</span>`;
+        }
+        
+        // Split roughly in the middle for very long titles
+        const midPoint = Math.ceil(words.length / 2);
+        const firstLine = words.slice(0, midPoint).join(' ');
+        const secondLine = words.slice(midPoint).join(' ');
+        
+        return `<span class="title-text">${firstLine}</span><span class="title-text">${secondLine}</span>`;
+    }
+    
+    getEpisodeNumber(title) {
+        // Extract episode number from "[QTD Episode X]" format
+        const match = title.match(/\[QTD Episode (\d+)\]/i);
+        return match ? `#${match[1]}` : '#?';
+    }
+    
+    extractEpisodeNumber(title) {
+        // Extract numeric episode number for sorting
+        const match = title.match(/\[QTD Episode (\d+)\]/i);
+        return match ? parseInt(match[1], 10) : 0;
     }
     
     getVideoTypeDisplay(videoType) {
@@ -463,17 +509,21 @@ class NYCRoutesMap {
             return matchesSearch && matchesFilter;
         });
         
+        // Maintain reverse chronological order for search results
+        this.filteredRoutes.sort((a, b) => {
+            const episodeA = this.extractEpisodeNumber(a.name);
+            const episodeB = this.extractEpisodeNumber(b.name);
+            return episodeB - episodeA; // Reverse order (newest first)
+        });
+        
         this.renderRoutesList();
     }
     
     handleFilter(filter) {
         this.currentFilter = filter;
         
-        // Update filter button states
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.classList.remove('active');
-        });
-        document.querySelector(`[data-filter="${filter}"]`).classList.add('active');
+        // Update dropdown selection
+        this.filterDropdown.value = filter;
         
         // Apply filter
         const searchTerm = this.searchInput.value.toLowerCase().trim();
@@ -481,6 +531,13 @@ class NYCRoutesMap {
             const matchesSearch = !searchTerm || route.name.toLowerCase().includes(searchTerm);
             const matchesFilter = filter === 'all' || route.videoType === filter;
             return matchesSearch && matchesFilter;
+        });
+        
+        // Maintain reverse chronological order for filtered results
+        this.filteredRoutes.sort((a, b) => {
+            const episodeA = this.extractEpisodeNumber(a.name);
+            const episodeB = this.extractEpisodeNumber(b.name);
+            return episodeB - episodeA; // Reverse order (newest first)
         });
         
         this.renderRoutesList();
@@ -527,7 +584,20 @@ class NYCRoutesMap {
         this.modalTitle.textContent = routeName || 'NYC Route';
         
         // Create proper embed URL for Shorts vs regular videos
-        const embedUrl = `https://www.youtube.com/embed/${extracted.id}?autoplay=1&rel=0`;
+        let embedUrl;
+        if (extracted.isShorts) {
+            // For Shorts, replace /shorts/ with /embed/ in the original URL
+            embedUrl = videoId.replace('/shorts/', '/embed/');
+            // Add autoplay parameter if not already present
+            if (!embedUrl.includes('?')) {
+                embedUrl += '?autoplay=1&rel=0';
+            } else if (!embedUrl.includes('autoplay')) {
+                embedUrl += '&autoplay=1&rel=0';
+            }
+        } else {
+            // For regular videos, use standard embed format
+            embedUrl = `https://www.youtube.com/embed/${extracted.id}?autoplay=1&rel=0`;
+        }
         console.log('Setting embed URL:', embedUrl, 'isShorts:', extracted.isShorts);
         
         // Update modal styling based on video type

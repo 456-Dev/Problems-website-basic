@@ -7,60 +7,187 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="styles.css">
     <style>
-        /* Problem Button Styles */
-        .problem-button {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 12px 20px;
-            background-color: #000;
-            color: #fff;
-            text-decoration: none;
-            font-family: 'Times New Roman', Times, serif;
-            font-size: 16px;
+        /* Hide old date corner */
+        .date-corner {
+            display: none;
+        }
+        
+        /* Two-column header layout */
+        .masthead {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 40px;
+            margin-bottom: 15px;
+        }
+        
+        .title-section {
+            flex: 0 0 auto;
+        }
+        
+        .title-section h1 {
+            margin: 0;
+            padding: 0;
+        }
+        
+        .title-line {
+            font-size: 3.5rem;
             font-weight: bold;
-            border: 2px solid #000;
-            border-radius: 0;
-            z-index: 1000;
-            transition: all 0.2s ease;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            color: #ffffff;
+            letter-spacing: 2px;
+            line-height: 0.95;
+            font-family: "Times New Roman", Times, serif;
+            margin: 0;
+            padding: 0;
         }
         
-        .problem-button:hover {
-            background-color: #fff;
-            color: #000;
-            transform: scale(1.05);
+        .description-section {
+            flex: 0 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            justify-content: center;
+            margin-top: 20px;
         }
         
-        .problem-button:active {
-            transform: scale(0.98);
+        .date-above-description {
+            font-size: 13px;
+            color: #000000;
+            font-family: 'Times New Roman', Times, serif;
+            font-weight: bold;
+            margin-bottom: 12px;
+            padding: 8px 12px;
+            background: #ffffff;
+            border: 2px solid #333333;
+            border-radius: 4px;
+            display: inline-block;
+            white-space: nowrap;
+        }
+        
+        .desc-line {
+            font-size: 14px;
+            color: #cccccc;
+            font-family: 'Times New Roman', Times, serif;
+            line-height: 1.4;
+            margin: 2px 0;
+            text-align: center;
+        }
+        
+        /* Header Navigation with full-width colored backgrounds */
+        .header-nav {
+            display: flex;
+            margin-top: 20px;
+            width: 100%;
+        }
+        
+        .nav-button {
+            text-decoration: none;
+            color: #000000;
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 14px;
+            font-weight: bold;
+            padding: 8px 10px;
+            border: none;
+            flex: 1;
+            text-align: center;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        
+        .nav-button[data-color="yellow"] {
+            background: #ffff00;
+        }
+        
+        .nav-button[data-color="green"] {
+            background: #00ff00;
+        }
+        
+        .nav-button[data-color="red"] {
+            background: #ff0000;
+            color: #ffffff;
+        }
+        
+        .nav-button:hover {
+            filter: brightness(1.1);
+        }
+        
+        .nav-button.active {
+            filter: brightness(1.2);
+            font-weight: 900;
         }
         
         /* Mobile responsive */
         @media (max-width: 768px) {
-            .problem-button {
-                top: 10px;
-                right: 10px;
-                padding: 10px 16px;
-                font-size: 14px;
+            .masthead {
+                gap: 15px;
+            }
+
+            .title-line {
+                font-size: 2.5rem;
+                letter-spacing: 1px;
+            }
+
+            .description-section {
+                margin-top: 15px;
+            }
+
+            .desc-line {
+                font-size: 12px;
+                text-align: right;
+            }
+
+            .date-above-description {
+                font-size: 11px;
+                padding: 6px 10px;
+                margin-bottom: 8px;
+            }
+
+            .header-nav {
+                width: 100%;
+            }
+
+            .nav-button {
+                font-size: 12px;
+                padding: 6px 8px;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- Date in top right corner -->
+        <div class="date-corner" id="current-date"></div>
+        
         <header>
             <div class="masthead">
-                <h1>QUESTION THE DAY</h1>
-                <div class="tagline">Daily Interview Series ~ 25 People, All Responses Included</div>
-                <div class="edition-info">Interactive Map Edition • <span id="current-date"></span></div>
+                <div class="title-section">
+                    <h1>
+                        <div class="title-line">Question</div>
+                        <div class="title-line">The</div>
+                        <div class="title-line">Day</div>
+                    </h1>
+                </div>
+                <div class="description-section">
+                    <div class="date-above-description" id="current-date-header"></div>
+                    <div class="desc-line">Daily Interview Series</div>
+                    <div class="desc-line">~25 People, One Question, All Responses Included</div>
+                </div>
             </div>
-            <!-- Problem Button -->
-            <a href="submit.html" class="problem-button">What is your problem?!</a>
+            <!-- Navigation Buttons with colored backgrounds -->
+            <nav class="header-nav">
+                <a href="#" class="nav-button active" data-color="yellow">Question The Day</a>
+                <a href="submit.html" class="nav-button" data-color="green">What Is Your Problem?!</a>
+                <a href="https://456solutions.com/america" class="nav-button" data-color="red">One Question For America</a>
+            </nav>
         </header>
         
         <!-- Featured Questions Scroll -->
         <div class="featured-section">
+            <div class="click-to-watch-static">
+                <div>CLICK</div>
+                <div>TO</div>
+                <div>WATCH</div>
+            </div>
             <div class="featured-scroll" id="featured-scroll">
                 <div class="loading-featured">Loading interviews...</div>
             </div>
@@ -88,19 +215,25 @@
             
             <!-- Routes List Section -->
             <div class="routes-section">
-                <div class="search-container">
-                    <h3>ALL INTERVIEWS</h3>
-                    <input type="text" id="search-input" placeholder="Search interviews..." class="search-input">
-                    <div class="filter-buttons">
-                        <button class="filter-btn active" data-filter="all">ALL</button>
-                        <button class="filter-btn" data-filter="fun">FUN</button>
-                        <button class="filter-btn" data-filter="news">NEWS</button>
-                        <button class="filter-btn" data-filter="philosophy">PHILOSOPHY</button>
+                <div class="section-header">
+                    <h3>VIEW ALL QUESTIONS</h3>
+                    <div class="dropdown-wrapper">
+                        <select id="filter-dropdown" class="filter-dropdown">
+                            <option value="all">ALL</option>
+                            <option value="fun">FUN</option>
+                            <option value="news">NEWS</option>
+                            <option value="philosophy">PHILOSOPHY</option>
+                        </select>
+                        <span class="dropdown-arrow">▼</span>
                     </div>
                 </div>
                 
                 <div class="routes-list" id="routes-list">
                     <!-- Route items will be populated here -->
+                </div>
+                
+                <div class="search-container">
+                    <input type="text" id="search-input" placeholder="Search questions..." class="search-input">
                 </div>
                 
                 <div class="loading-state" id="loading-state">
@@ -122,9 +255,11 @@
                 <h3 id="modal-title"></h3>
                 <div id="video-container">
                     <iframe id="youtube-player" 
-                            width="560" 
-                            height="315" 
+                            width="315" 
+                            height="560" 
+                            title="YouTube video player"
                             frameborder="0" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                             allowfullscreen>
                     </iframe>
                 </div>
@@ -133,10 +268,10 @@
         
         <!-- About Panel -->
         <div id="info-panel" class="info-panel">
-            <h3>About this project</h3>
-            <p>This interactive map showcases daily interview questions collected from 25 people across New York City. Each colored line represents a different subway route where interviews were conducted, providing unique perspectives on various topics.</p>
-            <p>Our goal is to capture authentic voices and diverse viewpoints from the city's vibrant communities. Click on any line to watch interview responses and discover what New Yorkers really think about the questions that matter.</p>
-            <p>This project combines technology, storytelling, and urban exploration to create a living archive of contemporary NYC perspectives and experiences.</p>
+            <h3>About the project</h3>
+            <p>Each question is asked to roughly 25 people in the same session. All recorded responses are included with minimal editing while meeting a 3 minute time constraint. Each episode is shot, edited and published within the day.</p>
+            <p>Each person is asked 3 questions: [What would you say is your number one problem right?], [What is your solution?] and [Question of The Day] These first two quesions will be used for a future project {see What Is Your Problem?!}</p>
+            <p>The project is created by bignosemichael: feel free to reach out on instagram or michaellinares314@gmail.com!</p>
         </div>
     </div>
     
