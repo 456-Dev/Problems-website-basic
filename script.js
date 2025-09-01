@@ -515,18 +515,29 @@ class NYCRoutesMap {
         }
         
         // Extract video ID from various YouTube URL formats
-        const extractedId = this.extractYouTubeId(videoId);
-        console.log('Extracted video ID:', extractedId);
+        const extracted = this.extractYouTubeId(videoId);
+        console.log('Extracted video data:', extracted);
         
-        if (!extractedId) {
+        if (!extracted || !extracted.id) {
             console.error('Failed to extract video ID from:', videoId);
             this.showNotification('Invalid YouTube video ID or URL', 'error');
             return;
         }
         
         this.modalTitle.textContent = routeName || 'NYC Route';
-        const embedUrl = `https://www.youtube.com/embed/${extractedId}?autoplay=1&rel=0`;
-        console.log('Setting embed URL:', embedUrl);
+        
+        // Create proper embed URL for Shorts vs regular videos
+        const embedUrl = `https://www.youtube.com/embed/${extracted.id}?autoplay=1&rel=0`;
+        console.log('Setting embed URL:', embedUrl, 'isShorts:', extracted.isShorts);
+        
+        // Update modal styling based on video type
+        if (extracted.isShorts) {
+            console.log('Configuring modal for YouTube Shorts');
+            this.modal.classList.add('shorts-mode');
+        } else {
+            console.log('Configuring modal for regular YouTube video');
+            this.modal.classList.remove('shorts-mode');
+        }
         
         this.youtubePlayer.src = embedUrl;
         this.modal.classList.add('show');
@@ -543,7 +554,7 @@ class NYCRoutesMap {
         
         // If it's already just an ID (11 characters, alphanumeric with dashes/underscores)
         if (/^[a-zA-Z0-9_-]{11}$/.test(url)) {
-            return url;
+            return { id: url, isShorts: false };
         }
         
         // YouTube Shorts URL patterns
@@ -562,13 +573,13 @@ class NYCRoutesMap {
         // Try shorts patterns first
         for (const pattern of shortsPatterns) {
             const match = url.match(pattern);
-            if (match) return match[1];
+            if (match) return { id: match[1], isShorts: true };
         }
         
         // Try regular patterns
         for (const pattern of regularPatterns) {
             const match = url.match(pattern);
-            if (match) return match[1];
+            if (match) return { id: match[1], isShorts: false };
         }
         
         console.warn('Could not extract YouTube ID from:', input);
@@ -577,6 +588,7 @@ class NYCRoutesMap {
     
     closeModal() {
         this.modal.classList.remove('show');
+        this.modal.classList.remove('shorts-mode');
         this.youtubePlayer.src = '';
         document.body.style.overflow = 'auto';
     }
