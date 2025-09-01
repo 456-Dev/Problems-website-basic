@@ -16,11 +16,61 @@ html, body {
     font-size: 14px;
 }
 
-/* Container */
+/* Top Banner Navigation */
+.top-banner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    display: flex;
+    background: #000000;
+    border-bottom: 2px solid #333333;
+}
+
+.top-banner .nav-button {
+    flex: 1;
+    padding: 12px 15px;
+    text-decoration: none;
+    text-align: center;
+    font-family: "Times New Roman", Times, serif;
+    font-weight: bold;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border: none;
+    transition: all 0.3s ease;
+    border-right: 1px solid #333333;
+}
+
+.top-banner .nav-button:last-child {
+    border-right: none;
+}
+
+.top-banner .nav-button[data-color="yellow"] {
+    background: #ffff00;
+    color: #000000;
+}
+
+.top-banner .nav-button[data-color="green"] {
+    background: #00ff00;
+    color: #000000;
+}
+
+.top-banner .nav-button[data-color="red"] {
+    background: #ff0000;
+    color: #ffffff;
+}
+
+.top-banner .nav-button:hover {
+    filter: brightness(1.1);
+}
+
+/* Container - Add top padding for fixed banner */
 .container {
     min-height: 100vh;
     background: #000000;
-    padding: 15px;
+    padding: 60px 15px 15px 15px;
     max-width: 1400px;
     margin: 0 auto;
 }
@@ -28,7 +78,7 @@ html, body {
 /* Header - Darker Banner */
 header {
     background: #0f0f0f;
-    padding: 20px 25px 15px;
+    padding: 15px 25px 10px;
     margin-bottom: 0px;
     border: 1px solid #222222;
 }
@@ -65,15 +115,15 @@ header {
 /* Featured Questions Section - Floating */
 .featured-section {
     background: transparent;
-    padding: 8px 0px;
-    margin-bottom: 12px;
+    padding: 5px 0px;
+    margin-bottom: 8px;
     position: relative;
 }
 
 /* Remove featured section h3 styles since we removed the title */
 
 .featured-scroll {
-    max-height: 90px;
+    max-height: 75px;
     overflow: hidden;
     background: transparent;
     position: relative;
@@ -81,7 +131,7 @@ header {
 
 .wheel-container {
     position: relative;
-    height: 90px;
+    height: 75px;
     transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -97,7 +147,7 @@ header {
 }
 
 .wheel-prev {
-    top: 5px;
+    top: 2px;
     opacity: 0.25;
     transform: scale(0.85);
     transform-origin: center center;
@@ -105,7 +155,7 @@ header {
 }
 
 .wheel-current {
-    top: 30px;
+    top: 25px;
     opacity: 1;
     transform: scale(1);
     transform-origin: center center;
@@ -113,7 +163,7 @@ header {
 }
 
 .wheel-next {
-    top: 55px;
+    top: 48px;
     opacity: 0.25;
     transform: scale(0.85);
     transform-origin: center center;
@@ -121,14 +171,14 @@ header {
 }
 
 .wheel-container.rotating .wheel-prev {
-    top: -25px;
+    top: -20px;
     opacity: 0;
     transform: scale(0.7);
     transform-origin: center center;
 }
 
 .wheel-container.rotating .wheel-current {
-    top: 5px;
+    top: 2px;
     opacity: 0.25;
     transform: scale(0.85);
     transform-origin: center center;
@@ -136,7 +186,7 @@ header {
 }
 
 .wheel-container.rotating .wheel-next {
-    top: 30px;
+    top: 25px;
     opacity: 1;
     transform: scale(1);
     transform-origin: center center;
@@ -254,9 +304,9 @@ header {
 
 /* Map Section - Compact */
 .map-section {
-    background: #1a1a1a;
-    border: 1px solid #333333;
-    padding: 15px;
+    background: #000000;
+    border: 0px solid #333333;
+    padding: 4px;
 }
 
 .map-container {
@@ -766,6 +816,17 @@ header {
 
 /* Responsive Design */
 @media (max-width: 768px) {
+    /* Top Banner Mobile */
+    .top-banner .nav-button {
+        padding: 8px 6px;
+        font-size: 12px;
+        letter-spacing: 0.5px;
+    }
+    
+    .container {
+        padding-top: 50px;
+    }
+    
     .main-layout {
         grid-template-columns: 1fr;
         gap: 15px;
@@ -787,7 +848,7 @@ header {
     }
     
     .leaflet-map {
-        height: 400px;
+        height: 350px;
     }
     
     .routes-section {
