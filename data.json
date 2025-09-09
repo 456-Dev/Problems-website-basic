@@ -441,6 +441,96 @@
       "videoId": "https://youtube.com/shorts/QHcKY01srA0",
       "gpsPoints": "40.750558,-74.031805;40.749843,-74.027342;40.737422,-74.030861;40.736902,-74.027857",
       "video_type": "philosophy"
+    },
+    {
+      "id": 50,
+      "name": "How Do You Define God? [QTD Episode 58]",
+      "color": "#ff00ff",
+      "width": 4,
+      "videoId": "https://youtube.com/shorts/6zq19JUyXM0",
+      "gpsPoints": "40.737842,-74.000168;40.737216,-74.000597;40.737696,-74.001755;40.739347,-74.002700;40.745318,-73.998522;40.746492,-74.001306",
+      "video_type": "philosophy"
+    },
+    {
+      "id": 51,
+      "name": "What Should Happen Next In Venezuela? [QTD Episode 57] #streetinterview #humansofnyc #venezuela",
+      "color": "#0000ff",
+      "width": 4,
+      "videoId": "https://youtube.com/shorts/MMVD-lRQuwA",
+      "gpsPoints": "40.729779,-73.990740;40.727860,-73.991395;40.729706,-73.989925;40.729998,-73.991041;40.729762,-73.991363;40.729713,-73.990826;40.730551,-73.990515",
+      "video_type": "news"
+    },
+    {
+      "id": 52,
+      "name": "What Do You Think About Social Media? [QTD Episode 56] #humansofnyc #publicopinion #streetinterview",
+      "color": "#ff0001",
+      "width": 4,
+      "videoId": "https://youtube.com/shorts/VgQdfUqpfes",
+      "gpsPoints": "40.759379,-73.953477;40.757981,-73.954850;40.756258,-73.956266;40.753950,-73.958455;40.752942,-73.959528;40.751382,-73.960343;40.749951,-73.961373;40.750927,-73.959699;40.751707,-73.958884",
+      "video_type": "news"
+    },
+    {
+      "id": 53,
+      "name": "What Is Your Favorite Movie? [QTD Episode 55]",
+      "color": "#ffff00",
+      "width": 4,
+      "videoId": "https://youtube.com/shorts/cFNeBO0Resw",
+      "gpsPoints": "40.861414,-73.898057;40.857496,-73.900333;40.852465,-73.903809;40.848732,-73.907031;40.846362,-73.910078",
+      "video_type": "fun"
+    },
+    {
+      "id": 54,
+      "name": "What Is The Most Influential Art Form? [QTD Episode 54]",
+      "color": "#ff00ff",
+      "width": 4,
+      "videoId": "https://youtube.com/shorts/vz3sLl3PxZc",
+      "gpsPoints": "40.855517,-73.887690;40.853472,-73.889450;40.854316,-73.885416;40.854121,-73.884515;40.855192,-73.884128;40.856004,-73.883270;40.856750,-73.884729;40.858211,-73.883528;40.858600,-73.885244;40.859282,-73.886618",
+      "video_type": "fun"
+    },
+    {
+      "id": 55,
+      "name": "How Long Is Your Daily Commute? [QTD Episode 53]",
+      "color": "#ff0001",
+      "width": 4,
+      "videoId": "https://youtube.com/shorts/gwL_JtOn-F4",
+      "gpsPoints": "40.579646,-73.828688;40.579516,-73.830920;40.575083,-73.842764;40.577691,-73.844309;40.582123,-73.829546;40.578864,-73.828001;40.580168,-73.825941",
+      "video_type": "fun"
+    },
+    {
+      "id": 56,
+      "name": "What Is The Craziest Thing You Have Seen In Omegle? [QTD Episode 24]",
+      "color": "#ff0001",
+      "width": 4,
+      "videoId": "https://youtube.com/shorts/YQ7ZACtxdGM",
+      "gpsPoints": "0,0; 1,1",
+      "video_type": "fun"
+    },
+    {
+      "id": 57,
+      "name": "What Is Your Least Favorite Smell? [QTD Episode 23]",
+      "color": "#00ff00",
+      "width": 4,
+      "videoId": "https://youtube.com/shorts/LwE_GUj4yzQ",
+      "gpsPoints": "1,1; -1, 1",
+      "video_type": "fun"
+    },
+    {
+      "id": 58,
+      "name": "What Is In The Epstein Files? [QTD Episode 22]",
+      "color": "#ff0001",
+      "width": 4,
+      "videoId": "https://youtube.com/shorts/uI_82Cq0C9E",
+      "gpsPoints": "2,2; 3,3",
+      "video_type": "fun"
+    },
+    {
+      "id": 59,
+      "name": "What Would You Do With $1 Million Dollars? [Episode 12 QTD]",
+      "color": "#ff0001",
+      "width": 4,
+      "videoId": "https://youtube.com/shorts/z3TynipjIHs",
+      "gpsPoints": "4,4; 5,5",
+      "video_type": "fun"
     }
   ]
 }
