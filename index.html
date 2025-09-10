@@ -10,6 +10,7 @@
         /* Hide old date corner */
         .date-corner {
             display: none;
+            border-radius: 1px solid #000000;
         }
         
         /* Two-column header layout */
@@ -36,13 +37,13 @@
             flex-direction: column;
             align-items: flex-end;
             justify-content: flex-end;
-            margin-top: 20px;
+            margin-top: 10px;
         }
         
         .title-description {
             text-align: right;
-            line-height: 0.95;
-            margin-top: 8px;
+            line-height: 1;
+            margin-top: 0px;
         }
         
         .title-line {
@@ -63,11 +64,11 @@
             color: #000000;
             font-family: 'Times New Roman', Times, serif;
             font-weight: bold;
-            margin-bottom: 12px;
+            margin-bottom: 4px;
             padding: 8px 12px;
             background: #ffffff;
             border: 2px solid #333333;
-            border-radius: 4px;
+            border-radius: 1px;
             display: inline-block;
             white-space: nowrap;
         }
@@ -79,6 +80,39 @@
             line-height: 1.4;
             margin: 2px 0;
             text-align: right;
+        }
+        
+        .cta-button-container {
+            width: 100%;
+            margin: 15px 0;
+            text-align: center;
+            padding: 0 20px;
+        }
+        
+        .instagram-cta-button {
+            display: inline-block;
+            background: #ffff00;
+            color: #000000;
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 14px;
+            font-weight: 1000;
+            padding: 2px 3px;
+            text-decoration: none;
+            border-radius: 1px;
+            border: 1px solid #00ff00;
+            box-shadow: 2px 2px 0px #ff0000;
+            transition: all 0.3s ease;
+            line-height: 0;
+            width: 100%;
+            max-width: none;
+            text-align: center;
+            display: block;
+        }
+        
+        .instagram-cta-button:hover {
+            background: #cccc00;
+            border-color: #00cc00;
+            transform: translateY(-1px);
         }
         
         /* Header Navigation with full-width colored backgrounds */
@@ -127,7 +161,7 @@
         /* Mobile responsive */
         @media (max-width: 768px) {
             .masthead {
-                gap: 15px;
+                gap: 0px;
                 align-items: flex-start;
                 justify-content: space-between;
                 padding: 0 10px;
@@ -138,7 +172,7 @@
             }
 
             .title-line {
-                font-size: 2.5rem;
+                font-size: 1.75rem;
                 letter-spacing: 1px;
             }
             
@@ -151,9 +185,9 @@
             }
             
             .title-description {
-                margin-top: 6px;
+                margin-top: 0px;
                 text-align: right;
-                line-height: 1.2;
+                line-height: 1.0;
             }
 
             .desc-line {
@@ -162,11 +196,26 @@
                 line-height: 1.3;
                 margin: 1px 0;
             }
+            
+            .cta-button-container {
+                margin: 10px 0;
+                padding: 0 15px;
+                text-align: center;
+            }
+            
+            .instagram-cta-button {
+                font-size: 10px;
+                padding: 8px 12px;
+                text-align: center;
+                width: 100%;
+                max-width: none;
+                display: block;
+            }
 
             .date-above-description {
                 font-size: 10px;
-                padding: 4px 8px;
-                margin-bottom: 6px;
+                padding: 0px 2px;
+                margin-bottom: 1px;
                 align-self: flex-end;
             }
 
@@ -206,12 +255,20 @@
                     <div class="date-above-description" id="current-date-header"></div>
                     <div class="title-description">
                         <div class="desc-line">Daily Interview Series</div>
+                        <div class="desc-line">Uploaded Within the Day</div>
                         <div class="desc-line">~25 People, One Question</div>
-                        <div class="desc-line">All Responses Included</div>
+                        
                     </div>
                 </div>
             </div>
         </header>
+        
+        <!-- Full Width CTA Button -->
+        <div class="cta-button-container">
+            <a href="https://instagram.com/bignosemichael" target="_blank" class="instagram-cta-button">
+                Were you interviewed today? Visit BigNoseMichael on Social Media
+            </a>
+        </div>
         
         <!-- Featured Questions Scroll -->
         <div class="featured-section">
@@ -284,7 +341,6 @@
         <div id="video-modal" class="modal">
             <div class="modal-content">
                 <span class="close">&times;</span>
-                <h3 id="modal-title"></h3>
                 <div id="video-container">
                     <iframe id="youtube-player" 
                             width="315" 
@@ -294,6 +350,9 @@
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                             allowfullscreen>
                     </iframe>
+                </div>
+                <div class="subscribe-message">
+                    Like and Subscribe for Future Videos!
                 </div>
             </div>
         </div>

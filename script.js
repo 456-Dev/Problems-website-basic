@@ -5,7 +5,7 @@ class NYCRoutesMap {
         // Map elements
         this.mapElement = document.getElementById('map');
         this.modal = document.getElementById('video-modal');
-        this.modalTitle = document.getElementById('modal-title');
+        // this.modalTitle = document.getElementById('modal-title'); // Removed - no title needed
         this.youtubePlayer = document.getElementById('youtube-player');
         this.closeBtn = document.querySelector('.close');
         
@@ -38,7 +38,7 @@ class NYCRoutesMap {
     init() {
         // Debug: Check if modal elements exist
         console.log('Modal element found:', !!this.modal);
-        console.log('Modal title element found:', !!this.modalTitle);
+        // console.log('Modal title element found:', !!this.modalTitle); // Removed - no title needed
         console.log('YouTube player element found:', !!this.youtubePlayer);
         console.log('Close button element found:', !!this.closeBtn);
         
@@ -291,13 +291,15 @@ class NYCRoutesMap {
         const totalRoutes = this.wheelRoutes.length;
         const currentIndex = this.currentWheelIndex;
         
-        // Get the 3 routes: previous, current, next
+        // Get the 4 routes: previous, current, next, next2
         const prevIndex = (currentIndex - 1 + totalRoutes) % totalRoutes;
         const nextIndex = (currentIndex + 1) % totalRoutes;
+        const next2Index = (currentIndex + 2) % totalRoutes;
         
         const prevRoute = this.wheelRoutes[prevIndex];
         const currentRoute = this.wheelRoutes[currentIndex];
         const nextRoute = this.wheelRoutes[nextIndex];
+        const next2Route = this.wheelRoutes[next2Index];
         
         this.featuredScroll.innerHTML = `
             <div class="wheel-container">
@@ -317,6 +319,12 @@ class NYCRoutesMap {
                     <div class="featured-content">
                         <div class="episode-number">${this.getEpisodeNumber(nextRoute.name)}</div>
                         <div class="question-text">${this.cleanTitle(nextRoute.name)}</div>
+                    </div>
+                </div>
+                <div class="wheel-item wheel-next2" data-route-id="${next2Route.id}">
+                    <div class="featured-content">
+                        <div class="episode-number">${this.getEpisodeNumber(next2Route.name)}</div>
+                        <div class="question-text">${this.cleanTitle(next2Route.name)}</div>
                     </div>
                 </div>
             </div>
@@ -357,21 +365,9 @@ class NYCRoutesMap {
     }
     
     splitTitleForDisplay(title) {
-        // Split long titles into two lines only if really necessary
+        // Let CSS handle truncation instead of splitting into multiple lines
         const cleanedTitle = this.cleanTitle(title);
-        const words = cleanedTitle.split(' ');
-        
-        // Only split if title is very long - be more conservative
-        if (words.length <= 6 || cleanedTitle.length <= 45) {
-            return `<span class="title-text">${cleanedTitle}</span>`;
-        }
-        
-        // Split roughly in the middle for very long titles
-        const midPoint = Math.ceil(words.length / 2);
-        const firstLine = words.slice(0, midPoint).join(' ');
-        const secondLine = words.slice(midPoint).join(' ');
-        
-        return `<span class="title-text">${firstLine}</span><span class="title-text">${secondLine}</span>`;
+        return `<span class="title-text">${cleanedTitle}</span>`;
     }
     
     getEpisodeNumber(title) {
@@ -592,7 +588,7 @@ class NYCRoutesMap {
             return;
         }
         
-        this.modalTitle.textContent = routeName || 'NYC Route';
+        // this.modalTitle.textContent = routeName || 'NYC Route'; // Removed - no title needed
         
         // Create proper embed URL for Shorts vs regular videos
         let embedUrl;
