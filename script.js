@@ -71,12 +71,18 @@ class NYCRoutesMap {
     }
     
     initMap() {
+        // Define map center and zoom as constants
+        this.mapCenter = [40.7089, -73.9551]; // Times Square
+        this.mapZoom = 10.3;
+        
         // Initialize Leaflet map centered on NYC
         this.map = L.map('map', {
-            center: [40.7589, -73.9851], // Times Square
-            zoom: 11.5,
+            center: this.mapCenter,
+            zoom: this.mapZoom,
             zoomControl: true,
-            attributionControl: true
+            attributionControl: true,
+            zoomSnap: 0.1,        // Allow fractional zoom in 0.25 increments
+            zoomDelta: 1,        // Zoom by 0.25 when using zoom controls
         });
         
         // Dark map layer
@@ -160,6 +166,7 @@ class NYCRoutesMap {
                 {"id": 17, "name": "What Should Trump Tell Putin In Alaska? [QTD Episode 20]", "color": "#0017ff", "width": 4, "videoId": "https://youtube.com/shorts/9v6s70_AcQw?feature=share", "gpsPoints": "40.756138,-74.003263;40.756447,-74.004400;40.756187,-74.005172;40.754871,-74.005923;40.754220,-74.005601;40.753473,-74.003713;40.752681,-74.002136;40.752023,-74.001921;40.749186,-74.003820;40.747252,-74.005237;40.746033,-74.006009;40.744862,-74.006835;40.743464,-74.006932;40.742391,-74.007672;40.740448,-74.008101;40.739440,-74.008219", "video_type": "news"},
                 {"id": 18, "name": "What Would Be Your Superpower? [QTD Episode 21]", "color": "#ff00ff", "width": 4, "videoId": "https://youtube.com/shorts/Qqo7LTnr7Fo?feature=share", "gpsPoints": "40.757240,-73.989801;40.754804,-73.984085", "video_type": "fun"},
                 {"id": 19, "name": "How Would You Define Racism? [QTD Episode 25]", "color": "#f3ff00", "width": 4, "videoId": "https://youtube.com/shorts/-BUwe1ahZKA?feature=share", "gpsPoints": "40.766573,-73.962944;40.772325,-73.958652;40.770359,-73.954103", "video_type": "philosophy"},
+                {"id": 21, "name": "How Would You Define Cool? [QTD Episode 26]", "color": "#f3ff00", "width": 4, "videoId": "https://youtube.com/shorts/-BUwe1ahZKA?feature=share", "gpsPoints": "1,1;0,0", "video_type": "philosophy"},
                 {"id": 20, "name": "What Percentage Of The Internet Is Bots? [QTD Episode 26]", "color": "#00ff00", "width": 4, "videoId": "https://youtube.com/shorts/gdGDHW8-Xx8?feature=share", "gpsPoints": "40.805240,-73.939404;40.808971,-73.948309", "video_type": "news"}
             ]
         };
@@ -190,7 +197,7 @@ class NYCRoutesMap {
         this.hideLoading();
         this.renderRoutesList();
         this.addRoutesToMap();
-        this.fitMapToAllRoutes();
+        // this.fitMapToAllRoutes(); // Removed - keep fixed center/zoom
         this.startFeaturedRotation();
     }
     
@@ -342,8 +349,11 @@ class NYCRoutesMap {
     }
     
     cleanTitle(title) {
-        // Remove content in brackets and parentheses
-        return title.replace(/\s*[\[\(][^\]\)]*[\]\)]\s*/g, '').trim();
+        // Remove content in brackets and parentheses, and remove hashtags
+        return title.replace(/\s*[\[\(][^\]\)]*[\]\)]\s*/g, '')  // Remove [brackets] and (parentheses)
+                   .replace(/#\w+/g, '')                          // Remove hashtags like #hashtag
+                   .replace(/\s+/g, ' ')                          // Clean up multiple spaces
+                   .trim();
     }
     
     splitTitleForDisplay(title) {
@@ -559,7 +569,8 @@ class NYCRoutesMap {
     }
     
     resetView() {
-        this.fitMapToAllRoutes();
+        // Reset to fixed NYC center instead of fitting all routes
+        this.map.setView(this.mapCenter, this.mapZoom);
     }
     
     openVideo(videoId, routeName) {
