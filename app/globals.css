@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #000000;
+  --foreground: #ffffff;
+  --accent: #ffff00;
+  --accent-secondary: #00ff00;
+  --accent-red: #ff0000;
+  --border-color: #ffffff;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: 'Times New Roman', Times, serif;
+}
+
+/* Yellow text with green outline and red shadow */
+.text-vintage-yellow-styled {
+  color: #ffff00;
+  text-shadow: 
+    -1px -1px 0 #00ff00,
+    1px -1px 0 #00ff00,
+    -1px 1px 0 #00ff00,
+    1px 1px 0 #00ff00,
+    3px 3px 0 #ff0000;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* Custom scrollbar - Sharp vintage style */
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: #000000;
+  border: 1px solid #ffff00;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #ffff00;
+  border: 2px solid #000000;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #ffffff;
+}
+
