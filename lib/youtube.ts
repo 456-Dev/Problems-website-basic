@@ -60,11 +60,11 @@ export async function fetchLatestShorts(): Promise<YouTubeVideo[]> {
 
     const videoDetails = videoDetailsResponse.data.items || [];
 
-    // Filter for Shorts (duration <= 180 seconds / 3 minutes)
+    // Filter for Shorts (duration <= 190 seconds / 3 minutes 10 seconds)
     const shorts = videoDetails
       .filter((video: any) => {
         const duration = parseDuration(video.contentDetails.duration);
-        return duration <= 180;
+        return duration <= 190;
       })
       .map((video: any) => ({
         id: video.id,
