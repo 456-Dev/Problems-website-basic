@@ -100,7 +100,7 @@ export default function VideoCard({ video, index, onClick }: VideoCardProps) {
         />
 
         {/* Black overlay on top 20% - Title, Date, Location */}
-        <div className="absolute top-3 left-0 right-0 flex flex-col justify-end" style={{ height: '13%', backgroundColor: 'rgba(0, 0, 0, 255)', paddingBottom: '4px' }}>
+        <div className="absolute top-1 flex flex-col justify-end" style={{ height: '13%', backgroundColor: 'rgba(0, 0, 0, 255)', paddingBottom: '3px', left: '-2px', right: '-2px' }}>
           {/* Title - centered, smaller, 75% white */}
           <div className="px-2 flex items-center justify-center" style={{ marginBottom: '6px' }}>
             <p 
@@ -156,7 +156,7 @@ export default function VideoCard({ video, index, onClick }: VideoCardProps) {
         {/* Black overlay on bottom 38% (2% shorter) - 100% black */}
         <div className="absolute bottom-0 left-0 right-0 flex flex-col" style={{ height: '40%', backgroundColor: 'rgb(0, 0, 0)' }}>
           {/* Top section: Episode number on left, play button on right */}
-          <div className="flex items-center justify-between px-3 pt-1 pb-0">
+          <div className="flex items-center justify-between px-3 pt-2.5 pb-0">
             {/* Episode Number - Top Left */}
             {episodeNumber && (
               <span 
