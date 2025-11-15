@@ -14,7 +14,7 @@
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: 'Times New Roman', Times, serif;
+  font-family: Helvetica, Arial, sans-serif;
 }
 
 /* Yellow text with green outline and red shadow */

@@ -26,7 +26,7 @@ export default function Header() {
           />
         </div>
 
-        {/* Right side - Stacked buttons (red on top, green on bottom) */}
+        {/* Right side - Stacked buttons */}
         <nav className="flex flex-col gap-1">
           <a
             href="https://youtube.com/@bignosemichael"

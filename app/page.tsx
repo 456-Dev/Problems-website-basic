@@ -5,6 +5,7 @@ import VideoGrid from "@/components/VideoGrid";
 import Header from "@/components/Header";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import AllEpisodesList from "@/components/AllEpisodesList";
+import ViewCounter from "@/components/ViewCounter";
 
 export interface Video {
   id: string;
@@ -112,7 +113,10 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="text-center py-4 text-white border-t-2 border-white mt-12 bg-black">
-        <p className="text-sm">© 2025 Question The Day</p>
+        <div className="flex flex-col items-center gap-2">
+          <ViewCounter />
+          <p className="text-sm">© 2025 Question The Day</p>
+        </div>
       </footer>
     </main>
   );

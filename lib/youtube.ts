@@ -60,20 +60,31 @@ export async function fetchLatestShorts(): Promise<YouTubeVideo[]> {
 
     const videoDetails = videoDetailsResponse.data.items || [];
 
-    // Filter for Shorts (duration <= 190 seconds / 3 minutes 10 seconds)
+    // Filter for Shorts (duration <= 190 seconds) OR videos with "QTD" in title
     const shorts = videoDetails
       .filter((video: any) => {
         const duration = parseDuration(video.contentDetails.duration);
-        return duration <= 190;
+        const hasQTD = video.snippet.title.toUpperCase().includes('QTD');
+        return duration <= 190 || hasQTD;
       })
-      .map((video: any) => ({
-        id: video.id,
-        title: video.snippet.title,
-        description: video.snippet.description,
-        thumbnail: video.snippet.thumbnails.high?.url || video.snippet.thumbnails.medium?.url,
-        publishedAt: video.snippet.publishedAt,
-        url: `https://www.youtube.com/shorts/${video.id}`,
-      }));
+      .map((video: any) => {
+        // Get highest quality thumbnail available
+        const thumbnails = video.snippet.thumbnails;
+        const thumbnail = thumbnails.maxres?.url || 
+                         thumbnails.standard?.url || 
+                         thumbnails.high?.url || 
+                         thumbnails.medium?.url ||
+                         thumbnails.default?.url;
+        
+        return {
+          id: video.id,
+          title: video.snippet.title,
+          description: video.snippet.description,
+          thumbnail: thumbnail,
+          publishedAt: video.snippet.publishedAt,
+          url: `https://www.youtube.com/shorts/${video.id}`,
+        };
+      });
 
     return shorts;
   } catch (error) {
