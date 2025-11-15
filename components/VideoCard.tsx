@@ -96,7 +96,6 @@ export default function VideoCard({ video, index, onClick }: VideoCardProps) {
           className="w-full h-full object-cover"
           loading="lazy"
           decoding="async"
-          style={{ imageRendering: 'high-quality' }}
         />
 
         {/* Black overlay on top 20% - Title, Date, Location */}
