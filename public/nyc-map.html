@@ -4,126 +4,371 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NYC Map - Question The Day</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="styles.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        /* Hide old date corner */
+        .date-corner {
+            display: none;
+            border-radius: 1px solid #000000;
         }
         
-        body {
+        /* Two-column header layout */
+        .masthead {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 40px;
+            margin-bottom: 15px;
+        }
+        
+        .title-section {
+            flex: 0 0 auto;
+        }
+        
+        .title-section h1 {
+            margin: 0;
+            padding: 0;
+        }
+        
+        .description-section {
+            flex: 0 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            justify-content: flex-end;
+            margin-top: 10px;
+        }
+        
+        .title-description {
+            text-align: right;
+            line-height: 1;
+            margin-top: 0px;
+        }
+        
+        .title-line {
+            font-size: 3.5rem;
+            font-weight: bold;
+            color: #ffffff;
+            letter-spacing: 2px;
+            line-height: 0.95;
+            font-family: "Times New Roman", Times, serif;
+            margin: 0;
+            padding: 0;
+        }
+        
+
+        
+        .date-above-description {
+            font-size: 13px;
+            color: #000000;
             font-family: 'Times New Roman', Times, serif;
-            background: #000000;
+            font-weight: bold;
+            margin-bottom: 4px;
+            padding: 8px 12px;
+            background: #ffffff;
+            border: 2px solid #333333;
+            border-radius: 1px;
+            display: inline-block;
+            white-space: nowrap;
+        }
+        
+        .desc-line {
+            font-size: 14px;
+            color: #cccccc;
+            font-family: 'Times New Roman', Times, serif;
+            line-height: 1.4;
+            margin: 2px 0;
+            text-align: right;
+        }
+        
+        .cta-button-container {
+            width: 100%;
+            margin: 15px 0;
+            text-align: center;
+            padding: 0 20px;
+        }
+        
+        .instagram-cta-button {
+            display: inline-block;
+            background: #ffff00;
+            color: #000000;
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 14px;
+            font-weight: 1000;
+            padding: 2px 3px;
+            text-decoration: none;
+            border-radius: 1px;
+            border: 1px solid #00ff00;
+            box-shadow: 2px 2px 0px #ff0000;
+            transition: all 0.3s ease;
+            line-height: 0;
+            width: 100%;
+            max-width: none;
+            text-align: center;
+            display: block;
+        }
+        
+        .instagram-cta-button:hover {
+            background: #cccc00;
+            border-color: #00cc00;
+            transform: translateY(-1px);
+        }
+        
+        /* Header Navigation with full-width colored backgrounds */
+        .header-nav {
+            display: flex;
+            margin-top: 20px;
+            width: 100%;
+        }
+        
+        .nav-button {
+            text-decoration: none;
+            color: #000000;
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 14px;
+            font-weight: bold;
+            padding: 8px 10px;
+            border: none;
+            flex: 1;
+            text-align: center;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        
+        .nav-button[data-color="yellow"] {
+            background: #ffff00;
+        }
+        
+        .nav-button[data-color="green"] {
+            background: #00ff00;
+        }
+        
+        .nav-button[data-color="red"] {
+            background: #ff0000;
             color: #ffffff;
         }
         
-        header {
-            border-bottom: 4px solid #ffffff;
-            background: #000000;
-            padding: 1rem;
+        .nav-button:hover {
+            filter: brightness(1.1);
         }
         
-        .header-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .nav-button.active {
+            filter: brightness(1.2);
+            font-weight: 900;
         }
         
-        .logo {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #ffff00;
-            text-shadow: 
-                -1px -1px 0 #00ff00,
-                1px -1px 0 #00ff00,
-                -1px 1px 0 #00ff00,
-                1px 1px 0 #00ff00,
-                3px 3px 0 #ff0000;
-        }
-        
-        .back-btn {
-            background: #00ff00;
-            color: #000000;
-            padding: 0.5rem 1rem;
-            border: 4px solid #ffffff;
-            text-decoration: none;
-            font-weight: bold;
-            display: inline-block;
-        }
-        
-        .back-btn:hover {
-            background: #ffffff;
-        }
-        
-        main {
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 0 1rem;
-        }
-        
-        h1 {
-            font-size: 3rem;
-            color: #ffff00;
-            text-shadow: 
-                -1px -1px 0 #00ff00,
-                1px -1px 0 #00ff00,
-                -1px 1px 0 #00ff00,
-                1px 1px 0 #00ff00,
-                3px 3px 0 #ff0000;
-            text-align: center;
-            margin-bottom: 2rem;
-            border: 4px solid #ffffff;
-            padding: 2rem;
-        }
-        
-        .content-box {
-            border: 4px solid #ffffff;
-            padding: 2rem;
-            background: #000000;
-            margin-bottom: 2rem;
-        }
-        
-        .placeholder {
-            color: #00ff00;
-            font-weight: bold;
-            text-align: center;
-            padding: 3rem;
-            border: 2px solid #00ff00;
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            .masthead {
+                gap: 0px;
+                align-items: flex-start;
+                justify-content: space-between;
+                padding: 0 10px;
+            }
+
+            .title-section {
+                flex: 1;
+            }
+
+            .title-line {
+                font-size: 1.75rem;
+                letter-spacing: 1px;
+            }
+            
+            .description-section {
+                flex: 0 0 auto;
+                margin-top: 0px;
+                align-items: flex-end;
+                text-align: right;
+                max-width: 45%;
+            }
+            
+            .title-description {
+                margin-top: 0px;
+                text-align: right;
+                line-height: 1.0;
+            }
+
+            .desc-line {
+                font-size: 11px;
+                text-align: right;
+                line-height: 1.3;
+                margin: 1px 0;
+            }
+            
+            .cta-button-container {
+                margin: 10px 0;
+                padding: 0 15px;
+                text-align: center;
+            }
+            
+            .instagram-cta-button {
+                font-size: 10px;
+                padding: 8px 12px;
+                text-align: center;
+                width: 100%;
+                max-width: none;
+                display: block;
+            }
+
+            .date-above-description {
+                font-size: 10px;
+                padding: 0px 2px;
+                margin-bottom: 1px;
+                align-self: flex-end;
+            }
+
+            .header-nav {
+                width: 100%;
+            }
+
+            .nav-button {
+                font-size: 12px;
+                padding: 6px 8px;
+            }
         }
     </style>
 </head>
 <body>
-    <header>
-        <div class="header-content">
-            <div class="logo">🎤 QUESTION THE DAY</div>
-            <a href="/" class="back-btn">[← BACK HOME]</a>
-        </div>
-    </header>
-    
-    <main>
-        <h1>NYC MAP</h1>
+    <!-- Top Banner Navigation -->
+    <nav class="top-banner">
+        <a href="/" class="nav-button" data-color="yellow">← Back to Home</a>
+        <a href="nyc-map.html" class="nav-button active" data-color="green">NYC Map</a>
+        <a href="what-is-your-problem.html" class="nav-button" data-color="red">What Is Your Problem?!</a>
+    </nav>
+
+    <div class="container">
+        <!-- Date in top right corner -->
+        <div class="date-corner" id="current-date"></div>
         
-        <div class="content-box">
-            <div class="placeholder">
-                <p style="font-size: 2rem; margin-bottom: 1rem;">📍</p>
-                <p>>> REPLACE THIS WITH YOUR NYC MAP CONTENT <<</p>
-                <p style="margin-top: 1rem; color: #ffffff;">Add your custom HTML here or embed your map</p>
+        <header>
+            <div class="masthead">
+                <div class="title-section">
+                    <h1>
+                        <div class="title-line">Question</div>
+                        <div class="title-line">The</div>
+                        <div class="title-line">Day</div>
+                    </h1>
+                </div>
+                <div class="description-section">
+                    <div class="date-above-description" id="current-date-header"></div>
+                    <div class="title-description">
+                        <div class="desc-line">Daily Interview Series</div>
+                        <div class="desc-line">Uploaded Within the Day</div>
+                        <div class="desc-line">~25 People, One Question</div>
+                        
+                    </div>
+                </div>
+            </div>
+        </header>
+        
+        <!-- Full Width CTA Button -->
+        <div class="cta-button-container">
+            <a href="https://instagram.com/bignosemichael" target="_blank" class="instagram-cta-button">
+                Were you interviewed today? Visit BigNoseMichael on Social Media
+            </a>
+        </div>
+        
+        <!-- Featured Questions Scroll -->
+        <div class="featured-section">
+            <div class="click-to-watch-static">
+                <div>CLICK</div>
+                <div>TO</div>
+                <div>WATCH</div>
+            </div>
+            <div class="featured-scroll" id="featured-scroll">
+                <div class="loading-featured">Loading interviews...</div>
             </div>
         </div>
         
-        <!-- 
-        INSTRUCTIONS:
-        Replace the placeholder div above with your actual NYC map content.
-        You can add:
-        - Google Maps embed
-        - Custom map images
-        - Interactive map libraries
-        - Location markers
-        - etc.
-        -->
-    </main>
+        <!-- Main Content Layout -->
+        <div class="main-layout">
+            <!-- Map Section -->
+            <div class="map-section">
+                <div class="map-container">
+                    <!-- Real Interactive Map -->
+                    <div id="map" class="leaflet-map"></div>
+                    
+                    <!-- Map Controls -->
+                    <div class="map-controls">
+                        <button id="reset-view" title="Reset to NYC view">Reset</button>
+                    </div>
+                    
+                    <!-- Map Instructions for Mobile -->
+                    <div class="map-instructions">
+                        Click lines to watch questions
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Routes List Section -->
+            <div class="routes-section">
+                <div class="section-header">
+                    <h3>VIEW ALL QUESTIONS</h3>
+                    <div class="dropdown-wrapper">
+                        <select id="filter-dropdown" class="filter-dropdown">
+                            <option value="all">ALL</option>
+                            <option value="fun">FUN</option>
+                            <option value="news">NEWS</option>
+                            <option value="philosophy">PHILOSOPHY</option>
+                        </select>
+                        <span class="dropdown-arrow">▼</span>
+                    </div>
+                </div>
+                
+                <div class="routes-list" id="routes-list">
+                    <!-- Route items will be populated here -->
+                </div>
+                
+                <div class="search-container">
+                    <input type="text" id="search-input" placeholder="Search questions..." class="search-input">
+                </div>
+                
+                <div class="loading-state" id="loading-state">
+                    <div class="spinner"></div>
+                    <p>Loading interviews...</p>
+                </div>
+                
+                <div class="empty-state" id="empty-state" style="display: none;">
+                    <h3>No interviews found</h3>
+                    <p>Try adjusting your search</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Video Modal -->
+        <div id="video-modal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <div id="video-container">
+                    <iframe id="youtube-player" 
+                            width="315" 
+                            height="560" 
+                            title="YouTube video player"
+                            frameborder="0" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            allowfullscreen>
+                    </iframe>
+                </div>
+                <div class="subscribe-message">
+                    Like and Subscribe for Future Videos!
+                </div>
+            </div>
+        </div>
+        
+        <!-- About Panel -->
+        <div id="info-panel" class="info-panel">
+            <h3>About the project</h3>
+            <p>Each question is asked to roughly 25 people in the same session. All recorded responses are included with minimal editing while meeting a 3 minute time constraint. Each episode is shot, edited and published within the day.</p>
+            <p>Each person is asked 3 questions: [What would you say is your number one problem right?], [What is your solution?] and [Question of The Day] These first two quesions will be used for a future project {see What Is Your Problem?!}</p>
+            <p>The project is created by bignosemichael: feel free to reach out on instagram or michaellinares314@gmail.com!</p>
+        </div>
+    </div>
+    
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
 

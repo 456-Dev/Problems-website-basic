@@ -37,7 +37,7 @@ export default function Header() {
             Subscribe
           </a>
           <a
-            href="/index.html"
+            href="/nyc-map.html"
             className="text-black bg-vintage-yellow hover:bg-white font-bold border-2 border-white px-4 py-1 text-center text-sm transition-colors"
           >
             NYC Map
