@@ -204,13 +204,36 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="script.js"></script>
     <script>
-        // View Counter for NYC Map
+        // View Counter for NYC Map using Google Sheets
         (async function() {
             try {
-                const response = await fetch('https://api.countapi.xyz/hit/questiontheday.com/nyc-map');
-                const data = await response.json();
-                if (data.value) {
-                    const viewCount = data.value;
+                // Note: Replace with your actual Google Sheets URL
+                const scriptUrl = ''; // Will be set via environment variable in production
+                
+                if (!scriptUrl) {
+                    // Fallback for local/development
+                    document.getElementById('view-count').textContent = '---';
+                    return;
+                }
+
+                // Check if already viewed this session
+                const hasViewed = sessionStorage.getItem('qtd_nyc_viewed');
+                
+                let viewCount;
+                if (!hasViewed) {
+                    // Increment and get
+                    const response = await fetch(scriptUrl + '?action=incrementView');
+                    const data = await response.json();
+                    viewCount = data.views;
+                    sessionStorage.setItem('qtd_nyc_viewed', 'true');
+                } else {
+                    // Just get
+                    const response = await fetch(scriptUrl + '?action=getViews');
+                    const data = await response.json();
+                    viewCount = data.views;
+                }
+                
+                if (viewCount) {
                     const formatted = viewCount >= 1000000 ? (viewCount / 1000000).toFixed(1) + 'M' : 
                                      viewCount >= 1000 ? (viewCount / 1000).toFixed(1) + 'K' : 
                                      viewCount.toLocaleString();

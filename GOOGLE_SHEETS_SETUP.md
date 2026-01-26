@@ -4,12 +4,39 @@
 
 1. Go to [Google Sheets](https://sheets.google.com/)
 2. Create a new spreadsheet
-3. Name it: **"QTD - Community Questions"**
-4. In the first sheet, add these column headers in row 1:
-   - **A1**: `ID`
-   - **B1**: `Question`
-   - **C1**: `Votes`
-   - **D1**: `Timestamp`
+3. Name it: **"QTD - Community Database"**
+
+### Create 4 Sheets:
+
+#### Sheet 1: "Suggested Questions"
+Column headers in row 1:
+- **A1**: `ID`
+- **B1**: `Question`
+- **C1**: `Votes`
+- **D1**: `Timestamp`
+
+#### Sheet 2: "Analytics"
+Cell values:
+- **A1**: `Total Views`
+- **B1**: `0` (initial value)
+
+#### Sheet 3: "Visitors"
+Column headers in row 1:
+- **A1**: `Timestamp`
+- **B1**: `User Agent`
+- **C1**: `Screen Size`
+- **D1**: `Timezone`
+- **E1**: `Language`
+- **F1**: `Referrer`
+
+#### Sheet 4: "Asked Questions"
+Column headers in row 1:
+- **A1**: `Episode Number`
+- **B1**: `Question`
+- **C1**: `Date`
+- **D1**: `Video URL`
+
+(You'll populate this manually with your existing episodes)
 
 ## Step 2: Add the Apps Script Code
 
@@ -19,13 +46,19 @@
 
 ```javascript
 // Question The Day - Google Sheets Backend
-// This script handles question submissions and voting
+// Handles questions, voting, analytics, and visitor tracking
 
 function doGet(e) {
   const action = e.parameter.action;
   
   if (action === 'get') {
     return getQuestions();
+  } else if (action === 'getAskedQuestions') {
+    return getAskedQuestions();
+  } else if (action === 'getViews') {
+    return getViewCount();
+  } else if (action === 'incrementView') {
+    return incrementViewCount();
   }
   
   return ContentService.createTextOutput(JSON.stringify({
@@ -43,6 +76,8 @@ function doPost(e) {
       return addQuestion(data.question);
     } else if (action === 'vote') {
       return updateVote(data.id, data.votes);
+    } else if (action === 'trackVisitor') {
+      return trackVisitor(data.visitor);
     }
     
     return ContentService.createTextOutput(JSON.stringify({
@@ -57,17 +92,18 @@ function doPost(e) {
   }
 }
 
+// ===== SUGGESTED QUESTIONS =====
 function getQuestions() {
-  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName('Suggested Questions');
   const data = sheet.getDataRange().getValues();
   
-  // Skip header row
   const questions = data.slice(1).map(row => ({
     id: row[0],
     text: row[1],
     votes: row[2],
     timestamp: row[3]
-  })).filter(q => q.id); // Filter out empty rows
+  })).filter(q => q.id);
   
   return ContentService.createTextOutput(JSON.stringify({
     status: 'success',
@@ -76,7 +112,8 @@ function getQuestions() {
 }
 
 function addQuestion(question) {
-  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName('Suggested Questions');
   
   sheet.appendRow([
     question.id,
@@ -92,13 +129,13 @@ function addQuestion(question) {
 }
 
 function updateVote(id, newVotes) {
-  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName('Suggested Questions');
   const data = sheet.getDataRange().getValues();
   
-  // Find the row with this ID (starting from row 2, since row 1 is header)
   for (let i = 1; i < data.length; i++) {
     if (data[i][0] === id) {
-      sheet.getRange(i + 1, 3).setValue(newVotes); // Column C (votes)
+      sheet.getRange(i + 1, 3).setValue(newVotes);
       break;
     }
   }
@@ -106,6 +143,70 @@ function updateVote(id, newVotes) {
   return ContentService.createTextOutput(JSON.stringify({
     status: 'success',
     message: 'Vote updated'
+  })).setMimeType(ContentService.MimeType.JSON);
+}
+
+// ===== ASKED QUESTIONS (for duplicate checking) =====
+function getAskedQuestions() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName('Asked Questions');
+  const data = sheet.getDataRange().getValues();
+  
+  const questions = data.slice(1).map(row => ({
+    episode: row[0],
+    question: row[1],
+    date: row[2],
+    url: row[3]
+  })).filter(q => q.question);
+  
+  return ContentService.createTextOutput(JSON.stringify({
+    status: 'success',
+    questions: questions
+  })).setMimeType(ContentService.MimeType.JSON);
+}
+
+// ===== ANALYTICS - VIEW COUNTER =====
+function getViewCount() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName('Analytics');
+  const views = sheet.getRange('B1').getValue();
+  
+  return ContentService.createTextOutput(JSON.stringify({
+    status: 'success',
+    views: views
+  })).setMimeType(ContentService.MimeType.JSON);
+}
+
+function incrementViewCount() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName('Analytics');
+  const currentViews = sheet.getRange('B1').getValue();
+  const newViews = currentViews + 1;
+  sheet.getRange('B1').setValue(newViews);
+  
+  return ContentService.createTextOutput(JSON.stringify({
+    status: 'success',
+    views: newViews
+  })).setMimeType(ContentService.MimeType.JSON);
+}
+
+// ===== VISITOR TRACKING =====
+function trackVisitor(visitor) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName('Visitors');
+  
+  sheet.appendRow([
+    visitor.timestamp,
+    visitor.userAgent,
+    visitor.screenSize,
+    visitor.timezone,
+    visitor.language,
+    visitor.referrer
+  ]);
+  
+  return ContentService.createTextOutput(JSON.stringify({
+    status: 'success',
+    message: 'Visitor tracked'
   })).setMimeType(ContentService.MimeType.JSON);
 }
 ```
@@ -180,6 +281,54 @@ NEXT_PUBLIC_YOUTUBE_CHANNEL_ID=@bignosemichael
 ## 🔒 Security
 
 The sheet is read/write via the Apps Script, but only you can edit it directly in Google Sheets. The public can only submit/vote through your website.
+
+---
+
+## 📝 Populating "Asked Questions" Sheet
+
+Manually add all your previous episodes to the "Asked Questions" sheet:
+
+### Example entries:
+
+| Episode Number | Question | Date | Video URL |
+|----------------|----------|------|-----------|
+| 1 | What's your biggest fear? | Nov 1st, 2024 | https://youtube.com/shorts/abc123 |
+| 2 | If you could have dinner with anyone, who would it be? | Nov 2nd, 2024 | https://youtube.com/shorts/def456 |
+| 3 | What's one thing you'd change about NYC? | Nov 3rd, 2024 | https://youtube.com/shorts/ghi789 |
+
+### Tips:
+- Copy questions exactly as they appear in your videos
+- Include the YouTube Shorts URL for each episode
+- When users try to suggest a duplicate question, they'll see:
+  - "This question was already asked in Episode #42!"
+  - A clickable button to watch that episode
+
+## 📊 What Each Sheet Does:
+
+1. **Suggested Questions** - Community submissions and votes
+2. **Analytics** - Total view counter (B1 cell)
+3. **Visitors** - Privacy-friendly analytics (no IP addresses)
+   - Timestamp, Browser, Screen Size, Timezone, Language, Referrer
+4. **Asked Questions** - Your master list of all episodes for duplicate checking
+
+---
+
+## 🔒 Privacy Note
+
+The visitor tracking collects:
+- ✅ Browser type (User Agent)
+- ✅ Screen size
+- ✅ Timezone
+- ✅ Language
+- ✅ Referrer (where they came from)
+
+**NOT collected:**
+- ❌ IP addresses
+- ❌ Personal information
+- ❌ Emails or names
+- ❌ Cookies
+
+All data is anonymous and used only for understanding your audience!
 
 ---
 

@@ -9,6 +9,13 @@ interface SuggestedQuestion {
   timestamp: number;
 }
 
+interface AskedQuestion {
+  episode: number;
+  question: string;
+  date: string;
+  url: string;
+}
+
 interface QuestionSuggestionBoxProps {
   existingQuestions: string[]; // List of already used questions from data.json
 }
@@ -16,6 +23,8 @@ interface QuestionSuggestionBoxProps {
 export default function QuestionSuggestionBox({ existingQuestions }: QuestionSuggestionBoxProps) {
   const [question, setQuestion] = useState("");
   const [suggestedQuestions, setSuggestedQuestions] = useState<SuggestedQuestion[]>([]);
+  const [askedQuestions, setAskedQuestions] = useState<AskedQuestion[]>([]);
+  const [matchedEpisode, setMatchedEpisode] = useState<AskedQuestion | null>(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [votedQuestions, setVotedQuestions] = useState<Set<string>>(new Set());
@@ -23,6 +32,7 @@ export default function QuestionSuggestionBox({ existingQuestions }: QuestionSug
   // Load suggested questions from Google Sheets on mount
   useEffect(() => {
     fetchQuestionsFromSheet();
+    fetchAskedQuestionsFromSheet();
 
     const voted = localStorage.getItem("votedQuestions");
     if (voted) {
@@ -30,7 +40,7 @@ export default function QuestionSuggestionBox({ existingQuestions }: QuestionSug
     }
   }, []);
 
-  // Fetch questions from Google Sheets
+  // Fetch suggested questions from Google Sheets
   const fetchQuestionsFromSheet = async () => {
     try {
       const scriptUrl = process.env.NEXT_PUBLIC_GOOGLE_SHEETS_URL;
@@ -47,6 +57,23 @@ export default function QuestionSuggestionBox({ existingQuestions }: QuestionSug
       }
     } catch (error) {
       console.error("Failed to fetch questions:", error);
+    }
+  };
+
+  // Fetch previously asked questions from Google Sheets
+  const fetchAskedQuestionsFromSheet = async () => {
+    try {
+      const scriptUrl = process.env.NEXT_PUBLIC_GOOGLE_SHEETS_URL;
+      if (!scriptUrl) return;
+
+      const response = await fetch(`${scriptUrl}?action=getAskedQuestions`);
+      const data = await response.json();
+      
+      if (data.questions) {
+        setAskedQuestions(data.questions);
+      }
+    } catch (error) {
+      console.error("Failed to fetch asked questions:", error);
     }
   };
 
@@ -104,6 +131,7 @@ export default function QuestionSuggestionBox({ existingQuestions }: QuestionSug
 
   const validateQuestion = (text: string): string | null => {
     const trimmed = text.trim();
+    setMatchedEpisode(null);
 
     // Check if empty
     if (!trimmed) {
@@ -115,8 +143,21 @@ export default function QuestionSuggestionBox({ existingQuestions }: QuestionSug
       return "Question must end with a question mark (?)";
     }
 
-    // Check for duplicates in existing questions (case-insensitive)
+    // Check for duplicates in Google Sheets asked questions (from database)
     const normalizedText = trimmed.toLowerCase();
+    const matchedAskedQuestion = askedQuestions.find(
+      (q) => {
+        const qLower = q.question.toLowerCase();
+        return qLower.includes(normalizedText) || normalizedText.includes(qLower) || qLower === normalizedText;
+      }
+    );
+
+    if (matchedAskedQuestion) {
+      setMatchedEpisode(matchedAskedQuestion);
+      return `This question was already asked in Episode #${matchedAskedQuestion.episode}!`;
+    }
+
+    // Check for duplicates in existing questions (case-insensitive)
     const isDuplicateExisting = existingQuestions.some(
       (q) => q.toLowerCase().includes(normalizedText) || normalizedText.includes(q.toLowerCase())
     );
@@ -229,6 +270,16 @@ export default function QuestionSuggestionBox({ existingQuestions }: QuestionSug
           {error && (
             <div className="p-3 border-2 border-vintage-red bg-black">
               <p className="text-vintage-red font-bold">❌ {error}</p>
+              {matchedEpisode && (
+                <a
+                  href={matchedEpisode.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-2 inline-block px-4 py-2 bg-vintage-yellow text-black font-bold border-2 border-white hover:bg-white transition-colors"
+                >
+                  [WATCH EPISODE #{matchedEpisode.episode}]
+                </a>
+              )}
             </div>
           )}
 
