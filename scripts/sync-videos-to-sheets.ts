@@ -80,7 +80,7 @@ async function syncVideosToSheets() {
  */
 async function fetchLocationData(): Promise<Record<number, string>> {
   try {
-    const response = await axios.get(GOOGLE_SHEETS_URL!, {
+    const response: any = await axios.get(GOOGLE_SHEETS_URL!, {
       params: {
         action: 'getLocationData'
       }
@@ -125,7 +125,7 @@ async function fetchAllVideosFromYouTube(): Promise<any[]> {
 
   // Fetch playlist items
   do {
-    const response = await axios.get(
+    const response: any = await axios.get(
       'https://www.googleapis.com/youtube/v3/playlistItems',
       {
         params: {
@@ -152,7 +152,7 @@ async function fetchAllVideosFromYouTube(): Promise<any[]> {
 
     if (!videoIds) continue;
 
-    const videoResponse = await axios.get(
+    const videoResponse: any = await axios.get(
       'https://www.googleapis.com/youtube/v3/videos',
       {
         params: {
@@ -345,7 +345,7 @@ async function getChannelId(channelIdentifier: string): Promise<string> {
   }
 
   if (channelIdentifier.startsWith('@')) {
-    const response = await axios.get(
+    const response: any = await axios.get(
       'https://www.googleapis.com/youtube/v3/channels',
       {
         params: {
@@ -369,7 +369,7 @@ async function getChannelId(channelIdentifier: string): Promise<string> {
  */
 async function uploadToGoogleSheets(episodes: Episode[]): Promise<void> {
   try {
-    const response = await axios.post(GOOGLE_SHEETS_URL!, {
+    const response: any = await axios.post(GOOGLE_SHEETS_URL!, {
       action: 'syncEpisodesWithLocation',
       episodes: episodes,
     });
