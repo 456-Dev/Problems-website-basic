@@ -257,7 +257,7 @@ export default function QuestionSuggestionBox({ existingQuestions }: QuestionSug
                 setError("");
               }}
               placeholder="Type your question here..."
-              className="flex-1 px-3 py-2 bg-black text-white border-2 border-white focus:border-vintage-yellow outline-none font-bold text-sm"
+              className="flex-1 px-3 py-2 bg-black text-white border-2 border-white focus:border-vintage-yellow outline-none text-base"
               maxLength={200}
             />
             <button

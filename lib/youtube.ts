@@ -14,9 +14,9 @@ export interface YouTubeVideo {
 }
 
 /**
- * Fetches ALL YouTube Shorts from a channel (paginated)
+ * Fetches YouTube Shorts from a channel (25 at a time for fast loading)
  */
-export async function fetchLatestShorts(): Promise<YouTubeVideo[]> {
+export async function fetchLatestShorts(limit: number = 25): Promise<YouTubeVideo[]> {
   if (!YOUTUBE_API_KEY || !YOUTUBE_CHANNEL_ID) {
     console.error("Missing YouTube API credentials");
     throw new Error("YouTube API credentials not configured");
@@ -27,13 +27,13 @@ export async function fetchLatestShorts(): Promise<YouTubeVideo[]> {
     const channelId = await getChannelId(YOUTUBE_CHANNEL_ID);
     const uploadsPlaylistId = `UU${channelId.substring(2)}`; // UC -> UU for uploads playlist
     
-    // Step 2: Fetch ALL videos with pagination
+    // Step 2: Fetch videos up to limit
     let allVideos: any[] = [];
     let nextPageToken: string | undefined = undefined;
-    let pageCount = 0;
-    const maxPages = 10; // Limit to 500 videos (50 per page * 10 pages)
+    const videosNeeded = limit;
 
-    do {
+    // Fetch in batches of 50 until we have enough
+    while (allVideos.length < videosNeeded) {
       const playlistResponse: any = await axios.get(
         "https://www.googleapis.com/youtube/v3/playlistItems",
         {
@@ -49,14 +49,15 @@ export async function fetchLatestShorts(): Promise<YouTubeVideo[]> {
 
       allVideos.push(...(playlistResponse.data.items || []));
       nextPageToken = playlistResponse.data.nextPageToken;
-      pageCount++;
-    } while (nextPageToken && pageCount < maxPages);
+      
+      if (!nextPageToken) break; // No more videos
+    }
 
     if (allVideos.length === 0) {
       return [];
     }
 
-    // Step 3: Get video details in batches of 50
+    // Step 3: Get video details in batches of 50 (API limit)
     const allShorts: YouTubeVideo[] = [];
     
     for (let i = 0; i < allVideos.length; i += 50) {
@@ -65,7 +66,7 @@ export async function fetchLatestShorts(): Promise<YouTubeVideo[]> {
       
       if (!videoIds) continue;
 
-      const videoDetailsResponse = await axios.get(
+      const videoDetailsResponse: any = await axios.get(
         "https://www.googleapis.com/youtube/v3/videos",
         {
           params: {
@@ -94,7 +95,7 @@ export async function fetchLatestShorts(): Promise<YouTubeVideo[]> {
                            thumbnails.medium?.url ||
                            thumbnails.default?.url;
           
-          // Extract location from recording details or description
+          // Extract location from YouTube metadata (recordingDetails.location)
           const location = extractLocation(video);
           
           return {
@@ -109,9 +110,14 @@ export async function fetchLatestShorts(): Promise<YouTubeVideo[]> {
         });
 
       allShorts.push(...shorts);
+      
+      // Stop if we have enough shorts
+      if (allShorts.length >= limit) {
+        break;
+      }
     }
 
-    return allShorts;
+    return allShorts.slice(0, limit);
   } catch (error) {
     console.error("Error fetching YouTube Shorts:", error);
     throw error;
@@ -120,23 +126,47 @@ export async function fetchLatestShorts(): Promise<YouTubeVideo[]> {
 
 /**
  * Extract location from video metadata or description
+ * YouTube API provides location fields in recordingDetails
  */
 function extractLocation(video: any): string {
-  // Try recordingDetails first (rarely available)
-  if (video.recordingDetails?.location?.description) {
-    return video.recordingDetails.location.description;
+  // Log all available data for debugging
+  if (video.recordingDetails) {
+    console.log(`📍 Video "${video.snippet.title}" recordingDetails:`, JSON.stringify(video.recordingDetails, null, 2));
   }
   
-  // Parse from description
+  // Try all possible location name fields
+  const locationName = 
+    video.recordingDetails?.locationDescription ||
+    video.recordingDetails?.location?.name ||
+    video.recordingDetails?.location?.description ||
+    video.snippet?.location?.name ||
+    video.snippet?.locationName;
+  
+  if (locationName) {
+    console.log(`✅ Using location name: ${locationName}`);
+    return locationName;
+  }
+  
+  // Try coordinates if available
+  if (video.recordingDetails?.location?.latitude && video.recordingDetails?.location?.longitude) {
+    const lat = video.recordingDetails.location.latitude;
+    const lng = video.recordingDetails.location.longitude;
+    console.log(`✅ Using coordinates: ${lat}, ${lng}`);
+    return `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+  }
+  
+  // Parse from video description
   const description = video.snippet.description || "";
   const locationPattern = /location:\s*([^\n]+)/i;
   const match = description.match(locationPattern);
   
   if (match) {
+    console.log(`✅ Using description location: ${match[1].trim()}`);
     return match[1].trim();
   }
   
-  // Default
+  // Default fallback
+  console.log(`⚠️ No location found for "${video.snippet.title}", using default`);
   return "New York, USA";
 }
 

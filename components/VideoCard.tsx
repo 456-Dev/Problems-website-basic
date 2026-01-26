@@ -104,14 +104,14 @@ export default function VideoCard({ video, index, onClick }: VideoCardProps) {
           decoding="async"
         />
 
-        {/* Black overlay on top 20% - Title, Date, Location */}
-        <div className="absolute top-1 flex flex-col justify-end" style={{ height: '13%', backgroundColor: 'rgba(0, 0, 0, 255)', paddingBottom: '3px', left: '-2px', right: '-2px' }}>
-          {/* Title - centered, smaller, 75% white */}
+        {/* Black overlay on top - Title, Date, Location */}
+        <div className="absolute top-0 flex flex-col justify-end" style={{ height: '17%', backgroundColor: 'rgba(0, 0, 0, 255)', paddingBottom: '3px', left: '-2px', right: '-2px', top: '-2px' }}>
+          {/* Title - centered, split difference font size */}
           <div className="px-2 flex items-center justify-center" style={{ marginBottom: '6px' }}>
             <p 
               className="font-bold leading-tight text-center"
               style={{ 
-                fontSize: '9px',
+                fontSize: '13.5px',
                 color: 'rgba(255, 255, 255, 0.75)',
                 backgroundColor: 'rgba(255, 255, 255, 0.12)',
                 fontFamily: 'Helvetica, Arial, sans-serif',
@@ -158,7 +158,7 @@ export default function VideoCard({ video, index, onClick }: VideoCardProps) {
           </div>
         </div>
 
-        {/* Black overlay on bottom 38% (2% shorter) - 100% black */}
+        {/* Black overlay on bottom - Episode number, date/location, click to watch */}
         <div className="absolute bottom-0 left-0 right-0 flex flex-col" style={{ height: '40%', backgroundColor: 'rgb(0, 0, 0)' }}>
           {/* Top section: Episode number on left, play button on right */}
           <div className="flex items-center justify-between px-3 pt-2.5 pb-0">
@@ -176,15 +176,24 @@ export default function VideoCard({ video, index, onClick }: VideoCardProps) {
               </span>
             )}
             
-            {/* Red Play Button - Centered with number */}
+            {/* Red Play Button - Top Right */}
             <div className="w-10 h-10 bg-vintage-red border-2 border-white flex items-center justify-center">
-              <div className="text-xl font-bold text-white">▶</div>
+              <div 
+                style={{ 
+                  width: 0,
+                  height: 0,
+                  borderLeft: '8px solid white',
+                  borderTop: '6px solid transparent',
+                  borderBottom: '6px solid transparent',
+                  marginLeft: '2px'
+                }}
+              />
             </div>
           </div>
 
-          {/* Bottom section: Click to Watch button spanning full width (green) */}
-          <div className="bg-vintage-green border-t-2 border-white hover:bg-white transition-colors mt-1">
-            <p className="text-black font-bold text-center py-2 text-sm">Click to Watch</p>
+          {/* Click to Watch button - brighter grey background */}
+          <div className="border-t-2 border-white hover:opacity-80 transition-opacity mt-1" style={{ backgroundColor: 'rgba(180, 180, 180, 0.8)' }}>
+            <p className="text-white font-bold text-center py-2 text-sm">Click to Watch</p>
           </div>
         </div>
       </div>

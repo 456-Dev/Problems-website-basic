@@ -29,9 +29,11 @@ export interface AskedQuestion {
 export default function Home() {
   const [videos, setVideos] = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [existingQuestions, setExistingQuestions] = useState<string[]>([]);
   const [askedQuestions, setAskedQuestions] = useState<AskedQuestion[]>([]);
+  const [hasMore, setHasMore] = useState(true);
 
   useEffect(() => {
     fetchVideos();
@@ -39,26 +41,45 @@ export default function Home() {
     fetchAskedQuestionsFromSheets();
   }, []);
 
-  const fetchVideos = async () => {
+  const fetchVideos = async (loadMore: boolean = false) => {
     try {
-      setLoading(true);
+      if (loadMore) {
+        setLoadingMore(true);
+      } else {
+        setLoading(true);
+      }
       
-      // Fetch directly from YouTube API (client-side)
+      // Fetch 25 videos from YouTube API
       const { fetchLatestShorts } = await import("@/lib/youtube");
-      const videos = await fetchLatestShorts();
+      const currentCount = videos.length;
+      const fetchCount = currentCount + 25;
+      const newVideos = await fetchLatestShorts(fetchCount);
       
-      setVideos(videos);
+      // Get only the new videos we don't have yet
+      const videosToAdd = newVideos.slice(currentCount);
       
-      // Fetch location data and merge with videos
-      await mergeLocationData(videos);
+      if (videosToAdd.length === 0) {
+        setHasMore(false);
+        setLoadingMore(false);
+        setLoading(false);
+        return;
+      }
       
+      // Location already comes from YouTube API metadata
+      setVideos(loadMore ? [...videos, ...videosToAdd] : videosToAdd);
+      setHasMore(videosToAdd.length === 25); // If we got 25, there might be more
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
       console.error("Error fetching videos:", err);
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
+  };
+
+  const loadMoreVideos = () => {
+    fetchVideos(true);
   };
 
   const fetchExistingQuestions = async () => {
@@ -95,45 +116,10 @@ export default function Home() {
     }
   };
 
-  const mergeLocationData = async (videosToMerge: Video[]) => {
-    try {
-      const sheetsUrl = process.env.NEXT_PUBLIC_GOOGLE_SHEETS_URL;
-      if (!sheetsUrl) return;
-
-      const response = await fetch(`${sheetsUrl}?action=getAskedQuestions`);
-      const data = await response.json();
-      
-      if (data.status === 'success' && data.questions) {
-        // Merge location data with videos
-        const mergedVideos = videosToMerge.map(video => {
-          // Extract episode number from video title
-          const episodeMatch = video.title.match(/#(\d+)|episode\s*(\d+)|ep\.?\s*(\d+)/i);
-          const episodeNumber = episodeMatch ? parseInt(episodeMatch[1] || episodeMatch[2] || episodeMatch[3]) : null;
-          
-          // Find matching location from asked questions
-          if (episodeNumber) {
-            const matchedQuestion = data.questions.find((q: AskedQuestion) => q.episode === episodeNumber);
-            if (matchedQuestion && matchedQuestion.location) {
-              return { ...video, location: matchedQuestion.location };
-            }
-          }
-          
-          return video;
-        });
-        
-        setVideos(mergedVideos);
-      }
-    } catch (err) {
-      console.error("Error merging location data:", err);
-    }
-  };
 
   return (
     <main className="min-h-screen bg-black">
       <Header />
-      
-      {/* Question Suggestion Box - at top */}
-      <QuestionSuggestionBox existingQuestions={existingQuestions} />
       
       <div className="container mx-auto px-4 py-4">
         {/* Intro Text */}
@@ -144,6 +130,17 @@ export default function Home() {
           <p className="text-white text-lg md:text-xl">
             Episodes are published within 24 hours
           </p>
+        </div>
+
+        {/* Question Suggestion Box - below intro section with divider */}
+        <div className="mt-2 mb-10">
+          {/* Divider: high saturation green, yellow, red with better blocking */}
+          <div className="mb-0">
+            <div style={{ height: '2px', backgroundColor: '#00ff00' }}></div>
+            <div style={{ height: '6px', backgroundColor: '#ffff00' }}></div>
+            <div style={{ height: '2px', backgroundColor: '#ff0000' }}></div>
+          </div>
+          <QuestionSuggestionBox existingQuestions={existingQuestions} />
         </div>
 
         {/* Videos Section */}
@@ -168,6 +165,19 @@ export default function Home() {
           <>
             <VideoGrid videos={videos} />
             
+            {/* Load More Button */}
+            {hasMore && (
+              <div className="text-center mt-8 mb-8">
+                <button
+                  onClick={loadMoreVideos}
+                  disabled={loadingMore}
+                  className="px-6 py-3 bg-vintage-yellow text-black font-bold border-2 border-white hover:bg-white transition-colors disabled:opacity-50"
+                >
+                  {loadingMore ? 'Loading...' : 'Load Next 25 Episodes'}
+                </button>
+              </div>
+            )}
+            
             {/* Random 5 episodes */}
             <AllEpisodesList apiVideos={videos} />
           </>
@@ -178,6 +188,20 @@ export default function Home() {
       <footer className="text-center py-4 text-white border-t-2 border-white mt-12 bg-black">
         <div className="flex flex-col items-center gap-2">
           <ViewCounter />
+          
+          <p className="text-sm">
+            Contact me at <a href="mailto:michaellinares314@gmail.com" className="text-vintage-yellow hover:underline">michaellinares314@gmail.com</a>
+            {' '} or {' '}
+            <a 
+              href="https://www.instagram.com/bignosemichael" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-vintage-yellow hover:underline"
+            >
+              @bignosemichael
+            </a>
+            {' '} on Instagram
+          </p>
           <p className="text-sm">© 2025 Question The Day</p>
         </div>
       </footer>
