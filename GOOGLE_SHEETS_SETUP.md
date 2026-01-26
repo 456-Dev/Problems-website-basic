@@ -78,6 +78,8 @@ function doPost(e) {
       return updateVote(data.id, data.votes);
     } else if (action === 'trackVisitor') {
       return trackVisitor(data.visitor);
+    } else if (action === 'syncEpisodes') {
+      return syncEpisodes(data.episodes);
     }
     
     return ContentService.createTextOutput(JSON.stringify({
@@ -207,6 +209,33 @@ function trackVisitor(visitor) {
   return ContentService.createTextOutput(JSON.stringify({
     status: 'success',
     message: 'Visitor tracked'
+  })).setMimeType(ContentService.MimeType.JSON);
+}
+
+// ===== SYNC EPISODES FROM YOUTUBE =====
+function syncEpisodes(episodes) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName('Asked Questions');
+  
+  // Clear existing data (except header)
+  const lastRow = sheet.getLastRow();
+  if (lastRow > 1) {
+    sheet.getRange(2, 1, lastRow - 1, 4).clearContent();
+  }
+  
+  // Add all episodes
+  episodes.forEach(ep => {
+    sheet.appendRow([
+      ep.episodeNumber,
+      ep.question,
+      ep.date,
+      ep.videoUrl
+    ]);
+  });
+  
+  return ContentService.createTextOutput(JSON.stringify({
+    status: 'success',
+    message: `Synced ${episodes.length} episodes`
   })).setMimeType(ContentService.MimeType.JSON);
 }
 ```

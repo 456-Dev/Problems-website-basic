@@ -124,6 +124,7 @@ export async function fetchLatestShorts(): Promise<YouTubeVideo[]> {
 function extractLocation(video: any): string {
   // Try recordingDetails first (rarely available)
   if (video.recordingDetails?.location?.description) {
+    console.log('Found location in recordingDetails:', video.recordingDetails.location.description);
     return video.recordingDetails.location.description;
   }
   
@@ -133,10 +134,12 @@ function extractLocation(video: any): string {
   const match = description.match(locationPattern);
   
   if (match) {
+    console.log('Found location in description:', match[1].trim());
     return match[1].trim();
   }
   
   // Default
+  console.log('No location found, using default: New York, USA');
   return "New York, USA";
 }
 
