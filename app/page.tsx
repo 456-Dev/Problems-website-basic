@@ -15,6 +15,7 @@ export interface Video {
   thumbnail: string;
   publishedAt: string;
   url: string;
+  location?: string;
 }
 
 export default function Home() {
@@ -67,6 +68,9 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-black">
       <Header />
+      
+      {/* Question Suggestion Box - at top */}
+      <QuestionSuggestionBox existingQuestions={existingQuestions} />
       
       <div className="container mx-auto px-4 py-4">
         {/* Intro Text with Search */}
@@ -130,9 +134,6 @@ export default function Home() {
             <AllEpisodesList apiVideos={videos} />
           </>
         )}
-
-        {/* Question Suggestion Box */}
-        <QuestionSuggestionBox existingQuestions={existingQuestions} />
       </div>
 
       {/* Footer */}

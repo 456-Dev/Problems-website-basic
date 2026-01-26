@@ -12,43 +12,11 @@ export default function AllEpisodesList({ apiVideos }: AllEpisodesListProps) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Load data.json episodes
-    fetch('/data.json')
-      .then(res => res.json())
-      .then(data => {
-        const localEpisodes = data.lines.map((line: any) => {
-          const videoIdMatch = line.videoId.match(/shorts\/([^?]+)/);
-          const videoId = videoIdMatch ? videoIdMatch[1] : '';
-          
-          return {
-            id: videoId,
-            title: line.name,
-            description: line.video_type || '',
-            thumbnail: `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
-            publishedAt: '2024-10-31T00:00:00Z',
-            url: line.videoId,
-          };
-        });
-
-        console.log('Local episodes from data.json:', localEpisodes.length);
-        console.log('API videos:', apiVideos.length);
-
-        // Combine local episodes with API videos (API videos first for newer episodes)
-        // Remove duplicates by video ID
-        const apiVideoIds = new Set(apiVideos.map(v => v.id));
-        const uniqueLocalEpisodes = localEpisodes.filter((ep: Video) => !apiVideoIds.has(ep.id));
-        
-        const combined = [...apiVideos, ...uniqueLocalEpisodes];
-        console.log('Total combined episodes:', combined.length);
-        
-        setAllEpisodes(combined);
-        setLoading(false);
-      })
-      .catch(error => {
-        console.error('Error loading data.json:', error);
-        setAllEpisodes(apiVideos);
-        setLoading(false);
-      });
+    // The YouTube API now fetches ALL videos (not just 50)
+    // So we can just use apiVideos directly
+    console.log('All videos from YouTube API:', apiVideos.length);
+    setAllEpisodes(apiVideos);
+    setLoading(false);
   }, [apiVideos]);
 
   if (loading) {

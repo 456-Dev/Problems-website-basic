@@ -70,17 +70,23 @@ export default function VideoCard({ video, index, onClick }: VideoCardProps) {
     return match ? match[1] : formatDate(publishedAt);
   };
 
-  // Parse location from description (looks for "Location: XXXX" or similar)
-  const parseLocation = (description: string): string => {
+  // Get location (from video data if available, otherwise parse from description)
+  const getLocation = (): string => {
+    // Use location from video object if available
+    if (video.location) {
+      return video.location;
+    }
+    
+    // Otherwise parse from description
     const locationPattern = /location:\s*([^\n]+)/i;
-    const match = description.match(locationPattern);
+    const match = video.description.match(locationPattern);
     return match ? match[1].trim() : 'New York, USA';
   };
 
   const episodeNumber = parseEpisodeNumber(video.title);
   const cleanTitle = parseTitle(video.title);
   const date = parseDate(video.description, video.publishedAt);
-  const location = parseLocation(video.description);
+  const location = getLocation();
 
   return (
     <div

@@ -237,20 +237,18 @@ export default function QuestionSuggestionBox({ existingQuestions }: QuestionSug
   };
 
   const sortedQuestions = [...suggestedQuestions].sort((a, b) => b.votes - a.votes);
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
   return (
-    <div className="max-w-4xl mx-auto my-12 px-4">
-      {/* Submit Question Section */}
-      <div className="bg-black border-4 border-vintage-yellow p-6 mb-8">
-        <h2 className="text-2xl font-bold text-vintage-yellow-styled mb-4">
-          SUGGEST A QUESTION
-        </h2>
-        <p className="text-white mb-4 font-bold">
-          &gt;&gt; What question should we ask next?
-        </p>
+    <div className="border-b-2 border-white bg-black">
+      <div className="container mx-auto px-4 py-3">
+        {/* Compact Submit Question Section */}
+        <div className="flex flex-col md:flex-row items-center gap-3">
+          <h2 className="text-lg font-bold text-vintage-yellow whitespace-nowrap">
+            SUGGEST A QUESTION:
+          </h2>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
+          <form onSubmit={handleSubmit} className="flex-1 flex flex-col md:flex-row items-stretch gap-2">
             <input
               type="text"
               value={question}
@@ -259,94 +257,91 @@ export default function QuestionSuggestionBox({ existingQuestions }: QuestionSug
                 setError("");
               }}
               placeholder="Type your question here..."
-              className="w-full px-4 py-3 bg-black text-white border-2 border-white focus:border-vintage-yellow outline-none font-bold"
+              className="flex-1 px-3 py-2 bg-black text-white border-2 border-white focus:border-vintage-yellow outline-none font-bold text-sm"
               maxLength={200}
             />
-            <p className="text-xs text-white mt-1 font-bold">
-              {question.length}/200 characters
-            </p>
-          </div>
-
-          {error && (
-            <div className="p-3 border-2 border-vintage-red bg-black">
-              <p className="text-vintage-red font-bold">❌ {error}</p>
-              {matchedEpisode && (
-                <a
-                  href={matchedEpisode.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-2 inline-block px-4 py-2 bg-vintage-yellow text-black font-bold border-2 border-white hover:bg-white transition-colors"
-                >
-                  [WATCH EPISODE #{matchedEpisode.episode}]
-                </a>
-              )}
-            </div>
+            <button
+              type="submit"
+              className="px-4 py-2 bg-vintage-yellow text-black font-bold border-2 border-white hover:bg-vintage-green transition-colors text-sm whitespace-nowrap"
+            >
+              SUBMIT
+            </button>
+          </form>
+          
+          {sortedQuestions.length > 0 && (
+            <button
+              onClick={() => setShowSuggestions(!showSuggestions)}
+              className="px-4 py-2 bg-white text-black font-bold border-2 border-white hover:bg-vintage-yellow transition-colors text-sm whitespace-nowrap"
+            >
+              {showSuggestions ? '▲ HIDE' : '▼ VIEW'} ({sortedQuestions.length})
+            </button>
           )}
+        </div>
 
-          {success && (
-            <div className="p-3 border-2 border-vintage-green bg-black">
-              <p className="text-vintage-green font-bold">✓ {success}</p>
-            </div>
-          )}
-
-          <button
-            type="submit"
-            className="px-6 py-3 bg-vintage-yellow text-black font-bold border-2 border-white hover:bg-vintage-green transition-colors"
-          >
-            [SUBMIT QUESTION]
-          </button>
-        </form>
-      </div>
-
-      {/* Suggested Questions List */}
-      {sortedQuestions.length > 0 && (
-        <div className="bg-black border-4 border-white p-6">
-          <h2 className="text-2xl font-bold text-vintage-yellow-styled mb-4">
-            COMMUNITY SUGGESTIONS
-          </h2>
-          <p className="text-white mb-6 font-bold">
-            &gt;&gt; Vote for your favorite questions!
-          </p>
-
-          <div className="space-y-3">
-            {sortedQuestions.map((q, index) => (
-              <div
-                key={q.id}
-                className="border-2 border-white p-4 flex items-center justify-between gap-4 hover:border-vintage-yellow transition-colors"
+        {/* Compact status messages */}
+        {error && (
+          <div className="mt-2 p-2 border-2 border-vintage-red bg-black">
+            <p className="text-vintage-red font-bold text-sm">❌ {error}</p>
+            {matchedEpisode && (
+              <a
+                href={matchedEpisode.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-1 inline-block px-3 py-1 bg-vintage-yellow text-black font-bold border-2 border-white hover:bg-white transition-colors text-xs"
               >
-                <div className="flex-1">
-                  <div className="flex items-start gap-3">
-                    <span className="text-vintage-yellow font-bold text-lg">
+                [WATCH EPISODE #{matchedEpisode.episode}]
+              </a>
+            )}
+          </div>
+        )}
+
+        {success && (
+          <div className="mt-2 p-2 border-2 border-vintage-green bg-black">
+            <p className="text-vintage-green font-bold text-sm">✓ {success}</p>
+          </div>
+        )}
+
+        {/* Dropdown Suggested Questions List */}
+        {showSuggestions && sortedQuestions.length > 0 && (
+          <div className="mt-3 border-2 border-white bg-black p-3 max-h-96 overflow-y-auto">
+            <div className="space-y-2">
+              {sortedQuestions.map((q, index) => (
+                <div
+                  key={q.id}
+                  className="border border-white p-2 flex items-center justify-between gap-2 hover:border-vintage-yellow transition-colors"
+                >
+                  <div className="flex-1 flex items-start gap-2">
+                    <span className="text-vintage-yellow font-bold text-sm">
                       #{index + 1}
                     </span>
-                    <p className="text-white font-bold flex-1">{q.text}</p>
+                    <p className="text-white font-bold flex-1 text-sm">{q.text}</p>
                   </div>
-                </div>
 
-                <div className="flex flex-col items-center gap-2 min-w-[80px]">
-                  <button
-                    onClick={() => handleVote(q.id)}
-                    disabled={votedQuestions.has(q.id)}
-                    className={`px-4 py-2 font-bold border-2 transition-colors ${
-                      votedQuestions.has(q.id)
-                        ? "bg-gray-600 text-gray-400 border-gray-600 cursor-not-allowed"
-                        : "bg-vintage-green text-black border-white hover:bg-vintage-yellow"
-                    }`}
-                  >
-                    {votedQuestions.has(q.id) ? "✓ VOTED" : "VOTE"}
-                  </button>
-                  <div className="text-center">
-                    <p className="text-vintage-yellow font-bold text-2xl">{q.votes}</p>
-                    <p className="text-xs text-white font-bold">
-                      {q.votes === 1 ? "VOTE" : "VOTES"}
-                    </p>
+                  <div className="flex items-center gap-2">
+                    <div className="text-center">
+                      <p className="text-vintage-yellow font-bold text-lg">{q.votes}</p>
+                      <p className="text-xs text-white font-bold">
+                        {q.votes === 1 ? "VOTE" : "VOTES"}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => handleVote(q.id)}
+                      disabled={votedQuestions.has(q.id)}
+                      className={`px-3 py-1 font-bold border-2 transition-colors text-xs ${
+                        votedQuestions.has(q.id)
+                          ? "bg-gray-600 text-gray-400 border-gray-600 cursor-not-allowed"
+                          : "bg-vintage-green text-black border-white hover:bg-vintage-yellow"
+                      }`}
+                    >
+                      {votedQuestions.has(q.id) ? "✓" : "VOTE"}
+                    </button>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

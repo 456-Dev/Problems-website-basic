@@ -10,10 +10,11 @@ export interface YouTubeVideo {
   thumbnail: string;
   publishedAt: string;
   url: string;
+  location?: string; // Extracted from description or recording location
 }
 
 /**
- * Fetches the latest 50 YouTube Shorts from a channel
+ * Fetches ALL YouTube Shorts from a channel (paginated)
  */
 export async function fetchLatestShorts(): Promise<YouTubeVideo[]> {
   if (!YOUTUBE_API_KEY || !YOUTUBE_CHANNEL_ID) {
@@ -24,73 +25,119 @@ export async function fetchLatestShorts(): Promise<YouTubeVideo[]> {
   try {
     // Step 1: Get the channel's uploads playlist ID
     const channelId = await getChannelId(YOUTUBE_CHANNEL_ID);
+    const uploadsPlaylistId = `UU${channelId.substring(2)}`; // UC -> UU for uploads playlist
     
-    // Step 2: Get latest 50 videos from the uploads playlist
-    const playlistResponse = await axios.get(
-      "https://www.googleapis.com/youtube/v3/playlistItems",
-      {
-        params: {
-          part: "snippet,contentDetails",
-          playlistId: `UU${channelId.substring(2)}`, // UC -> UU for uploads playlist
-          maxResults: 50,
-          key: YOUTUBE_API_KEY,
-        },
-      }
-    );
+    // Step 2: Fetch ALL videos with pagination
+    let allVideos: any[] = [];
+    let nextPageToken: string | null = null;
+    let pageCount = 0;
+    const maxPages = 10; // Limit to 500 videos (50 per page * 10 pages)
 
-    const videos = playlistResponse.data.items || [];
+    do {
+      const playlistResponse = await axios.get(
+        "https://www.googleapis.com/youtube/v3/playlistItems",
+        {
+          params: {
+            part: "snippet,contentDetails",
+            playlistId: uploadsPlaylistId,
+            maxResults: 50,
+            pageToken: nextPageToken || undefined,
+            key: YOUTUBE_API_KEY,
+          },
+        }
+      );
 
-    // Step 3: Get video details (single batch of 50)
-    const videoIds = videos.map((item: any) => item.contentDetails.videoId).join(",");
-    
-    if (!videoIds) {
+      allVideos.push(...(playlistResponse.data.items || []));
+      nextPageToken = playlistResponse.data.nextPageToken;
+      pageCount++;
+    } while (nextPageToken && pageCount < maxPages);
+
+    if (allVideos.length === 0) {
       return [];
     }
 
-    const videoDetailsResponse = await axios.get(
-      "https://www.googleapis.com/youtube/v3/videos",
-      {
-        params: {
-          part: "contentDetails,snippet",
-          id: videoIds,
-          key: YOUTUBE_API_KEY,
-        },
-      }
-    );
+    // Step 3: Get video details in batches of 50
+    const allShorts: YouTubeVideo[] = [];
+    
+    for (let i = 0; i < allVideos.length; i += 50) {
+      const batch = allVideos.slice(i, i + 50);
+      const videoIds = batch.map((item: any) => item.contentDetails.videoId).join(",");
+      
+      if (!videoIds) continue;
 
-    const videoDetails = videoDetailsResponse.data.items || [];
+      const videoDetailsResponse = await axios.get(
+        "https://www.googleapis.com/youtube/v3/videos",
+        {
+          params: {
+            part: "contentDetails,snippet,recordingDetails",
+            id: videoIds,
+            key: YOUTUBE_API_KEY,
+          },
+        }
+      );
 
-    // Filter for Shorts (duration <= 190 seconds) OR videos with "QTD" in title
-    const shorts = videoDetails
-      .filter((video: any) => {
-        const duration = parseDuration(video.contentDetails.duration);
-        const hasQTD = video.snippet.title.toUpperCase().includes('QTD');
-        return duration <= 190 || hasQTD;
-      })
-      .map((video: any) => {
-        // Get highest quality thumbnail available
-        const thumbnails = video.snippet.thumbnails;
-        const thumbnail = thumbnails.maxres?.url || 
-                         thumbnails.standard?.url || 
-                         thumbnails.high?.url || 
-                         thumbnails.medium?.url ||
-                         thumbnails.default?.url;
-        
-        return {
-          id: video.id,
-          title: video.snippet.title,
-          description: video.snippet.description,
-          thumbnail: thumbnail,
-          publishedAt: video.snippet.publishedAt,
-          url: `https://www.youtube.com/shorts/${video.id}`,
-        };
-      });
+      const videoDetails = videoDetailsResponse.data.items || [];
 
-    return shorts;
+      // Filter for Shorts (duration <= 190 seconds) OR videos with "QTD" in title
+      const shorts = videoDetails
+        .filter((video: any) => {
+          const duration = parseDuration(video.contentDetails.duration);
+          const hasQTD = video.snippet.title.toUpperCase().includes('QTD');
+          return duration <= 190 || hasQTD;
+        })
+        .map((video: any) => {
+          // Get highest quality thumbnail available
+          const thumbnails = video.snippet.thumbnails;
+          const thumbnail = thumbnails.maxres?.url || 
+                           thumbnails.standard?.url || 
+                           thumbnails.high?.url || 
+                           thumbnails.medium?.url ||
+                           thumbnails.default?.url;
+          
+          // Extract location from recording details or description
+          const location = extractLocation(video);
+          
+          return {
+            id: video.id,
+            title: video.snippet.title,
+            description: video.snippet.description,
+            thumbnail: thumbnail,
+            publishedAt: video.snippet.publishedAt,
+            url: `https://www.youtube.com/shorts/${video.id}`,
+            location: location,
+          };
+        });
+
+      allShorts.push(...shorts);
+    }
+
+    return allShorts;
   } catch (error) {
     console.error("Error fetching YouTube Shorts:", error);
     throw error;
   }
+}
+
+/**
+ * Extract location from video metadata or description
+ */
+function extractLocation(video: any): string {
+  // Try recordingDetails first (rarely available)
+  if (video.recordingDetails?.location?.description) {
+    return video.recordingDetails.location.description;
+  }
+  
+  // Parse from description
+  const description = video.snippet.description || "";
+  const locationPattern = /location:\s*([^\n]+)/i;
+  const match = description.match(locationPattern);
+  
+  if (match) {
+    return match[1].trim();
+  }
+  
+  // Default
+  return "New York, USA";
 }
 
 /**
