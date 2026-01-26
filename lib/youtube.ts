@@ -29,19 +29,19 @@ export async function fetchLatestShorts(): Promise<YouTubeVideo[]> {
     
     // Step 2: Fetch ALL videos with pagination
     let allVideos: any[] = [];
-    let nextPageToken: string | null = null;
+    let nextPageToken: string | undefined = undefined;
     let pageCount = 0;
     const maxPages = 10; // Limit to 500 videos (50 per page * 10 pages)
 
     do {
-      const playlistResponse = await axios.get(
+      const playlistResponse: any = await axios.get(
         "https://www.googleapis.com/youtube/v3/playlistItems",
         {
           params: {
             part: "snippet,contentDetails",
             playlistId: uploadsPlaylistId,
             maxResults: 50,
-            pageToken: nextPageToken || undefined,
+            pageToken: nextPageToken,
             key: YOUTUBE_API_KEY,
           },
         }
