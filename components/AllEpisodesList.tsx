@@ -8,57 +8,42 @@ interface AllEpisodesListProps {
 }
 
 export default function AllEpisodesList({ apiVideos }: AllEpisodesListProps) {
-  const [allEpisodes, setAllEpisodes] = useState<Video[]>([]);
+  const [randomEpisodes, setRandomEpisodes] = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // The YouTube API now fetches ALL videos (not just 50)
-    // So we can just use apiVideos directly
-    console.log('All videos from YouTube API:', apiVideos.length);
-    setAllEpisodes(apiVideos);
-    setLoading(false);
+    if (apiVideos.length > 0) {
+      randomizeEpisodes();
+      setLoading(false);
+    }
   }, [apiVideos]);
 
-  if (loading) {
-    return (
-      <div className="mt-16 border-t-4 border-white pt-8">
-        <p className="text-white text-center">Loading all episodes...</p>
-      </div>
-    );
+  const randomizeEpisodes = () => {
+    // Get 5 random episodes from the array
+    const shuffled = [...apiVideos].sort(() => 0.5 - Math.random());
+    const selected = shuffled.slice(0, 5);
+    setRandomEpisodes(selected);
+  };
+
+  if (loading || apiVideos.length === 0) {
+    return null;
   }
 
   return (
-    <div id="all-episodes" className="mt-16 border-t-4 border-white pt-8">
-      <h2 className="text-2xl font-bold text-white mb-4 text-center">All Episodes ({allEpisodes.length})</h2>
-      
-      {/* Search bar */}
-      <div className="mb-6">
-        <input
-          id="bottom-search"
-          type="text"
-          placeholder="Search episodes by question or date..."
-          onInput={(e) => {
-            const searchTerm = (e.target as HTMLInputElement).value.toLowerCase();
-            const listItems = document.querySelectorAll('.episode-item');
-            listItems.forEach((item) => {
-              const text = item.textContent?.toLowerCase() || '';
-              const parent = item.parentElement;
-              if (parent) {
-                if (text.includes(searchTerm)) {
-                  parent.style.display = '';
-                } else {
-                  parent.style.display = 'none';
-                }
-              }
-            });
-          }}
-          className="w-full px-4 py-3 bg-black text-white border-2 border-white focus:border-vintage-yellow outline-none font-bold"
-        />
+    <div id="random-episodes" className="mt-16 border-t-4 border-white pt-8">
+      <div className="flex items-center justify-center gap-4 mb-6">
+        <h2 className="text-2xl font-bold text-white text-center">5 Random Episodes</h2>
+        <button
+          onClick={randomizeEpisodes}
+          className="px-4 py-2 bg-vintage-yellow text-black font-bold border-2 border-white hover:bg-white transition-colors"
+        >
+          🎲 Randomize
+        </button>
       </div>
 
-      {/* List of all videos */}
+      {/* List of random videos */}
       <div className="space-y-2">
-        {allEpisodes.map((video) => (
+        {randomEpisodes.map((video) => (
           <div key={video.id} className="border-2 border-white hover:border-vintage-yellow transition-colors">
             <button
               onClick={() => {

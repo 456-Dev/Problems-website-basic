@@ -18,15 +18,25 @@ export interface Video {
   location?: string;
 }
 
+export interface AskedQuestion {
+  episode: number;
+  question: string;
+  date: string;
+  url: string;
+  location: string;
+}
+
 export default function Home() {
   const [videos, setVideos] = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [existingQuestions, setExistingQuestions] = useState<string[]>([]);
+  const [askedQuestions, setAskedQuestions] = useState<AskedQuestion[]>([]);
 
   useEffect(() => {
     fetchVideos();
     fetchExistingQuestions();
+    fetchAskedQuestionsFromSheets();
   }, []);
 
   const fetchVideos = async () => {
@@ -38,6 +48,10 @@ export default function Home() {
       const videos = await fetchLatestShorts();
       
       setVideos(videos);
+      
+      // Fetch location data and merge with videos
+      await mergeLocationData(videos);
+      
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
@@ -65,6 +79,55 @@ export default function Home() {
     }
   };
 
+  const fetchAskedQuestionsFromSheets = async () => {
+    try {
+      const sheetsUrl = process.env.NEXT_PUBLIC_GOOGLE_SHEETS_URL;
+      if (!sheetsUrl) return;
+
+      const response = await fetch(`${sheetsUrl}?action=getAskedQuestions`);
+      const data = await response.json();
+      
+      if (data.status === 'success' && data.questions) {
+        setAskedQuestions(data.questions);
+      }
+    } catch (err) {
+      console.error("Error fetching asked questions from sheets:", err);
+    }
+  };
+
+  const mergeLocationData = async (videosToMerge: Video[]) => {
+    try {
+      const sheetsUrl = process.env.NEXT_PUBLIC_GOOGLE_SHEETS_URL;
+      if (!sheetsUrl) return;
+
+      const response = await fetch(`${sheetsUrl}?action=getAskedQuestions`);
+      const data = await response.json();
+      
+      if (data.status === 'success' && data.questions) {
+        // Merge location data with videos
+        const mergedVideos = videosToMerge.map(video => {
+          // Extract episode number from video title
+          const episodeMatch = video.title.match(/#(\d+)|episode\s*(\d+)|ep\.?\s*(\d+)/i);
+          const episodeNumber = episodeMatch ? parseInt(episodeMatch[1] || episodeMatch[2] || episodeMatch[3]) : null;
+          
+          // Find matching location from asked questions
+          if (episodeNumber) {
+            const matchedQuestion = data.questions.find((q: AskedQuestion) => q.episode === episodeNumber);
+            if (matchedQuestion && matchedQuestion.location) {
+              return { ...video, location: matchedQuestion.location };
+            }
+          }
+          
+          return video;
+        });
+        
+        setVideos(mergedVideos);
+      }
+    } catch (err) {
+      console.error("Error merging location data:", err);
+    }
+  };
+
   return (
     <main className="min-h-screen bg-black">
       <Header />
@@ -73,39 +136,14 @@ export default function Home() {
       <QuestionSuggestionBox existingQuestions={existingQuestions} />
       
       <div className="container mx-auto px-4 py-4">
-        {/* Intro Text with Search */}
+        {/* Intro Text */}
         <div className="text-center mb-6">
           <p className="text-white text-lg md:text-xl mb-1">
             <strong>Did I interview you today?</strong>
           </p>
-          <p className="text-white text-lg md:text-xl mb-4">
+          <p className="text-white text-lg md:text-xl">
             Episodes are published within 24 hours
           </p>
-          
-          {/* Search previous episodes */}
-          <div className="max-w-2xl mx-auto">
-            <input
-              type="text"
-              placeholder="Search previous episodes by question or date..."
-              onChange={(e) => {
-                const searchTerm = e.target.value.toLowerCase();
-                
-                // Scroll down when user starts typing
-                if (searchTerm.length > 0) {
-                  const searchSection = document.getElementById('all-episodes');
-                  searchSection?.scrollIntoView({ behavior: 'smooth' });
-                }
-                
-                // Sync the search to bottom list
-                const bottomSearch = document.getElementById('bottom-search') as HTMLInputElement;
-                if (bottomSearch) {
-                  bottomSearch.value = searchTerm;
-                  bottomSearch.dispatchEvent(new Event('input', { bubbles: true }));
-                }
-              }}
-              className="w-full px-4 py-3 bg-black text-white border-2 border-white focus:border-vintage-yellow outline-none font-bold text-center"
-            />
-          </div>
         </div>
 
         {/* Videos Section */}
@@ -130,7 +168,7 @@ export default function Home() {
           <>
             <VideoGrid videos={videos} />
             
-            {/* Full searchable list - includes data.json episodes */}
+            {/* Random 5 episodes */}
             <AllEpisodesList apiVideos={videos} />
           </>
         )}
