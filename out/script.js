@@ -81,8 +81,9 @@ class NYCRoutesMap {
             zoom: this.mapZoom,
             zoomControl: true,
             attributionControl: true,
-            zoomSnap: 0.1,        // Allow fractional zoom in 0.25 increments
-            zoomDelta: 1,        // Zoom by 0.25 when using zoom controls
+            zoomSnap: 0.5,           // Allow fractional zoom in 0.5 increments
+            zoomDelta: 2,            // Zoom by 2 levels when using zoom controls
+            wheelPxPerZoomLevel: 30, // More sensitive scroll wheel (lower = faster zoom)
         });
         
         // Dark map layer
@@ -264,6 +265,12 @@ class NYCRoutesMap {
     }
     
     startFeaturedRotation() {
+        // Skip if carousel element doesn't exist (commented out)
+        if (!this.featuredScroll) {
+            console.log('Featured carousel disabled');
+            return;
+        }
+        
         if (this.routes.length === 0) {
             this.featuredScroll.innerHTML = '<div class="loading-featured">No interviews available</div>';
             return;

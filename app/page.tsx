@@ -6,6 +6,7 @@ import Header from "@/components/Header";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import AllEpisodesList from "@/components/AllEpisodesList";
 import ViewCounter from "@/components/ViewCounter";
+import QuestionSuggestionBox from "@/components/QuestionSuggestionBox";
 
 export interface Video {
   id: string;
@@ -20,9 +21,11 @@ export default function Home() {
   const [videos, setVideos] = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [existingQuestions, setExistingQuestions] = useState<string[]>([]);
 
   useEffect(() => {
     fetchVideos();
+    fetchExistingQuestions();
   }, []);
 
   const fetchVideos = async () => {
@@ -40,6 +43,24 @@ export default function Home() {
       console.error("Error fetching videos:", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchExistingQuestions = async () => {
+    try {
+      const response = await fetch("/data.json");
+      const data = await response.json();
+      
+      // Extract question text from episode names
+      const questions = data.lines.map((line: any) => {
+        // Remove episode number from the name (e.g., "[QTD Episode 1]")
+        const questionText = line.name.replace(/\[QTD Episode \d+\]/gi, "").trim();
+        return questionText;
+      });
+      
+      setExistingQuestions(questions);
+    } catch (err) {
+      console.error("Error fetching existing questions:", err);
     }
   };
 
@@ -109,6 +130,9 @@ export default function Home() {
             <AllEpisodesList apiVideos={videos} />
           </>
         )}
+
+        {/* Question Suggestion Box */}
+        <QuestionSuggestionBox existingQuestions={existingQuestions} />
       </div>
 
       {/* Footer */}
