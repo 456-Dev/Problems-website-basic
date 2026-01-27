@@ -150,7 +150,7 @@ export default function Home() {
           <div className="text-center py-12 border-2 border-vintage-red bg-black p-6">
             <div className="text-vintage-red text-lg mb-3">Error: {error}</div>
             <button
-              onClick={fetchVideos}
+              onClick={() => fetchVideos(false)}
               className="px-4 py-2 bg-vintage-yellow text-black font-bold border-2 border-white hover:bg-white transition-colors"
             >
               Retry
