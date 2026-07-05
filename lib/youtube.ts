@@ -1,7 +1,29 @@
 import axios from "axios";
 
 const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY || process.env.NEXT_PUBLIC_YOUTUBE_API_KEY;
-const YOUTUBE_CHANNEL_ID = process.env.YOUTUBE_CHANNEL_ID || process.env.NEXT_PUBLIC_YOUTUBE_CHANNEL_ID;
+// Known channel ID for @bignosemichael — used when the handle lookup API call fails (quota/key restrictions)
+const FALLBACK_CHANNEL_ID = "UCPHlxgD-zH8MpuZ9bQDAWMA";
+const YOUTUBE_CHANNEL_ID = process.env.YOUTUBE_CHANNEL_ID || process.env.NEXT_PUBLIC_YOUTUBE_CHANNEL_ID || FALLBACK_CHANNEL_ID;
+
+const CACHE_KEY = "qtd_videos_cache_v1";
+const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
+
+function readCache(): { ts: number; videos: YouTubeVideo[] } | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeCache(videos: YouTubeVideo[]) {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), videos }));
+  } catch {}
+}
 
 export interface YouTubeVideo {
   id: string;
@@ -20,6 +42,12 @@ export async function fetchLatestShorts(limit: number = 25): Promise<YouTubeVide
   if (!YOUTUBE_API_KEY || !YOUTUBE_CHANNEL_ID) {
     console.error("Missing YouTube API credentials");
     throw new Error("YouTube API credentials not configured");
+  }
+
+  // Serve from cache when fresh — avoids quota errors and gives instant loads
+  const cached = readCache();
+  if (cached && Date.now() - cached.ts < CACHE_TTL_MS && cached.videos.length >= limit) {
+    return cached.videos.slice(0, limit);
   }
 
   try {
@@ -117,9 +145,17 @@ export async function fetchLatestShorts(limit: number = 25): Promise<YouTubeVide
       }
     }
 
-    return allShorts.slice(0, limit);
+    const result = allShorts.slice(0, limit);
+    if (result.length > (cached?.videos.length || 0)) {
+      writeCache(result);
+    }
+    return result;
   } catch (error) {
     console.error("Error fetching YouTube Shorts:", error);
+    // Fall back to stale cache rather than showing an error page
+    if (cached && cached.videos.length > 0) {
+      return cached.videos.slice(0, limit);
+    }
     throw error;
   }
 }
@@ -221,7 +257,9 @@ async function getChannelId(channelIdentifier: string): Promise<string> {
     console.error("Error looking up channel by username:", error);
   }
 
-  throw new Error(`Could not find channel ID for: ${channelIdentifier}`);
+  // Lookups failed (quota, key restrictions, etc.) — use the known channel ID
+  console.warn(`Could not resolve channel ID for ${channelIdentifier}, using fallback`);
+  return FALLBACK_CHANNEL_ID;
 }
 
 /**

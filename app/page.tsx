@@ -151,7 +151,7 @@ export default function Home() {
             <div className="text-vintage-red text-lg mb-3">Error: {error}</div>
             <button
               onClick={() => fetchVideos(false)}
-              className="px-4 py-2 bg-vintage-yellow text-black font-bold border-2 border-white hover:bg-white transition-colors"
+              className="px-4 py-2 bg-vintage-yellow text-black font-bold border-2 border-white glossy-btn hover:bg-white transition-colors"
             >
               Retry
             </button>
@@ -171,7 +171,7 @@ export default function Home() {
                 <button
                   onClick={loadMoreVideos}
                   disabled={loadingMore}
-                  className="px-6 py-3 bg-vintage-yellow text-black font-bold border-2 border-white hover:bg-white transition-colors disabled:opacity-50"
+                  className="px-6 py-3 bg-vintage-yellow text-black font-bold border-2 border-white glossy-btn hover:bg-white transition-colors disabled:opacity-50"
                 >
                   {loadingMore ? 'Loading...' : 'Load Next 25 Episodes'}
                 </button>

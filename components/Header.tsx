@@ -2,7 +2,7 @@
 
 export default function Header() {
   return (
-    <header className="border-b-4 border-white bg-black">
+    <header className="border-b-4 border-white glow-header">
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
         {/* Left side - Title (left-aligned, centered with NYC Map button) */}
         <div className="flex flex-col text-left">
@@ -32,19 +32,19 @@ export default function Header() {
             href="https://youtube.com/@bignosemichael"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-black bg-vintage-red hover:bg-white hover:text-vintage-red font-bold border-2 border-white px-4 py-1 text-center text-sm transition-colors"
+            className="text-black bg-vintage-red hover:bg-white hover:text-vintage-red font-bold border-2 border-white glossy-btn px-4 py-1 text-center text-sm transition-colors"
           >
             Subscribe
           </a>
           <a
             href="/nyc-map.html"
-            className="text-black bg-vintage-yellow hover:bg-white font-bold border-2 border-white px-4 py-1 text-center text-sm transition-colors"
+            className="text-black bg-vintage-yellow hover:bg-white font-bold border-2 border-white glossy-btn px-4 py-1 text-center text-sm transition-colors"
           >
             NYC Map
           </a>
           <a
             href="#videos"
-            className="text-black bg-vintage-green hover:bg-white font-bold border-2 border-white px-4 py-1 text-center text-sm transition-colors"
+            className="text-black bg-vintage-green hover:bg-white font-bold border-2 border-white glossy-btn px-4 py-1 text-center text-sm transition-colors"
           >
             Episodes
           </a>

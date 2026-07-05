@@ -14,6 +14,8 @@ function doGet(e) {
     return incrementViewCount();
   } else if (action === 'getLocationData') {
     return getLocationData();
+  } else if (action === 'getComments') {
+    return getComments(e.parameter.videoId);
   }
   
   return ContentService.createTextOutput(JSON.stringify({
@@ -37,6 +39,8 @@ function doPost(e) {
       return syncEpisodes(data.episodes);
     } else if (action === 'syncEpisodesWithLocation') {
       return syncEpisodesWithLocation(data.episodes);
+    } else if (action === 'addComment') {
+      return addComment(data.comment);
     }
     
     return ContentService.createTextOutput(JSON.stringify({
@@ -152,6 +156,55 @@ function getLocationData() {
   return ContentService.createTextOutput(JSON.stringify({
     status: 'success',
     locations: locations
+  })).setMimeType(ContentService.MimeType.JSON);
+}
+
+// ===== VIDEO COMMENTS (answers to episode questions) =====
+function getCommentsSheet() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sheet = ss.getSheetByName('Comments');
+  if (!sheet) {
+    sheet = ss.insertSheet('Comments');
+    sheet.appendRow(['ID', 'Video ID', 'Name', 'Comment', 'Timestamp']);
+  }
+  return sheet;
+}
+
+function getComments(videoId) {
+  const sheet = getCommentsSheet();
+  const data = sheet.getDataRange().getValues();
+
+  const comments = data.slice(1)
+    .map(row => ({
+      id: row[0],
+      videoId: row[1],
+      name: row[2],
+      text: row[3],
+      timestamp: row[4]
+    }))
+    .filter(c => c.id && c.videoId === videoId)
+    .sort((a, b) => b.timestamp - a.timestamp);
+
+  return ContentService.createTextOutput(JSON.stringify({
+    status: 'success',
+    comments: comments
+  })).setMimeType(ContentService.MimeType.JSON);
+}
+
+function addComment(comment) {
+  const sheet = getCommentsSheet();
+
+  sheet.appendRow([
+    comment.id,
+    comment.videoId,
+    String(comment.name).slice(0, 40),
+    String(comment.text).slice(0, 300),
+    comment.timestamp
+  ]);
+
+  return ContentService.createTextOutput(JSON.stringify({
+    status: 'success',
+    message: 'Comment added'
   })).setMimeType(ContentService.MimeType.JSON);
 }
 

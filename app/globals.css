@@ -13,8 +13,79 @@
 
 body {
   color: var(--foreground);
-  background: var(--background);
+  /* Ambient stage lighting behind everything */
+  background:
+    radial-gradient(1200px 600px at 50% -10%, rgba(255, 255, 0, 0.08), transparent 60%),
+    radial-gradient(900px 500px at 90% 110%, rgba(255, 0, 0, 0.06), transparent 60%),
+    radial-gradient(900px 500px at 10% 110%, rgba(0, 255, 0, 0.06), transparent 60%),
+    var(--background);
+  background-attachment: fixed;
   font-family: Helvetica, Arial, sans-serif;
+}
+
+/* Glossy card: light sheen sweeps across on hover, card lifts with a glow */
+.glossy-card {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+}
+
+.glossy-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.22) 45%,
+    rgba(255, 255, 255, 0.05) 55%,
+    transparent 70%
+  );
+  transform: translateX(-130%);
+  transition: transform 0.6s ease;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.glossy-card:hover::after {
+  transform: translateX(130%);
+}
+
+.glossy-card:hover {
+  transform: translateY(-4px) scale(1.015);
+  box-shadow:
+    0 10px 30px rgba(255, 255, 0, 0.2),
+    0 4px 14px rgba(0, 0, 0, 0.7);
+  border-color: var(--accent);
+}
+
+/* Glossy button: inner top highlight + glow on hover */
+.glossy-btn {
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.45),
+    inset 0 -6px 12px rgba(0, 0, 0, 0.25),
+    0 0 12px rgba(255, 255, 0, 0.15);
+  transition: box-shadow 0.2s ease, transform 0.15s ease;
+}
+
+.glossy-btn:hover {
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.65),
+    inset 0 -6px 12px rgba(0, 0, 0, 0.15),
+    0 0 22px rgba(255, 255, 0, 0.4);
+  transform: translateY(-1px);
+}
+
+.glossy-btn:active {
+  transform: translateY(1px);
+  box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.4);
+}
+
+/* Header glow bar */
+.glow-header {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(0, 0, 0, 0)), #000;
+  box-shadow: 0 6px 30px rgba(255, 255, 0, 0.12);
 }
 
 /* Yellow text with green outline and red shadow */

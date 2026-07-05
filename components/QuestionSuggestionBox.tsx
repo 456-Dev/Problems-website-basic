@@ -90,7 +90,9 @@ export default function QuestionSuggestionBox({ existingQuestions }: QuestionSug
         method: 'POST',
         mode: 'no-cors', // Required for Google Apps Script
         headers: {
-          'Content-Type': 'application/json',
+          // no-cors only allows "simple" content types — application/json gets
+          // blocked by the browser, so the request never reached the sheet
+          'Content-Type': 'text/plain;charset=utf-8',
         },
         body: JSON.stringify({
           action: 'add',
@@ -116,7 +118,7 @@ export default function QuestionSuggestionBox({ existingQuestions }: QuestionSug
         method: 'POST',
         mode: 'no-cors',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'text/plain;charset=utf-8',
         },
         body: JSON.stringify({
           action: 'vote',
@@ -198,8 +200,12 @@ export default function QuestionSuggestionBox({ existingQuestions }: QuestionSug
 
     // Save to Google Sheets
     const saved = await saveQuestionToSheet(newQuestion);
-    
-    // Update local state regardless (optimistic update)
+    if (!saved) {
+      setError("Couldn't submit right now — please try again in a moment.");
+      return;
+    }
+
+    // Update local state (optimistic update)
     setSuggestedQuestions([...suggestedQuestions, newQuestion]);
     setSuccess("Question submitted successfully!");
     setQuestion("");
@@ -262,7 +268,7 @@ export default function QuestionSuggestionBox({ existingQuestions }: QuestionSug
             />
             <button
               type="submit"
-              className="px-4 py-2 bg-vintage-yellow text-black font-bold border-2 border-white hover:bg-vintage-green transition-colors text-sm whitespace-nowrap"
+              className="px-4 py-2 bg-vintage-yellow text-black font-bold border-2 border-white glossy-btn hover:bg-vintage-green transition-colors text-sm whitespace-nowrap"
             >
               SUBMIT
             </button>
@@ -271,7 +277,7 @@ export default function QuestionSuggestionBox({ existingQuestions }: QuestionSug
           {sortedQuestions.length > 0 && (
             <button
               onClick={() => setShowSuggestions(!showSuggestions)}
-              className="px-4 py-2 bg-white text-black font-bold border-2 border-white hover:bg-vintage-yellow transition-colors text-sm whitespace-nowrap"
+              className="px-4 py-2 bg-white text-black font-bold border-2 border-white glossy-btn hover:bg-vintage-yellow transition-colors text-sm whitespace-nowrap"
             >
               {showSuggestions ? '▲ HIDE' : '▼ VIEW'} ({sortedQuestions.length})
             </button>
@@ -287,7 +293,7 @@ export default function QuestionSuggestionBox({ existingQuestions }: QuestionSug
                 href={matchedEpisode.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-1 inline-block px-3 py-1 bg-vintage-yellow text-black font-bold border-2 border-white hover:bg-white transition-colors text-xs"
+                className="mt-1 inline-block px-3 py-1 bg-vintage-yellow text-black font-bold border-2 border-white glossy-btn hover:bg-white transition-colors text-xs"
               >
                 [WATCH EPISODE #{matchedEpisode.episode}]
               </a>

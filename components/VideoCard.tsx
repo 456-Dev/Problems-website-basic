@@ -90,7 +90,7 @@ export default function VideoCard({ video, index, onClick }: VideoCardProps) {
 
   return (
     <div
-      className="cursor-pointer animate-fade-in"
+      className="cursor-pointer animate-fade-in glossy-card"
       style={{ animationDelay: `${index * 0.05}s` }}
       onClick={onClick}
     >
