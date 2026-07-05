@@ -48,6 +48,7 @@ export default function VideoCard({ video, index, onClick }: VideoCardProps) {
   // Format ISO date to "Nov 15th, 2024"
   const formatDate = (isoDate: string): string => {
     const date = new Date(isoDate);
+    if (!isoDate || isNaN(date.getTime())) return "QTD";
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     const month = months[date.getMonth()];
     const day = date.getDate();

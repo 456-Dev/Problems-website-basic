@@ -156,6 +156,15 @@ export async function fetchLatestShorts(limit: number = 25): Promise<YouTubeVide
     if (cached && cached.videos.length > 0) {
       return cached.videos.slice(0, limit);
     }
+    // Final fallback: the videos.json snapshot generated at build time
+    // (RSS feed + episode archive — no API key involved)
+    try {
+      const res = await fetch("/videos.json");
+      const data = await res.json();
+      if (data.videos && data.videos.length > 0) {
+        return data.videos.slice(0, limit);
+      }
+    } catch {}
     throw error;
   }
 }
