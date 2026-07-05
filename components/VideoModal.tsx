@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Video } from "@/app/page";
 
 interface VideoComment {
@@ -12,35 +12,51 @@ interface VideoComment {
 }
 
 interface VideoModalProps {
-  video: Video;
+  videos: Video[];
+  index: number;
   onClose: () => void;
+  onNavigate: (newIndex: number) => void;
 }
 
-export default function VideoModal({ video, onClose }: VideoModalProps) {
+export default function VideoModal({ videos, index, onClose, onNavigate }: VideoModalProps) {
+  const video = videos[index];
+  const hasPrev = index > 0;
+  const hasNext = index < videos.length - 1;
+
   const [comments, setComments] = useState<VideoComment[]>([]);
+  const [showAnswers, setShowAnswers] = useState(false);
   const [name, setName] = useState("");
   const [answer, setAnswer] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [status, setStatus] = useState("");
 
+  const touchStart = useRef<{ x: number; y: number } | null>(null);
+
+  const goPrev = () => hasPrev && onNavigate(index - 1);
+  const goNext = () => hasNext && onNavigate(index + 1);
+
   useEffect(() => {
-    // Prevent scrolling when modal is open
     document.body.style.overflow = "hidden";
 
-    // Close on escape key
-    const handleEscape = (e: KeyboardEvent) => {
+    const handleKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
+      else if (e.key === "ArrowLeft" || e.key === "ArrowUp") goPrev();
+      else if (e.key === "ArrowRight" || e.key === "ArrowDown") goNext();
     };
 
-    window.addEventListener("keydown", handleEscape);
-
+    window.addEventListener("keydown", handleKey);
     return () => {
       document.body.style.overflow = "unset";
-      window.removeEventListener("keydown", handleEscape);
+      window.removeEventListener("keydown", handleKey);
     };
-  }, [onClose]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [index, videos.length]);
 
+  // Reset per-video UI state and reload comments when the video changes
   useEffect(() => {
+    setComments([]);
+    setStatus("");
+    setAnswer("");
     fetchComments();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [video.id]);
@@ -84,9 +100,7 @@ export default function VideoModal({ video, onClose }: VideoModalProps) {
       await fetch(scriptUrl, {
         method: "POST",
         mode: "no-cors",
-        headers: {
-          "Content-Type": "text/plain;charset=utf-8",
-        },
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify({ action: "addComment", comment: newComment }),
       });
 
@@ -102,93 +116,161 @@ export default function VideoModal({ video, onClose }: VideoModalProps) {
     }
   };
 
+  // Swipe left/right to move between videos (horizontal so it doesn't fight scroll)
+  const onTouchStart = (e: React.TouchEvent) => {
+    touchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  };
+  const onTouchEnd = (e: React.TouchEvent) => {
+    if (!touchStart.current) return;
+    const dx = e.changedTouches[0].clientX - touchStart.current.x;
+    const dy = e.changedTouches[0].clientY - touchStart.current.y;
+    if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)) {
+      if (dx > 0) goPrev();
+      else goNext();
+    }
+    touchStart.current = null;
+  };
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-start md:items-center justify-center bg-black/95 animate-fade-in overflow-y-auto py-6"
       onClick={onClose}
     >
-      <div
-        className="relative w-full max-w-4xl mx-4 animate-slide-up"
-        onClick={(e) => e.stopPropagation()}
+      {/* Prev / Next side arrows (desktop) */}
+      <button
+        onClick={(e) => { e.stopPropagation(); goPrev(); }}
+        disabled={!hasPrev}
+        aria-label="Previous video"
+        className="nav-arrow hidden md:flex fixed left-3 top-1/2 -translate-y-1/2 z-[60] items-center justify-center disabled:opacity-25 disabled:cursor-not-allowed"
       >
-        {/* Close button */}
-        <button
-          onClick={onClose}
-          className="absolute -top-6 right-0 z-10 text-vintage-yellow hover:text-vintage-red transition-colors text-2xl font-bold bg-black border-4 border-white glossy-btn px-4 py-1"
-          aria-label="Close"
-        >
-          [X CLOSE]
-        </button>
+        ‹
+      </button>
+      <button
+        onClick={(e) => { e.stopPropagation(); goNext(); }}
+        disabled={!hasNext}
+        aria-label="Next video"
+        className="nav-arrow hidden md:flex fixed right-3 top-1/2 -translate-y-1/2 z-[60] items-center justify-center disabled:opacity-25 disabled:cursor-not-allowed"
+      >
+        ›
+      </button>
 
-        {/* Video container */}
-        <div className="relative bg-black border-4 border-vintage-yellow overflow-hidden mt-8">
-          <div className="relative aspect-[9/16] max-h-[70vh] mx-auto">
+      <div
+        className="relative w-full max-w-md mx-4 animate-slide-up"
+        onClick={(e) => e.stopPropagation()}
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
+      >
+        {/* Top bar: counter + close */}
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-white/70 text-sm font-bold">
+            {index + 1} / {videos.length}
+          </span>
+          <button
+            onClick={onClose}
+            className="text-vintage-yellow hover:text-vintage-red transition-colors text-lg font-bold bg-black border-2 border-white glossy-btn px-3 py-0.5"
+            aria-label="Close"
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* Glossy screen bezel */}
+        <div className="glossy-frame relative bg-black overflow-hidden">
+          <div className="relative aspect-[9/16] max-h-[72vh] mx-auto">
             <iframe
-              src={`https://www.youtube.com/embed/${video.id}?autoplay=1`}
+              key={video.id}
+              src={`https://www.youtube.com/embed/${video.id}?autoplay=1&playsinline=1&rel=0&modestbranding=1`}
               title={video.title}
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
               className="absolute inset-0 w-full h-full"
             />
+            {/* Glass reflection overlay (pointer-events off so it doesn't block the player) */}
+            <div className="screen-glare" />
           </div>
+        </div>
 
-          <div className="p-4 bg-black border-t-4 border-vintage-yellow flex justify-center">
-            <a
-              href="https://youtube.com/@bignosemichael"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-6 py-3 bg-vintage-red text-white font-bold border-2 border-white glossy-btn hover:bg-white hover:text-vintage-red transition-colors"
-            >
-              Subscribe
-            </a>
-          </div>
+        {/* Mobile prev/next + subscribe row */}
+        <div className="mt-2 flex items-stretch gap-2">
+          <button
+            onClick={goPrev}
+            disabled={!hasPrev}
+            className="md:hidden flex-1 px-3 py-2 bg-black text-white font-bold border-2 border-white glossy-btn disabled:opacity-30 text-sm"
+          >
+            ‹ PREV
+          </button>
+          <a
+            href="https://youtube.com/@bignosemichael"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-1 text-center px-3 py-2 bg-vintage-red text-white font-bold border-2 border-white glossy-btn hover:bg-white hover:text-vintage-red transition-colors text-sm"
+          >
+            Subscribe
+          </a>
+          <button
+            onClick={goNext}
+            disabled={!hasNext}
+            className="md:hidden flex-1 px-3 py-2 bg-black text-white font-bold border-2 border-white glossy-btn disabled:opacity-30 text-sm"
+          >
+            NEXT ›
+          </button>
+        </div>
 
-          {/* Answers section */}
-          <div className="p-4 bg-black border-t-4 border-vintage-yellow">
-            <h3 className="text-vintage-yellow font-bold text-lg mb-3">
-              YOUR ANSWER ({comments.length})
-            </h3>
+        {/* Collapsible answers — keeps the modal light, video stays the focus */}
+        <div className="mt-2 border-2 border-white bg-black">
+          <button
+            onClick={() => setShowAnswers((s) => !s)}
+            className="w-full flex items-center justify-between px-3 py-2 text-vintage-yellow font-bold text-sm hover:bg-white/5 transition-colors"
+          >
+            <span>💬 YOUR ANSWER {comments.length > 0 && `(${comments.length})`}</span>
+            <span>{showAnswers ? "▲" : "▼"}</span>
+          </button>
 
-            <form onSubmit={handleSubmit} className="flex flex-col gap-2 mb-4">
-              <div className="flex flex-col md:flex-row gap-2">
+          {showAnswers && (
+            <div className="p-3 border-t-2 border-white">
+              <form onSubmit={handleSubmit} className="flex flex-col gap-2 mb-3">
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Your name (optional)"
                   maxLength={40}
-                  className="md:w-48 px-3 py-2 bg-black text-white border-2 border-white focus:border-vintage-yellow outline-none text-sm"
+                  className="px-3 py-2 bg-black text-white border-2 border-white focus:border-vintage-yellow outline-none text-sm"
                 />
-                <input
-                  type="text"
-                  value={answer}
-                  onChange={(e) => setAnswer(e.target.value)}
-                  placeholder="How would YOU answer this question?"
-                  maxLength={300}
-                  className="flex-1 px-3 py-2 bg-black text-white border-2 border-white focus:border-vintage-yellow outline-none text-sm"
-                />
-                <button
-                  type="submit"
-                  disabled={submitting || !answer.trim()}
-                  className="px-4 py-2 bg-vintage-green text-black font-bold border-2 border-white glossy-btn hover:bg-vintage-yellow transition-colors text-sm disabled:opacity-50"
-                >
-                  {submitting ? "..." : "POST"}
-                </button>
-              </div>
-              {status && <p className="text-vintage-green font-bold text-sm">{status}</p>}
-            </form>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={answer}
+                    onChange={(e) => setAnswer(e.target.value)}
+                    placeholder="How would YOU answer this?"
+                    maxLength={300}
+                    className="flex-1 px-3 py-2 bg-black text-white border-2 border-white focus:border-vintage-yellow outline-none text-sm"
+                  />
+                  <button
+                    type="submit"
+                    disabled={submitting || !answer.trim()}
+                    className="px-4 py-2 bg-vintage-green text-black font-bold border-2 border-white glossy-btn hover:bg-vintage-yellow transition-colors text-sm disabled:opacity-50"
+                  >
+                    {submitting ? "..." : "POST"}
+                  </button>
+                </div>
+                {status && <p className="text-vintage-green font-bold text-sm">{status}</p>}
+              </form>
 
-            {comments.length > 0 && (
-              <div className="space-y-2 max-h-64 overflow-y-auto">
-                {comments.map((c) => (
-                  <div key={c.id} className="border border-white p-2">
-                    <p className="text-vintage-yellow font-bold text-xs">{c.name}</p>
-                    <p className="text-white text-sm">{c.text}</p>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+              {comments.length > 0 ? (
+                <div className="space-y-2 max-h-56 overflow-y-auto">
+                  {comments.map((c) => (
+                    <div key={c.id} className="border border-white/60 p-2">
+                      <p className="text-vintage-yellow font-bold text-xs">{c.name}</p>
+                      <p className="text-white text-sm">{c.text}</p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-white/50 text-sm text-center py-1">Be the first to answer.</p>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>

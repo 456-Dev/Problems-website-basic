@@ -11,81 +11,185 @@
   --border-color: #ffffff;
 }
 
+:root {
+  --spot-x: 50vw;
+  --spot-y: -20vh;
+  --spot-on: 0;
+}
+
 body {
   color: var(--foreground);
-  /* Ambient stage lighting behind everything */
+  /* Ambient stage lighting — slowly drifts for a living, lit-room feel */
   background:
-    radial-gradient(1200px 600px at 50% -10%, rgba(255, 255, 0, 0.08), transparent 60%),
-    radial-gradient(900px 500px at 90% 110%, rgba(255, 0, 0, 0.06), transparent 60%),
-    radial-gradient(900px 500px at 10% 110%, rgba(0, 255, 0, 0.06), transparent 60%),
+    radial-gradient(1200px 600px at 50% -10%, rgba(255, 255, 0, 0.09), transparent 60%),
+    radial-gradient(900px 500px at 90% 110%, rgba(255, 0, 0, 0.07), transparent 60%),
+    radial-gradient(900px 500px at 10% 110%, rgba(0, 255, 0, 0.07), transparent 60%),
     var(--background);
   background-attachment: fixed;
   font-family: Helvetica, Arial, sans-serif;
+  animation: ambientDrift 18s ease-in-out infinite alternate;
 }
 
-/* Glossy card: light sheen sweeps across on hover, card lifts with a glow */
+@keyframes ambientDrift {
+  0%   { background-position: 0 0, 0 0, 0 0, 0 0; }
+  100% { background-position: -40px 20px, 30px -20px, -20px -10px, 0 0; }
+}
+
+/* Cursor-follow spotlight: a real light that lights up whatever it passes over.
+   Uses screen blend so dark UI brightens beneath it. */
+.cursor-spotlight {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  opacity: var(--spot-on);
+  transition: opacity 0.4s ease;
+  background: radial-gradient(
+    340px 340px at var(--spot-x) var(--spot-y),
+    rgba(255, 248, 200, 0.16),
+    rgba(255, 230, 120, 0.07) 40%,
+    transparent 70%
+  );
+}
+
+@media (pointer: coarse) {
+  .cursor-spotlight { display: none; }
+}
+
+/* Glossy card: layered glass with a top specular highlight, real depth shadow,
+   and a light sheen that sweeps across on hover. */
 .glossy-card {
   position: relative;
   overflow: hidden;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-  border: 2px solid rgba(255, 255, 255, 0.25);
+  transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+  border: 2px solid rgba(255, 255, 255, 0.22);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    0 2px 10px rgba(0, 0, 0, 0.6);
 }
 
+/* Sweeping specular sheen */
 .glossy-card::after {
   content: "";
   position: absolute;
   inset: 0;
   background: linear-gradient(
     115deg,
-    transparent 30%,
-    rgba(255, 255, 255, 0.22) 45%,
-    rgba(255, 255, 255, 0.05) 55%,
-    transparent 70%
+    transparent 28%,
+    rgba(255, 255, 255, 0.28) 44%,
+    rgba(255, 255, 255, 0.06) 54%,
+    transparent 68%
   );
-  transform: translateX(-130%);
-  transition: transform 0.6s ease;
+  transform: translateX(-135%) skewX(-12deg);
+  transition: transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
   pointer-events: none;
   z-index: 10;
 }
 
+/* Fixed top-glass highlight (always on, sells the "glossy screen" look) */
+.glossy-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 42%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.14), transparent);
+  pointer-events: none;
+  z-index: 9;
+  opacity: 0.55;
+}
+
 .glossy-card:hover::after {
-  transform: translateX(130%);
+  transform: translateX(135%) skewX(-12deg);
 }
 
 .glossy-card:hover {
-  transform: translateY(-4px) scale(1.015);
+  transform: translateY(-5px) scale(1.02);
   box-shadow:
-    0 10px 30px rgba(255, 255, 0, 0.2),
-    0 4px 14px rgba(0, 0, 0, 0.7);
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    0 14px 34px rgba(255, 255, 0, 0.22),
+    0 6px 18px rgba(0, 0, 0, 0.75);
   border-color: var(--accent);
 }
 
-/* Glossy button: inner top highlight + glow on hover */
+/* Glossy button: convex glass — bright top edge, darker recessed bottom, soft glow */
 .glossy-btn {
+  position: relative;
   box-shadow:
-    inset 0 2px 0 rgba(255, 255, 255, 0.45),
-    inset 0 -6px 12px rgba(0, 0, 0, 0.25),
-    0 0 12px rgba(255, 255, 0, 0.15);
-  transition: box-shadow 0.2s ease, transform 0.15s ease;
+    inset 0 2px 0 rgba(255, 255, 255, 0.5),
+    inset 0 -7px 12px rgba(0, 0, 0, 0.28),
+    0 1px 2px rgba(0, 0, 0, 0.5),
+    0 0 12px rgba(255, 255, 0, 0.12);
+  transition: box-shadow 0.2s ease, transform 0.12s ease, filter 0.2s ease;
 }
 
 .glossy-btn:hover {
+  filter: brightness(1.06) saturate(1.05);
   box-shadow:
-    inset 0 2px 0 rgba(255, 255, 255, 0.65),
-    inset 0 -6px 12px rgba(0, 0, 0, 0.15),
-    0 0 22px rgba(255, 255, 0, 0.4);
+    inset 0 2px 0 rgba(255, 255, 255, 0.7),
+    inset 0 -7px 12px rgba(0, 0, 0, 0.16),
+    0 2px 4px rgba(0, 0, 0, 0.5),
+    0 0 24px rgba(255, 255, 0, 0.45);
   transform: translateY(-1px);
 }
 
 .glossy-btn:active {
   transform: translateY(1px);
-  box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.4);
+  box-shadow: inset 0 3px 9px rgba(0, 0, 0, 0.45);
 }
 
 /* Header glow bar */
 .glow-header {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(0, 0, 0, 0)), #000;
-  box-shadow: 0 6px 30px rgba(255, 255, 0, 0.12);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(0, 0, 0, 0)), #000;
+  box-shadow: 0 6px 34px rgba(255, 255, 0, 0.14);
+}
+
+/* Glossy screen bezel around the video player, with colored light-bleed glow */
+.glossy-frame {
+  border: 4px solid transparent;
+  border-image: linear-gradient(160deg, #fff48a, #ffd000 40%, #7a6b00 70%, #fff6a0) 1;
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.8),
+    0 0 40px rgba(255, 255, 0, 0.22),
+    0 0 70px rgba(255, 0, 0, 0.12),
+    0 20px 60px rgba(0, 0, 0, 0.8);
+}
+
+/* Fixed glass glare across the top of the screen */
+.screen-glare {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+  background: linear-gradient(
+    160deg,
+    rgba(255, 255, 255, 0.16) 0%,
+    rgba(255, 255, 255, 0.04) 12%,
+    transparent 30%
+  );
+}
+
+/* Prev/next navigation arrows */
+.nav-arrow {
+  width: 3rem;
+  height: 3rem;
+  font-size: 2rem;
+  line-height: 1;
+  color: #000;
+  background: var(--accent);
+  border: 2px solid #fff;
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.6),
+    inset 0 -6px 12px rgba(0, 0, 0, 0.25),
+    0 0 20px rgba(255, 255, 0, 0.3);
+  transition: transform 0.15s ease, filter 0.2s ease;
+}
+
+.nav-arrow:not(:disabled):hover {
+  filter: brightness(1.1);
+  transform: translateY(-50%) scale(1.08);
 }
 
 /* Yellow text with green outline and red shadow */

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import VideoCard from "./VideoCard";
 import VideoModal from "./VideoModal";
 import type { Video } from "@/app/page";
@@ -10,14 +10,18 @@ interface VideoGridProps {
 }
 
 export default function VideoGrid({ videos }: VideoGridProps) {
-  const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
-  // Listen for video selection from list
-  if (typeof window !== 'undefined') {
-    window.addEventListener('openVideo', ((e: CustomEvent) => {
-      setSelectedVideo(e.detail);
-    }) as EventListener);
-  }
+  // Open a video from the "random episodes" list (dispatched as a CustomEvent)
+  useEffect(() => {
+    const handleOpen = (e: Event) => {
+      const detail = (e as CustomEvent).detail as Video;
+      const idx = videos.findIndex((v) => v.id === detail.id);
+      if (idx !== -1) setSelectedIndex(idx);
+    };
+    window.addEventListener("openVideo", handleOpen);
+    return () => window.removeEventListener("openVideo", handleOpen);
+  }, [videos]);
 
   return (
     <>
@@ -27,18 +31,19 @@ export default function VideoGrid({ videos }: VideoGridProps) {
             key={video.id}
             video={video}
             index={index}
-            onClick={() => setSelectedVideo(video)}
+            onClick={() => setSelectedIndex(index)}
           />
         ))}
       </div>
 
-      {selectedVideo && (
+      {selectedIndex !== null && videos[selectedIndex] && (
         <VideoModal
-          video={selectedVideo}
-          onClose={() => setSelectedVideo(null)}
+          videos={videos}
+          index={selectedIndex}
+          onClose={() => setSelectedIndex(null)}
+          onNavigate={(newIndex) => setSelectedIndex(newIndex)}
         />
       )}
     </>
   );
 }
-

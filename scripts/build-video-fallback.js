@@ -27,7 +27,7 @@ function parseRss(xml) {
       id,
       title: get("title"),
       description: get("media:description"),
-      thumbnail: `https://i.ytimg.com/vi/${id}/oardefault.jpg`,
+      thumbnail: `https://i.ytimg.com/vi/${id}/hqdefault.jpg`,
       publishedAt: get("published"),
       url: `https://www.youtube.com/shorts/${id}`,
       location: "New York, USA",

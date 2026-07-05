@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import AmbientLight from "@/components/AmbientLight";
 
 export const metadata: Metadata = {
   title: "Question The Day - Daily Interview Series",
@@ -14,7 +15,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <AmbientLight />
+        {children}
+      </body>
     </html>
   );
 }
