@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Episodes — Question The Day</title>
+<meta name="description" content="Every episode of Question The Day as a wall of faces.">
+<link rel="stylesheet" href="../styles/base.css">
+<link rel="stylesheet" href="../styles/episodes.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="wordmark" href="../"><i></i>Question The Day</a>
+  <nav class="navlinks">
+    <a href="../">Dial</a>
+    <a href="./" aria-current="page">Episodes</a>
+    <a href="../map/">Map</a>
+    <a href="../list/">Index</a>
+    <a href="../about/">About</a>
+  </nav>
+</header>
+
+<main class="gridpage">
+  <div class="gridbar">
+    <input id="f" type="text" placeholder="filter: a word, a topic, a city" autocomplete="off" spellcheck="false">
+    <div class="sorts" id="sorts">
+      <button class="btn" data-k="n" aria-pressed="true">NEWEST</button>
+      <button class="btn" data-k="views">VIEWS</button>
+      <button class="btn" data-k="answerCount">ANSWERS</button>
+      <button class="btn" data-k="mood">SILLIEST</button>
+    </div>
+    <span class="label" id="count"></span>
+  </div>
+  <div class="grid" id="grid"></div>
+</main>
+
+<script type="module" src="../src/episodes.js"></script>
+</body>
+</html>

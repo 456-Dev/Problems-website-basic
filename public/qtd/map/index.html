@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Map — Question The Day</title>
+<meta name="description" content="Where every question was asked, from New York to Fiji to Rio — and a subway-level view of New York.">
+<link rel="stylesheet" href="../styles/base.css">
+<link rel="stylesheet" href="../styles/field.css">
+<link rel="stylesheet" href="../styles/map.css">
+</head>
+<body class="is-field">
+<header class="topbar">
+  <a class="wordmark" href="../"><i></i>Question The Day</a>
+  <nav class="navlinks">
+    <a href="../">Dial</a>
+    <a href="../episodes/">Episodes</a>
+    <a href="./" aria-current="page">Map</a>
+    <a href="../list/">Index</a>
+    <a href="../about/">About</a>
+  </nav>
+</header>
+
+<main id="stage">
+  <canvas id="map" aria-label="Where each episode was filmed"></canvas>
+
+  <!-- the way into New York, pinned to the city on the world view -->
+  <button class="nyc-callout" id="nyccall" hidden>
+    <span class="label">New York</span>
+    <b class="num" id="nycn">—</b>
+    <span class="label">episodes</span>
+    <span class="go">SUBWAY VIEW →</span>
+  </button>
+
+  <div class="hud hud-tl">
+    <div class="panel">
+      <div class="spread">
+        <span class="label" id="viewname">The world</span>
+        <button class="btn mini" id="back" hidden>← WORLD</button>
+        <button class="btn mini" id="fold" aria-expanded="true">PLACES</button>
+      </div>
+      <div class="places" id="places"></div>
+    </div>
+  </div>
+
+  <div class="hud hud-bl">
+    <div class="panel legend" id="legend"></div>
+  </div>
+
+  <div class="hud hud-tr">
+    <div class="panel zoomer">
+      <button class="btn" id="zin" aria-label="Zoom in">+</button>
+      <button class="btn" id="zout" aria-label="Zoom out">&minus;</button>
+      <button class="btn" id="zfit" aria-label="Reset the view">FIT</button>
+    </div>
+  </div>
+
+  <div id="tip" class="tip" hidden></div>
+  <div id="loading" class="loading label">Loading the map…</div>
+</main>
+<script type="module" src="../src/map.js"></script>
+</body>
+</html>

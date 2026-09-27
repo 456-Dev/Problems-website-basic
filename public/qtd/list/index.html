@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Index — Question The Day</title>
+<meta name="description" content="Every episode of Question The Day, sortable by topic, mood, kind of question and views.">
+<link rel="stylesheet" href="../styles/base.css">
+<link rel="stylesheet" href="../styles/list.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="wordmark" href="../"><i></i>Question The Day</a>
+  <nav class="navlinks">
+    <a href="../">Dial</a>
+    <a href="../episodes/">Episodes</a>
+    <a href="../map/">Map</a>
+    <a href="./" aria-current="page">Index</a>
+    <a href="../about/">About</a>
+  </nav>
+</header>
+
+<main class="wrap listpage">
+  <div class="listhead">
+    <h1>Every question</h1>
+    <p>Every question, in order. Sort by <span class="y">mood</span> to go from the heaviest to the silliest.</p>
+  </div>
+
+  <div class="ticks"></div>
+
+  <div class="toolbar">
+    <input id="f" type="text" placeholder="filter: a word, a topic, a place, or an episode number" autocomplete="off">
+    <div class="sorts" id="sorts">
+      <button class="btn" data-k="n"       aria-pressed="true">EPISODE</button>
+
+      <button class="btn" data-k="mood">MOOD</button>
+      <button class="btn" data-k="views">VIEWS</button>
+    </div>
+  </div>
+
+  <div class="tablewrap">
+    <table class="etable">
+      <thead>
+        <tr><th>EP</th><th>Question</th><th class="hideS">Topic</th><th class="hideS">Mood</th>
+            <th>Kind</th><th class="ra hideS">Views</th></tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+  <p class="label" id="count"></p>
+</main>
+
+<script type="module" src="../src/list.js"></script>
+</body>
+</html>

@@ -1,0 +1,208 @@
+/* Question The Day — design tokens and primitives.
+   Black, two greys, white. Three saturated signals. No curves anywhere. */
+
+:root {
+  --black:  #070707;
+  --pit:    #0d0d0d;
+  --panel:  #141414;
+  --raise:  #1c1c1c;
+  --line:   #262626;
+  --line-2: #383838;
+  --dim:    #6e6e6e;
+  --mid:    #9a9a9a;
+  --ink:    #ffffff;
+
+  --yellow: #ffe500;
+  --green:  #00ff41;
+  --red:    #ff1f1f;
+
+  --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  --sans: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+
+  --u: 4px;                 /* every gap is a multiple of this */
+  --rail: 48px;
+  --hair: 1px solid var(--line);
+}
+
+*, *::before, *::after { box-sizing: border-box; border-radius: 0 !important; }
+
+html, body {
+  margin: 0; padding: 0;
+  background: var(--black);
+  color: var(--ink);
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body { overflow-x: hidden; }
+
+::selection { background: var(--yellow); color: #000; }
+
+a { color: inherit; text-decoration: none; }
+a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible {
+  outline: 2px solid var(--yellow); outline-offset: 2px;
+}
+
+/* ---- type ---------------------------------------------------------- */
+.mono  { font-family: var(--mono); }
+.label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+h1, h2, h3 { margin: 0; font-weight: 600; letter-spacing: -0.02em; line-height: 1.04; }
+h1 { font-size: clamp(28px, 5.2vw, 62px); }
+h2 { font-size: clamp(20px, 2.6vw, 30px); }
+
+p { margin: 0 0 calc(var(--u) * 3); line-height: 1.5; color: var(--mid); }
+
+/* ---- rules and ticks ------------------------------------------------ */
+.rule { height: 1px; background: var(--line); border: 0; margin: 0; }
+.rule-bright { height: 1px; background: var(--line-2); border: 0; }
+
+/* a ruler strip: fine ticks every 8px, tall tick every 40px */
+.ticks {
+  height: 9px;
+  background-image:
+    repeating-linear-gradient(90deg, var(--line-2) 0 1px, transparent 1px 40px),
+    repeating-linear-gradient(90deg, var(--line) 0 1px, transparent 1px 8px);
+  background-size: 100% 9px, 100% 4px;
+  background-repeat: no-repeat;
+  background-position: 0 0, 0 0;
+}
+
+/* ---- controls ------------------------------------------------------- */
+.btn {
+  display: inline-flex; align-items: center; gap: var(--u);
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 9px 14px;
+  background: var(--raise);
+  color: var(--ink);
+  border: 1px solid var(--line-2);
+  cursor: pointer;
+  transition: background .12s linear, color .12s linear, border-color .12s linear;
+}
+@media (hover: hover) {
+  .btn:hover { background: var(--ink); color: #000; border-color: var(--ink); }
+}
+.btn[disabled] { opacity: .4; cursor: not-allowed; }
+@media (hover: hover) {
+  .btn-y:hover { background: var(--yellow); border-color: var(--yellow); }
+  .btn-g:hover { background: var(--green);  border-color: var(--green); }
+  .btn-r:hover { background: var(--red);    border-color: var(--red); color: #fff; }
+  .btn-solid:hover { background: #fff; border-color: #fff; }
+}
+
+.btn-solid { background: var(--yellow); color: #000; border-color: var(--yellow); font-weight: 700; }
+
+input[type="text"], textarea {
+  width: 100%;
+  font-family: var(--mono); font-size: 14px;
+  background: var(--pit);
+  color: var(--ink);
+  border: 1px solid var(--line-2);
+  padding: 11px 12px;
+  resize: vertical;
+}
+input::placeholder, textarea::placeholder { color: #4a4a4a; }
+input:focus, textarea:focus { border-color: var(--yellow); }
+
+/* ---- chrome --------------------------------------------------------- */
+.topbar {
+  position: sticky; top: 0; z-index: 60;
+  display: flex; align-items: center; gap: calc(var(--u) * 4);
+  height: var(--rail);
+  padding: 0 calc(var(--u) * 4);
+  /* opaque: the index table scrolls under this, and a translucent bar let
+     rows ghost through above the sticky header */
+  background: var(--black);
+  border-bottom: var(--hair);
+}
+.wordmark {
+  font-family: var(--mono); font-size: 12px; font-weight: 700;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  display: flex; align-items: center; gap: 7px;
+}
+.wordmark i {
+  width: 8px; height: 8px; background: var(--yellow);
+  display: inline-block; font-style: normal;
+}
+/* five items now; let them scroll rather than fall off the edge */
+.navlinks {
+  display: flex; gap: calc(var(--u) * 4); margin-left: auto;
+  overflow-x: auto; scrollbar-width: none; max-width: 62vw;
+}
+.navlinks::-webkit-scrollbar { display: none; }
+.navlinks a { white-space: nowrap; }
+.navlinks a {
+  font-family: var(--mono); font-size: 11px; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--dim);
+  padding-bottom: 2px; border-bottom: 1px solid transparent;
+}
+.navlinks a:hover { color: var(--ink); border-bottom-color: var(--yellow); }
+.navlinks a[aria-current="page"] { color: var(--ink); border-bottom-color: var(--ink); }
+
+/* ---- utility -------------------------------------------------------- */
+.wrap { max-width: 1320px; margin: 0 auto; padding: 0 calc(var(--u) * 4); }
+
+@media (max-width: 620px) {
+  .topbar { gap: calc(var(--u) * 2); padding: 0 calc(var(--u) * 3); }
+  .wordmark { font-size: 10px; letter-spacing: .12em; }
+  .navlinks { gap: calc(var(--u) * 3); max-width: 58vw; }
+  .navlinks a { font-size: 10px; letter-spacing: .08em; }
+}
+.stack > * + * { margin-top: calc(var(--u) * 3); }
+.row { display: flex; align-items: center; gap: calc(var(--u) * 2); }
+.spread { display: flex; align-items: center; justify-content: space-between; gap: calc(var(--u)*2); }
+.y { color: var(--yellow); } .g { color: var(--green); } .r { color: var(--red); }
+.muted { color: var(--dim); }
+.sr {
+  position: absolute !important; width: 1px !important; height: 1px !important;
+  padding: 0 !important; margin: -1px !important; border: 0 !important;
+  overflow: hidden !important; clip: rect(0 0 0 0) !important; white-space: nowrap !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: .001ms !important; transition-duration: .001ms !important; }
+}
+
+/* ---- question types: the only three colours the site spends ---------- */
+.t-big { --tc: var(--yellow); }
+.t-hot { --tc: var(--red); }
+.t-you { --tc: var(--green); }
+.qt {
+  display: inline-block;
+  font-family: var(--mono); font-size: 10px; letter-spacing: .12em;
+  text-transform: uppercase; padding: 3px 7px;
+  border: 1px solid var(--line-2); color: var(--mid);
+}
+.qt.t-big, .qt.t-hot, .qt.t-you { background: var(--tc); border-color: var(--tc); color: #000; font-weight: 700; }
+
+/* author display rules beat the [hidden] attribute — every time, site-wide */
+[hidden] { display: none !important; }
+
+
+/* anything a visitor typed: never let one long word widen the page */
+.user-text { overflow-wrap: anywhere; word-break: normal; min-width: 0; white-space: pre-line; }
+
+/* bigger tap targets in the nav on phones */
+@media (max-width: 620px) {
+  .navlinks a { padding: 10px 0; }
+}
+
+/* narrow phones: the wordmark shortens so all five links fit without scrolling */
+@media (max-width: 620px) {
+  .wordmark { padding: 12px 0; }
+}
+@media (max-width: 420px) {
+  /* .topbar-qualified: field.css sets the wordmark size again for the dial and map */
+  .topbar .wordmark { font-size: 0; letter-spacing: 0; }
+  .topbar .wordmark::after { content: 'QTD'; content: 'QTD' / ''; font-size: 11px; letter-spacing: .18em; }
+  .navlinks { max-width: none; }
+}

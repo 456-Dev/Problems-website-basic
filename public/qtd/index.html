@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Question The Day — the dial</title>
+<meta name="description" content="Two hundred questions asked of strangers, on one dial. A new one every day.">
+<meta property="og:title" content="Question The Day">
+<meta property="og:description" content="Two hundred questions asked of strangers, on one dial. A new one every day.">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="styles/base.css">
+<link rel="stylesheet" href="styles/field.css">
+<link rel="stylesheet" href="styles/dial.css">
+</head>
+<body class="is-field">
+
+<header class="topbar">
+  <a class="wordmark" href="./"><i></i>Question The Day</a>
+  <nav class="navlinks">
+    <a href="./" aria-current="page">Dial</a>
+    <a href="episodes/">Episodes</a>
+    <a href="map/">Map</a>
+    <a href="list/">Index</a>
+    <a href="about/">About</a>
+  </nav>
+</header>
+
+<main id="stage">
+  <canvas id="field" aria-label="Every question on one dial: topic around, mood outward, colour by kind of question. Point at the dial to read a question; click to open it."></canvas>
+
+  <!-- the centre readout: today's question, or whatever you're pointing at -->
+  <div id="hub" class="hub" aria-live="polite">
+    <div class="hub-facewrap"><img class="hub-face" id="hubface" alt=""></div>
+    <a class="hub-card" id="hubcard" href="#">
+      <span class="hub-kicker label" id="hubkicker"></span>
+      <span class="hub-sub label" id="hubsub"></span>
+      <span class="hub-q" id="hubq"></span>
+      <span class="hub-tags" id="hubtags"></span>
+      <span class="hub-go" id="hubgo">WATCH IT →</span>
+    </a>
+    <i class="hub-timer" id="hubtimer"></i>
+  </div>
+
+  <p class="dial-intro label" id="intro">One question. About 25 strangers on the street. <b id="introcount">200</b> episodes. <span class="hint">Point at a mark to read it.</span><span class="hint-touch">Tap a mark to read it, again to open it.</span></p>
+  <div class="readout" id="readout">
+    <div class="readout-step">
+      <button class="btn mini" id="prevq" aria-label="Previous question">&lsaquo;</button>
+      <button class="btn mini" id="todayq">TODAY</button>
+      <button class="btn mini" id="nextq" aria-label="Next question">&rsaquo;</button>
+    </div>
+  </div>
+
+  <div class="hud hud-tl">
+    <div class="panel panel-search">
+      <input id="q" type="text" autocomplete="off" spellcheck="false" placeholder="search the questions">
+      <div id="qhits" class="label"></div>
+    </div>
+    <div id="results" class="panel results" hidden></div>
+  </div>
+
+  <div class="hud hud-bl">
+    <div class="panel legend">
+      <div class="chips" id="types">
+        <button class="qt t-big" data-type="big question" aria-pressed="false">big question</button>
+        <button class="qt t-hot" data-type="hot take" aria-pressed="false">hot take</button>
+        <button class="qt t-you" data-type="about you" aria-pressed="false">about you</button>
+      </div>
+      <div class="legend-note label">Click a colour to show only that kind · mark length = mood, heavy to silly · click a topic to isolate it · Esc clears</div>
+    </div>
+  </div>
+
+  <div class="hud hud-br">
+    <div class="panel prog">
+      <div class="spread">
+        <span class="label">Opened</span>
+        <span class="num" id="progn">0/0</span>
+      </div>
+      <div class="bar"><i id="progbar"></i></div>
+      <button class="btn btn-y" id="today">TODAY’S QUESTION</button>
+    </div>
+  </div>
+
+  <div id="tip" class="tip" hidden></div>
+  <div id="loading" class="loading label">Loading the questions…</div>
+</main>
+
+<script type="module" src="src/dial.js"></script>
+</body>
+</html>

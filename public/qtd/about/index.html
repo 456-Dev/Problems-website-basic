@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>About — Question The Day</title>
+<meta name="description" content="One question, twenty-five strangers, almost no filtering. What Question The Day is and how to explore it.">
+<link rel="stylesheet" href="../styles/base.css">
+<link rel="stylesheet" href="../styles/about.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="wordmark" href="../"><i></i>Question The Day</a>
+  <nav class="navlinks">
+    <a href="../">Dial</a>
+    <a href="../episodes/">Episodes</a>
+    <a href="../map/">Map</a>
+    <a href="../list/">Index</a>
+    <a href="./" aria-current="page">About</a>
+  </nav>
+</header>
+
+<main class="wrap about">
+  <h1>One question.<br>Twenty-five strangers.<br>Almost no filtering.</h1>
+
+  <div class="ticks"></div>
+
+  <section class="cols">
+    <div>
+      <div class="label">The premise</div>
+      <p>Michael walks up to strangers, asks every one of them the same question,
+         and keeps nearly every answer. Two hundred episodes of it — from New York
+         to Fiji, Istanbul, Dakar and Rio. <a href="../map/">See the map.</a></p>
+      <p>No question has a right answer. The fun is in how many different
+         directions twenty-five people can take the same few words.</p>
+    </div>
+    <div>
+      <div class="label">The dial</div>
+      <p><a href="../">The dial</a> puts every question on one face. <b>Around</b>
+         it: the topic. <b>Outward</b>: the mood, heavy near the middle, silly at the
+         rim. The colour says what the question asks of you — a
+         <b class="y">big question</b>, a <b class="r">hot take</b>, or something
+         <b class="g">about you</b>.</p>
+      <p>It opens on the Question of the Day — a new one every day. Point at (or tap)
+         any mark to read another; left alone, it wanders through them by itself.</p>
+    </div>
+  </section>
+
+  <div class="ticks"></div>
+
+  <section class="method">
+    <div class="label">How the tags work</div>
+    <h2>Read, not measured</h2>
+    <p>Topic, mood and kind of question are editorial calls, made by reading each
+       question — never by analysing anyone's answers. Disagree with one? Tell
+       Michael on Instagram, <a href="https://www.instagram.com/bignosemichael/"
+       target="_blank" rel="noopener">@bignosemichael</a>.</p>
+  </section>
+
+  <div class="ticks"></div>
+
+  <section class="add-cta">
+    <h2>Your turn</h2>
+    <p>Every episode page asks you the question too. Written answers go up
+       straight away, unfiltered, like the strangers’. Filmed ones are watched
+       first. Then the page asks you the next question.</p>
+    <a class="btn btn-solid" href="../" id="todaylink">Today’s question →</a>
+  </section>
+
+  <footer class="foot label">
+    <span>Question The Day, by Michael · <a href="https://456solutions.org/">456solutions.org</a> · <a href="https://www.instagram.com/bignosemichael/" target="_blank" rel="noopener">@bignosemichael</a></span>
+    <span id="gen"></span>
+  </footer>
+</main>
+<script type="module">
+  import { BASE, fetchJSON } from '../src/util.js';
+  fetchJSON(`${BASE}data/episodes.json`).then(d => {
+    document.getElementById('gen').textContent = `${d.count} episodes · updated ${d.generated}`;
+    // the button goes to today's question itself, the same one the dial opens on
+    const day = Math.floor((Date.now() - new Date().getTimezoneOffset() * 60000) / 86400000);
+    const ordered = [...d.episodes].sort((a, b) => a.n - b.n);
+    const today = ordered[(day * 37) % ordered.length];
+    if (today) document.getElementById('todaylink').href = `${BASE}e/${today.n}/`;
+  }).catch(() => {});
+</script>
+</body>
+</html>

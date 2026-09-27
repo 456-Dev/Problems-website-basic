@@ -1,0 +1,132 @@
+/* The dial: graduation marks for every question, a readout in the middle. */
+
+#field { cursor: crosshair; }
+#field.overnode { cursor: pointer; }
+
+.hub {
+  position: absolute; z-index: 15;
+  display: grid; place-items: center; text-align: center;
+  /* size, position and base font are set from the canvas geometry */
+}
+.hub-facewrap {
+  position: absolute; inset: 0; overflow: hidden; clip-path: circle(50%);
+  pointer-events: none;
+}
+.hub-face {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover;
+  /* Shorts come as squares with the video centred between black bars, and
+     the lower third is burned-in subtitles: zoom past both, toward the face */
+  transform: scale(1.9); transform-origin: 50% 30%;
+  filter: grayscale(1) contrast(1.25) brightness(.62);
+  opacity: 0; transition: opacity .35s linear;
+}
+.hub-face.on { opacity: .5; }
+.hub::after {
+  /* a dark vignette so the words always read over the face */
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  clip-path: circle(50%);
+  background: radial-gradient(circle, rgba(7,7,7,.55) 0%, rgba(7,7,7,.2) 55%, rgba(7,7,7,.85) 100%);
+}
+.hub-card {
+  position: relative; z-index: 2;
+  display: flex; flex-direction: column; align-items: center; gap: .45em;
+  max-width: 78%; color: var(--ink);
+}
+.hub-card.swap { animation: swap .28s ease-out; }
+@keyframes swap { from { opacity: 0; transform: translateY(3px) } to { opacity: 1; transform: none } }
+.hub-kicker { font-size: .62em; color: var(--yellow); letter-spacing: .16em; }
+.hub-q {
+  font-size: 1.28em; line-height: 1.1; letter-spacing: -.022em; font-weight: 700;
+  text-wrap: balance; text-shadow: 0 1px 12px rgba(0,0,0,.8);
+}
+.hub-tags { display: flex; gap: .3em; flex-wrap: wrap; justify-content: center; }
+.hub-tags .qt { font-size: .56em; padding: .25em .5em; background: rgba(7,7,7,.7); }
+.hub-go {
+  font-family: var(--mono); font-size: .62em; letter-spacing: .16em; font-weight: 700;
+  padding: .6em 1.1em; background: var(--ink); color: #000; margin-top: .2em;
+}
+.hub-card:hover .hub-go { background: var(--yellow); }
+.hub-timer {
+  position: absolute; z-index: 2; bottom: 17%; left: 32%; right: 32%; height: 1px;
+  background: rgba(255,255,255,.12); overflow: hidden; display: block;
+}
+.hub-timer::after {
+  content: ''; position: absolute; inset: 0; background: var(--yellow);
+  transform: scaleX(var(--t, 0)); transform-origin: left;
+}
+
+.legend { width: 250px; }
+.legend .legend-note { margin-top: 8px; line-height: 1.5; }
+.legend .rule { margin: 9px 0 8px; }
+.chips { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 7px; }
+.chips button { cursor: pointer; }
+.chips .qt { background: transparent; }
+.chips .qt.on { color: #000; background: var(--ink); border-color: var(--ink); }
+.chips .qt.t-big, .chips .qt.t-hot, .chips .qt.t-you { background: var(--tc); }
+.chips .qt.off { opacity: .28; }
+.moodscale { display: flex; align-items: center; gap: 8px; margin-top: 7px; }
+.moodscale b { font-weight: 400; color: var(--mid); }
+.moodscale i { flex: 1; height: 1px; background: linear-gradient(90deg, var(--line-2), var(--ink)); }
+/* the kind-of-question chip keeps its colour inside the hub */
+.hub-tags .qt.t-big, .hub-tags .qt.t-hot, .hub-tags .qt.t-you { background: var(--tc); color: #000; }
+
+/* ---- round-2 fixes ----------------------------------------------------- */
+.dial-intro {
+  position: absolute; z-index: 12; left: 50%; top: calc(var(--u) * 3);
+  transform: translateX(-50%); margin: 0; white-space: nowrap;
+  color: var(--mid); letter-spacing: .1em; pointer-events: none;
+}
+.dial-intro b { color: var(--ink); font-weight: 400; }
+.hub-sub { font-size: .56em; color: var(--mid); letter-spacing: .12em; margin-top: -.25em; }
+/* a fixed-height card: the button no longer jumps when the question changes */
+.hub-q {
+  min-height: 4.4em; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical;
+  overflow: hidden; align-content: center;
+}
+.hub-tags { min-height: 1.4em; }
+.hub-kicker, .hub-sub { white-space: nowrap; }
+.chips .qt.on { outline: 2px solid var(--ink); outline-offset: 1px; }
+.panel-search input:focus-visible { outline-offset: -2px; }
+#qhits { padding-top: 6px; }
+.results { max-height: calc(100vh - var(--rail) - 170px); }
+.results .hit:focus-visible { outline: 2px solid var(--yellow); outline-offset: -2px; background: var(--raise); }
+
+.readout { display: none; }
+.readout-step, .dial-intro .hint-touch { display: none; }
+@media (max-width: 700px) {
+  .readout-step { display: flex; position: absolute; top: 8px; right: 8px; z-index: 10; gap: 0; }
+  .readout .hub-card { position: relative; z-index: 1; }
+  .readout-step .btn { min-width: 40px; height: 34px; justify-content: center; font-size: 11px; }
+  .readout-step .btn + .btn { border-left: 0; }
+  .readout-step #prevq, .readout-step #nextq { font-size: 18px; }
+}
+@media (max-width: 700px) {
+  .dial-intro { top: 66px; white-space: normal; width: calc(100% - 32px); text-align: center; font-size: 9px; }
+  .dial-intro .hint { display: none; }
+  .dial-intro .hint-touch { display: inline; }
+  .hud-br, .hud-bl { display: none !important; }
+  /* the readout leaves the hub on phones: a readable card under the dial */
+  .readout {
+    display: block; position: absolute; z-index: 16; left: 12px; right: 12px; bottom: 12px;
+    background: rgba(7,7,7,.96); border: 1px solid var(--line-2); padding: 12px 14px; font-size: 15px;
+  }
+  .readout .hub-card { max-width: none; align-items: flex-start; text-align: left; gap: 6px; }
+  .readout .hub-kicker { font-size: 10px; } .readout .hub-sub { font-size: 10px; margin: 0; }
+  /* one fixed height whatever the question, so the dial never shifts under a finger */
+  .readout .hub-q { font-size: 17px; line-height: 1.22; min-height: 0; height: calc(3 * 1.22em); -webkit-line-clamp: 3; }
+  .readout .hub-tags { white-space: nowrap; overflow: hidden; height: 20px; }
+  .readout .hub-kicker, .readout .hub-sub { padding-right: 150px; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+  .results { max-height: 45vh; }
+  .readout .hub-tags .qt { font-size: 9px; }
+  .readout .hub-go { font-size: 11px; align-self: stretch; text-align: center; padding: 10px; }
+  .readout .hub-again, .readout .hub-timer { display: none; }
+}
+.hub-face.portrait { transform: scale(1.3); transform-origin: 50% 30%; }   /* above the burned-in subtitles */
+
+/* small phones (iPhone SE): slimmer step buttons so the kicker reads in full */
+@media (max-width: 360px) {
+  .readout-step .btn { min-width: 30px; height: 30px; padding: 0 7px; font-size: 9px; }
+  .readout-step #prevq, .readout-step #nextq { font-size: 15px; }
+  .readout .hub-kicker, .readout .hub-sub { padding-right: 112px; letter-spacing: .08em; }
+}

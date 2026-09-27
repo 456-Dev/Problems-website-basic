@@ -1,0 +1,217 @@
+/* One episode, one screen. The page itself never scrolls on a desktop —
+   only the answers column does. Watch, read, add, leave. */
+
+.is-ep, .is-ep body { height: 100%; }
+@media (min-width: 901px) {
+  .is-ep body { overflow: hidden; }
+}
+
+.ep {
+  display: flex; flex-direction: column;
+  height: calc(100vh - var(--rail));
+  padding: 0 calc(var(--u)*4);
+  max-width: 1680px; margin: 0 auto;
+}
+
+/* ---- the question, given room --------------------------------------- */
+.ep-title {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: calc(var(--u)*5);
+  padding: calc(var(--u)*4) 0 calc(var(--u)*4);
+  border-bottom: 1px solid var(--line-2);
+  flex: 0 0 auto;
+}
+.epno {
+  font-size: clamp(34px, 4.4vw, 62px); font-weight: 700;
+  line-height: .8; letter-spacing: -.05em; color: var(--yellow);
+}
+.ep-titletext h1 {
+  font-size: clamp(21px, 2.7vw, 40px);
+  line-height: 1.02; letter-spacing: -.028em;
+  max-width: 24ch; text-wrap: balance;
+}
+.qtags { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 10px; }
+.qtags .ep-meta { margin: 0 0 0 6px; }
+.qt.mood { color: var(--ink); }
+
+.ep-stats { display: flex; width: max-content; border: 1px solid var(--line); }
+.ep-stats div { background: var(--black); padding: 8px 13px; text-align: right; min-width: 78px;
+                border-left: 1px solid var(--line); }
+.ep-stats div:first-child { border-left: 0; }
+.ep-stats b { display: block; font-size: 19px; font-weight: 600; line-height: 1.1; }
+.ep-stats b.g { color: var(--green); } .ep-stats b.y { color: var(--yellow); }
+.ep-stats b.r { color: var(--red); } .ep-stats b.ig { color: #ff2bd0; }
+
+/* ---- three columns, full height -------------------------------------- */
+.ep-cols {
+  flex: 1 1 auto; min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(220px, 300px) minmax(320px, 1fr) minmax(250px, 330px);
+  gap: calc(var(--u)*5);
+  padding: calc(var(--u)*4) 0;
+}
+.col { min-height: 0; display: flex; flex-direction: column; }
+.col-head { flex: 0 0 auto; margin-bottom: calc(var(--u)*3); align-items: baseline; }
+.col-say .col-head { padding-top: calc(var(--u)*4); border-top: 1px solid var(--line-2); }
+.col-head h2 { font-size: 17px; }
+
+.col-video .frame {
+  flex: 1 1 auto; min-height: 0;
+  position: relative; background: var(--pit); border: 1px solid var(--line-2);
+}
+.col-video .frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+/* Instagram's embed carries its own header and caption; let it be white
+   on a black frame rather than fight it */
+.col-video .frame iframe.ig { background: #fff; }
+
+.novideo {
+  position: absolute; inset: 0; display: flex; flex-direction: column;
+  align-items: flex-start; justify-content: flex-end; gap: 10px;
+  padding: calc(var(--u)*5);
+  background:
+    repeating-linear-gradient(135deg, transparent 0 10px, rgba(255,255,255,.025) 10px 11px),
+    var(--pit);
+}
+.novideo p { margin: 0; color: var(--ink); font-size: 17px; }
+
+/* ---- what the internet says ------------------------------------------ */
+.alist {
+  list-style: none; margin: 0; padding: 0 calc(var(--u)*2) 0 0;
+  flex: 1 1 auto; min-height: 0; overflow-y: auto;
+  border-top: 1px solid var(--line);
+}
+.alist::-webkit-scrollbar { width: 8px; }
+.alist::-webkit-scrollbar-thumb { background: var(--line-2); }
+.alist::-webkit-scrollbar-track { background: var(--pit); }
+
+.alist .a {
+  display: grid; grid-template-columns: 38px 1fr; gap: calc(var(--u)*3);
+  align-items: start; padding: calc(var(--u)*3) 0;
+  border-bottom: 1px solid var(--line);
+}
+.a-face { width: 38px; height: 50px; object-fit: cover; display: block; background: var(--raise); filter: saturate(.85) contrast(1.06); }
+.a-face.nope { border: 1px solid var(--line); height: 18px; }
+.a-text { margin: 0; color: var(--ink); font-size: 14.5px; line-height: 1.44;
+          overflow-wrap: anywhere; min-width: 0; white-space: pre-line; }
+.alist .a > * { min-width: 0; }
+
+.alist .a.mine { box-shadow: inset 2px 0 0 var(--yellow); background: #131300; padding-left: 8px; }
+.alist .a.web { grid-template-columns: 38px 1fr; }
+.a-who {
+  font-family: var(--mono); font-size: 9px; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--yellow); align-self: start;
+  border: 1px solid var(--line-2); padding: 3px 0; text-align: center;
+}
+.a.pending .a-who { color: var(--dim); }
+
+/* ---- your answer ----------------------------------------------------- */
+.say { flex: 0 0 auto; margin: 0 0 calc(var(--u)*5); }
+.say-q {
+  display: block; margin-bottom: 8px;
+  font-size: 17px; font-weight: 600; letter-spacing: -.01em;
+}
+.say textarea { font-size: 14px; }
+.say-row { display: flex; align-items: center; gap: var(--u); margin-top: var(--u); }
+.say-or { padding: 0 4px; }
+.btn.film { gap: 8px; }
+.btn.film i {
+  width: 9px; height: 9px; background: var(--red); display: inline-block;
+  box-shadow: 0 0 0 2px rgba(255,31,31,.25);
+}
+@media (hover: hover) { .btn.film:hover i { background: #000; box-shadow: none; } }
+.filmpick {
+  display: flex; align-items: center; gap: var(--u); flex-wrap: wrap;
+  margin-top: var(--u); padding: 8px 10px; border: 1px dashed var(--line-2);
+}
+.filmpick[hidden] { display: none; }
+.filmpick .label { flex: 1; min-width: 140px; color: var(--mid); }
+#astatus { margin-top: var(--u); min-height: 13px; }
+#astatus.err { color: var(--red); }
+#astatus.ok { color: var(--green); }
+
+/* ---- what the internet says ------------------------------------------ */
+.empty { color: var(--dim); font-size: 14px; margin: calc(var(--u)*3) 0 0; }
+.empty[hidden] { display: none; }
+.a.vid { grid-template-columns: 38px 1fr; }
+.vidwrap {
+  position: relative; width: min(100%, 240px); aspect-ratio: 9 / 16;
+  background: var(--pit); border: 1px solid var(--line-2);
+}
+.vidwrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+
+/* ---- where next: a column, not a footer ------------------------------ */
+.doorstack { display: flex; flex-direction: column; gap: 1px; background: var(--line); border: 1px solid var(--line); flex: 0 0 auto; }
+.door {
+  display: flex; flex-direction: column; gap: 6px;
+  background: var(--pit); padding: calc(var(--u)*4);
+  text-align: left; border: 0; cursor: pointer; font-family: var(--sans);
+  border-left: 3px solid transparent;
+  transition: background .12s linear, border-color .12s linear;
+}
+.door:hover { background: var(--raise); }
+/* a door's edge is the kind of question behind it (yellow big, red hot take,
+   green about you) — the same code as the dial; Surprise me is plain white */
+.door { border-left-color: var(--tc, var(--line-2)); }
+.door-any { border-left-color: var(--ink); }
+.door-q { font-size: 15.5px; line-height: 1.22; color: var(--ink); letter-spacing: -.012em; }
+.door-note { opacity: .65; }
+
+.averdict { margin-top: calc(var(--u)*3); border: 1px solid var(--line-2); padding: calc(var(--u)*3); background: var(--pit); flex: 0 0 auto; }
+.averdict .big { font-size: 16px; font-weight: 600; line-height: 1.16; margin-bottom: 5px; }
+.averdict .echo { border-left: 2px solid var(--line-2); padding-left: 10px; margin-top: 8px; color: var(--mid); font-size: 12.5px; }
+.averdict.alone { border-color: var(--red); } .averdict.alone .big { color: var(--red); }
+.averdict.withcrowd { border-color: var(--green); } .averdict.withcrowd .big { color: var(--green); }
+
+.col-foot { margin-top: auto; padding-top: calc(var(--u)*3); }
+.col-foot .btn { font-size: 10px; padding: 7px 11px; }
+
+/* ---- narrow: let the page scroll, stack the columns ------------------ */
+@media (max-width: 900px) {
+  .ep { height: auto; padding-bottom: 70px; }
+  .ep-title { grid-template-columns: auto 1fr; }
+  .ep-stats { grid-column: 1 / -1; justify-content: flex-start; }
+  .ep-cols { grid-template-columns: 1fr; }
+  .col-video .frame { aspect-ratio: 9/16; max-height: 62vh; flex: 0 0 auto; }
+  .alist { max-height: none; overflow: visible; }
+}
+/* an empty list shouldn't push the "be the first" line to the bottom */
+.alist:empty { flex: 0 0 auto; border-top: 0; }
+
+/* desktop: a fade says the list keeps going */
+@media (min-width: 901px) {
+  .alist { -webkit-mask-image: linear-gradient(#000 calc(100% - 28px), transparent);
+           mask-image: linear-gradient(#000 calc(100% - 28px), transparent); padding-bottom: 24px; }
+}
+.alist:focus-visible { outline: 2px solid var(--yellow); outline-offset: 2px; }
+.alist .a.mine { margin-right: calc(var(--u) * -2); }
+.say-count { margin-left: auto; }
+.say-count.near { color: var(--yellow); }
+.ep-titletext h1 .ctx {
+  display: inline-block; vertical-align: middle; margin-left: 10px;
+  font-family: var(--mono); font-size: 12px; letter-spacing: .12em; font-weight: 400;
+  text-transform: uppercase; color: var(--yellow); border: 1px solid var(--line-2); padding: 3px 7px;
+}
+.filmpick .label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-transform: none; letter-spacing: .02em; }
+.a.pending .a-text { color: var(--mid); font-style: italic; }
+
+/* placeholder for an episode number with nothing online yet */
+.stub { padding-top: calc(var(--u)*12); padding-bottom: 80px; max-width: 720px; }
+.stub .epno { display: block; margin-bottom: 18px; }
+.stub h1 { font-size: clamp(26px, 4vw, 44px); margin-bottom: 14px; }
+.stubdoors { margin: 22px 0 28px; }
+
+/* sent from here, not served back yet: yours, clearly not live */
+.a.unconfirmed .a-text { font-style: normal; color: var(--mid); }
+.a-flag { margin: 6px 0 0; color: var(--dim); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.a-flag .resend {
+  font: inherit; letter-spacing: .1em; text-transform: uppercase; cursor: pointer;
+  background: none; color: var(--yellow); border: 1px solid var(--line-2); padding: 4px 8px;
+}
+@media (hover: hover) { .a-flag .resend:hover { border-color: var(--yellow); } }
+.a-flag .resend[disabled] { opacity: .4; cursor: default; }
+
+@media (max-width: 900px) {
+  .col-foot .btn { font-size: 11px; padding: 12px 16px; }
+}
