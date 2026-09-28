@@ -79,20 +79,31 @@ export function todayOf(episodes) {
 
 /* What the answer sheet's script can do. An old deployment answers every
    request with its answer list and no version: it can't take films, list
-   suggestions or count views, so the pages say so instead of pretending. */
+   suggestions or count views, so the pages say so instead of pretending.
+   Google wakes these scripts slowly (often 5-15 s on the first request), so
+   a slow or failed check means "don't know", and "don't know" doesn't close
+   anything: only a clear answer from an old script does. */
 let caps = null;
 export function backend() {
   if (!caps) caps = (async () => {
-    if (!CONFIG.SHEET_URL) return { live: false, features: [] };
-    try {
-      const d = await jsonp(`${CONFIG.SHEET_URL}?version=1`, 10000);
-      return d && d.version ? { live: true, version: d.version, features: d.features || [] }
-                            : { live: true, old: true, features: ['text'] };
-    } catch { return { live: false, features: [] }; }
+    if (!CONFIG.SHEET_URL) return { state: 'none', features: [] };
+    for (const ms of [20000, 25000]) {
+      try {
+        const d = await jsonp(`${CONFIG.SHEET_URL}?version=1`, ms);
+        return d && d.version ? { state: 'new', version: d.version, features: d.features || [] }
+                              : { state: 'old', features: ['text'] };
+      } catch { /* slow to wake: once more */ }
+    }
+    return { state: 'unknown', features: [] };
   })();
   return caps;
 }
-export const can = async f => (await backend()).features.includes(f);
+export async function can(f) {
+  const b = await backend();
+  if (b.state === 'none') return false;
+  if (b.state === 'unknown') return true;          // try it; a real failure says so itself
+  return b.features.includes(f);
+}
 
 /* Page views: each page is counted once per visit (a reload in the same tab
    doesn't count again). Resolves to { page, total } or null. */

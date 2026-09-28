@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin — Question The Day</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/png" sizes="32x32" href="../media/icon-32.png">
+<link rel="stylesheet" href="../styles/base.css">
+<link rel="stylesheet" href="../styles/admin.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="wordmark" href="../"><i></i>Question The Day</a>
+  <nav class="navlinks"><span class="label">Admin</span><button class="btn mini" id="logout" hidden>Sign out</button></nav>
+</header>
+
+<main class="admin">
+  <!-- signed out -->
+  <form class="login" id="login" autocomplete="on">
+    <h1>Admin</h1>
+    <label class="label" for="user">Username</label>
+    <input id="user" type="text" autocomplete="username" autocapitalize="off" spellcheck="false" required>
+    <label class="label" for="pass">Password</label>
+    <input id="pass" type="password" autocomplete="current-password" required>
+    <button class="btn btn-solid" type="submit" id="go">Sign in</button>
+    <p class="astat" id="lstatus" role="status" aria-live="polite"></p>
+  </form>
+
+  <!-- signed in -->
+  <section class="panel-in" id="panel" hidden>
+    <div class="tabs" role="tablist">
+      <button role="tab" data-tab="videos" aria-selected="true">Filmed answers <b id="nvid"></b></button>
+      <button role="tab" data-tab="sugg" aria-selected="false">Suggestions <b id="nsug"></b></button>
+      <button role="tab" data-tab="texts" aria-selected="false">Written answers <b id="ntxt"></b></button>
+      <button role="tab" data-tab="views" aria-selected="false">Visits <b id="nviews"></b></button>
+      <button class="btn mini reload" id="reload">Reload</button>
+    </div>
+    <p class="astat" id="status" role="status" aria-live="polite"></p>
+    <div class="tabpane" id="t-videos"></div>
+    <div class="tabpane" id="t-sugg" hidden></div>
+    <div class="tabpane" id="t-texts" hidden></div>
+    <div class="tabpane" id="t-views" hidden></div>
+  </section>
+</main>
+<script type="module" src="../src/admin.js"></script>
+</body>
+</html>

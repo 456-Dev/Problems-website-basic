@@ -77,13 +77,13 @@ form.addEventListener('submit', async e => {
     setTimeout(() => { location.href = `${BASE}e/${n}/`; }, reduce ? 250 : 1300);
     return;
   }
-  if (!CONFIG.SHEET_URL || S.feed === 'off' || !(await can('suggest'))) {
+  if (!CONFIG.SHEET_URL || S.feed === 'off') {
     setStatus('We haven’t asked that yet. Suggestions open soon — try again in a day or two.', 'err'); return;
   }
   S.busy = true; go.disabled = true;
   setStatus('Sending…');
   try {
-    const d = await jsonp(`${CONFIG.SHEET_URL}?suggest=${encodeURIComponent(text)}`);
+    const d = await jsonp(`${CONFIG.SHEET_URL}?suggest=${encodeURIComponent(text)}`, 25000);
     if (!d || d.ok === false || !d.id) throw new Error((d && d.error) || 'failed');
     S.sugg = d.suggestions || S.sugg || [];
     S.feed = 'ok';
@@ -100,8 +100,10 @@ form.addEventListener('submit', async e => {
     renderBoard();
     board.querySelector('.fresh')?.scrollIntoView({ block: 'nearest', behavior: reduce ? 'auto' : 'smooth' });
   } catch (err) {
+    console.warn('suggest failed:', err);
     setStatus(/short/.test(err.message) ? 'Ask a whole question — a few words at least.'
-      : 'That didn’t go through. Check your connection and try again.', 'err');
+      : /timeout/.test(err.message) ? 'The sheet is slow to answer right now. Press Suggest again in a moment.'
+      : `That didn’t go through (${String(err.message || err).slice(0, 60)}). Try again.`, 'err');
   } finally {
     S.busy = false; go.disabled = false;
   }
@@ -151,7 +153,7 @@ board.addEventListener('click', async e => {
   if (S.voted.has(id)) { setStatus('You’ve voted for that one already.', ''); return; }
   s.votes += 1; S.voted.add(id); saveVoted(); renderBoard();        // feels instant
   try {
-    const d = await jsonp(`${CONFIG.SHEET_URL}?vote=${encodeURIComponent(id)}`);
+    const d = await jsonp(`${CONFIG.SHEET_URL}?vote=${encodeURIComponent(id)}`, 25000);
     if (!d || d.ok === false) throw new Error('vote');
     S.sugg = d.suggestions || S.sugg;
     renderBoard();
@@ -172,16 +174,19 @@ $('boardsort').addEventListener('click', e => {
 more.addEventListener('click', () => { S.showAll = !S.showAll; renderBoard(); });
 
 async function loadSuggestions() {
-  if (!CONFIG.SHEET_URL || !(await can('suggest'))) {
-    S.feed = 'off'; S.sugg = null; renderBoard(); return;
-  }
-  try {
-    const d = await jsonp(`${CONFIG.SHEET_URL}?suggestions=1`);
-    if (!d || d.ok === false || !Array.isArray(d.suggestions)) throw new Error('feed');
-    S.sugg = d.suggestions;
-    S.feed = 'ok';
-  } catch {
-    S.feed = 'failed';
+  if (!CONFIG.SHEET_URL) { S.feed = 'off'; S.sugg = null; renderBoard(); return; }
+  // the list itself tells us: an array means suggestions work; an answer
+  // without one is an old script; no answer at all is a slow one
+  for (const ms of [20000, 25000]) {
+    try {
+      const d = await jsonp(`${CONFIG.SHEET_URL}?suggestions=1`, ms);
+      if (d && Array.isArray(d.suggestions)) { S.sugg = d.suggestions; S.feed = 'ok'; }
+      else { S.sugg = null; S.feed = 'off'; }
+      break;
+    } catch (err) {
+      S.feed = 'failed';
+      console.warn('suggestions: no answer from the sheet script', err);
+    }
   }
   renderBoard();
   renderHint();
