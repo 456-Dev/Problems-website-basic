@@ -127,11 +127,12 @@ input:focus, textarea:focus { border-color: var(--yellow); }
 .wordmark {
   font-family: var(--mono); font-size: 12px; font-weight: 700;
   letter-spacing: 0.22em; text-transform: uppercase;
-  display: flex; align-items: center; gap: 7px;
+  display: flex; align-items: center; gap: 9px;
 }
+/* the ?! mark; its file lives with the other media */
 .wordmark i {
-  width: 8px; height: 8px; background: var(--yellow);
-  display: inline-block; font-style: normal;
+  width: 24px; height: 22px; display: inline-block; font-style: normal; flex: 0 0 auto;
+  background: url(../media/logo-mark.png) center / contain no-repeat;
 }
 /* five items now; let them scroll rather than fall off the edge */
 .navlinks {
@@ -205,4 +206,9 @@ input:focus, textarea:focus { border-color: var(--yellow); }
   .topbar .wordmark { font-size: 0; letter-spacing: 0; }
   .topbar .wordmark::after { content: 'QTD'; content: 'QTD' / ''; font-size: 11px; letter-spacing: .18em; }
   .navlinks { max-width: none; }
+}
+
+/* phones: 16px text fields, or iOS zooms the whole page when you tap one */
+@media (max-width: 900px) {
+  input[type="text"], textarea { font-size: 16px; }
 }

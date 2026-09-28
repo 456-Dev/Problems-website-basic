@@ -8,8 +8,8 @@ const main = document.querySelector('.ep');
 const EP = +main.dataset.ep;
 const VIDEO = main.dataset.video;
 const STREET = +main.dataset.street || 0;
-const QUESTION = document.querySelector('.ep-titletext h1 .q')?.textContent
-  || document.querySelector('.ep-titletext h1')?.textContent || '';
+const QUESTION = document.querySelector('.ep-q .q')?.textContent
+  || document.querySelector('.ep-q')?.textContent || '';
 const MAX = 600;
 
 const list = document.getElementById('alist');
@@ -139,6 +139,9 @@ function paint() {
     : 'Nobody online has answered this one yet. You could be first.';
   sayCount.textContent = online ? `${online} online` : '';
   document.getElementById('anscount').textContent = STREET + online;
+  // social proof where you answer: the street went first, now you
+  document.getElementById('sayproof').innerHTML = `<b>${STREET}</b> answered on the street` +
+    (online ? ` · <b>${online}</b> online` : '');
   document.getElementById('ansnote').textContent =
     online ? `${STREET} in the video · ${online} online`
     : feed === 'loading' && CONFIG.SHOW_SUBMISSIONS ? `in the video · loading online`
@@ -368,6 +371,29 @@ list.addEventListener('click', async e => {
       setStatus('The upload didn’t go through — try again, or a shorter clip.', 'err');
     } finally { send.disabled = filmBtn.disabled = false; }
   };
+})();
+
+/* ---------- share the question ------------------------------------------- */
+(function share() {
+  const b = document.getElementById('sharebtn');
+  if (!b) return;
+  const label = b.querySelector('.label');
+  const flag = t => { label.textContent = t; b.classList.add('done');
+                      setTimeout(() => { label.textContent = 'Share'; b.classList.remove('done'); }, 2200); };
+  b.addEventListener('click', async () => {
+    const url = location.href.split('#')[0];
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: `${QUESTION} — Question The Day`, text: `${QUESTION} What would you say?`, url });
+        return;
+      }
+      await navigator.clipboard.writeText(url);
+      flag('Link copied');
+    } catch (err) {
+      if (err && err.name === 'AbortError') return;       // closed the share sheet
+      flag('Copy the address bar');
+    }
+  });
 })();
 
 /* ---------- ask the next question ---------------------------------------- */

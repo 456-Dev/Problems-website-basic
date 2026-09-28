@@ -2,10 +2,10 @@
  *
  *   world     black-and-white countries; each city shows one face and a count
  *             when zoomed out, and fans out into every episode's face as you
- *             zoom in. A dashed line traces the trip in the order it happened.
+ *             zoom in.
  *   new york  near New York, zooming in swaps the coarse coastline for the
- *             detailed boroughs, the subway (the MTA's own track shapes) and
- *             each episode's walking route. Anywhere else, zoom is just zoom.
+ *             detailed boroughs and each episode's walking route. Anywhere
+ *             else, zoom is just zoom.
  */
 import { BASE, fetchJSON, esc, clamp, typeRGB, MOODS } from './util.js';
 
@@ -23,7 +23,7 @@ const METRO = [40.47, 41.0, -74.35, -73.68];
 
 const S = {
   world: [], nyc: null, eps: [], clusters: [], nycEps: [], nycRoutes: [], nycLoose: [],
-  journey: [], faces: new Map(), unplaced: 0,
+  faces: new Map(), unplaced: 0,
   cam: { x: 0.3, y: 0.4, s: 800, tx: 0.3, ty: 0.4, ts: 800 },
   w: 1, h: 1, hover: null, drag: null, pinch: null, pointers: new Map(),
   touch: false, preview: null,
@@ -39,7 +39,7 @@ const toWorld = (sx, sy) => [(sx - S.w / 2) / S.cam.s + S.cam.x, (sy - S.h / 2) 
 const inMetro = ([la, lo]) => la > METRO[0] && la < METRO[1] && lo > METRO[2] && lo < METRO[3];
 
 /* New York's detail only takes over when you're actually looking at New York:
-   zooming into London used to flip the whole page into "subway view". */
+   zooming into London used to flip the whole page into the New York view. */
 function cityMix() {
   const byScale = clamp((S.cam.s - CITY_AT) / (CITY_FULL - CITY_AT), 0, 1);
   if (!byScale) return 0;
@@ -84,9 +84,9 @@ function frameNYC(now) {
   const la = pts.map(p => p[0]), lo = pts.map(p => p[1]);
   frame(mercX(Math.min(...lo)), mercY(Math.max(...la)), mercX(Math.max(...lo)), mercY(Math.min(...la)), 24, now);
 }
-// the name over the panel: the subway view, the city you've zoomed to, or the world
+// the name over the panel: the New York view, the city you've zoomed to, or the world
 function viewLabel() {
-  if (cityMix() > 0.5) return 'New York · subway view';
+  if (cityMix() > 0.5) return 'New York · the walks';
   if (S.cam.s < FAN_AT) return 'The world';
   const [cx, cy] = toWorld(...usableCentre());
   let best = null, bd = Infinity;
@@ -152,33 +152,11 @@ function draw() {
       ctx.fillStyle = '#141414'; ctx.fill();
       ctx.strokeStyle = 'rgba(255,255,255,.28)'; ctx.lineWidth = 1; ctx.stroke();
     }
-    drawJourney();
     drawClusters();
     ctx.globalAlpha = 1;
   }
   if (mix > 0 && S.nyc) { ctx.globalAlpha = mix; drawNYC(); ctx.globalAlpha = 1; }
   placeCallout(mix);
-}
-
-function drawJourney() {
-  if (S.journey.length < 2) return;
-  ctx.strokeStyle = 'rgba(255,229,0,.55)';
-  ctx.lineWidth = 1;
-  ctx.setLineDash([3, 4]);
-  ctx.beginPath();
-  for (let i = 1; i < S.journey.length; i++) {
-    const a = S.journey[i - 1], b = S.journey[i];
-    let bx = b.x;
-    // take the short way round: LA to Fiji crosses the Pacific, not the Atlantic
-    if (bx - a.x > 0.5) bx -= 1; else if (a.x - bx > 0.5) bx += 1;
-    for (const shift of [0, bx === b.x ? null : (bx < b.x ? 1 : -1)]) {
-      if (shift === null) continue;
-      const [x1, y1] = toScreen(a.x + shift, a.y), [x2, y2] = toScreen(bx + shift, b.y);
-      ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
-    }
-  }
-  ctx.stroke();
-  ctx.setLineDash([]);
 }
 
 function drawClusters() {
@@ -265,14 +243,7 @@ function drawNYC() {
        ['NEW JERSEY', 40.73, -74.13]]) {
     const [x, y] = toScreen(mercX(lng), mercY(lat)); ctx.fillText(name, x, y);
   }
-  ctx.strokeStyle = 'rgba(255,255,255,.32)'; ctx.lineWidth = 1; ctx.lineJoin = 'round';
-  for (const ln of S.nyc.subway) {
-    ctx.beginPath(); ln.p.forEach((p, i) => { const [x, y] = P(p); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }); ctx.stroke();
-  }
-  if (S.cam.s > 160000) {
-    ctx.fillStyle = 'rgba(255,255,255,.55)';
-    for (const st of S.nyc.stations) { const [x, y] = P(st.p); ctx.fillRect(x - 1, y - 1, 2, 2); }
-  }
+  ctx.lineJoin = 'round';
   const focus = S.hover || S.preview;
   ctx.lineCap = 'round';
   for (const r of S.nycRoutes) {
@@ -382,12 +353,10 @@ function paintPanel() {
   const key = t => `<div class="keyrow"><span class="dot" style="background:var(--${t[0]})"></span><span class="label">${t[1]}</span></div>`;
   const kinds = [['yellow', 'big question'], ['red', 'hot take'], ['green', 'about you']].map(key).join('');
   document.getElementById('legend').innerHTML = inCity
-    ? `<div class="label">Each line is one episode's walk</div>${kinds}
-       <div class="rule"></div><div class="keyrow"><span class="keyline thin"></span><span class="label">subway</span></div>`
+    ? `<div class="label">Each line is one episode's walk</div>${kinds}`
     : `<div class="label">A face per episode; the stripe is its kind</div>${kinds}
        <div class="rule"></div>
-       <div class="keyrow"><span class="dot city"></span><span class="label">where it was filmed</span></div>
-       <div class="keyrow"><span class="keyline dashed"></span><span class="label">the trip, city to city, in order</span></div>`;
+       <div class="keyrow"><span class="dot city"></span><span class="label">where it was filmed</span></div>`;
 }
 
 /* ---------- input: mouse, touch, pinch ------------------------------------------- */
@@ -497,7 +466,7 @@ async function boot() {
   ]);
   S.world = world; S.nyc = nyc; S.eps = d.episodes;
 
-  // New York means the metro: Jersey City and Hoboken belong in the subway view
+  // New York means the metro: Jersey City and Hoboken belong in the New York view
   const isNYC = e => e.city === 'New York' || (Array.isArray(e.at) && inMetro(e.at));
   S.nycEps = S.eps.filter(isNYC);
   S.nycRoutes = S.nycEps.filter(e => (e.route || []).length > 1);
@@ -514,20 +483,9 @@ async function boot() {
   S.clusters = [...by.values()].map(c => ({ ...c, x: mercX(c.lng), y: mercY(c.lat) }))
                                .sort((a, b) => b.eps.length - a.eps.length);
 
-  const home = { x: mercX(NYC.lng), y: mercY(NYC.lat), name: 'New York' };
-  const seen = new Set(), path = [];
-  for (const e of [...S.eps].sort((a, b) => a.n - b.n)) {
-    if (!Array.isArray(e.at)) continue;
-    const key = isNYC(e) ? 'New York' : ((e.places && e.places[0]) || e.city);
-    if (key !== 'New York' && seen.has(key)) continue;
-    seen.add(key);
-    const stop = key === 'New York' ? home : S.clusters.find(c => c.name === key);
-    if (stop && path[path.length - 1] !== stop) path.push(stop);
-  }
-  S.journey = path;
   document.getElementById('nycn').textContent = S.nycEps.length;
 
-  // Back from an episode opened in the subway view lands in the subway view
+  // Back from an episode opened in the New York view lands in the New York view
   if (location.hash === '#nyc' && S.nycRoutes.length) frameNYC(true); else frameWorld(true);
   bind();
   paintPanel();

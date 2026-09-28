@@ -12,6 +12,11 @@
 <meta property="og:image" content="https://i.ytimg.com/vi/c_5Y-W0NxZk/hqdefault.jpg">
 <meta property="og:url" content="https://456solutions.org/qtd/e/76/">
 <meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/png" sizes="32x32" href="../../media/icon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="../../media/icon-192.png">
+<link rel="apple-touch-icon" href="../../media/apple-touch-icon.png">
+<meta name="theme-color" content="#070707">
+<meta property="og:site_name" content="Question The Day">
 <link rel="stylesheet" href="../../styles/base.css">
 <link rel="stylesheet" href="../../styles/episode.css">
 </head>
@@ -29,64 +34,65 @@
 </header>
 
 <main class="ep" data-ep="76" data-video="c_5Y-W0NxZk" data-street="34">
-
-  <!-- title and data -->
-  <div class="ep-title">
-    <span class="epno num">76</span>
-    <div class="ep-titletext">
-      <h1><span class="q">What Is The Best Advice You Have Ever Received?</span></h1>
-      <div class="qtags">
-        <span class="qt">DAILY LIFE</span><span class="qt mood m3">CURIOUS</span><span class="qt t-you">ABOUT YOU</span>
-        <span class="label ep-meta">POSTED 30 SEP 2025</span>
-      </div>
-    </div>
-    <div class="ep-stats">
-      <div><b class="num" id="anscount">34</b><span class="label" id="ansnote">answers</span></div>
-      <div><b class="num">179</b><span class="label">youtube views</span></div>
-    </div>
+  <!-- The question, then the data. Every block below is its own grid item:
+       desktop puts the video down the left at full height, phones stack
+       question, video, your turn, the internet, the next question, the data. -->
+  <span class="epno num">76</span>
+  <h1 class="ep-q"><span class="q">What Is The Best Advice You Have Ever Received?</span></h1>
+  <div class="qtags">
+    <span class="qt">DAILY LIFE</span><span class="qt mood m3">CURIOUS</span><span class="qt t-you">ABOUT YOU</span>
+    <span class="label ep-meta">POSTED 30 SEP 2025</span>
   </div>
+  <div class="ep-stats">
+    <div><b class="num" id="anscount">34</b><span class="label" id="ansnote">answers</span></div>
+    <div><b class="num">179</b><span class="label">youtube views</span></div>
+    <button class="share" id="sharebtn" type="button"><b aria-hidden="true">&#8599;</b><span class="label">Share</span></button>
+  </div>
+  <i class="ep-rule" aria-hidden="true"></i>
 
-  <div class="ep-cols">
-    <!-- the video itself -->
-    <section class="col col-video">
-      <div class="frame">
-        <iframe id="player" title="Episode 76 on YouTube" loading="lazy" src="https://www.youtube-nocookie.com/embed/c_5Y-W0NxZk?rel=0" allow="accelerometer; clipboard-write; encrypted-media; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+  <!-- the video itself -->
+  <section class="col col-video">
+    <div class="frame">
+      <iframe id="player" title="Episode 76 on YouTube" loading="lazy" src="https://www.youtube-nocookie.com/embed/c_5Y-W0NxZk?rel=0" allow="accelerometer; clipboard-write; encrypted-media; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+    </div>
+  </section>
+
+  <!-- your turn, then what everyone online said -->
+  <section class="col col-say">
+    <form class="say" id="addform" autocomplete="off">
+      <div class="say-head">
+        <label class="say-q" for="atext">Your turn</label>
+        <span class="label say-proof" id="sayproof">34 answered on the street</span>
       </div>
-    </section>
-
-    <!-- answer it, then see what everyone online said -->
-    <section class="col col-say">
-      <form class="say" id="addform" autocomplete="off">
-        <label class="say-q" for="atext">Your answer</label>
-        <textarea id="atext" rows="3" maxlength="600" placeholder="Answer anonymously. No name, no account."></textarea>
-        <input class="sr" id="hp" type="text" tabindex="-1" aria-hidden="true">
-        <div class="say-row">
-          <button class="btn btn-solid" type="submit" id="asend">Send</button>
-          <span class="say-or label">or</span>
-          <button class="btn film" type="button" id="filmbtn"><i></i>Film yourself</button>
-          <input type="file" id="afile" accept="video/*" hidden>
-          <span class="label say-count" id="acount"></span>
-        </div>
-        <div class="filmpick" id="filmpick" hidden>
-          <span class="label" id="filmname"></span>
-          <button class="btn btn-solid" type="button" id="vsend">Upload</button>
-          <button class="btn" type="button" id="vcancel">Cancel</button>
-        </div>
-        <p class="label" id="astatus" role="status" aria-live="polite"></p>
-      </form>
-
-      <div class="col-head spread">
-        <h2>What the internet says</h2>
-        <span class="label" id="saycount"></span>
+      <textarea id="atext" rows="3" maxlength="600" placeholder="What would you say? No name, no account."></textarea>
+      <input class="sr" id="hp" type="text" tabindex="-1" aria-hidden="true">
+      <div class="say-row">
+        <button class="btn btn-solid" type="submit" id="asend">Send</button>
+        <span class="say-or label">or</span>
+        <button class="btn film" type="button" id="filmbtn"><i></i>Film yourself</button>
+        <input type="file" id="afile" accept="video/*" hidden>
+        <span class="label say-count" id="acount"></span>
       </div>
-      <ol class="alist" id="alist" tabindex="0" aria-label="Answers from people online"></ol>
-      <p class="empty" id="sayempty">Loading answers from online…</p>
-    </section>
+      <div class="filmpick" id="filmpick" hidden>
+        <span class="label" id="filmname"></span>
+        <button class="btn btn-solid" type="button" id="vsend">Upload</button>
+        <button class="btn" type="button" id="vcancel">Cancel</button>
+      </div>
+      <p class="label" id="astatus" role="status" aria-live="polite"></p>
+    </form>
 
-    <!-- ask the next question -->
-    <section class="col col-next">
-      <div class="col-head"><h2>Ask the next question</h2></div>
-      <div class="doorstack">
+    <div class="col-head spread">
+      <h2>What the internet says</h2>
+      <span class="label" id="saycount"></span>
+    </div>
+    <ol class="alist" id="alist" tabindex="0" aria-label="Answers from people online"></ol>
+    <p class="empty" id="sayempty">Loading answers from online…</p>
+  </section>
+
+  <!-- ask the next question -->
+  <section class="col col-next">
+    <div class="col-head spread"><h2>Ask the next question</h2><span class="stepper"><a class="btn mini" href="../75/" aria-label="Episode 75">← 75</a><a class="btn mini" href="../77/" aria-label="Episode 77">77 →</a></span></div>
+    <div class="doorstack">
         <a class="door door-near t-you" href="../99/" data-pool="[[99, &quot;Why Did You Let Me Interview You?&quot;, &quot;DAILY LIFE \u00b7 LIGHT&quot;, &quot;t-you&quot;], [19, &quot;What Would Make Your Life Complete?&quot;, &quot;DAILY LIFE \u00b7 SERIOUS&quot;, &quot;t-you&quot;], [46, &quot;What Do You Do For Your Community?&quot;, &quot;DAILY LIFE \u00b7 CURIOUS&quot;, &quot;t-you&quot;], [53, &quot;How Long Is Your Daily Commute?&quot;, &quot;DAILY LIFE \u00b7 LIGHT&quot;, &quot;t-you&quot;], [174, &quot;What Do You Do With Your Free Time?&quot;, &quot;DAILY LIFE \u00b7 LIGHT&quot;, &quot;t-you&quot;], [98, &quot;What Is Your Problem?&quot;, &quot;DAILY LIFE \u00b7 SERIOUS&quot;, &quot;t-you&quot;], [188, &quot;How Much Water Do You Drink In A Day?&quot;, &quot;DAILY LIFE \u00b7 LIGHT&quot;, &quot;t-you&quot;], [69, &quot;Have You Ever Tried To Quit Smoking Weed?&quot;, &quot;DAILY LIFE \u00b7 LIGHT&quot;, &quot;t-you&quot;], [63, &quot;What Do You Remember From COVID?&quot;, &quot;DAILY LIFE \u00b7 SERIOUS&quot;, &quot;t-you&quot;], [166, &quot;What Was The Most Beautiful Day Of Your Life?&quot;, &quot;DAILY LIFE \u00b7 CURIOUS&quot;, &quot;t-you&quot;]]">
           <span class="label">Same kind of question</span>
           <span class="door-q">Why Did You Let Me Interview You?</span>
@@ -97,18 +103,13 @@
           <span class="door-q">What Is Hate?</span>
           <span class="label door-note">BIG IDEAS · HEAVY</span>
         </a>
-        <button class="door door-any" id="anydoor" type="button">
-          <span class="label">Anything at all</span>
-          <span class="door-q">Surprise me</span>
-          <span class="label door-note">one of 202</span>
-        </button>
-      </div>
-      <div class="col-foot spread">
-        <a class="btn" href="../75/">← 75</a>
-        <a class="btn" href="../77/">77 →</a>
-      </div>
-    </section>
-  </div>
+      <button class="door door-any" id="anydoor" type="button">
+        <span class="label">Anything at all</span>
+        <span class="door-q">Surprise me</span>
+        <span class="label door-note">one of 202</span>
+      </button>
+    </div>
+  </section>
 </main>
 
 <script type="module" src="../../src/episode.js"></script>

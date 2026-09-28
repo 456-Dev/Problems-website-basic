@@ -49,7 +49,6 @@
 }
 
 #fold { display: none; }
-.keyline.dashed { border-top: 1px dashed var(--yellow); }
 .dot.city { background: #fff; width: 5px; height: 5px; }
 @media (max-width: 700px) {
   /* phones: the places list folds away; the zoom buttons stay */

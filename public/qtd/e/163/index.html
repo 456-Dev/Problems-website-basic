@@ -12,6 +12,11 @@
 <meta property="og:image" content="https://i.ytimg.com/vi/2_kHGIVqELM/hqdefault.jpg">
 <meta property="og:url" content="https://456solutions.org/qtd/e/163/">
 <meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/png" sizes="32x32" href="../../media/icon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="../../media/icon-192.png">
+<link rel="apple-touch-icon" href="../../media/apple-touch-icon.png">
+<meta name="theme-color" content="#070707">
+<meta property="og:site_name" content="Question The Day">
 <link rel="stylesheet" href="../../styles/base.css">
 <link rel="stylesheet" href="../../styles/episode.css">
 </head>
@@ -29,64 +34,65 @@
 </header>
 
 <main class="ep" data-ep="163" data-video="2_kHGIVqELM" data-street="28">
-
-  <!-- title and data -->
-  <div class="ep-title">
-    <span class="epno num">163</span>
-    <div class="ep-titletext">
-      <h1><span class="q">What Is The Biggest Threat To Society?</span></h1>
-      <div class="qtags">
-        <span class="qt">SOCIETY</span><span class="qt mood m2">SERIOUS</span><span class="qt t-hot">HOT TAKE</span>
-        <span class="label ep-meta">LONDON, UK  ·  FILMED 12 JAN 2026  ·  POSTED 13 JAN 2026</span>
-      </div>
-    </div>
-    <div class="ep-stats">
-      <div><b class="num" id="anscount">28</b><span class="label" id="ansnote">answers</span></div>
-      <div><b class="num">230</b><span class="label">youtube views</span></div>
-    </div>
+  <!-- The question, then the data. Every block below is its own grid item:
+       desktop puts the video down the left at full height, phones stack
+       question, video, your turn, the internet, the next question, the data. -->
+  <span class="epno num">163</span>
+  <h1 class="ep-q"><span class="q">What Is The Biggest Threat To Society?</span></h1>
+  <div class="qtags">
+    <span class="qt">SOCIETY</span><span class="qt mood m2">SERIOUS</span><span class="qt t-hot">HOT TAKE</span>
+    <span class="label ep-meta">LONDON, UK  ·  FILMED 12 JAN 2026  ·  POSTED 13 JAN 2026</span>
   </div>
+  <div class="ep-stats">
+    <div><b class="num" id="anscount">28</b><span class="label" id="ansnote">answers</span></div>
+    <div><b class="num">230</b><span class="label">youtube views</span></div>
+    <button class="share" id="sharebtn" type="button"><b aria-hidden="true">&#8599;</b><span class="label">Share</span></button>
+  </div>
+  <i class="ep-rule" aria-hidden="true"></i>
 
-  <div class="ep-cols">
-    <!-- the video itself -->
-    <section class="col col-video">
-      <div class="frame">
-        <iframe id="player" title="Episode 163 on YouTube" loading="lazy" src="https://www.youtube-nocookie.com/embed/2_kHGIVqELM?rel=0" allow="accelerometer; clipboard-write; encrypted-media; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+  <!-- the video itself -->
+  <section class="col col-video">
+    <div class="frame">
+      <iframe id="player" title="Episode 163 on YouTube" loading="lazy" src="https://www.youtube-nocookie.com/embed/2_kHGIVqELM?rel=0" allow="accelerometer; clipboard-write; encrypted-media; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+    </div>
+  </section>
+
+  <!-- your turn, then what everyone online said -->
+  <section class="col col-say">
+    <form class="say" id="addform" autocomplete="off">
+      <div class="say-head">
+        <label class="say-q" for="atext">Your turn</label>
+        <span class="label say-proof" id="sayproof">28 answered on the street</span>
       </div>
-    </section>
-
-    <!-- answer it, then see what everyone online said -->
-    <section class="col col-say">
-      <form class="say" id="addform" autocomplete="off">
-        <label class="say-q" for="atext">Your answer</label>
-        <textarea id="atext" rows="3" maxlength="600" placeholder="Answer anonymously. No name, no account."></textarea>
-        <input class="sr" id="hp" type="text" tabindex="-1" aria-hidden="true">
-        <div class="say-row">
-          <button class="btn btn-solid" type="submit" id="asend">Send</button>
-          <span class="say-or label">or</span>
-          <button class="btn film" type="button" id="filmbtn"><i></i>Film yourself</button>
-          <input type="file" id="afile" accept="video/*" hidden>
-          <span class="label say-count" id="acount"></span>
-        </div>
-        <div class="filmpick" id="filmpick" hidden>
-          <span class="label" id="filmname"></span>
-          <button class="btn btn-solid" type="button" id="vsend">Upload</button>
-          <button class="btn" type="button" id="vcancel">Cancel</button>
-        </div>
-        <p class="label" id="astatus" role="status" aria-live="polite"></p>
-      </form>
-
-      <div class="col-head spread">
-        <h2>What the internet says</h2>
-        <span class="label" id="saycount"></span>
+      <textarea id="atext" rows="3" maxlength="600" placeholder="What would you say? No name, no account."></textarea>
+      <input class="sr" id="hp" type="text" tabindex="-1" aria-hidden="true">
+      <div class="say-row">
+        <button class="btn btn-solid" type="submit" id="asend">Send</button>
+        <span class="say-or label">or</span>
+        <button class="btn film" type="button" id="filmbtn"><i></i>Film yourself</button>
+        <input type="file" id="afile" accept="video/*" hidden>
+        <span class="label say-count" id="acount"></span>
       </div>
-      <ol class="alist" id="alist" tabindex="0" aria-label="Answers from people online"></ol>
-      <p class="empty" id="sayempty">Loading answers from online…</p>
-    </section>
+      <div class="filmpick" id="filmpick" hidden>
+        <span class="label" id="filmname"></span>
+        <button class="btn btn-solid" type="button" id="vsend">Upload</button>
+        <button class="btn" type="button" id="vcancel">Cancel</button>
+      </div>
+      <p class="label" id="astatus" role="status" aria-live="polite"></p>
+    </form>
 
-    <!-- ask the next question -->
-    <section class="col col-next">
-      <div class="col-head"><h2>Ask the next question</h2></div>
-      <div class="doorstack">
+    <div class="col-head spread">
+      <h2>What the internet says</h2>
+      <span class="label" id="saycount"></span>
+    </div>
+    <ol class="alist" id="alist" tabindex="0" aria-label="Answers from people online"></ol>
+    <p class="empty" id="sayempty">Loading answers from online…</p>
+  </section>
+
+  <!-- ask the next question -->
+  <section class="col col-next">
+    <div class="col-head spread"><h2>Ask the next question</h2><span class="stepper"><a class="btn mini" href="../162/" aria-label="Episode 162">← 162</a><a class="btn mini" href="../164/" aria-label="Episode 164">164 →</a></span></div>
+    <div class="doorstack">
         <a class="door door-near t-hot" href="../75/" data-pool="[[75, &quot;What Do You Think About Mayor Eric Adams?&quot;, &quot;SOCIETY \u00b7 SERIOUS&quot;, &quot;t-hot&quot;], [105, &quot;What Do You Think About Democracy?&quot;, &quot;SOCIETY \u00b7 SERIOUS&quot;, &quot;t-hot&quot;], [31, &quot;How Would You Define Climate Change?&quot;, &quot;SOCIETY \u00b7 SERIOUS&quot;, &quot;t-big&quot;], [197, &quot;What Is Journalism?&quot;, &quot;SOCIETY \u00b7 CURIOUS&quot;, &quot;t-big&quot;], [79, &quot;What Should Happen Next With The Government Shutdown?&quot;, &quot;SOCIETY \u00b7 SERIOUS&quot;, &quot;t-hot&quot;], [189, &quot;What Should Be The Relationship Between Puerto Rico And The USA?&quot;, &quot;SOCIETY \u00b7 SERIOUS&quot;, &quot;t-hot&quot;], [179, &quot;What Do You Want To Say To Donald Trump?&quot;, &quot;SOCIETY \u00b7 SERIOUS&quot;, &quot;t-hot&quot;], [14, &quot;Should The National Guard Take Over D.C.?&quot;, &quot;SOCIETY \u00b7 SERIOUS&quot;, &quot;t-hot&quot;], [2, &quot;What Is The Most Important News Right Now?&quot;, &quot;SOCIETY \u00b7 SERIOUS&quot;, &quot;t-hot&quot;], [42, &quot;How Can We Improve Health Care?&quot;, &quot;SOCIETY \u00b7 SERIOUS&quot;, &quot;t-hot&quot;]]">
           <span class="label">Same kind of question</span>
           <span class="door-q">What Do You Think About Mayor Eric Adams?</span>
@@ -97,18 +103,13 @@
           <span class="door-q">What Do You Think About The Ocean?</span>
           <span class="label door-note">BIG IDEAS · LIGHT</span>
         </a>
-        <button class="door door-any" id="anydoor" type="button">
-          <span class="label">Anything at all</span>
-          <span class="door-q">Surprise me</span>
-          <span class="label door-note">one of 202</span>
-        </button>
-      </div>
-      <div class="col-foot spread">
-        <a class="btn" href="../162/">← 162</a>
-        <a class="btn" href="../164/">164 →</a>
-      </div>
-    </section>
-  </div>
+      <button class="door door-any" id="anydoor" type="button">
+        <span class="label">Anything at all</span>
+        <span class="door-q">Surprise me</span>
+        <span class="label door-note">one of 202</span>
+      </button>
+    </div>
+  </section>
 </main>
 
 <script type="module" src="../../src/episode.js"></script>

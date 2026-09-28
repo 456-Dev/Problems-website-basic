@@ -1,65 +1,52 @@
-/* One episode, one screen. The page itself never scrolls on a desktop —
-   only the answers column does. Watch, read, add, leave. */
+/* One episode. On a desktop it is one screen: the video down the left at
+   full height, the question and your turn beside it, the next question on the
+   right, and the page never scrolls. Phones stack it in the order you use it:
+   the question, the video (as big as the screen allows), your turn, what the
+   internet says, the next question, then the data. */
 
 .is-ep, .is-ep body { height: 100%; }
-@media (min-width: 901px) {
-  .is-ep body { overflow: hidden; }
-}
+.ep { max-width: 1680px; margin: 0 auto; }
 
-.ep {
-  display: flex; flex-direction: column;
-  height: calc(100vh - var(--rail));
-  padding: 0 calc(var(--u)*4);
-  max-width: 1680px; margin: 0 auto;
-}
-
-/* ---- the question, given room --------------------------------------- */
-.ep-title {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  align-items: center;
-  gap: calc(var(--u)*5);
-  padding: calc(var(--u)*4) 0 calc(var(--u)*4);
-  border-bottom: 1px solid var(--line-2);
-  flex: 0 0 auto;
-}
+/* ---- the question and its data ----------------------------------------- */
 .epno {
   font-size: clamp(34px, 4.4vw, 62px); font-weight: 700;
   line-height: .8; letter-spacing: -.05em; color: var(--yellow);
 }
-.ep-titletext h1 {
-  font-size: clamp(21px, 2.7vw, 40px);
-  line-height: 1.02; letter-spacing: -.028em;
-  max-width: 24ch; text-wrap: balance;
+.ep-q {
+  font-size: clamp(21px, 2.5vw, 38px);
+  line-height: 1.04; letter-spacing: -.028em; text-wrap: balance;
 }
-.qtags { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 10px; }
+.ep-q .ctx {
+  display: inline-block; vertical-align: middle; margin-left: 10px;
+  font-family: var(--mono); font-size: 12px; letter-spacing: .12em; font-weight: 400;
+  text-transform: uppercase; color: var(--yellow); border: 1px solid var(--line-2); padding: 3px 7px;
+}
+.qtags { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
 .qtags .ep-meta { margin: 0 0 0 6px; }
 .qt.mood { color: var(--ink); }
 
-.ep-stats { display: flex; width: max-content; border: 1px solid var(--line); }
-.ep-stats div { background: var(--black); padding: 8px 13px; text-align: right; min-width: 78px;
-                border-left: 1px solid var(--line); }
-.ep-stats div:first-child { border-left: 0; }
+.ep-stats { display: flex; width: max-content; max-width: 100%; border: 1px solid var(--line); }
+.ep-stats > * { background: var(--black); padding: 8px 13px; text-align: right; min-width: 78px;
+                border: 0; border-left: 1px solid var(--line); }
+.ep-stats > :first-child { border-left: 0; }
 .ep-stats b { display: block; font-size: 19px; font-weight: 600; line-height: 1.1; }
-.ep-stats b.g { color: var(--green); } .ep-stats b.y { color: var(--yellow); }
-.ep-stats b.r { color: var(--red); } .ep-stats b.ig { color: #ff2bd0; }
+.ep-stats b.ig { color: #ff2bd0; }
+.share { cursor: pointer; color: var(--ink); font: inherit; }
+.share b { color: var(--yellow); }
+@media (hover: hover) { .share:hover { background: var(--yellow); } .share:hover b, .share:hover .label { color: #000; } }
+.share.done .label { color: var(--green); }
+.ep-rule { display: block; height: 1px; background: var(--line-2); }
 
-/* ---- three columns, full height -------------------------------------- */
-.ep-cols {
-  flex: 1 1 auto; min-height: 0;
-  display: grid;
-  grid-template-columns: minmax(220px, 300px) minmax(320px, 1fr) minmax(250px, 330px);
-  gap: calc(var(--u)*5);
-  padding: calc(var(--u)*4) 0;
-}
 .col { min-height: 0; display: flex; flex-direction: column; }
 .col-head { flex: 0 0 auto; margin-bottom: calc(var(--u)*3); align-items: baseline; }
 .col-say .col-head { padding-top: calc(var(--u)*4); border-top: 1px solid var(--line-2); }
 .col-head h2 { font-size: 17px; }
+.stepper { display: flex; gap: 4px; }
+.stepper .btn { padding: 4px 8px; font-size: 10px; }
 
 .col-video .frame {
-  flex: 1 1 auto; min-height: 0;
-  position: relative; background: var(--pit); border: 1px solid var(--line-2);
+  position: relative; width: 100%; aspect-ratio: 9 / 16;
+  background: #000; border: 1px solid var(--line-2);
 }
 .col-video .frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
 /* Instagram's embed carries its own header and caption; let it be white
@@ -75,6 +62,86 @@
     var(--pit);
 }
 .novideo p { margin: 0; color: var(--ink); font-size: 17px; }
+
+/* ---- desktop: one screen, the video as tall as the window --------------- */
+@media (min-width: 901px) {
+  .is-ep body { overflow: hidden; }
+  .ep {
+    --pad: 16px;
+    --vidh: calc(100vh - var(--rail) - 2 * var(--pad));
+    --vidw: min(calc(var(--vidh) * 9 / 16), 36vw);
+    height: calc(100vh - var(--rail));
+    padding: var(--pad);
+    display: grid;
+    grid-template-columns: var(--vidw) auto minmax(0, 1fr) minmax(250px, 320px);
+    grid-template-rows: auto auto auto minmax(0, 1fr);
+    grid-template-areas:
+      "video no   q    stats"
+      "video no   tags stats"
+      "video rule rule rule"
+      "video say  say  next";
+    column-gap: 22px;
+  }
+  .epno { grid-area: no; align-self: start; margin-top: 3px; }
+  .ep-q { grid-area: q; align-self: end; }
+  .qtags { grid-area: tags; margin: 10px 0 16px; }
+  .ep-stats { grid-area: stats; justify-self: end; align-self: start; }
+  .ep-rule { grid-area: rule; margin-bottom: 16px; }
+  .col-video { grid-area: video; }
+  .col-video .frame { max-height: 100%; }
+  .col-say { grid-area: say; }
+  .col-next { grid-area: next; }
+}
+/* narrower desktops: the three doors go in a row under your turn */
+@media (min-width: 901px) and (max-width: 1199px) {
+  .ep {
+    --vidw: min(calc(var(--vidh) * 9 / 16), 34vw);
+    grid-template-columns: var(--vidw) auto minmax(0, 1fr) auto;
+    grid-template-rows: auto auto auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      "video no   q    stats"
+      "video no   tags tags"
+      "video rule rule rule"
+      "video say  say  say"
+      "video next next next";
+  }
+  .col-next { padding-top: 14px; }
+  .col-next .col-head { margin-bottom: 8px; }
+  .col-next .doorstack { flex-direction: row; }
+  .col-next .door { flex: 1 1 0; padding: 10px 12px; gap: 4px; }
+  .col-next .door-q { font-size: 13.5px; }
+  .col-next .door-note { display: none; }
+}
+
+/* ---- phones: the video first and as big as the screen allows ------------ */
+@media (max-width: 900px) {
+  .ep {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas:
+      "no    q"
+      "video video"
+      "say   say"
+      "next  next"
+      "rule  rule"
+      "tags  tags"
+      "stats stats";
+    column-gap: 12px;
+    padding: 12px 12px 56px;
+  }
+  .epno { grid-area: no; font-size: 30px; align-self: center; }
+  .ep-q { grid-area: q; font-size: clamp(19px, 5.4vw, 28px); align-self: center; }
+  .ep-q .ctx { font-size: 10px; margin-left: 6px; padding: 2px 5px; }
+  /* edge to edge, and never taller than the screen under the question */
+  .col-video { grid-area: video; margin: 12px -12px 0; }
+  .col-video .frame { max-height: calc(100svh - var(--rail) - 96px); border-left: 0; border-right: 0; }
+  .col-say { grid-area: say; padding-top: 18px; }
+  .col-next { grid-area: next; padding-top: 30px; }
+  .ep-rule { grid-area: rule; margin: 30px 0 14px; }
+  .qtags { grid-area: tags; }
+  .ep-stats { grid-area: stats; margin-top: 12px; }
+  .alist { max-height: none; overflow: visible; }
+}
 
 /* ---- what the internet says ------------------------------------------ */
 .alist {
@@ -108,10 +175,10 @@
 
 /* ---- your answer ----------------------------------------------------- */
 .say { flex: 0 0 auto; margin: 0 0 calc(var(--u)*5); }
-.say-q {
-  display: block; margin-bottom: 8px;
-  font-size: 17px; font-weight: 600; letter-spacing: -.01em;
-}
+.say-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+.say-q { display: block; font-size: 17px; font-weight: 600; letter-spacing: -.01em; }
+.say-proof { color: var(--mid); text-align: right; }
+.say-proof b { color: var(--yellow); font-weight: 400; }
 .say textarea { font-size: 14px; }
 .say-row { display: flex; align-items: center; gap: var(--u); margin-top: var(--u); }
 .say-or { padding: 0 4px; }
@@ -158,24 +225,8 @@
 .door-q { font-size: 15.5px; line-height: 1.22; color: var(--ink); letter-spacing: -.012em; }
 .door-note { opacity: .65; }
 
-.averdict { margin-top: calc(var(--u)*3); border: 1px solid var(--line-2); padding: calc(var(--u)*3); background: var(--pit); flex: 0 0 auto; }
-.averdict .big { font-size: 16px; font-weight: 600; line-height: 1.16; margin-bottom: 5px; }
-.averdict .echo { border-left: 2px solid var(--line-2); padding-left: 10px; margin-top: 8px; color: var(--mid); font-size: 12.5px; }
-.averdict.alone { border-color: var(--red); } .averdict.alone .big { color: var(--red); }
-.averdict.withcrowd { border-color: var(--green); } .averdict.withcrowd .big { color: var(--green); }
 
-.col-foot { margin-top: auto; padding-top: calc(var(--u)*3); }
-.col-foot .btn { font-size: 10px; padding: 7px 11px; }
 
-/* ---- narrow: let the page scroll, stack the columns ------------------ */
-@media (max-width: 900px) {
-  .ep { height: auto; padding-bottom: 70px; }
-  .ep-title { grid-template-columns: auto 1fr; }
-  .ep-stats { grid-column: 1 / -1; justify-content: flex-start; }
-  .ep-cols { grid-template-columns: 1fr; }
-  .col-video .frame { aspect-ratio: 9/16; max-height: 62vh; flex: 0 0 auto; }
-  .alist { max-height: none; overflow: visible; }
-}
 /* an empty list shouldn't push the "be the first" line to the bottom */
 .alist:empty { flex: 0 0 auto; border-top: 0; }
 
@@ -188,11 +239,6 @@
 .alist .a.mine { margin-right: calc(var(--u) * -2); }
 .say-count { margin-left: auto; }
 .say-count.near { color: var(--yellow); }
-.ep-titletext h1 .ctx {
-  display: inline-block; vertical-align: middle; margin-left: 10px;
-  font-family: var(--mono); font-size: 12px; letter-spacing: .12em; font-weight: 400;
-  text-transform: uppercase; color: var(--yellow); border: 1px solid var(--line-2); padding: 3px 7px;
-}
 .filmpick .label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-transform: none; letter-spacing: .02em; }
 .a.pending .a-text { color: var(--mid); font-style: italic; }
 
@@ -212,6 +258,12 @@
 @media (hover: hover) { .a-flag .resend:hover { border-color: var(--yellow); } }
 .a-flag .resend[disabled] { opacity: .4; cursor: default; }
 
+
+/* phones: a bigger target for the one thing we're asking you to do */
 @media (max-width: 900px) {
-  .col-foot .btn { font-size: 11px; padding: 12px 16px; }
+  .say-q { font-size: 22px; letter-spacing: -.02em; }
+  .say textarea { font-size: 16px; }          /* 16px or iOS zooms the page on focus */
+  .say-row .btn { padding: 13px 18px; font-size: 12px; }
+  .say-row .btn.film { flex: 1 1 auto; justify-content: center; }
+  .say-row .btn-solid { flex: 0 0 auto; min-width: 96px; justify-content: center; }
 }
