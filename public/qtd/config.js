@@ -13,7 +13,7 @@
  * yet instead of pretending a send worked.
  */
 export const CONFIG = {
-  SHEET_URL: "https://script.google.com/macros/s/AKfycby2IeJ7UlFGfZyhGjPR4BGjYKTGFKYoeT26My4wa1mrzckS4CpKpQl39tM_ErIUl11S/exec",
+  SHEET_URL: "https://script.google.com/macros/s/AKfycbxyctofQEXzL5tYRuTABm_g-uUzhTi-lmQGKFmc9hSQOVWKxmdr51OwyaXLc9UvBsu1/exec",
 
   // Written answers appear on the page the moment they're sent. To pull a bad
   // one, put TRUE in the `hidden` column of the sheet row. Filmed answers are

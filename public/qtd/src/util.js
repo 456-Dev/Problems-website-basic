@@ -1,5 +1,7 @@
 /* Shared helpers. BASE resolves to the /qtd/ root from this module's own URL,
    so every page can sit at a different depth and still find the data. */
+import { CONFIG } from '../config.js';
+
 export const BASE = new URL('../', import.meta.url).href;
 
 export async function fetchJSON(url) {
@@ -44,7 +46,7 @@ export function matches(e, query) {
   const q = fold(query).trim();
   if (!q) return true;
   if (/^\d+$/.test(q)) return String(e.n) === q;
-  const hay = fold([e.question, e.context, e.topic, tagName(e), MOODS[e.mood],
+  const hay = fold([e.question, e.context, e.topic, tagName(e),
                     (e.places || []).join(' '), e.city, e.country, e.borough].join(' '));
   // words match from their start: "rio" is Rio, not se-rio-us
   return q.split(/\s+/).every(w => new RegExp('(^|[^a-z0-9])' + w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).test(hay));
@@ -73,4 +75,35 @@ export function todayOf(episodes) {
   const ordered = [...episodes].filter(e => e.question).sort((a, b) => a.n - b.n);
   const day = Math.floor((Date.now() - new Date().getTimezoneOffset() * 60000) / 86400000);
   return ordered[(day * 37) % ordered.length];
+}
+
+/* What the answer sheet's script can do. An old deployment answers every
+   request with its answer list and no version: it can't take films, list
+   suggestions or count views, so the pages say so instead of pretending. */
+let caps = null;
+export function backend() {
+  if (!caps) caps = (async () => {
+    if (!CONFIG.SHEET_URL) return { live: false, features: [] };
+    try {
+      const d = await jsonp(`${CONFIG.SHEET_URL}?version=1`, 10000);
+      return d && d.version ? { live: true, version: d.version, features: d.features || [] }
+                            : { live: true, old: true, features: ['text'] };
+    } catch { return { live: false, features: [] }; }
+  })();
+  return caps;
+}
+export const can = async f => (await backend()).features.includes(f);
+
+/* Page views: each page is counted once per visit (a reload in the same tab
+   doesn't count again). Resolves to { page, total } or null. */
+export async function views(path = location.pathname) {
+  if (!(await can('views'))) return null;
+  const key = `qtd.counted.${path}`;
+  let counted = false;
+  try { counted = !!sessionStorage.getItem(key); } catch {}
+  try {
+    const d = await jsonp(`${CONFIG.SHEET_URL}?hit=${encodeURIComponent(path)}&n=${counted ? 0 : 1}`);
+    try { sessionStorage.setItem(key, '1'); } catch {}
+    return d && d.ok ? d : null;
+  } catch { return null; }
 }

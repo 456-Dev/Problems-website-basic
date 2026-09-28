@@ -40,12 +40,11 @@
   <span class="epno num">85</span>
   <h1 class="ep-q"><span class="q">What Do You Think About New Jersey?</span></h1>
   <div class="qtags">
-    <span class="qt">PLACE &amp; EVENT</span><span class="qt">PLACES</span><span class="qt">LIGHT</span>
+    <span class="qt">PLACE &amp; EVENT</span><span class="qt">PLACES</span>
     <span class="label ep-meta">NEW YORK, USA  ·  POSTED 05 OCT 2025</span>
   </div>
   <div class="ep-stats">
-    <div><b class="num" id="anscount">24</b><span class="label" id="ansnote">answers</span></div>
-    
+    <div id="viewstat" hidden><b class="num" id="viewcount">0</b><span class="label">views</span></div>
     <button class="share" id="sharebtn" type="button"><b aria-hidden="true">&#8599;</b><span class="label">Share</span></button>
   </div>
   <i class="ep-rule" aria-hidden="true"></i>
@@ -53,7 +52,7 @@
   <!-- the video itself -->
   <section class="col col-video">
     <div class="frame">
-      <button class="poster" id="poster" type="button" data-video="6pVSuMdBAhU" aria-label="Play episode 85"><img src="../../media/thumbs/85.jpg" alt="" decoding="async"><span class="play" aria-hidden="true"></span><span class="label poster-note">Watch · 24 strangers answer</span></button>
+      <button class="poster" id="poster" type="button" data-video="6pVSuMdBAhU" aria-label="Play episode 85"><img src="../../media/thumbs/85.jpg" alt="" decoding="async"><span class="play" aria-hidden="true"></span><span class="label poster-note">Watch</span></button>
     </div>
   </section>
 
@@ -62,7 +61,6 @@
     <form class="say" id="addform" autocomplete="off">
       <div class="say-head">
         <label class="say-q" for="atext">Your turn</label>
-        <span class="label say-proof" id="sayproof">24 answered on the street</span>
       </div>
       <textarea id="atext" rows="3" maxlength="600" placeholder="What would you say? No name, no account."></textarea>
       <input class="sr" id="hp" type="text" tabindex="-1" aria-hidden="true">
@@ -83,7 +81,6 @@
 
     <div class="col-head spread">
       <h2>What the internet says</h2>
-      <span class="label" id="saycount"></span>
     </div>
     <ol class="alist" id="alist" tabindex="0" aria-label="Answers from people online"></ol>
     <p class="empty" id="sayempty">Loading answers from online…</p>
@@ -93,15 +90,15 @@
   <section class="col col-next">
     <div class="col-head spread"><h2>Ask the next question</h2><span class="stepper"><a class="btn mini" href="../84/" aria-label="Episode 84">← 84</a><a class="btn mini" href="../86/" aria-label="Episode 86">86 →</a></span></div>
     <div class="doorstack">
-        <a class="door door-near" href="../9/" data-pool="[[9, &quot;What Is Your Favorite Thing About Jersey City?&quot;, &quot;PLACE &amp; EVENT \u00b7 LIGHT&quot;], [165, &quot;What Do You Think About Brazil?&quot;, &quot;PLACE &amp; EVENT \u00b7 CURIOUS&quot;], [103, &quot;Why Do You Live Here?&quot;, &quot;PLACE &amp; EVENT \u00b7 CURIOUS&quot;], [47, &quot;What Do You Think About China?&quot;, &quot;PLACE &amp; EVENT \u00b7 CURIOUS&quot;], [90, &quot;\u00bfCu\u00e1l Es Tu Opini\u00f3n De Nueva York?&quot;, &quot;PLACE &amp; EVENT \u00b7 CURIOUS&quot;], [181, &quot;What Is It Like To Live In The Southern Hemisphere?&quot;, &quot;PLACE &amp; EVENT \u00b7 LIGHT&quot;], [116, &quot;Do You Feel At Home?&quot;, &quot;PLACE &amp; EVENT \u00b7 CURIOUS&quot;], [198, &quot;What Do You Think About Tourists?&quot;, &quot;PLACE &amp; EVENT \u00b7 LIGHT&quot;], [135, &quot;Why Are You In The Arctic?&quot;, &quot;PLACE &amp; EVENT \u00b7 LIGHT&quot;], [117, &quot;What Would You Tell Every Emirati?&quot;, &quot;PLACE &amp; EVENT \u00b7 CURIOUS&quot;]]">
+        <a class="door door-near" href="../9/" data-pool="[[9, &quot;What Is Your Favorite Thing About Jersey City?&quot;, &quot;PLACE &amp; EVENT \u00b7 PLACES&quot;], [165, &quot;What Do You Think About Brazil?&quot;, &quot;PLACE &amp; EVENT \u00b7 PLACES&quot;], [103, &quot;Why Do You Live Here?&quot;, &quot;PLACE &amp; EVENT \u00b7 PLACES&quot;], [47, &quot;What Do You Think About China?&quot;, &quot;PLACE &amp; EVENT \u00b7 PLACES&quot;], [90, &quot;\u00bfCu\u00e1l Es Tu Opini\u00f3n De Nueva York?&quot;, &quot;PLACE &amp; EVENT \u00b7 PLACES&quot;], [181, &quot;What Is It Like To Live In The Southern Hemisphere?&quot;, &quot;PLACE &amp; EVENT \u00b7 PLACES&quot;], [116, &quot;Do You Feel At Home?&quot;, &quot;PLACE &amp; EVENT \u00b7 PLACES&quot;], [198, &quot;What Do You Think About Tourists?&quot;, &quot;PLACE &amp; EVENT \u00b7 PLACES&quot;], [135, &quot;Why Are You In The Arctic?&quot;, &quot;PLACE &amp; EVENT \u00b7 PLACES&quot;], [117, &quot;What Would You Tell Every Emirati?&quot;, &quot;PLACE &amp; EVENT \u00b7 PLACES&quot;]]">
           <span class="label">Same kind of question</span>
           <span class="door-q">What Is Your Favorite Thing About Jersey City?</span>
-          <span class="label door-note">PLACE &amp; EVENT · LIGHT</span>
+          <span class="label door-note">PLACE &amp; EVENT · PLACES</span>
         </a>
-        <a class="door door-far" href="../72/" data-pool="[[72, &quot;What Is A Soul?&quot;, &quot;DEEP \u00b7 SERIOUS&quot;], [144, &quot;How Can We Achieve World Peace?&quot;, &quot;DEEP \u00b7 SERIOUS&quot;], [19, &quot;What Would Make Your Life Complete?&quot;, &quot;PERSONAL \u00b7 SERIOUS&quot;], [97, &quot;What Is Your Problem?&quot;, &quot;PERSONAL \u00b7 SERIOUS&quot;], [44, &quot;What Do You Think About Globalism?&quot;, &quot;DEEP \u00b7 SERIOUS&quot;], [183, &quot;What Is Hate?&quot;, &quot;DEEP \u00b7 HEAVY&quot;], [25, &quot;How Would You Define Racism?&quot;, &quot;DEEP \u00b7 HEAVY&quot;], [170, &quot;How Can We Improve Air Quality?&quot;, &quot;DEEP \u00b7 SERIOUS&quot;], [59, &quot;When Was The Last Time You Cried?&quot;, &quot;PERSONAL \u00b7 SERIOUS&quot;], [109, &quot;What Do You Think About Atheists?&quot;, &quot;DEEP \u00b7 SERIOUS&quot;]]">
+        <a class="door door-far" href="../72/" data-pool="[[72, &quot;What Is A Soul?&quot;, &quot;DEEP \u00b7 BIG IDEAS&quot;], [144, &quot;How Can We Achieve World Peace?&quot;, &quot;DEEP \u00b7 SOCIETY&quot;], [19, &quot;What Would Make Your Life Complete?&quot;, &quot;PERSONAL \u00b7 DAILY LIFE&quot;], [97, &quot;What Is Your Problem?&quot;, &quot;PERSONAL \u00b7 DAILY LIFE&quot;], [44, &quot;What Do You Think About Globalism?&quot;, &quot;DEEP \u00b7 SOCIETY&quot;], [183, &quot;What Is Hate?&quot;, &quot;DEEP \u00b7 BIG IDEAS&quot;], [25, &quot;How Would You Define Racism?&quot;, &quot;DEEP \u00b7 SOCIETY&quot;], [170, &quot;How Can We Improve Air Quality?&quot;, &quot;DEEP \u00b7 SOCIETY&quot;], [59, &quot;When Was The Last Time You Cried?&quot;, &quot;PERSONAL \u00b7 DAILY LIFE&quot;], [109, &quot;What Do You Think About Atheists?&quot;, &quot;DEEP \u00b7 BIG IDEAS&quot;]]">
           <span class="label">Completely different</span>
           <span class="door-q">What Is A Soul?</span>
-          <span class="label door-note">DEEP · SERIOUS</span>
+          <span class="label door-note">DEEP · BIG IDEAS</span>
         </a>
       <button class="door door-any" id="anydoor" type="button">
         <span class="label">Anything at all</span>

@@ -1,4 +1,6 @@
-import { BASE, fetchJSON, esc, tagName, MOODS, matches } from './util.js';
+import { BASE, fetchJSON, esc, tagName, matches, views } from './util.js';
+
+views();
 
 const rowsEl = document.getElementById('rows');
 const countEl = document.getElementById('count');
@@ -21,7 +23,6 @@ function render() {
       <td class="epn">${e.n}</td>
       <td><a class="eq" href="${BASE}e/${e.n}/">${esc(e.question)}</a>${e.context ? ` <span class="ctx">${esc(e.context)}</span>` : ''}</td>
       <td class="where hideS">${esc(e.topic || '')}</td>
-      <td class="where hideS">${esc(MOODS[e.mood] || '')}</td>
       <td><span class="qt">${esc(tagName(e))}</span></td>
     </tr>`).join('');
   countEl.textContent = `${sorted.length} of ${eps.length} episodes`;
@@ -32,13 +33,13 @@ document.getElementById('sorts').addEventListener('click', e => {
   const k = b.dataset.k;
   // same column twice flips direction; a new column starts descending for
   // the measures and ascending for episode order
-  if (k === sortKey) desc = !desc; else { sortKey = k; desc = !(k === 'n' || k === 'mood'); }
+  if (k === sortKey) desc = !desc; else { sortKey = k; desc = k !== 'n'; }
   marks();
   render();
 });
 
 // which way the active column reads, spelled out where arrows would be vague
-const DIR = { n: d => d ? '\u2193' : '\u2191', mood: d => d ? 'silly first' : 'heavy first' };
+const DIR = { n: d => d ? '\u2193' : '\u2191' };
 function marks() {
   [...document.getElementById('sorts').children].forEach(x => {
     x.setAttribute('aria-pressed', String(x.dataset.k === sortKey));

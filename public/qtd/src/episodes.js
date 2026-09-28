@@ -1,7 +1,9 @@
 /* Episodes: every question as a card with a face from the episode. The
    number is loud, the question is always there, and pointing at a card flips
    through the other people who answered it. Today's question leads, big. */
-import { BASE, fetchJSON, esc, matches, tagOf, tagName, heroUrl, faceUrl, todayOf } from './util.js';
+import { BASE, fetchJSON, esc, matches, tagOf, tagName, heroUrl, faceUrl, todayOf, views } from './util.js';
+
+views();
 
 const grid = document.getElementById('grid');
 const countEl = document.getElementById('count');
@@ -29,7 +31,7 @@ function card(e, big) {
     ${big ? '<span class="today label">Today’s question</span>' : ''}
     <span class="foot">
       <span class="q">${esc(e.question)}${e.context ? ` <em>${esc(e.context)}</em>` : ''}</span>
-      <span class="meta label">${place ? esc(place) + ' · ' : ''}${e.answerCount ? `${e.answerCount} people` : ''}${seen.has(e.n) ? ' · <b>seen</b>' : ''}</span>
+      <span class="meta label">${esc(place)}${seen.has(e.n) ? `${place ? ' · ' : ''}<b>seen</b>` : ''}</span>
     </span>
   </a>`;
 }

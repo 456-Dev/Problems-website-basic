@@ -4,7 +4,7 @@
    (95% the same: it counts as your vote, never a second line). Under it, the
    list of suggestions, most wanted first. Behind it, a wall of the strangers
    who already answered: point at one to see what they were asked. */
-import { BASE, fetchJSON, esc, jsonp, clamp, todayOf } from './util.js';
+import { BASE, fetchJSON, esc, jsonp, clamp, todayOf, can, views } from './util.js';
 import { CONFIG } from '../config.js';
 import { closest, SAME } from './similar.js';
 
@@ -77,12 +77,14 @@ form.addEventListener('submit', async e => {
     setTimeout(() => { location.href = `${BASE}e/${n}/`; }, reduce ? 250 : 1300);
     return;
   }
-  if (!CONFIG.SHEET_URL) { setStatus('Suggestions aren’t open yet.', 'err'); return; }
+  if (!CONFIG.SHEET_URL || S.feed === 'off' || !(await can('suggest'))) {
+    setStatus('We haven’t asked that yet. Suggestions open soon — try again in a day or two.', 'err'); return;
+  }
   S.busy = true; go.disabled = true;
   setStatus('Sending…');
   try {
     const d = await jsonp(`${CONFIG.SHEET_URL}?suggest=${encodeURIComponent(text)}`);
-    if (!d || d.ok === false) throw new Error((d && d.error) || 'failed');
+    if (!d || d.ok === false || !d.id) throw new Error((d && d.error) || 'failed');
     S.sugg = d.suggestions || S.sugg || [];
     S.feed = 'ok';
     S.voted.add(d.id); saveVoted();
@@ -118,7 +120,8 @@ function renderBoard() {
     board.innerHTML = '';
     empty.hidden = false;
     empty.textContent = S.feed === 'failed' ? 'Couldn’t load the suggestions right now. Try again in a minute.'
-                                            : 'Loading what people want asked…';
+      : S.feed === 'off' ? 'Suggestions open soon. You can still type a question to see if we’ve asked it.'
+      : 'Loading what people want asked…';
     more.hidden = true;
     return;
   }
@@ -169,11 +172,13 @@ $('boardsort').addEventListener('click', e => {
 more.addEventListener('click', () => { S.showAll = !S.showAll; renderBoard(); });
 
 async function loadSuggestions() {
-  if (!CONFIG.SHEET_URL) { S.sugg = []; renderBoard(); return; }
+  if (!CONFIG.SHEET_URL || !(await can('suggest'))) {
+    S.feed = 'off'; S.sugg = null; renderBoard(); return;
+  }
   try {
     const d = await jsonp(`${CONFIG.SHEET_URL}?suggestions=1`);
-    if (!d || d.ok === false) throw new Error('feed');
-    S.sugg = d.suggestions || [];
+    if (!d || d.ok === false || !Array.isArray(d.suggestions)) throw new Error('feed');
+    S.sugg = d.suggestions;
     S.feed = 'ok';
   } catch {
     S.feed = 'failed';
@@ -322,14 +327,18 @@ addEventListener('resize', () => { clearTimeout(rT); rT = setTimeout(buildWall, 
 addEventListener('scroll', () => { measure(); }, { passive: true });
 
 /* ---------- boot ----------------------------------------------------------- */
+views().then(v => {
+  if (!v) return;
+  $('nvisits').textContent = v.total.toLocaleString();
+  $('nvisitsw').textContent = v.total === 1 ? 'visit' : 'visits';
+  $('visits').hidden = false;
+});
 renderBoard();
 loadSuggestions();
 fetchJSON(`${BASE}data/episodes.json`).then(d => {
   S.eps = d.episodes.filter(e => e.question);
   S.byN = new Map(S.eps.map(e => [e.n, e]));
   $('neps').textContent = S.eps.length;
-  const people = S.eps.reduce((sum, e) => sum + (e.answerCount || 0), 0);
-  $('npeople').textContent = people.toLocaleString();
   const t = todayOf(S.eps);
   if (t) {
     $('today').href = `${BASE}e/${t.n}/`;

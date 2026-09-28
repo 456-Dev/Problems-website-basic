@@ -41,7 +41,7 @@
       and keeps nearly every answer.</p>
     <dl class="a-stats">
       <div><dt class="label">questions asked</dt><dd class="num" id="s-q">200+</dd></div>
-      <div><dt class="label">strangers answered</dt><dd class="num" id="s-p">5,000+</dd></div>
+      <div id="s-vwrap" hidden><dt class="label">visits here</dt><dd class="num" id="s-v">0</dd></div>
       <div><dt class="label">places</dt><dd class="num" id="s-c">30+</dd></div>
     </dl>
   </section>
@@ -102,7 +102,7 @@
     <div class="a-guide">
       <a href="../episodes/"><h3>Episodes</h3><p>Every question, with a face from the people who answered it. Point at one to see the rest of them.</p></a>
       <a href="../map/"><h3>Map</h3><p>A globe of everywhere we stopped. Spin it; the questions asked nearby drift in. New York zooms into every walk.</p></a>
-      <a href="../list/"><h3>Index</h3><p>The plain list, in order, or from the heaviest question to the silliest.</p></a>
+      <a href="../list/"><h3>Index</h3><p>The plain list, every question in order, with its topic and tag.</p></a>
     </div>
     <div class="a-tags">
       <p class="label">The four tags</p>
@@ -112,7 +112,7 @@
         <li><span class="qt">Deep</span> the big ones, and the hard ones</li>
         <li><span class="qt">Personal</span> about you: memories, fears, habits</li>
       </ul>
-      <p class="a-note">Tags, topics and moods are read from each question by a person — never worked out from anyone’s answers.</p>
+      <p class="a-note">Tags and topics are read from each question by a person — never worked out from anyone’s answers.</p>
     </div>
   </section>
 
@@ -122,12 +122,16 @@
   </footer>
 </main>
 <script type="module">
-  import { BASE, fetchJSON, todayOf } from '../src/util.js';
+  import { BASE, fetchJSON, todayOf, views } from '../src/util.js';
+  views().then(v => {
+    if (!v) return;
+    document.getElementById('s-v').textContent = v.total.toLocaleString();
+    document.getElementById('s-vwrap').hidden = false;
+  });
   fetchJSON(`${BASE}data/episodes.json`).then(d => {
     const eps = d.episodes.filter(e => e.question);
     const places = new Set(eps.map(e => (e.places && e.places[0]) || e.city).filter(Boolean));
     document.getElementById('s-q').textContent = eps.length;
-    document.getElementById('s-p').textContent = eps.reduce((s, e) => s + (e.answerCount || 0), 0).toLocaleString();
     document.getElementById('s-c').textContent = places.size;
     document.getElementById('gen').textContent = `updated ${d.generated}`;
     const t = todayOf(eps);

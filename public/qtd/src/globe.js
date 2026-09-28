@@ -4,7 +4,9 @@
    fanning out into every episode there as you zoom. Questions asked near
    whatever you're looking at drift in and out, each with an arrow to where it
    was asked. Zoom into New York and the globe hands over to the walks. */
-import { BASE, fetchJSON, esc, clamp, faceUrl, tagName } from './util.js';
+import { BASE, fetchJSON, esc, clamp, faceUrl, tagName, views } from './util.js';
+
+views();
 
 const d3 = window.d3;
 const $ = id => document.getElementById(id);

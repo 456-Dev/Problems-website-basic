@@ -1,13 +1,12 @@
 /* One episode on one screen: the video, your answer (written or filmed), what
    everyone online has said, and the next question. The street answers are
    the video itself; this page only lists what came in through the internet. */
-import { BASE, esc, fetchJSON } from './util.js';
+import { BASE, esc, fetchJSON, can, views } from './util.js';
 import { CONFIG } from '../config.js';
 
 const main = document.querySelector('.ep');
 const EP = +main.dataset.ep;
 const VIDEO = main.dataset.video;
-const STREET = +main.dataset.street || 0;
 const QUESTION = document.querySelector('.ep-q .q')?.textContent
   || document.querySelector('.ep-q')?.textContent || '';
 const MAX = 600;
@@ -15,7 +14,6 @@ const MAX = 600;
 const list = document.getElementById('alist');
 const empty = document.getElementById('sayempty');
 const status = document.getElementById('astatus');
-const sayCount = document.getElementById('saycount');
 const text = document.getElementById('atext');
 
 function setStatus(msg, kind) {
@@ -137,15 +135,6 @@ function paint() {
     ? 'Couldn’t load the answers from online right now. Try again in a minute.'
     : feed === 'loading' ? 'Loading answers from online…'
     : 'Nobody online has answered this one yet. You could be first.';
-  sayCount.textContent = online ? `${online} online` : '';
-  document.getElementById('anscount').textContent = STREET + online;
-  // social proof where you answer: the street went first, now you
-  document.getElementById('sayproof').innerHTML = `<b>${STREET}</b> answered on the street` +
-    (online ? ` · <b>${online}</b> online` : '');
-  document.getElementById('ansnote').textContent =
-    online ? `${STREET} in the video · ${online} online`
-    : feed === 'loading' && CONFIG.SHOW_SUBMISSIONS ? `in the video · loading online`
-    : (STREET === 1 ? 'answer' : 'answers');
 }
 
 function readFeed() {
@@ -311,6 +300,14 @@ list.addEventListener('click', async e => {
   const reset = () => { input.value = ''; pick.hidden = true; };
 
   filmBtn.onclick = () => input.click();     // phones open the front camera
+  // an older sheet script drops filmed answers without a word: don't offer it then
+  can('video').then(ok => {
+    if (ok) return;
+    filmBtn.disabled = true;
+    filmBtn.title = 'Filmed answers open soon';
+    filmBtn.querySelector('i')?.remove();
+    filmBtn.lastChild.textContent = 'Filming opens soon';
+  });
   document.getElementById('vcancel').onclick = () => { reset(); setStatus(''); filmBtn.focus(); };
 
   // what the first bytes of a real clip look like: MP4/MOV/3GP boxes, WebM/MKV, AVI
@@ -372,6 +369,14 @@ list.addEventListener('click', async e => {
     } finally { send.disabled = filmBtn.disabled = false; }
   };
 })();
+
+/* ---------- how many have looked at this page ----------------------------- */
+views().then(v => {
+  if (!v) return;
+  document.getElementById('viewcount').textContent = v.page.toLocaleString();
+  document.querySelector('#viewstat .label').textContent = v.page === 1 ? 'view' : 'views';
+  document.getElementById('viewstat').hidden = false;
+});
 
 /* ---------- the video: a face until you press play ------------------------ */
 (function poster() {
