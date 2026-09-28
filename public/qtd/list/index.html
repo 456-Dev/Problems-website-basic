@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Index — Question The Day</title>
-<meta name="description" content="Every episode of Question The Day, sortable by topic, mood, kind of question and views.">
+<meta name="description" content="Every episode of Question The Day, sortable by episode and mood, with topics and tags.">
 <link rel="icon" type="image/png" sizes="32x32" href="../media/icon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="../media/icon-192.png">
 <link rel="apple-touch-icon" href="../media/apple-touch-icon.png">
@@ -12,7 +12,7 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Question The Day">
 <meta property="og:title" content="Index — Question The Day">
-<meta property="og:description" content="Every episode of Question The Day, sortable by topic, mood, kind of question and views.">
+<meta property="og:description" content="Every episode of Question The Day, sortable by episode and mood, with topics and tags.">
 <meta property="og:url" content="https://456solutions.org/qtd/list/">
 <meta property="og:image" content="https://456solutions.org/qtd/media/og-card.png">
 <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
@@ -24,7 +24,7 @@
 <header class="topbar">
   <a class="wordmark" href="../"><i></i>Question The Day</a>
   <nav class="navlinks">
-    <a href="../">Dial</a>
+    <a href="../">Ask</a>
     <a href="../episodes/">Episodes</a>
     <a href="../map/">Map</a>
     <a href="./" aria-current="page">Index</a>
@@ -35,7 +35,7 @@
 <main class="wrap listpage">
   <div class="listhead">
     <h1>Every question</h1>
-    <p>Every question, in order. Sort by <span class="y">mood</span> to go from the heaviest to the silliest.</p>
+    <p>Every question, in order. Sort by mood to go from the heaviest to the silliest.</p>
   </div>
 
   <div class="ticks"></div>
@@ -43,10 +43,8 @@
   <div class="toolbar">
     <input id="f" type="text" placeholder="filter: a word, a topic, a place, or an episode number" autocomplete="off">
     <div class="sorts" id="sorts">
-      <button class="btn" data-k="n"       aria-pressed="true">EPISODE</button>
-
+      <button class="btn" data-k="n" aria-pressed="true">EPISODE</button>
       <button class="btn" data-k="mood">MOOD</button>
-      <button class="btn" data-k="views">VIEWS</button>
     </div>
   </div>
 
@@ -54,7 +52,7 @@
     <table class="etable">
       <thead>
         <tr><th>EP</th><th>Question</th><th class="hideS">Topic</th><th class="hideS">Mood</th>
-            <th>Kind</th><th class="ra hideS">Views</th></tr>
+            <th>Tag</th></tr>
       </thead>
       <tbody id="rows"></tbody>
     </table>

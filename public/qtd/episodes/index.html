@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Episodes — Question The Day</title>
-<meta name="description" content="Every episode of Question The Day as a wall of faces.">
+<meta name="description" content="Every question Question The Day asked strangers, and the faces of the people who answered.">
 <link rel="icon" type="image/png" sizes="32x32" href="../media/icon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="../media/icon-192.png">
 <link rel="apple-touch-icon" href="../media/apple-touch-icon.png">
@@ -12,7 +12,7 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Question The Day">
 <meta property="og:title" content="Episodes — Question The Day">
-<meta property="og:description" content="Every episode of Question The Day as a wall of faces.">
+<meta property="og:description" content="Every question Question The Day asked strangers, and the faces of the people who answered.">
 <meta property="og:url" content="https://456solutions.org/qtd/episodes/">
 <meta property="og:image" content="https://456solutions.org/qtd/media/og-card.png">
 <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
@@ -24,7 +24,7 @@
 <header class="topbar">
   <a class="wordmark" href="../"><i></i>Question The Day</a>
   <nav class="navlinks">
-    <a href="../">Dial</a>
+    <a href="../">Ask</a>
     <a href="./" aria-current="page">Episodes</a>
     <a href="../map/">Map</a>
     <a href="../list/">Index</a>
@@ -32,18 +32,27 @@
   </nav>
 </header>
 
-<main class="gridpage">
-  <div class="gridbar">
-    <input id="f" type="text" placeholder="filter: a word, a topic, a city" autocomplete="off" spellcheck="false">
-    <div class="sorts" id="sorts">
-      <button class="btn" data-k="n" aria-pressed="true">NEWEST</button>
-      <button class="btn" data-k="views">VIEWS</button>
-      <button class="btn" data-k="answerCount">ANSWERS</button>
-      <button class="btn" data-k="mood">SILLIEST</button>
+<main class="eppage">
+  <div class="ephead">
+    <h1>Every question we asked. <span class="dim">Pick a face.</span></h1>
+    <div class="epbar">
+      <input id="f" type="text" placeholder="Search: a word, a city, a number" autocomplete="off" spellcheck="false" aria-label="Search the episodes">
+      <div class="tagpick" id="tags" role="group" aria-label="Show only one kind of question">
+        <button data-tag="" aria-pressed="true">All</button>
+        <button data-tag="fun" aria-pressed="false">Fun</button>
+        <button data-tag="event" aria-pressed="false">Place &amp; event</button>
+        <button data-tag="deep" aria-pressed="false">Deep</button>
+        <button data-tag="personal" aria-pressed="false">Personal</button>
+      </div>
+      <div class="order" id="order" role="group" aria-label="Order">
+        <button data-o="new" aria-pressed="true">Newest</button>
+        <button data-o="old" aria-pressed="false">Oldest</button>
+        <button data-o="mix" aria-pressed="false">Shuffle</button>
+      </div>
+      <span class="label" id="count"></span>
     </div>
-    <span class="label" id="count"></span>
   </div>
-  <div class="grid" id="grid"></div>
+  <div class="cards" id="grid"></div>
 </main>
 
 <script type="module" src="../src/episodes.js"></script>

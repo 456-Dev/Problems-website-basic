@@ -373,6 +373,23 @@ list.addEventListener('click', async e => {
   };
 })();
 
+/* ---------- the video: a face until you press play ------------------------ */
+(function poster() {
+  const b = document.getElementById('poster');
+  if (!b) return;
+  b.addEventListener('click', () => {
+    const f = document.createElement('iframe');
+    f.id = 'player';
+    f.title = `Episode ${EP} on YouTube`;
+    f.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture';
+    f.allowFullscreen = true;
+    f.referrerPolicy = 'strict-origin-when-cross-origin';
+    f.src = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(b.dataset.video)}?rel=0&autoplay=1&playsinline=1`;
+    b.replaceWith(f);
+    f.focus();
+  });
+})();
+
 /* ---------- share the question ------------------------------------------- */
 (function share() {
   const b = document.getElementById('sharebtn');
@@ -405,10 +422,8 @@ list.addEventListener('click', async e => {
     try { pool = JSON.parse(door.dataset.pool); } catch { return; }
     const next = pool.find(([n]) => !seen.has(n) && n !== EP);
     if (!next) return;
-    const [n, question, tags, tclass] = next;
+    const [n, question, tags] = next;
     door.href = `../${n}/`;
-    door.classList.remove('t-big', 't-hot', 't-you');
-    if (tclass) door.classList.add(tclass);
     door.querySelector('.door-q').textContent = question;
     door.querySelector('.door-note').textContent = tags;
   });

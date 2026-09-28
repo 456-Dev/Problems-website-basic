@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>About — Question The Day</title>
-<meta name="description" content="One question, twenty-five strangers, almost no filtering. What Question The Day is and how to explore it.">
+<meta name="description" content="Question The Day: one question, about twenty-five strangers on the street, almost no filtering. What it is, why, and how to take part.">
 <link rel="icon" type="image/png" sizes="32x32" href="../media/icon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="../media/icon-192.png">
 <link rel="apple-touch-icon" href="../media/apple-touch-icon.png">
@@ -24,7 +24,7 @@
 <header class="topbar">
   <a class="wordmark" href="../"><i></i>Question The Day</a>
   <nav class="navlinks">
-    <a href="../">Dial</a>
+    <a href="../">Ask</a>
     <a href="../episodes/">Episodes</a>
     <a href="../map/">Map</a>
     <a href="../list/">Index</a>
@@ -32,67 +32,113 @@
   </nav>
 </header>
 
-<main class="wrap about">
-  <h1>One question.<br>Twenty-five strangers.<br>Almost no filtering.</h1>
+<main class="about">
+  <section class="a-hero wrap">
+    <p class="label">About Question The Day</p>
+    <h1>One question.<br>About twenty-five strangers.<br><span class="dim">Almost no filtering.</span></h1>
+    <p class="a-lede">A street-interview series by Michael — <a href="https://www.instagram.com/bignosemichael/" target="_blank" rel="noopener">Big Nose Michael</a>.
+      Every episode he picks one question, walks up to strangers, asks every one of them the same thing,
+      and keeps nearly every answer.</p>
+    <dl class="a-stats">
+      <div><dt class="label">questions asked</dt><dd class="num" id="s-q">200+</dd></div>
+      <div><dt class="label">strangers answered</dt><dd class="num" id="s-p">5,000+</dd></div>
+      <div><dt class="label">places</dt><dd class="num" id="s-c">30+</dd></div>
+    </dl>
+  </section>
 
-  <div class="ticks"></div>
+  <!-- the people themselves, drifting past -->
+  <div class="a-faces" id="faces" aria-hidden="true"><div class="a-track" id="track"></div></div>
 
-  <section class="cols">
-    <div>
-      <div class="label">The premise</div>
-      <p>Michael walks up to strangers, asks every one of them the same question,
-         and keeps nearly every answer. Two hundred episodes of it — from New York
-         to Fiji, Istanbul, Dakar and Rio. <a href="../map/">See the map.</a></p>
-      <p>No question has a right answer. The fun is in how many different
-         directions twenty-five people can take the same few words.</p>
+  <section class="a-why wrap">
+    <div class="label">Why</div>
+    <h2>It isn’t a poll.</h2>
+    <div class="a-cols">
+      <p>Nobody is counted, ranked or graded here, and no answer is the right one. The point is range:
+         how many different directions twenty-five people take the same few words — the joke, the
+         confession, the lecture, the shrug.</p>
+      <p>Some questions are huge (<i>What is reality?</i>), some are about where we were standing
+         (<i>What do you think about tourists?</i>), some are just fun (<i>What is your least favorite
+         number?</i>). Curiosity is the only rule.</p>
     </div>
-    <div>
-      <div class="label">The dial</div>
-      <p><a href="../">The dial</a> puts every question on one face. <b>Around</b>
-         it: the topic. <b>Outward</b>: the mood, heavy near the middle, silly at the
-         rim. The colour says what the question asks of you — a
-         <b class="y">big question</b>, a <b class="r">hot take</b>, or something
-         <b class="g">about you</b>.</p>
-      <p>It opens on the Question of the Day — a new one every day. Point at (or tap)
-         any mark to read another; left alone, it wanders through them by itself.</p>
+  </section>
+
+  <section class="a-how wrap">
+    <div class="label">How an episode happens</div>
+    <ol class="a-steps">
+      <li><b class="num">1</b><h3>A question</h3><p>Timely, silly, or enormous. One per episode, asked word for word to everyone.</p></li>
+      <li><b class="num">2</b><h3>The street</h3><p>Mostly New York, and a trip through thirty-odd cities — Manila, Cape Town, Budapest, Rio. Whoever stops, answers.</p></li>
+      <li><b class="num">3</b><h3>The cut</h3><p>Nearly every answer stays in. A minute or two, a whole street of opinions.</p></li>
+      <li><b class="num">4</b><h3>Posted</h3><p>On YouTube and Instagram as <a href="https://www.instagram.com/bignosemichael/" target="_blank" rel="noopener">@bignosemichael</a>, and every one lives here with its own page.</p></li>
+    </ol>
+  </section>
+
+  <section class="a-you wrap">
+    <div class="label">Your part</div>
+    <h2>You’re the twenty-sixth stranger.</h2>
+    <div class="a-cards">
+      <a class="a-card" href="../">
+        <span class="label">1 · Suggest</span>
+        <h3>What should we ask next?</h3>
+        <p>Put a question on the list; the most wanted get asked. Suggest one that’s already there and it counts as your vote. Already asked on the street? We take you straight to that video.</p>
+        <span class="go">Suggest a question →</span>
+      </a>
+      <a class="a-card" href="../episodes/" id="answerlink">
+        <span class="label">2 · Answer</span>
+        <h3>Answer any of them</h3>
+        <p>Every episode page asks you too. Write an answer — anonymous, no account, up straight away — or film yourself; filmed answers are watched before they appear.</p>
+        <span class="go">Answer today’s question →</span>
+      </a>
+      <a class="a-card" href="../episodes/">
+        <span class="label">3 · Pass it on</span>
+        <h3>Ask someone else</h3>
+        <p>Every episode has a Share button. The best version of this is you asking the person next to you.</p>
+        <span class="go">Find a question →</span>
+      </a>
     </div>
   </section>
 
-  <div class="ticks"></div>
-
-  <section class="method">
-    <div class="label">How the tags work</div>
-    <h2>Read, not measured</h2>
-    <p>Topic, mood and kind of question are editorial calls, made by reading each
-       question — never by analysing anyone's answers. Disagree with one? Tell
-       Michael on Instagram, <a href="https://www.instagram.com/bignosemichael/"
-       target="_blank" rel="noopener">@bignosemichael</a>.</p>
+  <section class="a-map wrap">
+    <div class="label">Finding your way around</div>
+    <div class="a-guide">
+      <a href="../episodes/"><h3>Episodes</h3><p>Every question, with a face from the people who answered it. Point at one to see the rest of them.</p></a>
+      <a href="../map/"><h3>Map</h3><p>A globe of everywhere we stopped. Spin it; the questions asked nearby drift in. New York zooms into every walk.</p></a>
+      <a href="../list/"><h3>Index</h3><p>The plain list, in order, or from the heaviest question to the silliest.</p></a>
+    </div>
+    <div class="a-tags">
+      <p class="label">The four tags</p>
+      <ul>
+        <li><span class="qt">Fun</span> light, silly, for laughing</li>
+        <li><span class="qt">Place &amp; event</span> about where we were, or what was happening</li>
+        <li><span class="qt">Deep</span> the big ones, and the hard ones</li>
+        <li><span class="qt">Personal</span> about you: memories, fears, habits</li>
+      </ul>
+      <p class="a-note">Tags, topics and moods are read from each question by a person — never worked out from anyone’s answers.</p>
+    </div>
   </section>
 
-  <div class="ticks"></div>
-
-  <section class="add-cta">
-    <h2>Your turn</h2>
-    <p>Every episode page asks you the question too. Written answers go up
-       straight away, unfiltered, like the strangers’. Filmed ones are watched
-       first. Then the page asks you the next question.</p>
-    <a class="btn btn-solid" href="../" id="todaylink">Today’s question →</a>
-  </section>
-
-  <footer class="foot label">
-    <span>Question The Day, by Michael · <a href="https://456solutions.org/">456solutions.org</a> · <a href="https://www.instagram.com/bignosemichael/" target="_blank" rel="noopener">@bignosemichael</a></span>
+  <footer class="a-foot wrap label">
+    <span>Question The Day, by Michael · <a href="https://www.instagram.com/bignosemichael/" target="_blank" rel="noopener">@bignosemichael</a> · <a href="https://456solutions.org/">456solutions.org</a></span>
     <span id="gen"></span>
   </footer>
 </main>
 <script type="module">
-  import { BASE, fetchJSON } from '../src/util.js';
+  import { BASE, fetchJSON, todayOf } from '../src/util.js';
   fetchJSON(`${BASE}data/episodes.json`).then(d => {
-    document.getElementById('gen').textContent = `${d.count} episodes · updated ${d.generated}`;
-    // the button goes to today's question itself, the same one the dial opens on
-    const day = Math.floor((Date.now() - new Date().getTimezoneOffset() * 60000) / 86400000);
-    const ordered = [...d.episodes].sort((a, b) => a.n - b.n);
-    const today = ordered[(day * 37) % ordered.length];
-    if (today) document.getElementById('todaylink').href = `${BASE}e/${today.n}/`;
+    const eps = d.episodes.filter(e => e.question);
+    const places = new Set(eps.map(e => (e.places && e.places[0]) || e.city).filter(Boolean));
+    document.getElementById('s-q').textContent = eps.length;
+    document.getElementById('s-p').textContent = eps.reduce((s, e) => s + (e.answerCount || 0), 0).toLocaleString();
+    document.getElementById('s-c').textContent = places.size;
+    document.getElementById('gen').textContent = `updated ${d.generated}`;
+    const t = todayOf(eps);
+    if (t) document.getElementById('answerlink').href = `${BASE}e/${t.n}/`;
+  }).catch(() => {});
+  // a strip of faces, twice over so it loops without a seam
+  fetchJSON(`${BASE}data/atlas.json`).then(a => {
+    const s = 88, pick = a.faces.map((f, i) => i).sort(() => Math.random() - 0.5).slice(0, 36);
+    const tiles = pick.map(i => `<i style="background-image:url(${BASE}${a.src});background-size:${a.cols * s}px ${a.rows * s}px;` +
+      `background-position:${-(i % a.cols) * s}px ${-Math.floor(i / a.cols) * s}px"></i>`).join('');
+    document.getElementById('track').innerHTML = tiles + tiles;
   }).catch(() => {});
 </script>
 </body>

@@ -173,17 +173,15 @@ input:focus, textarea:focus { border-color: var(--yellow); }
   * { animation-duration: .001ms !important; transition-duration: .001ms !important; }
 }
 
-/* ---- question types: the only three colours the site spends ---------- */
-.t-big { --tc: var(--yellow); }
-.t-hot { --tc: var(--red); }
-.t-you { --tc: var(--green); }
-.qt {
+/* ---- tags: grey, always. The three signal colours are for actions and
+   states: yellow = do this, red = recording / went wrong, green = yours / done */
+.qt, .tag {
   display: inline-block;
   font-family: var(--mono); font-size: 10px; letter-spacing: .12em;
   text-transform: uppercase; padding: 3px 7px;
-  border: 1px solid var(--line-2); color: var(--mid);
+  border: 1px solid var(--line-2); color: var(--mid); background: transparent;
 }
-.qt.t-big, .qt.t-hot, .qt.t-you { background: var(--tc); border-color: var(--tc); color: #000; font-weight: 700; }
+.tag.solid { background: var(--raise); color: var(--ink); border-color: var(--raise); }
 
 /* author display rules beat the [hidden] attribute — every time, site-wide */
 [hidden] { display: none !important; }

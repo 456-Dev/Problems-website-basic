@@ -1,0 +1,141 @@
+/* Home: a question box in front of a wall of faces. The faces sit in grey
+   and come up in colour where you point; the panels are near-black glass so
+   the wall reads through at the edges. */
+
+.is-home body, body.is-home { background: var(--black); }
+
+/* ---- the wall ---------------------------------------------------------- */
+.facewall {
+  position: fixed; left: 0; right: 0; top: var(--rail); bottom: 0; z-index: 0;
+  display: grid; grid-auto-rows: var(--s); overflow: hidden;
+  opacity: 0; transition: opacity .6s linear;
+}
+.facewall.on { opacity: 1; }
+.facewall i {
+  display: block; width: var(--s); height: var(--s);
+  background-repeat: no-repeat;
+  filter: grayscale(1) brightness(.4);
+  box-shadow: inset 0 0 0 .5px rgba(0, 0, 0, .9);        /* a hairline grid */
+  transition: filter .22s linear;
+}
+/* darker where the question box sits, so it always reads first */
+.facewall::after {
+  content: ''; position: fixed; left: 0; right: 0; top: var(--rail); bottom: 0; pointer-events: none;
+  background: radial-gradient(ellipse 58% 62% at 50% 42%, rgba(7,7,7,.72), rgba(7,7,7,.18) 70%, rgba(7,7,7,0));
+}
+.facetip {
+  position: fixed; z-index: 70; max-width: 300px; pointer-events: none;
+  background: #000; border: 1px solid var(--line-2); padding: 8px 10px 9px;
+  font-size: 13.5px; line-height: 1.3; color: var(--ink);
+}
+.facetip .label { display: block; color: var(--yellow); margin-bottom: 4px; }
+@media (hover: none) { .facetip { pointer-events: auto; } }
+
+/* ---- the page over it -------------------------------------------------- */
+.home {
+  position: relative; z-index: 1;
+  display: flex; flex-direction: column; align-items: center;
+  min-height: calc(100vh - var(--rail));
+  padding: clamp(28px, 9vh, 96px) 16px 64px;
+  pointer-events: none;                 /* the wall stays pointable between panels */
+}
+.home > * { pointer-events: auto; width: min(820px, 100%); }
+.glass { background: rgba(7, 7, 7, .9); border: 1px solid var(--line-2); }
+
+.ask {
+  background: rgba(7, 7, 7, .9); border: 1px solid var(--line-2);
+  padding: 26px 30px 20px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, .6);
+}
+.ask-kicker { margin: 0; color: var(--mid); }
+.ask-kicker b { color: var(--ink); font-weight: 400; }
+.ask-h {
+  font-size: clamp(30px, 5.2vw, 64px); line-height: .98; letter-spacing: -.038em;
+  margin: 12px 0 22px; text-wrap: balance;
+}
+.ask-form { display: flex; gap: 0; }
+.ask-form input {
+  flex: 1 1 auto; min-width: 0; height: 60px;
+  font-family: var(--sans); font-size: 19px; letter-spacing: -.01em;
+  background: #000; border-right: 0; padding: 0 18px;
+}
+.ask-form input::placeholder { color: #5a5a5a; }
+.ask-form .btn-solid { height: 60px; padding: 0 28px; font-size: 13px; letter-spacing: .16em; }
+.ask-hint {
+  margin: 12px 0 0; min-height: 20px; font-size: 13.5px; line-height: 1.45; color: var(--mid);
+}
+.ask-hint a { color: var(--ink); border-bottom: 1px solid var(--yellow); }
+.ask-hint.match b { color: var(--yellow); font-weight: 600; }
+.ask-hint .dim { color: var(--dim); }
+.ask-status {
+  margin: 6px 0 0; min-height: 16px;
+  font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--mid);
+}
+.ask-status.ok { color: var(--green); }
+.ask-status.err { color: var(--red); }
+
+/* ---- the list of suggestions ------------------------------------------- */
+.board { margin-top: 16px; background: rgba(7, 7, 7, .92); border: 1px solid var(--line-2); }
+.board-head {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+  padding: 14px 18px 12px; border-bottom: 1px solid var(--line-2);
+}
+.board-head h2 { font-size: 18px; }
+.board-sort { display: flex; gap: 14px; }
+.board-sort button {
+  background: none; border: 0; padding: 4px 0; cursor: pointer;
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--dim); border-bottom: 1px solid transparent;
+}
+.board-sort button.on { color: var(--ink); border-bottom-color: var(--ink); }
+@media (hover: hover) { .board-sort button:hover { color: var(--ink); } }
+
+.board-list { list-style: none; margin: 0; padding: 0; }
+.sg {
+  display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; align-items: center; gap: 12px;
+  padding: 11px 14px 11px 18px; border-bottom: 1px solid var(--line);
+}
+.sg:last-child { border-bottom: 0; }
+.sg-rank { font-size: 12px; color: var(--dim); }
+.sg-q { font-size: 16.5px; line-height: 1.3; color: var(--ink); overflow-wrap: anywhere; letter-spacing: -.01em; }
+.sg-vote {
+  display: inline-flex; align-items: center; gap: 7px; min-width: 66px; justify-content: center;
+  font-family: var(--mono); font-size: 13px; color: var(--mid);
+  background: none; border: 1px solid var(--line-2); padding: 7px 10px; cursor: pointer;
+  transition: color .12s linear, border-color .12s linear, background .12s linear;
+}
+.sg-vote b { font-size: 10px; font-weight: 400; }
+@media (hover: hover) { .sg:not(.voted) .sg-vote:hover { color: var(--yellow); border-color: var(--yellow); } }
+.sg.voted .sg-vote { background: var(--green); border-color: var(--green); color: #000; cursor: default; }
+.sg.fresh { background: #121200; box-shadow: inset 3px 0 0 var(--yellow); animation: arrive .7s ease-out; }
+@keyframes arrive { from { background: #3a3500; } to { background: #121200; } }
+.board-empty { margin: 0; padding: 18px; color: var(--dim); font-size: 14px; }
+.board-more {
+  display: block; width: 100%; padding: 12px; cursor: pointer;
+  background: none; border: 0; border-top: 1px solid var(--line-2); color: var(--mid);
+  font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+}
+@media (hover: hover) { .board-more:hover { color: var(--ink); background: var(--panel); } }
+
+/* ---- a way to the day's episode ---------------------------------------- */
+.today {
+  margin-top: 16px; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center;
+  column-gap: 16px; row-gap: 4px;
+  background: rgba(7, 7, 7, .9); border: 1px solid var(--line-2); padding: 14px 18px;
+}
+.today .label { grid-column: 1; }
+.today-q { grid-column: 1; font-size: 18px; letter-spacing: -.015em; color: var(--ink); }
+.today-go { grid-column: 2; grid-row: 1 / span 2; font-family: var(--mono); font-size: 20px; color: var(--yellow); }
+@media (hover: hover) { .today:hover { border-color: var(--yellow); } }
+
+/* ---- phones ------------------------------------------------------------ */
+@media (max-width: 700px) {
+  .home { padding: 92px 12px 48px; }          /* a strip of faces shows above the box */
+  .ask { padding: 18px 16px 16px; }
+  .ask-h { font-size: clamp(28px, 8.4vw, 40px); margin: 8px 0 16px; }
+  .ask-form input { height: 54px; font-size: 16px; padding: 0 12px; }
+  .ask-form .btn-solid { height: 54px; padding: 0 16px; font-size: 12px; letter-spacing: .1em; }
+  .sg { grid-template-columns: 22px minmax(0, 1fr) auto; gap: 10px; padding: 11px 10px 11px 12px; }
+  .sg-q { font-size: 15.5px; }
+  .board-head { padding: 12px; flex-wrap: wrap; }
+}

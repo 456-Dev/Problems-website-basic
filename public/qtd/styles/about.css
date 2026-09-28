@@ -1,39 +1,64 @@
-.about { padding-top: calc(var(--u)*10); padding-bottom: 100px; max-width: 980px; }
-.about h1 { max-width: 16ch; margin-bottom: calc(var(--u)*9); }
-.about .ticks { margin: calc(var(--u)*9) 0; }
-.about p { max-width: 62ch; font-size: 15.5px; }
-.about a { text-decoration: underline; text-decoration-color: var(--line-2); text-underline-offset: 3px; }
-.about a:hover { text-decoration-color: var(--yellow); }
-.about em { font-style: normal; color: var(--ink); }
-.about b { font-weight: 600; color: var(--ink); }
+/* About: big type, a strip of faces, then short sections. */
+.about { padding-bottom: 60px; }
+.about .wrap { max-width: 1080px; }
+.about section { padding: 44px 16px 8px; }
+.about h1 { font-size: clamp(38px, 6.6vw, 88px); line-height: .94; letter-spacing: -.045em; margin: 14px 0 22px; }
+.about h1 .dim, .about .dim { color: var(--dim); }
+.about h2 { font-size: clamp(26px, 3.4vw, 42px); letter-spacing: -.03em; margin: 10px 0 18px; }
+.about h3 { font-size: 19px; letter-spacing: -.015em; margin: 0 0 8px; }
+.about p { color: var(--mid); font-size: 16.5px; line-height: 1.55; }
+.about a { color: var(--ink); }
+.about p a { border-bottom: 1px solid var(--yellow); }
+.a-lede { font-size: clamp(17px, 1.7vw, 21px) !important; color: var(--ink) !important; max-width: 46ch; }
 
-.cols { display: grid; grid-template-columns: 1fr 1fr; gap: calc(var(--u)*10); }
-.cols .label { margin-bottom: calc(var(--u)*3); }
+.a-stats { display: flex; flex-wrap: wrap; gap: 0; margin: 26px 0 0; border: 1px solid var(--line-2); width: max-content; max-width: 100%; }
+.a-stats div { padding: 12px 18px; border-left: 1px solid var(--line-2); }
+.a-stats div:first-child { border-left: 0; }
+.a-stats dt { margin-bottom: 4px; }
+.a-stats dd { margin: 0; font-size: clamp(26px, 3vw, 38px); font-weight: 700; letter-spacing: -.03em; color: var(--yellow); }
 
-.method h2 { margin: calc(var(--u)*3) 0 calc(var(--u)*6); max-width: 22ch; }
-.steps { counter-reset: s; list-style: none; padding: 0; margin: 0; max-width: 70ch; }
-.steps li {
-  counter-increment: s; position: relative;
-  padding: calc(var(--u)*4) 0 calc(var(--u)*4) calc(var(--u)*11);
-  border-top: 1px solid var(--line); color: var(--mid); line-height: 1.5;
+/* the faces, drifting past */
+.a-faces { margin: 40px 0 0; overflow: hidden; border-top: 1px solid var(--line-2); border-bottom: 1px solid var(--line-2); height: 88px; }
+.a-track { display: flex; width: max-content; animation: drift 90s linear infinite; }
+.a-track i { display: block; width: 88px; height: 88px; flex: 0 0 auto; background-repeat: no-repeat;
+             filter: grayscale(.25); box-shadow: inset 0 0 0 .5px #000; }
+@keyframes drift { to { transform: translateX(-50%); } }
+@media (hover: hover) { .a-faces:hover .a-track { animation-play-state: paused; } }
+
+.a-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+
+.a-steps { list-style: none; margin: 18px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; border: 1px solid var(--line-2); }
+.a-steps li { padding: 18px 18px 8px; border-left: 1px solid var(--line-2); }
+.a-steps li:first-child { border-left: 0; }
+.a-steps b { display: block; font-size: 34px; color: var(--yellow); letter-spacing: -.04em; margin-bottom: 8px; }
+.a-steps p { font-size: 15px; }
+
+.a-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.a-card { display: flex; flex-direction: column; gap: 6px; padding: 18px; border: 1px solid var(--line-2); background: var(--pit); transition: border-color .12s linear; }
+.a-card p { font-size: 15px; flex: 1; margin: 0; }
+.a-card .go { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--yellow); margin-top: 10px; }
+@media (hover: hover) { .a-card:hover { border-color: var(--yellow); } }
+
+.a-guide { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 14px; }
+.a-guide a { display: block; padding: 16px 18px 6px; border-top: 2px solid var(--line-2); }
+@media (hover: hover) { .a-guide a:hover { border-top-color: var(--ink); } }
+.a-guide p { font-size: 15px; }
+.a-tags { margin-top: 26px; padding: 18px; border: 1px solid var(--line); }
+.a-tags ul { list-style: none; margin: 8px 0 12px; padding: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px 24px; }
+.a-tags li { color: var(--mid); font-size: 15px; display: flex; gap: 10px; align-items: baseline; }
+.a-tags .qt { flex: 0 0 auto; color: var(--ink); }
+.a-note { font-size: 14px !important; margin: 0; }
+
+.a-foot { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding: 48px 16px 0; }
+.a-foot a { border-bottom: 1px solid var(--line-2); }
+
+@media (max-width: 800px) {
+  .about section { padding: 32px 16px 4px; }
+  .a-cols, .a-cards, .a-guide { grid-template-columns: 1fr; }
+  .a-steps { grid-template-columns: 1fr 1fr; }
+  .a-steps li:nth-child(3) { border-left: 0; }
+  .a-steps li:nth-child(n+3) { border-top: 1px solid var(--line-2); }
+  .a-tags ul { grid-template-columns: 1fr; }
+  .a-stats div { padding: 10px 12px; }
 }
-.steps li::before {
-  content: counter(s, decimal-leading-zero);
-  position: absolute; left: 0; top: calc(var(--u)*4);
-  font-family: var(--mono); font-size: 11px; color: var(--yellow);
-}
-.steps li b { color: var(--ink); }
-
-.caveat { margin-top: calc(var(--u)*8); border-left: 2px solid var(--red); padding-left: calc(var(--u)*5); }
-.caveat .label { margin-bottom: calc(var(--u)*3); color: var(--red); }
-
-.add-cta { max-width: 62ch; }
-.add-cta h2 { margin-bottom: calc(var(--u)*3); }
-.add-cta .btn { margin-top: calc(var(--u)*3); }
-
-.foot { margin-top: calc(var(--u)*14); padding-top: calc(var(--u)*5); border-top: var(--hair); display: flex; justify-content: space-between; gap: calc(var(--u)*4); flex-wrap: wrap; }
-
-@media (max-width: 760px) { .cols { grid-template-columns: 1fr; gap: calc(var(--u)*7); } }
-
-/* the three kind words wear their colours */
-.about b.y { color: var(--yellow); } .about b.r { color: var(--red); } .about b.g { color: var(--green); }
+@media (prefers-reduced-motion: reduce) { .a-track { animation: none; } }

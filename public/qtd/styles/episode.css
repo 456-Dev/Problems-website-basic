@@ -218,10 +218,9 @@
   transition: background .12s linear, border-color .12s linear;
 }
 .door:hover { background: var(--raise); }
-/* a door's edge is the kind of question behind it (yellow big, red hot take,
-   green about you) — the same code as the dial; Surprise me is plain white */
-.door { border-left-color: var(--tc, var(--line-2)); }
-.door-any { border-left-color: var(--ink); }
+/* doors are grey; yellow only under the pointer — yellow means "go" */
+.door { border-left-color: var(--line-2); }
+@media (hover: hover) { .door:hover { border-left-color: var(--yellow); } }
 .door-q { font-size: 15.5px; line-height: 1.22; color: var(--ink); letter-spacing: -.012em; }
 .door-note { opacity: .65; }
 
@@ -267,3 +266,23 @@
   .say-row .btn.film { flex: 1 1 auto; justify-content: center; }
   .say-row .btn-solid { flex: 0 0 auto; min-width: 96px; justify-content: center; }
 }
+
+/* the video before you press play: a face from the episode */
+.poster {
+  position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; border: 0; cursor: pointer;
+  background: #000; display: block; overflow: hidden;
+}
+.poster img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: saturate(1.1); transition: transform .4s ease-out; }
+.poster::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,.7), rgba(0,0,0,0) 40%); }
+.poster .play {
+  position: absolute; z-index: 1; left: 50%; top: 50%; width: 84px; height: 84px; transform: translate(-50%, -50%);
+  background: var(--yellow); display: block;
+  clip-path: polygon(0 0, 100% 50%, 0 100%);          /* a sharp play triangle, no curves */
+  transition: transform .15s ease-out;
+}
+.poster .poster-note { position: absolute; z-index: 1; left: 14px; bottom: 12px; color: rgba(255,255,255,.85); }
+@media (hover: hover) {
+  .poster:hover img { transform: scale(1.03); }
+  .poster:hover .play { transform: translate(-50%, -50%) scale(1.08); }
+}
+.poster:focus-visible { outline: 2px solid var(--yellow); outline-offset: -4px; }
