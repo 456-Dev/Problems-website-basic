@@ -39,3 +39,21 @@
 .bigsum { font-size: 18px; color: var(--ink); margin: 16px 0 6px; }
 .bigsum b { font-size: 34px; color: var(--yellow); }
 @media (max-width: 600px) { .alist2 li { grid-template-columns: 40px minmax(0, 1fr); } .alist2 .acts { grid-column: 2; } }
+
+/* visits */
+.vstats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0; margin: 16px 0; border: 1px solid var(--line-2); }
+.vstats div { padding: 14px 16px; border-left: 1px solid var(--line-2); display: flex; flex-direction: column; gap: 4px; }
+.vstats div:first-child { border-left: 0; }
+.vstats b { font-size: 30px; color: var(--yellow); letter-spacing: -.03em; font-weight: 700; }
+.vdays { display: flex; align-items: flex-end; gap: 3px; height: 120px; border-bottom: 1px solid var(--line-2); padding-top: 8px; }
+.vdays i { flex: 1; background: var(--ink); min-height: 1px; opacity: .85; }
+.vdays i:last-child { background: var(--yellow); }
+.vdaylabels { display: flex; justify-content: space-between; margin: 4px 0 18px; }
+.vgrid2 { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+.vlist { border: 1px solid var(--line); padding: 10px 12px; }
+.vlist h3 { margin: 0 0 8px; font-weight: 400; }
+.vlist ol { list-style: none; margin: 0; padding: 0; }
+.vlist li { display: flex; justify-content: space-between; gap: 12px; padding: 4px 0; border-bottom: 1px solid var(--line); font-size: 13.5px; color: var(--ink); }
+.vlist li span { overflow-wrap: anywhere; }
+.vlist li b { color: var(--mid); font-weight: 400; white-space: nowrap; }
+.admin .note { margin-top: 18px; text-transform: none; letter-spacing: .02em; }

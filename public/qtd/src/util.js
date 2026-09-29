@@ -105,16 +105,81 @@ export async function can(f) {
   return b.features.includes(f);
 }
 
-/* Page views: each page is counted once per visit (a reload in the same tab
-   doesn't count again). Resolves to { page, total } or null. */
+/* Page views. Each page is counted once per visit (a reload in the same tab
+   doesn't count again) and, unless the browser asks not to be tracked,
+   logged with coarse details only: the page, the site you came from (its
+   name, not the address), campaign tags, phone / tablet / desktop, browser and
+   system family, language, time zone, screen width to the nearest 50px, and
+   how long the page was open. No cookies, no IP address, nothing that follows
+   a person between visits. The About page says the same.
+   Resolves to { page, total } or null. */
+const noTrack = () => navigator.globalPrivacyControl === true ||
+  navigator.doNotTrack === '1' || window.doNotTrack === '1';
+
+function visitDetails() {
+  const ua = navigator.userAgent || '';
+  const os = /iPhone|iPad|iPod/.test(ua) ? 'iOS' : /Android/.test(ua) ? 'Android'
+    : /CrOS/.test(ua) ? 'ChromeOS' : /Mac OS X|Macintosh/.test(ua) ? 'macOS'
+    : /Windows/.test(ua) ? 'Windows' : /Linux/.test(ua) ? 'Linux' : 'other';
+  const br = /Instagram/.test(ua) ? 'Instagram app' : /FBAN|FBAV/.test(ua) ? 'Facebook app'
+    : /TikTok|musical_ly/.test(ua) ? 'TikTok app' : /Edg\//.test(ua) ? 'Edge' : /OPR\//.test(ua) ? 'Opera'
+    : /Firefox\/|FxiOS/.test(ua) ? 'Firefox' : /CriOS|Chrome\//.test(ua) ? 'Chrome'
+    : /Safari\//.test(ua) ? 'Safari' : 'other';
+  const touch = (navigator.maxTouchPoints || 0) > 0;
+  const short = Math.min(screen.width || 0, screen.height || 0);
+  const dev = /iPad|Tablet/.test(ua) || (touch && short >= 600 && short < 1100) ? 'tablet'
+    : touch && short < 600 ? 'phone' : 'desktop';
+  let ref = 'direct';
+  try {
+    if (document.referrer) {
+      const r = new URL(document.referrer);
+      ref = r.origin === location.origin ? `here ${r.pathname}` : r.hostname.replace(/^www\./, '');
+    }
+  } catch {}
+  const q = new URLSearchParams(location.search);
+  const utm = ['utm_source', 'utm_medium', 'utm_campaign'].map(k => q.get(k)).filter(Boolean).join(' / ');
+  let tz = '';
+  try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch {}
+  let nv = '1';
+  try { nv = sessionStorage.getItem('qtd.visit') ? '0' : '1'; sessionStorage.setItem('qtd.visit', '1'); } catch {}
+  return { ref, utm, dev, br, os, sw: Math.floor((innerWidth || 0) / 50) * 50,
+           lang: (navigator.language || '').slice(0, 5), tz, nv };
+}
+
+// time on page: counts only while the tab is on screen, sent as it closes or hides
+function timeOnPage(vid) {
+  let shown = document.visibilityState === 'visible' ? performance.now() : null, total = 0, sent = false;
+  const flush = () => {
+    if (shown !== null) { total += performance.now() - shown; shown = null; }
+    if (sent || total < 1000) return;
+    sent = true;
+    try {
+      navigator.sendBeacon(CONFIG.SHEET_URL, new Blob([JSON.stringify({ kind: 'leave', vid, secs: Math.round(total / 1000) })],
+                                                      { type: 'text/plain;charset=utf-8' }));
+    } catch {}
+  };
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') flush();
+    else if (!sent) shown = performance.now();
+  });
+  addEventListener('pagehide', flush);
+}
+
 export async function views(path = location.pathname) {
   if (!(await can('views'))) return null;
   const key = `qtd.counted.${path}`;
   let counted = false;
   try { counted = !!sessionStorage.getItem(key); } catch {}
+  let extra = '';
+  if (!counted && !noTrack()) {
+    const d = visitDetails();
+    d.vid = Math.random().toString(36).slice(2, 12);                  // this one page view only
+    extra = '&' + new URLSearchParams(d).toString();
+    timeOnPage(d.vid);
+  }
   try {
-    const d = await jsonp(`${CONFIG.SHEET_URL}?hit=${encodeURIComponent(path)}&n=${counted ? 0 : 1}`);
+    const r = await jsonp(`${CONFIG.SHEET_URL}?hit=${encodeURIComponent(path)}&n=${counted ? 0 : 1}${extra}`);
     try { sessionStorage.setItem(key, '1'); } catch {}
-    return d && d.ok ? d : null;
+    return r && r.ok ? r : null;
   } catch { return null; }
 }

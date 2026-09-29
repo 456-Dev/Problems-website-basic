@@ -41,7 +41,8 @@
       and keeps nearly every answer.</p>
     <dl class="a-stats">
       <div><dt class="label">questions asked</dt><dd class="num" id="s-q">200+</dd></div>
-      <div id="s-vwrap" hidden><dt class="label">visits here</dt><dd class="num" id="s-v">0</dd></div>
+      <div class="s-view" hidden><dt class="label">views of this page</dt><dd class="num" id="s-page">0</dd></div>
+      <div class="s-view" hidden><dt class="label">views of the site</dt><dd class="num" id="s-v">0</dd></div>
       <div><dt class="label">places</dt><dd class="num" id="s-c">30+</dd></div>
     </dl>
   </section>
@@ -116,8 +117,20 @@
     </div>
   </section>
 
+  <section class="a-privacy wrap" id="privacy">
+    <div class="label">What we count</div>
+    <p>Each page view is counted. Unless your browser asks not to be tracked (Global Privacy Control or
+       Do Not Track), we also note, for that view only: which page, the site you came from (its name, not
+       the address), campaign tags in the link, whether you’re on a phone, tablet or computer, your browser
+       and system type, your language, your time zone, your screen width to the nearest 50 pixels, and how
+       long the page was open.</p>
+    <p>No cookies, no IP addresses, nothing that recognises you on your next visit, and nothing shared with
+       anyone else. Those notes are deleted after 13 months. Answers and suggestions are anonymous; we don’t
+       ask for a name. Questions about any of it: <a href="https://www.instagram.com/bignosemichael/" target="_blank" rel="noopener">@bignosemichael</a>.</p>
+  </section>
+
   <footer class="a-foot wrap label">
-    <span>Question The Day, by Michael · <a href="https://www.instagram.com/bignosemichael/" target="_blank" rel="noopener">@bignosemichael</a> · <a href="https://456solutions.org/">456solutions.org</a></span>
+    <span>Question The Day, by Michael · <a href="https://www.instagram.com/bignosemichael/" target="_blank" rel="noopener">@bignosemichael</a> · <a href="https://456solutions.org/">456solutions.org</a> · <a href="#privacy">What we count</a></span>
     <span id="gen"></span>
   </footer>
 </main>
@@ -125,8 +138,9 @@
   import { BASE, fetchJSON, todayOf, views } from '../src/util.js';
   views().then(v => {
     if (!v) return;
+    document.getElementById('s-page').textContent = v.page.toLocaleString();
     document.getElementById('s-v').textContent = v.total.toLocaleString();
-    document.getElementById('s-vwrap').hidden = false;
+    document.querySelectorAll('.s-view').forEach(el => { el.hidden = false; });
   });
   fetchJSON(`${BASE}data/episodes.json`).then(d => {
     const eps = d.episodes.filter(e => e.question);

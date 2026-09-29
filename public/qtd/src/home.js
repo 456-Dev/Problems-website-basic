@@ -335,7 +335,7 @@ addEventListener('scroll', () => { measure(); }, { passive: true });
 views().then(v => {
   if (!v) return;
   $('nvisits').textContent = v.total.toLocaleString();
-  $('nvisitsw').textContent = v.total === 1 ? 'visit' : 'visits';
+  $('nvisitsw').textContent = v.total === 1 ? 'view' : 'views';
   $('visits').hidden = false;
 });
 renderBoard();

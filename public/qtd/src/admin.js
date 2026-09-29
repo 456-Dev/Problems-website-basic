@@ -131,12 +131,42 @@ function render() {
       <span class="acts"><button class="btn mini" data-act="${t.hidden ? 'show' : 'hide'}">${t.hidden ? 'Show' : 'Hide'}</button></span>
     </li>`).join('')}</ol>` : '<p class="none">No written answers yet.</p>';
 
-  // visits
+  // visits: the last 30 days from the visit log, then all-time counts per page
+  const V = data.visits || { views: 0 };
+  const mins = x => x == null ? '—' : x >= 60 ? `${Math.floor(x / 60)}m ${x % 60}s` : `${x}s`;
+  const days = [];
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date(Date.now() - i * 864e5);
+    const k = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    days.push([k, (V.days || {})[k] || 0]);
+  }
+  const peak = Math.max(1, ...days.map(d => d[1]));
+  const list = (title, rows, fmt = x => x.toLocaleString()) => rows && rows.length ? `<div class="vlist"><h3 class="label">${title}</h3>
+    <ol>${rows.map(([k, n]) => `<li><span>${esc(k)}</span><b class="num">${fmt(n, k)}</b></li>`).join('')}</ol></div>` : '';
   const pages = data.views.pages || [];
-  $('t-views').innerHTML = `<p class="bigsum"><b class="num">${data.views.total.toLocaleString()}</b> visits in all</p>` +
-    (pages.length ? `<ol class="alist2">${pages.map(([path, n]) => `
-      <li><span class="num votes">${n.toLocaleString()}</span><span class="txt"><a href="${esc(path)}" target="_blank" rel="noopener">${esc(path)}</a></span></li>`).join('')}</ol>`
-      : '<p class="none">No visits counted yet.</p>');
+  $('t-views').innerHTML = `
+    <div class="vstats">
+      <div><b class="num">${(V.views || 0).toLocaleString()}</b><span class="label">views, last 30 days</span></div>
+      <div><b class="num">${(V.visits || 0).toLocaleString()}</b><span class="label">visits, last 30 days</span></div>
+      <div><b class="num">${mins(V.avgSecs)}</b><span class="label">average time on a page</span></div>
+      <div><b class="num">${data.views.total.toLocaleString()}</b><span class="label">views, all time</span></div>
+    </div>
+    <div class="vdays" aria-label="Views per day, last 30 days">${days.map(([k, n]) =>
+      `<i style="height:${Math.round(n / peak * 100)}%" title="${k}: ${n}"></i>`).join('')}</div>
+    <div class="vdaylabels label"><span>${days[0][0]}</span><span>today</span></div>
+    <div class="vgrid2">
+      ${list('Pages, last 30 days', V.pages, (n, k) => `${n.toLocaleString()}${V.pageSecs && V.pageSecs[k] != null ? ` · ${mins(V.pageSecs[k])}` : ''}`)}
+      ${list('Came from', V.from)}
+      ${list('Campaigns', V.campaign)}
+      ${list('Device', V.device)}
+      ${list('Browser', V.browser)}
+      ${list('System', V.os)}
+      ${list('Language', V.language)}
+      ${list('Time zone (rough region)', V.zone)}
+    </div>
+    ${pages.length ? list('All-time views per page', pages) : ''}
+    <p class="note label">The log keeps ${(V.logged || 0).toLocaleString()} rows in the sheet’s “visits” tab; rows older than 13 months are deleted each night.
+      Browsers that ask not to be tracked are counted in the totals but not logged.</p>`;
 }
 
 /* ---------- actions -------------------------------------------------------- */
