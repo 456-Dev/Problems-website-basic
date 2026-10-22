@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { Ask, Flip, Happy } from "./Icons";
+import RoadRail from "./RoadRail";
 import { VIDEO_ID, stops, questions, frame } from "@/lib/america";
 import type { MapData } from "@/lib/americaMap";
 
@@ -11,20 +12,6 @@ const embed = (start: number, autoplay: boolean) =>
   `https://www.youtube.com/embed/${VIDEO_ID}?rel=0&playsinline=1&start=${Math.max(0, start)}${autoplay ? "&autoplay=1" : ""}`;
 
 const days = Array.from(new Set(stops.map((s) => s.day)));
-
-// The film's right-hand rail: place + date written sideways, and the three question marks.
-function SideRail({ place, date, lit }: { place: string; date: string; lit: number }) {
-  return (
-    <aside className="oqa-rail" aria-hidden="true">
-      <div className="oqa-rail-text"><b>{place}</b><span>{date}</span></div>
-      <div className="oqa-rail-icons">
-        <Ask className={lit === 1 ? "on" : ""} />
-        <Flip className={lit === 2 ? "on" : ""} />
-        <Happy className={lit === 3 ? "on" : ""} />
-      </div>
-    </aside>
-  );
-}
 
 function Car() {
   return (
@@ -64,7 +51,7 @@ export default function AmericaPage({ map }: { map: MapData }) {
 
   return (
     <div className="oqa">
-      <SideRail place={stop.place} date={stop.date} lit={stop.ask ? 1 : 0} />
+      <RoadRail />
 
       <header className="oqa-top">
         <a href="/">456 Solutions</a>

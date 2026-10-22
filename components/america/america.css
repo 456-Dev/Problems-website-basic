@@ -1,5 +1,5 @@
 /* One Question for America — dressed like the film itself:
-   black letterbox, white subtitles, and the place/date rail on the right. */
+   black letterbox, white subtitles, and a highway down the right edge for a scrollbar. */
 
 .oqa {
   --rail: 76px;
@@ -21,15 +21,26 @@
 .oqa-rail {
   position: fixed; top: 0; right: 0; bottom: 0; width: var(--rail); z-index: 20;
   background: #000; display: flex; flex-direction: column; justify-content: space-between;
-  align-items: center; padding: 14px 0 22px;
+  align-items: center; padding: 12px 0;
 }
-.oqa-rail-text { writing-mode: vertical-rl; max-height: 62vh; overflow: hidden; }
-.oqa-rail-text b, .oqa-rail-text span { display: block; }
-.oqa-rail-text b { font-weight: 400; font-size: 31px; line-height: 1.05; white-space: nowrap; }
-.oqa-rail-text span { font-size: 15px; color: #cfcfcf; white-space: nowrap; }
-.oqa-rail-icons { display: flex; flex-direction: column; gap: 10px; align-items: center; }
-.oqa-rail-icons svg { width: 40px; height: 40px; color: var(--grey); transition: color .25s; }
-.oqa-rail-icons svg.on { color: #fff; }
+.oqa-rail-end { font-weight: 800; font-size: 13px; letter-spacing: .06em; color: #cfcfcf; padding: 4px 0; }
+.oqa-road-v {
+  position: relative; flex: 1; width: 46px; margin: 6px 0; border-radius: 4px; cursor: ns-resize; touch-action: none;
+  background:
+    linear-gradient(#fff, #fff) left 4px top 0 / 2px 100% no-repeat,
+    linear-gradient(#fff, #fff) right 4px top 0 / 2px 100% no-repeat,
+    repeating-linear-gradient(to bottom, #ffd23f 0 18px, transparent 18px 36px) center var(--dash) / 3px 100% repeat-y,
+    #1b1b1b;
+}
+.oqa-road-trail { position: absolute; left: 0; right: 0; top: 0; height: calc(var(--p) * 100%); background: rgba(255,255,255,.07); border-radius: 4px 4px 0 0; }
+.oqa-van { position: absolute; left: 50%; width: 30px; height: 56px; top: calc(var(--p) * (100% - 56px));
+  transform: translateX(-50%); filter: drop-shadow(0 3px 4px rgba(0,0,0,.6)); pointer-events: none; }
+.oqa-van .body { fill: #c8102e; }
+.oqa-van .roof { fill: #e23a50; }
+.oqa-van .glass { fill: #16222e; }
+.oqa-van .tire { fill: #000; }
+.oqa-van .light { fill: #fff6c2; }
+.oqa-road-v:hover { box-shadow: 0 0 0 1px #444; }
 
 .oqa-top { display: flex; justify-content: space-between; padding: 18px 28px; font-size: 14px; color: #bdbdbd; }
 .oqa-top a { text-decoration: none; }
@@ -139,11 +150,11 @@
   .oqa-trip-grid { grid-template-columns: 1fr; }
 }
 @media (max-width: 900px) {
-  .oqa { --rail: 46px; }
-  .oqa-rail-text b { font-size: 22px; }
-  .oqa-rail-text span { font-size: 12px; }
-  .oqa-rail-icons svg { width: 28px; height: 28px; }
-  .oqa-top, .oqa-hero, .oqa-trip, .oqa-three, .oqa-film, .oqa-credits { padding-left: 14px; padding-right: 14px; }
+  .oqa { --rail: 40px; }
+  .oqa-road-v { width: 32px; }
+  .oqa-van { width: 22px; height: 41px; top: calc(var(--p) * (100% - 41px)); }
+  .oqa-rail-end { font-size: 10px; }
+        .oqa-top, .oqa-hero, .oqa-trip, .oqa-three, .oqa-film, .oqa-credits { padding-left: 14px; padding-right: 14px; }
   .oqa-hero { grid-template-columns: 1fr; gap: 26px; }
   .oqa-three ol { grid-template-columns: 1fr; gap: 24px; }
   .oqa-map { --cs: 2.4; }
