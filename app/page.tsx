@@ -22,7 +22,7 @@ const panels = [
   { href: "/qtd/", img: "/qtd/media/og-card.png", years: "2025–2026", title: "Question The Day",
     blurb: "One question. About 25 strangers on the street. Watch them answer, then suggest the next one." },
   { href: "/america", img: "/assets/america/flag.jpg", years: "2025", title: "One Question for America",
-    blurb: "A road-trip documentary. 3 questions, 221 people, 14 states, Los Angeles to New York." },
+    blurb: "A road-trip documentary. 3 questions, over 200 strangers, 14 states, Los Angeles to New York." },
   { href: "/book/", img: "/assets/book/cover.jpg", years: "2025", title: "They Said You Can't",
     blurb: "The photography book. 160 full-color pages in 7 sections. Digital, standard, and deluxe." },
 ];

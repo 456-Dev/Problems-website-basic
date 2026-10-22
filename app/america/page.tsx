@@ -6,7 +6,7 @@ import "@/components/america/america.css";
 
 const openSans = Open_Sans({ subsets: ["latin"], weight: ["400", "800"], variable: "--oqa-font" });
 
-const desc = "A documentary by Michael Linares. Three questions, 221 strangers, eleven days in a car from Los Angeles to New York City, July 2024. Take the trip, then watch it free.";
+const desc = "A documentary by Michael Linares. Three questions, over 200 strangers, eleven days in a car from Los Angeles to New York City, July 2024. Take the trip, then watch it free.";
 
 export const metadata: Metadata = {
   title: "One Question for America — a documentary by Michael Linares",

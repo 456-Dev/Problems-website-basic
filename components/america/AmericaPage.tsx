@@ -82,28 +82,26 @@ export default function AmericaPage({ map }: { map: MapData }) {
           <h1><span>“One Question</span> <span>for America”</span></h1>
           <p className="oqa-credit">A documentary by Michael Linares</p>
           <p className="oqa-log">
-            Three questions. 221 strangers. Eleven days in a car from Los Angeles to New York City,
+            Three questions. Over 200 strangers. Eleven days in a car from Los Angeles to New York City,
             July 4th to 14th, 2024.
           </p>
           <div className="oqa-actions">
-            <a className="oqa-btn" href="#trip">Take the trip ↓</a>
-            <a className="oqa-btn ghost" href="#film">▶ Watch the film</a>
+            <a className="oqa-btn" href="#film">▶ Watch the film</a>
+            <a className="oqa-btn ghost" href="#trip">Take the trip ↓</a>
           </div>
           <p className="oqa-runtime">75 min · free · <abbr title="Restricted">R</abbr> for cursing, guns, politics</p>
         </div>
       </section>
 
-      {/* ---------------- why ---------------- */}
-      <section className="oqa-why">
-        <p className="oqa-narr">
-          This project was created in 2024 in response to a heated election, a profit-driven news media
-          amplifying the division, and an online discourse controlled more and more by bots.
-        </p>
-        <p className="oqa-narr">
-          On a road trip from LA to New York City, we spoke to, frankly, anyone who would speak to us.
-        </p>
-        <p className="oqa-narr dim">Without editorializing or filtering.</p>
-        <p className="oqa-from">— from the opening of the film</p>
+      {/* ---------------- the film ---------------- */}
+      <section className="oqa-film" id="film">
+        <h2>Watch the film</h2>
+        <div className="oqa-player">
+          <iframe src={embed(0, false)} title="One Question for America"
+                  allow="encrypted-media; picture-in-picture; fullscreen"
+                  referrerPolicy="strict-origin-when-cross-origin" allowFullScreen />
+        </div>
+        <p className="oqa-hint">75 minutes · free · <a href={WATCH} target="_blank" rel="noopener noreferrer">Open on YouTube ↗</a></p>
       </section>
 
       {/* ---------------- the road trip ---------------- */}
@@ -190,18 +188,7 @@ export default function AmericaPage({ map }: { map: MapData }) {
             );
           })}
         </ol>
-        <p className="oqa-three-foot">221 people answered. We&apos;re not telling you what they said.</p>
-      </section>
-
-      {/* ---------------- the film ---------------- */}
-      <section className="oqa-film" id="film">
-        <h2>Watch the whole thing</h2>
-        <div className="oqa-player">
-          <iframe src={embed(0, false)} title="One Question for America" loading="lazy"
-                  allow="encrypted-media; picture-in-picture; fullscreen"
-                  referrerPolicy="strict-origin-when-cross-origin" allowFullScreen />
-        </div>
-        <p className="oqa-hint">75 minutes · free on YouTube</p>
+        <p className="oqa-three-foot">Over 200 people answered. We&apos;re not telling you what they said.</p>
       </section>
 
       {/* ---------------- credits ---------------- */}

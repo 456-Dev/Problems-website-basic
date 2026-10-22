@@ -51,12 +51,6 @@
 .oqa-runtime { margin: 0; font-size: 15px; color: #bdbdbd; }
 .oqa-runtime abbr { text-decoration: none; border: 1.5px solid #bdbdbd; padding: 0 5px; font-weight: 800; color: #fff; }
 
-/* ---- why (the film's own opening narration) ---- */
-.oqa-why { max-width: 880px; margin: 0 auto; padding: 60px 28px 80px; text-align: center; }
-.oqa-narr { margin: 0 0 22px; font-size: clamp(22px, 2.5vw, 31px); line-height: 1.42; color: var(--sub); }
-.oqa-narr.dim { color: #9d9d9d; }
-.oqa-from { margin: 26px 0 0; color: #7d7d7d; font-size: 14px; }
-
 /* subtitles, wherever a person speaks */
 .oqa-sub { margin: 0; color: var(--sub); font-size: 21px; line-height: 1.35; }
 
@@ -121,11 +115,12 @@
 .oqa-three-foot { margin: 34px 0 0; color: #bdbdbd; font-size: 19px; }
 
 /* ---- the film ---- */
-.oqa-film { max-width: 1200px; margin: 0 auto; padding: 70px 28px 20px; }
+.oqa-film { max-width: 1320px; margin: 0 auto; padding: 10px 28px 70px; }
 .oqa-film h2 { margin-bottom: 20px; }
-.oqa-player { position: relative; aspect-ratio: 16 / 9; background: #111; }
+.oqa-player { position: relative; aspect-ratio: 16 / 9; background: #111; outline: 2px solid #fff; outline-offset: 6px; }
 .oqa-player iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
-.oqa-hint { margin: 12px 0 0; color: #9d9d9d; font-size: 15px; }
+.oqa-hint { margin: 18px 0 0; color: #9d9d9d; font-size: 16px; }
+.oqa-hint a { color: #fff; }
 
 /* ---- credits: a poster billing block ---- */
 .oqa-credits { padding: 90px 28px 70px; max-width: 980px; margin: 0 auto; text-align: center; }
@@ -148,7 +143,7 @@
   .oqa-rail-text b { font-size: 22px; }
   .oqa-rail-text span { font-size: 12px; }
   .oqa-rail-icons svg { width: 28px; height: 28px; }
-  .oqa-top, .oqa-hero, .oqa-why, .oqa-trip, .oqa-three, .oqa-film, .oqa-credits { padding-left: 14px; padding-right: 14px; }
+  .oqa-top, .oqa-hero, .oqa-trip, .oqa-three, .oqa-film, .oqa-credits { padding-left: 14px; padding-right: 14px; }
   .oqa-hero { grid-template-columns: 1fr; gap: 26px; }
   .oqa-three ol { grid-template-columns: 1fr; gap: 24px; }
   .oqa-map { --cs: 2.4; }
