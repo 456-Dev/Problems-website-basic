@@ -1,0 +1,1445 @@
+/* Global Resets & Base Styles */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+    --pixel-black: #080808;
+    --pixel-dark: #393939;
+    --pixel-white: #f0f0f0;
+    --pixel-grey: #7a7a7a;
+    --pixel-red: #ff0000;
+    --pixel-green: #00ff00;
+    --pixel-blue: #0000ff;
+    --pixel-yellow: #f8b400;
+    --pixel-cyan: #00bcf2;
+    --pixel-magenta: #c30052;
+
+    --bg-color: var(--pixel-white);
+    --text-color: var(--pixel-black);
+    --link-color: var(--pixel-blue);
+    --link-hover-color: var(--pixel-cyan);
+    
+    --font-main: 'Times New Roman', serif; /* Changed to Times New Roman */
+    --font-pixel: 'Times New Roman', serif; /* Changed to Times New Roman */
+
+    --border-thickness: 3px;
+    --pixel-block-size: 8px; /* For pixelated effects */
+
+    --header-image-max-height-desktop: 33vh;
+}
+
+body {
+    font-family: var(--font-main);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    line-height: 1.6;
+    -webkit-font-smoothing: none; /* Attempt for sharper text */
+    -moz-osx-font-smoothing: grayscale;
+    image-rendering: -moz-crisp-edges; /* Firefox */
+    image-rendering: -o-crisp-edges; /* Opera */
+    image-rendering: -webkit-optimize-contrast; /* Webkit (non-standard) */
+    image-rendering: pixelated; /* General */
+    image-rendering: crisp-edges; /* Standard */
+}
+
+/* Pixelated border at top - Original */
+/* body::before {
+    content: '';
+    display: block;
+    width: 100%;
+    height: var(--pixel-block-size);
+    background-image: repeating-linear-gradient(45deg, var(--pixel-black) 0, var(--pixel-black) var(--pixel-block-size), transparent var(--pixel-block-size), transparent calc(2 * var(--pixel-block-size)));
+    position: sticky;
+    top: 0;
+    z-index: 100;
+} */
+
+/* Header Banner Image */
+.banner-wrapper {
+    width: 100%;
+    background-color: var(--bg-color);
+}
+
+.site-banner {
+    width: 100%;
+    max-height: var(--header-image-max-height-desktop);
+    overflow: visible; /* Changed from hidden to visible */
+    line-height: 0;
+    display: flex;
+    justify-content: center;
+}
+
+.banner-image {
+    width: auto;
+    height: auto;
+    max-height: var(--header-image-max-height-desktop);
+    max-width: 100%;
+    object-fit: contain;
+    display: block;
+}
+
+.bottom-banner-wrapper {
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+.bottom-banner-wrapper .site-banner {
+    max-height: none; /* Remove max-height constraint */
+}
+
+.bottom-banner-wrapper .banner-image {
+    max-height: none; /* Remove max-height constraint */
+    width: 100%;
+    height: auto;
+}
+
+@media (min-width: 900px) {
+    .site-banner {
+        max-width: 960px;
+        margin-left: auto;
+        margin-right: auto;
+        padding: 0 15px;
+    }
+}
+
+@media (max-width: 599px) {
+    .site-banner {
+        max-height: none; /* Remove max-height constraint */
+        height: auto;
+    }
+    .banner-image {
+        max-height: none; /* Remove max-height constraint */
+        height: auto;
+    }
+}
+
+.main-content-wrapper {
+    padding: 0 15px;
+}
+@media (min-width: 900px) {
+    .main-content-wrapper {
+        max-width: 960px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+
+/* NEW BOOK INTRO SECTION */
+.new-intro-section {
+    margin: 10px 0;
+    text-align: center;
+}
+.main-book-title {
+    font-size: 1.8rem; /* Slightly smaller for mobile */
+    font-family: var(--font-pixel), var(--font-main); /* Use pixel font if available */
+    margin-bottom: 5px;
+    color: var(--pixel-red);
+    text-transform: uppercase;
+}
+.author-tagline {
+    font-size: 1.2em;
+    margin: 12px 0; /* Reduced from 25px to 12px */
+    color: white;
+    text-align: center;
+    background-color: var(--pixel-black);
+    display: inline-block;
+    padding: 5px 15px;
+    margin-left: auto;
+    margin-right: auto;
+}
+.author-tagline em {
+    font-style: italic;
+}
+
+/* Center the tagline container */
+.author-tagline-container {
+    text-align: center;
+    width: 100%;
+}
+
+/* About list responsive text */
+.about-list li {
+    margin-bottom: 10px;
+    font-size: 0.8em; /* Base size for mobile */
+    line-height: 1.6;
+    display: flex;
+    align-items: flex-start;
+    padding-left: 5px; /* Added small padding to move entire bullet point left */
+}
+
+/* Larger screens - scale up the about list text */
+@media (min-width: 768px) {
+    .about-list li {
+        font-size: 1em; /* Larger text for desktop/web view */
+    }
+    
+    .about-list .item-content {
+        font-size: 1.05em; /* Slightly larger content for better readability */
+    }
+}
+
+.info-tiles-container {
+    display: flex;
+    flex-direction: row; /* Always horizontal */
+    gap: 15px; /* Reduced from 30px to 15px */
+    text-align: left;
+    align-items: flex-start; /* Align to top */
+    margin: 0 -15px; /* Compensate for padding on very small screens */
+    padding: 0 15px;
+    flex-wrap: nowrap; /* Prevent wrapping */
+}
+
+.text-tile {
+    flex: 2; /* Take up 2/3 of the space */
+    padding: 15px; /* Reduced from 20px to give more space for content */
+    padding-top: 8px; /* Reduced top padding specifically */
+    background-color: #f9f9f9;
+    min-width: 0; /* Allow shrinking */
+    border-radius: 4px;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+}
+
+.text-tile p {
+    font-size: 0.95em;
+    line-height: 1.7;
+    word-wrap: break-word; /* Ensure text wraps on small screens */
+}
+
+.about-title {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-top: -5px; /* Added negative margin to reduce space above title */
+    margin-bottom: 2px;
+    color: var(--pixel-black);
+    text-align: center;
+    border-bottom: 2px solid var(--pixel-grey);
+    padding-bottom: 0px;
+    letter-spacing: 1px;
+}
+
+.about-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.about-list li:last-child {
+    margin-bottom: 0;
+}
+
+.about-list .bulletr,
+.about-list .bulletg,
+.about-list .bulletb {
+    margin-right: 8px; /* Reduced from 15px */
+    flex-shrink: 0;
+    display: inline-block;
+    width: 15px; /* Reduced from 20px */
+    text-align: center;
+    line-height: 1;
+}
+
+.about-list .bulletr {
+    color: var(--pixel-red);
+    font-size: 1.5em; /* Larger circle */
+}
+
+.about-list .bulletg {
+    color: var(--pixel-green);
+    font-size: 1.3em; /* Square */
+}
+
+.about-list .bulletb {
+    color: var(--pixel-blue);
+    font-size: 1.2em; /* Triangle */
+}
+
+.about-list li strong {
+    font-weight: bold;
+}
+
+.about-list li u {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.about-list li em {
+    font-style: italic;
+}
+
+.about-list .item-content {
+    flex-grow: 1;
+    text-align: left;
+}
+
+.gif-tile {
+    flex: 1; /* Take up 1/3 of the space */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start; /* Align content to top */
+    padding: 0 0 10px 0; /* Add some padding at bottom */
+    background-color: #F0F0F0;
+    position: relative;
+    min-width: 0; /* Allow shrinking */
+    overflow: hidden; /* Prevent content from overflowing */
+}
+
+#interactive-gif {
+    width: 100%;
+    height: auto;
+    max-height: none; /* Remove height restriction */
+    margin-bottom: 10px; /* Add margin below image */
+    cursor: pointer;
+    object-fit: contain;
+}
+
+
+.frame-message.visible {
+    opacity: 1;
+}
+
+.click-message.visible {
+    opacity: 1;
+}
+
+/* Animated Barbershop Pole Divider */
+.pixel-divider {
+    height: 8px;
+    margin: 5px 0;
+    border: none;
+    width: 100%;
+    background: repeating-linear-gradient(
+        90deg,
+        var(--pixel-red),
+        var(--pixel-red) 10px,
+        var(--pixel-green) 10px,
+        var(--pixel-green) 20px,
+        var(--pixel-blue) 20px,
+        var(--pixel-blue) 30px,
+        var(--pixel-white) 30px,
+        var(--pixel-white) 40px
+    );
+    background-size: 200% 200%;
+    animation: barberpole 800s linear infinite;
+}
+
+@keyframes barberpole {
+    0% {
+        background-position: 0% 0%;
+    }
+    100% {
+        background-position: 100% 100%;
+    }
+}
+
+.pixel-divider.short-divider {
+    width: 50%;
+    margin-left: auto;
+    margin-right: auto;
+}
+.pixel-divider.thick {
+    height: 30px;
+}
+
+/* Editions Selection Section */
+.editions-selection-section {
+    margin-bottom: 30px;
+    position: relative;
+}
+
+/* Editions grid - compact to fit mobile */
+.editions-grid {
+    display: flex;
+    justify-content: center;
+    gap: 5px; /* Very small gap to fit on mobile */
+    position: relative;
+}
+
+/* Base card styles - smaller and more compact */
+.edition-card {
+    flex: 1;
+    border: var(--border-thickness) solid var(--pixel-black);
+    padding: 15px 12px; /* Slightly increased vertical padding */
+    background-color: var(--pixel-white);
+    position: relative;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    min-width: 0; /* Allow text to wrap/compress */
+}
+
+/* Edition name styles - responsive sizing */
+.edition-name {
+    font-size: 1.0em;
+    line-height: 1.1;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin: 0 0 12px 0;
+    padding-right: calc(15% + 5px); /* Make room for price tag + small gap */
+}
+
+/* Price tag styles - responsive sizing */
+.edition-price {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 15%; /* Set width to 15% of the tile */
+    font-size: clamp(0.9rem, 3vw, 1.4rem); /* Responsive font size */
+    font-weight: bold;
+    padding: 3px 0; /* Vertical padding only */
+    background-color: var(--pixel-black);
+    text-align: center; /* Center text */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.digital .edition-price { color: var(--pixel-white); }
+.standard .edition-price { color: var(--pixel-white); }
+.deluxe .edition-price { color: var(--pixel-white); }
+
+/* Buttons container */
+.edition-buttons {
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px; /* Increased from 5px */
+    width: 100%; /* Ensure buttons use full width */
+}
+
+/* Button styles - more compact */
+.btn {
+    padding: 8px 5px;
+    font-size: 0.75rem; /* Base font size */
+    font-weight: bold;
+    text-align: center;
+    border: 2px solid var(--pixel-black);
+    cursor: pointer;
+    text-decoration: none;
+    font-family: 'Times New Roman', serif;
+    white-space: normal;
+    line-height: 1.2;
+}
+
+.action-btn {
+    font-size: 0.825rem; /* 10% larger than info-btn */
+    padding: 6px 4px; /* Reduced padding to compensate for larger font */
+}
+
+.info-btn { 
+    background-color: var(--pixel-white);
+    color: var(--pixel-black);
+    font-size: 0.75rem;
+}
+
+.digital .action-btn { background-color: var(--pixel-blue); color: var(--pixel-white); }
+.standard .action-btn { background-color: var(--pixel-green); color: var(--pixel-black); }
+.deluxe .action-btn { background-color: var(--pixel-red); color: var(--pixel-white); }
+
+/* Expanded view container */
+.expanded-view {
+    display: none;
+    width: 100%;
+    padding: 5px 0;
+}
+
+/* Expanded view header */
+.expanded-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--pixel-grey);
+    padding-bottom: 8px;
+    margin-bottom: 10px;
+}
+
+.expanded-header h4 {
+    margin: 0;
+    font-size: 1.2em;
+    font-weight: bold;
+    font-family: 'Times New Roman', serif;
+}
+
+/* We're keeping the expanded price integrated with the title */
+.expanded-price {
+    font-weight: bold;
+}
+
+/* Close button */
+.close-info-btn {
+    background-color: var(--pixel-black);
+    color: var(--pixel-white);
+    border: none;
+    width: 25px;
+    height: 25px;
+    font-size: 16px;
+    line-height: 25px;
+    text-align: center;
+    cursor: pointer;
+}
+
+/* Content container with image */
+.expanded-info-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 0;
+    align-items: flex-start; /* Align items to the top */
+}
+
+/* Bullet point list */
+.edition-info-list {
+    flex: 1;
+    list-style-type: none;
+    padding: 0;
+    margin: 0 0 10px 0; /* Add bottom margin for spacing above button */
+}
+
+.edition-info-list li {
+    position: relative;
+    padding-left: 15px;
+    margin-bottom: 8px;
+    font-size: 0.9em;
+    line-height: 1.2;
+}
+
+.edition-info-list li::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    color: inherit;
+}
+
+/* Sub bullet points */
+.edition-info-list ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 5px 0 0 15px;
+}
+
+.edition-info-list ul li {
+    padding-left: 15px;
+    margin-bottom: 5px;
+    font-size: 0.85em;
+}
+
+.edition-info-list ul li::before {
+    content: "◦";
+    position: absolute;
+    left: 0;
+    color: inherit;
+}
+
+/* Small image */
+.edition-image {
+    width: 80px;
+    height: 100px;
+    object-fit: cover;
+    border: 1px solid var(--pixel-black);
+    margin-bottom: 0; /* Remove any bottom margin */
+}
+
+/* Expanded card state */
+.edition-card.expanded {
+    position: absolute;
+    width: 100%;
+    left: 0;
+    z-index: 10;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    padding-bottom: 25px; /* Increased padding */
+}
+
+.edition-card.expanded .normal-view {
+    display: none;
+}
+
+.edition-card.expanded .expanded-view {
+    display: block;
+}
+
+/* Hide other cards when one is expanded */
+.edition-card.hide {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Ensure grid has proper height when expanded */
+.editions-grid.has-expanded-card {
+    min-height: 350px; /* Increase min-height to accommodate sub-bullet points */
+}
+
+/* Larger screens - more spacing */
+@media (min-width: 769px) {
+    .editions-grid {
+        gap: 15px;
+    }
+    
+    .edition-card {
+        padding: 20px;
+    }
+    
+    .edition-name {
+        font-size: 1.28em;
+        line-height: 1.2;
+    }
+    
+    .edition-price {
+        font-size: 1.4em;
+    }
+    
+    .btn {
+        padding: 10px;
+        font-size: 0.9em;
+    }
+    
+    .expanded-header h4 {
+        font-size: 1.4em;
+    }
+    
+    .edition-info-list li {
+        font-size: 1em;
+        margin-bottom: 10px;
+    }
+    
+    .edition-image {
+        width: 100px;
+        height: 120px;
+    }
+    
+    .expanded-view .action-btn {
+        width: calc(100% - 130px);
+        font-size: 1em;
+        padding: 10px;
+        margin-top: 15px; /* Add more space above button */
+    }
+}
+
+/* Extra small screens */
+@media (max-width: 360px) {
+    .btn {
+        font-size: 0.6rem; /* Force smaller text on very small screens */
+        padding: 8px 3px;
+    }
+    
+    .action-btn, .info-btn {
+        font-size: 0.55rem; /* Even smaller for action buttons */
+    }
+    
+    .expanded-view .action-btn {
+        font-size: 0.55rem;
+    }
+}
+
+/* Special styling for responsive buttons on small screens */
+@media (max-width: 576px) {
+    .edition-buttons {
+        gap: 8px;
+    }
+    
+    .btn {
+        padding: 10px 5px;
+        font-size: 10px;
+    }
+    
+    .action-btn {
+        padding: 10px 4px;
+        font-size: 11px; /* 10% larger than base mobile size */
+    }
+    
+    .info-btn {
+        padding: 12px 5px;
+        font-size: 12px;
+    }
+    
+    .edition-name {
+        font-size: 0.8em; /* 20% smaller on mobile */
+    }
+}
+
+/* Events Section */
+.events-section {
+    margin: 5px 0;
+}
+.get-the-book-sign {
+    margin: 30px auto 10px;
+    max-width: 640px;
+    text-align: center;
+    padding: 25px 20px;
+    background-color: var(--pixel-yellow);
+    color: var(--pixel-black);
+    border: var(--border-thickness) solid var(--pixel-black);
+    box-shadow: 8px 8px 0 var(--pixel-black);
+}
+.get-the-book-sign h3 {
+    font-family: var(--font-pixel), var(--font-main);
+    font-size: 1.6rem;
+    margin-bottom: 8px;
+}
+.get-the-book-sign p {
+    font-size: 1.1rem;
+    margin-bottom: 18px;
+    font-weight: bold;
+}
+.get-the-book-contacts {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+}
+.get-the-book-btn {
+    display: inline-block;
+    width: 100%;
+    max-width: 420px;
+    padding: 12px 16px;
+    font-size: 1.05rem;
+    font-weight: bold;
+    text-decoration: none;
+    border: var(--border-thickness) solid var(--pixel-black);
+    transition: transform 0.1s ease;
+}
+.get-the-book-btn:hover { transform: translate(-2px, -2px); }
+.get-the-book-btn.instagram { background-color: var(--pixel-magenta); color: var(--pixel-white); }
+.get-the-book-btn.email { background-color: var(--pixel-white); color: var(--pixel-black); }
+#events {
+    padding-top: 15px;
+    margin-bottom: 15px;
+}
+#events h2, #how-it-works h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-family: var(--font-pixel), var(--font-main);
+    font-size: 1.4rem;
+}
+.section-intro {
+    text-align: center;
+    margin-bottom: 25px;
+    font-size: 0.95em;
+    color: #444;
+}
+.event-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+}
+.event-card {
+    border: var(--border-thickness) solid var(--pixel-black);
+    padding: 15px;
+    background-color: #f9f9f9;
+}
+.event-name { font-size: 1.2em; margin-bottom: 5px; color: var(--pixel-blue); }
+.event-details, .event-location { font-size: 0.9em; margin-bottom: 8px; color: #333; }
+.slots-tracker { font-size: 0.85em; margin-bottom: 10px; }
+.slots-bar-container {
+    width: 100%;
+    height: 12px;
+    background-color: var(--pixel-grey);
+    border: 1px solid var(--pixel-black);
+    margin-top: 5px;
+}
+.slots-bar-filled {
+    height: 100%;
+    background-color: var(--pixel-green);
+}
+.book-slot-btn {
+    background-color: var(--pixel-red);
+    font-size: 0.95em;
+}
+.book-slot-btn:hover { background-color: var(--pixel-magenta); }
+
+@media (min-width: 768px) {
+    .event-list {
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 25px;
+    }
+     #events h2, #how-it-works h2 {
+        font-size: 1.7rem;
+    }
+}
+
+/* How it Works Section */
+.how-it-works-section {
+    margin-bottom: 30px;
+    padding: 20px;
+    border: var(--border-thickness) dashed var(--pixel-grey);
+    background-color: #f9f9f9;
+}
+
+.steps-subtitle {
+    color: var(--pixel-blue);
+    margin: 25px 0 15px 0;
+    font-size: 1.2rem;
+    text-align: center;
+}
+
+.steps-list {
+    list-style: none;
+    padding-left: 0;
+}
+
+.steps-list li {
+    margin-bottom: 12px;
+    font-size: 0.95em;
+    display: flex;
+    align-items: flex-start;
+}
+.steps-list li span { /* Number circle */
+    display: inline-block;
+    background-color: var(--pixel-blue);
+    color: var(--pixel-white);
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    text-align: center;
+    line-height: 24px;
+    font-weight: bold;
+    margin-right: 10px;
+    flex-shrink: 0;
+    font-size: 0.85em;
+}
+
+/* Footer */
+.site-footer-bottom {
+    text-align: center;
+    padding: 20px 15px;
+    background-color: #e0e0e0;
+    border-top: var(--border-thickness) solid var(--pixel-black);
+    font-size: 0.85em;
+}
+
+/* America Footer */
+.america-footer {
+    background-color: #000;
+    padding: 30px 20px;
+    text-align: center;
+    border-top: 3px solid var(--pixel-black);
+}
+
+.america-footer-content {
+    max-width: 600px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.america-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: white;
+    padding: 15px 25px;
+    border: 2px solid white;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.america-link:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
+}
+
+.america-flag {
+    width: 50%;
+    height: auto;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(255, 255, 255, 0.3);
+}
+
+.america-description {
+    color: #ccc;
+    font-family: 'Tahoma', sans-serif;
+    font-size: 0.9rem;
+    text-align: center;
+    line-height: 1.4;
+    margin-bottom: 5px;
+}
+
+.america-text {
+    font-family: 'Tahoma', sans-serif;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: white;
+}
+
+@media (max-width: 480px) {
+    .america-link {
+        flex-direction: column;
+        gap: 10px;
+        padding: 12px 20px;
+    }
+    
+    .america-text {
+        font-size: 1rem;
+    }
+    
+    .america-flag {
+        width: 80px;
+    }
+    
+    .america-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        color: white;
+        padding: 15px 25px;
+        border: 2px solid white;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.1);
+        cursor: pointer;
+    }
+}
+
+.contact-info a {
+    color: var(--link-color);
+    font-weight: bold;
+}
+.contact-info a:hover { color: var(--link-hover-color); }
+.copyright { margin: 10px 0; }
+.footer-pixel-decoration span {
+    font-size: 1.2em;
+    color: var(--pixel-grey);
+    margin: 0 2px;
+}
+
+
+/* MODAL STYLES (Booking & Lightbox) */
+.modal-overlay, .lightbox-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(8, 8, 8, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0s 0.3s linear;
+}
+.modal-overlay[aria-hidden="false"],
+.lightbox-overlay[aria-hidden="false"] {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.3s ease, visibility 0s 0s linear;
+}
+
+.modal-content, .lightbox-content {
+    background-color: var(--bg-color);
+    padding: 20px;
+    border: var(--border-thickness) solid var(--pixel-black);
+    max-width: 90vw;
+    width: 500px; /* Max width for modal form */
+    position: relative;
+    box-shadow: var(--pixel-block-size) var(--pixel-block-size) 0 var(--pixel-red);
+    overflow-y: auto; /* Scroll if content too tall */
+    max-height: 90vh;
+}
+
+.modal-close-btn, .lightbox-close-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: var(--pixel-red);
+    border: var(--border-thickness) solid var(--pixel-black);
+    color: var(--bg-color);
+    width: 30px;
+    height: 30px;
+    font-size: 1.5rem;
+    cursor: pointer;
+    line-height: 24px; /* Adjust for border */
+    text-align: center;
+    padding: 0;
+}
+.modal-close-btn:hover, .lightbox-close-btn:hover { background-color: var(--pixel-magenta); }
+
+/* Modal Specific */
+.modal-content h3 {
+    font-family: var(--font-pixel), var(--font-main);
+    margin-bottom: 15px; text-align: center; color: var(--pixel-blue);
+}
+.form-group { margin-bottom: 15px; }
+.form-group label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 0.9em;}
+.form-group input[type="email"],
+.form-group input[type="tel"],
+.form-group input[type="text"],
+.form-group select {
+    width: 100%;
+    padding: 8px;
+    border: 2px solid var(--pixel-grey);
+    background-color: var(--pixel-white);
+    font-family: var(--font-main);
+    font-size: 1em;
+}
+.form-group input:focus, .form-group select:focus {
+    border-color: var(--pixel-blue);
+    outline: none;
+}
+.form-note { font-size: 0.8em; text-align: center; margin-bottom: 15px; color: var(--pixel-grey); }
+.modal-submit-btn {
+    width: 100%; padding: 12px; font-size: 1em;
+    background-color: var(--pixel-green);
+}
+.modal-submit-btn:hover { background-color: #5fdd3f; }
+
+/* Lightbox Specific */
+.lightbox-content {
+    padding: 10px; /* Minimal padding around image */
+    max-width: 90vw; /* Responsive max width */
+    max-height: 90vh; /* Responsive max height */
+    width: auto; /* Let image determine width unless too big */
+}
+.lightbox-close-btn {
+    top: -15px; right: -15px; /* Position outside image box for clarity */
+}
+#lightbox-image {
+    display: block;
+    max-width: 100%;
+    max-height: calc(90vh - 20px - (2 * var(--border-thickness)));
+    object-fit: contain;
+}
+
+/* Helper classes (if needed) */
+.text-center { text-align: center; }
+
+/* Add some responsive adjustments for very small screens */
+@media (max-width: 400px) {
+    .info-tiles-container {
+        gap: 0px;
+    }
+    
+    .text-tile p {
+        font-size: 0.9em;
+        line-height: 1.6;
+    }
+    
+    .text-tile, .gif-tile {
+        padding: 2px;
+    }
+    
+    #interactive-gif {
+        max-height: 200px;
+        margin-bottom: 5px;
+    }
+}
+
+.bottom-banner-wrapper {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    width: 100%;
+    overflow: hidden;
+}
+
+.bottom-banner-wrapper .site-banner {
+    width: 100%;
+    max-width: none; /* Remove max-width constraint */
+    padding: 0;
+}
+
+.bottom-banner-wrapper .banner-image {
+    width: 100%;
+    height: auto;
+    max-height: none; /* Remove height constraint */
+    object-fit: cover;
+}
+
+@media (min-width: 900px) {
+    .bottom-banner-wrapper .site-banner {
+        max-width: none; /* Override the desktop max-width */
+    }
+}
+
+@media (max-width: 1000px) {
+    .bottom-banner-wrapper .banner-image {
+        max-height: none;
+        width: 100%;
+    }
+}
+
+/* Digital Purchase Modal Styles */
+.digital-purchase-info {
+    margin-bottom: 20px;
+    text-align: left;
+    background-color: rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    border-radius: 4px;
+}
+
+.digital-purchase-info p {
+    margin: 10px 0;
+}
+
+.payment-options {
+    display: flex;
+    justify-content: space-between;
+    margin: 15px 0;
+}
+
+.payment-option {
+    display: block;
+    padding: 10px 15px;
+    border-radius: 4px;
+    color: var(--pixel-white);
+    font-weight: bold;
+    text-decoration: none;
+    text-align: center;
+    flex: 1;
+    margin: 0 5px;
+    border: 2px solid var(--pixel-black);
+}
+
+.payment-option:first-child {
+    margin-left: 0;
+}
+
+.payment-option:last-child {
+    margin-right: 0;
+}
+
+.venmo {
+    background-color: #3D95CE;
+}
+
+.cashapp {
+    background-color: #00D632;
+}
+
+.zelle {
+    background-color: #6C1CD3;
+}
+
+.promo-area {
+    margin: 15px 0;
+}
+
+.promo-area .form-group {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.promo-area label {
+    width: 100%;
+    margin-bottom: 5px;
+}
+
+.promo-area input {
+    flex: 1;
+    padding: 8px;
+    border: 2px solid var(--pixel-grey);
+    margin-right: 10px;
+}
+
+#apply-promo-btn {
+    background-color: var(--pixel-grey);
+    color: var(--pixel-white);
+    padding: 8px 15px;
+    border: none;
+    cursor: pointer;
+}
+
+.honor-system {
+    margin: 20px 0;
+    text-align: center;
+}
+
+.honor-system p {
+    margin-bottom: 10px;
+}
+
+#paid-confirmation-btn {
+    background-color: var(--pixel-green);
+    color: var(--pixel-black);
+    padding: 12px 24px;
+    font-weight: bold;
+    margin: 0 auto;
+    display: block;
+    width: 100%;
+}
+
+#download-section {
+    background-color: var(--pixel-green);
+    color: var(--pixel-black);
+    padding: 15px;
+    border-radius: 4px;
+    margin: 20px 0;
+    text-align: center;
+}
+
+#download-section h4 {
+    margin-top: 0;
+    font-size: 1.2em;
+}
+
+.download-btn {
+    background-color: var(--pixel-blue);
+    color: var(--pixel-white);
+    padding: 10px 20px;
+    text-decoration: none;
+    display: inline-block;
+    margin-top: 10px;
+    border: 2px solid var(--pixel-black);
+    font-weight: bold;
+}
+
+/* Delivery Modal Styles */
+.delivery-intro {
+    margin-bottom: 20px;
+    font-weight: bold;
+    text-align: center;
+}
+
+textarea {
+    width: 100%;
+    padding: 8px;
+    border: 2px solid var(--pixel-grey);
+    background-color: var(--pixel-white);
+    font-family: var(--font-main);
+    font-size: 1em;
+    resize: vertical;
+}
+
+.double-field {
+    display: flex;
+    gap: 10px;
+}
+
+.double-field > div {
+    flex: 1;
+}
+
+.payment-section {
+    margin: 25px 0 15px;
+    padding: 15px;
+    background-color: rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+}
+
+.payment-section h4 {
+    margin-top: 0;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.payment-note {
+    margin: 15px 0 10px;
+    text-align: center;
+    font-style: italic;
+    font-size: 0.9em;
+}
+
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    margin: 10px 0;
+}
+
+.checkbox-group input[type="checkbox"] {
+    margin-right: 10px;
+    width: auto;
+    flex-shrink: 0;
+}
+
+.checkbox-group label {
+    margin: 0;
+    display: inline;
+    font-weight: normal;
+}
+
+#order-success {
+    background-color: var(--pixel-green);
+    color: var(--pixel-black);
+    padding: 15px;
+    border-radius: 4px;
+    margin: 20px 0;
+    text-align: center;
+}
+
+/* Fix for space below expanded card */
+.editions-grid.has-expanded-card + * {
+    margin-top: 20px; /* Add space after the grid when card is expanded */
+}
+
+/* Add image to expanded view */
+.expanded-info-container {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 15px;
+}
+
+.edition-info-list {
+    flex: 2;
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.edition-image {
+    flex: 1;
+    max-width: 120px;
+    height: 150px;
+    object-fit: cover;
+    border: 2px solid var(--pixel-black);
+}
+
+/* Add a shadow when hovering over buttons */
+.btn:hover {
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+}
+
+/* Prevent scroll issues when modal is open */
+body.modal-open {
+    overflow: hidden;
+}
+
+/* Hide original title and price in expanded state */
+.edition-card.expanded .edition-name,
+.edition-card.expanded .edition-price {
+    display: none;
+}
+
+/* Position the action button to align with image bottom */
+.expanded-view .action-btn {
+    position: static;
+    width: auto;
+    display: block;
+    margin-left: 15px; /* Match the bullet point padding */
+    margin-top: 15px; /* Add some space above the button */
+    width: calc(100% - 110px); /* Match the width of the bullet points */
+    font-size: 10px; /* Fixed small size in pixels */
+    white-space: normal; /* Allow wrapping */
+}
+
+@media (max-width: 576px) {
+    .expanded-view .action-btn {
+        width: calc(100% - 30px); /* Wider on mobile */
+        padding: 12px 8px;
+        margin-top: 20px;
+        font-size: 0.65rem; /* Fixed smaller size on mobile */
+    }
+}
+
+/* Zelle Info Styling */
+.zelle-info {
+    margin: 15px 0;
+    background-color: #f0f0ff;
+    border: 1px solid #6C1CD3;
+    border-radius: 4px;
+    padding: 12px;
+    transition: all 0.3s ease;
+}
+
+.zelle-details h5 {
+    color: #6C1CD3;
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 1.1em;
+}
+
+.zelle-details p {
+    margin: 5px 0;
+}
+
+.zelle-note {
+    font-size: 0.9em;
+    font-style: italic;
+    margin-top: 10px !important;
+}
+
+@media (max-width: 576px) {
+    .edition-price {
+        font-size: clamp(0.8rem, 3vw, 1.1rem); /* Slightly smaller on mobile */
+        min-width: 30px; /* Minimum width to ensure readability */
+    }
+}
+
+/* Form Success Message */
+.form-success-message {
+    text-align: center;
+    padding: 20px;
+    margin: 20px 0;
+    background-color: var(--pixel-white);
+    border: 2px solid var(--pixel-green);
+}
+
+.form-success-message h4 {
+    color: var(--pixel-green);
+    font-size: 1.5em;
+    margin-bottom: 15px;
+}
+
+.form-success-message p {
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+
+/* Form field styling */
+.form-group {
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: var(--pixel-black);
+}
+
+/* Clean dropdown styling */
+select {
+    width: 100%;
+    padding: 12px 15px;
+    font-size: 16px;
+    border: 2px solid var(--pixel-grey);
+    border-radius: 4px;
+    background-color: white;
+    cursor: pointer;
+    color: #333;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23333333%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    background-size: 12px;
+    padding-right: 40px;
+}
+
+select:hover {
+    border-color: var(--pixel-black);
+}
+
+select:focus {
+    outline: none;
+    border-color: var(--pixel-black);
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Style the dropdown options */
+select option {
+    padding: 12px;
+    font-size: 16px;
+}
+
+select option:first-child {
+    color: #666;
+    font-style: italic;
+}
+
+/* Mobile optimization */
+@media (max-width: 768px) {
+    select {
+        font-size: 16px; /* Prevents zoom on iOS */
+        padding: 14px 40px 14px 15px; /* Larger touch target */
+    }
+}
+
+/* Remove old custom select styles */
+.select-wrapper, .custom-select, .select-arrow {
+    display: none;
+}

@@ -23,7 +23,7 @@ const panels = [
     blurb: "One question. About 25 strangers on the street. Watch them answer, then suggest the next one." },
   { href: "/america", img: "/assets/america/flag.jpg", years: "2025", title: "One Question for America",
     blurb: "A road-trip documentary. 3 questions, 221 people, 14 states, Los Angeles to New York." },
-  { href: "/book", img: "/assets/book/cover.jpg", years: "2025", title: "They Said You Can't",
+  { href: "/book/", img: "/assets/book/cover.jpg", years: "2025", title: "They Said You Can't",
     blurb: "The photography book. 160 full-color pages in 7 sections. Digital, standard, and deluxe." },
 ];
 

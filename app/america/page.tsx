@@ -191,7 +191,7 @@ export default function America() {
 
         <footer className="oqa-foot oqa-mono">
           <span>Screenings, press, or just want to talk? <a href="mailto:michaellinares314@gmail.com">michaellinares314@gmail.com</a></span>
-          <span><a href="/book">The book: They Said You Can&apos;t →</a></span>
+          <span><a href="/book/">The book: They Said You Can&apos;t →</a></span>
         </footer>
       </div>
     </main>
