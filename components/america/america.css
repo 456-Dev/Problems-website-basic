@@ -97,16 +97,9 @@
 .oqa-map-label { fill: #fff; font-size: 21px; font-weight: 800; paint-order: stroke; stroke: #000; stroke-width: 5px; pointer-events: none; }
 
 .oqa-card { background: #0a0a0a; border: 1px solid #222; padding: 0 0 18px; }
-.oqa-card-frame { position: relative; aspect-ratio: 960 / 474; background: #000; }
-.oqa-card-frame.playing { aspect-ratio: 16 / 9; }
-.oqa-card-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
-.oqa-card-still { position: absolute; inset: 0; width: 100%; overflow: hidden; }
 /* hide the burned-in subtitle band: the teaser below is all you get */
-.oqa-card-still img { position: absolute; left: 0; top: 0; width: 100%; height: auto; display: block; }
-.oqa-card-play { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 64px; height: 64px;
-  display: grid; place-items: center; border-radius: 50%; background: rgba(0,0,0,.6); border: 2px solid #fff; font-size: 22px; padding-left: 4px;
-  transition: background .15s; }
-.oqa-card-still:hover .oqa-card-play { background: rgba(0,0,0,.85); }
+.oqa-card-frame { position: relative; aspect-ratio: 960 / 474; background: #000; overflow: hidden; }
+.oqa-card-frame img { position: absolute; left: 0; top: 0; width: 100%; height: auto; display: block; }
 .oqa-card-meta { margin: 14px 18px 4px; font-size: 13px; color: #8a8a8a; }
 .oqa-card h3 { margin: 0 18px; font-size: 32px; font-weight: 800; line-height: 1.05; letter-spacing: -.02em; }
 .oqa-card h3 small { display: block; margin-top: 4px; font-size: 16px; font-weight: 400; color: #bdbdbd; letter-spacing: 0; }
@@ -117,7 +110,6 @@
 .oqa-card-nav { display: flex; gap: 8px; margin: 16px 18px 0; }
 .oqa-card-nav button { flex: 1; padding: 11px 8px; border: 1px solid #333; font-size: 14px; font-weight: 800; transition: border-color .15s; }
 .oqa-card-nav button:hover:not(:disabled) { border-color: #fff; }
-.oqa-card-nav .play { background: #fff; color: #000; border-color: #fff; }
 .oqa-trip-foot { margin: 16px 0 0; color: #7d7d7d; font-size: 14px; }
 
 /* ---- three questions, no answers ---- */

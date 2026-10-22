@@ -38,13 +38,11 @@ function Car() {
 
 export default function AmericaPage({ map }: { map: MapData }) {
   const [i, setI] = useState(0);
-  const [playing, setPlaying] = useState(false);
   const stop = stops[i];
   const last = stops.length - 1;
 
   const go = useCallback((n: number) => {
     setI(Math.min(last, Math.max(0, n)));
-    setPlaying(false);
   }, [last]);
 
   // arrow keys drive while the map is on screen
@@ -151,18 +149,9 @@ export default function AmericaPage({ map }: { map: MapData }) {
           </svg>
 
           <article className="oqa-card" aria-live="polite">
-            <div className={`oqa-card-frame${playing ? " playing" : ""}`}>
-              {playing ? (
-                <iframe src={embed(stop.t, true)} title={`One Question for America — ${stop.place}`}
-                        allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
-                        referrerPolicy="strict-origin-when-cross-origin" allowFullScreen />
-              ) : (
-                <button className="oqa-card-still" onClick={() => setPlaying(true)} aria-label={`Play the ${stop.place} stop`}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={frame(stop.img)} alt="" />
-                  <span className="oqa-card-play">▶</span>
-                </button>
-              )}
+            <div className="oqa-card-frame">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={frame(stop.img)} alt={`${stop.place}, ${stop.date}`} />
             </div>
             <p className="oqa-card-meta">Day {stop.day} of 11 · Stop {i + 1} of {stops.length}</p>
             <h3>{stop.place}{stop.where ? <small>{stop.where}</small> : null}</h3>
@@ -177,7 +166,6 @@ export default function AmericaPage({ map }: { map: MapData }) {
             )}
             <div className="oqa-card-nav">
               <button onClick={() => go(i - 1)} disabled={i === 0}>← Back</button>
-              <button className="play" onClick={() => setPlaying(true)}>▶ Watch this stop</button>
               <button onClick={() => go(i + 1)} disabled={i === last}>Next stop →</button>
             </div>
           </article>
