@@ -1,72 +1,72 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Ask, Flip, Happy } from "./Icons";
-import { useYouTube } from "./useYouTube";
-import { VIDEO_ID, asked, flipped, HAPPY, happyLines, days, frame, clock } from "@/lib/america";
+import { VIDEO_ID, stops, questions, frame } from "@/lib/america";
+import type { MapData } from "@/lib/americaMap";
 
 const WATCH = `https://www.youtube.com/watch?v=${VIDEO_ID}`;
 const MAIL = "michaellinares314@gmail.com";
+const embed = (start: number, autoplay: boolean) =>
+  `https://www.youtube.com/embed/${VIDEO_ID}?rel=0&playsinline=1&start=${Math.max(0, start)}${autoplay ? "&autoplay=1" : ""}`;
 
-type Rail = { place: string; date: string; icon: 0 | 1 | 2 | 3 };
+const days = Array.from(new Set(stops.map((s) => s.day)));
 
 // The film's right-hand rail: place + date written sideways, and the three question marks.
-function SideRail({ rail }: { rail: Rail }) {
+function SideRail({ place, date, lit }: { place: string; date: string; lit: number }) {
   return (
     <aside className="oqa-rail" aria-hidden="true">
-      <div className="oqa-rail-text">
-        <b>{rail.place}</b>
-        <span>{rail.date}</span>
-      </div>
+      <div className="oqa-rail-text"><b>{place}</b><span>{date}</span></div>
       <div className="oqa-rail-icons">
-        <Ask className={rail.icon === 1 ? "on" : ""} />
-        <Flip className={rail.icon === 2 ? "on" : ""} />
-        <Happy className={rail.icon === 3 ? "on" : ""} />
+        <Ask className={lit === 1 ? "on" : ""} />
+        <Flip className={lit === 2 ? "on" : ""} />
+        <Happy className={lit === 3 ? "on" : ""} />
       </div>
     </aside>
   );
 }
 
-// A frame from the film, with its subtitle reset in HTML so it stays readable.
-function Still({ t, sub, onPlay, label }: { t: number; sub: string; onPlay: () => void; label?: string }) {
+function Car() {
   return (
-    <button className="oqa-still" onClick={onPlay} aria-label={`Play from ${clock(t)}: ${sub}`}>
-      <span className="oqa-still-img">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={frame(t)} alt="" loading="lazy" />
-        <span className="oqa-still-play">▶ {clock(t)}</span>
-      </span>
-      <span className="oqa-sub">{label ?? `-${sub}`}</span>
-    </button>
+    <g className="oqa-car-body">
+      <path d="M-13 1h26v-5l-4-1-4-6h-11l-5 6-2 1z" />
+      <circle cx="-7" cy="2" r="3.2" />
+      <circle cx="7" cy="2" r="3.2" />
+    </g>
   );
 }
 
-export default function AmericaPage() {
-  const playAt = useYouTube("oqa-player", VIDEO_ID);
-  const [rail, setRail] = useState<Rail>({ place: "Los Angeles to New York", date: "July 2024", icon: 0 });
+export default function AmericaPage({ map }: { map: MapData }) {
+  const [i, setI] = useState(0);
+  const [playing, setPlaying] = useState(false);
+  const stop = stops[i];
+  const last = stops.length - 1;
 
-  const play = (t: number) => {
-    document.getElementById("watch")?.scrollIntoView({ behavior: "smooth", block: "start" });
-    playAt(Math.max(0, t - 4));
-  };
+  const go = useCallback((n: number) => {
+    setI(Math.min(last, Math.max(0, n)));
+    setPlaying(false);
+  }, [last]);
 
-  // Whatever crosses the middle of the screen sets the rail, like the film does per interview.
+  // arrow keys drive while the map is on screen
   useEffect(() => {
-    const els = document.querySelectorAll<HTMLElement>("[data-place]");
-    const io = new IntersectionObserver((entries) => {
-      for (const e of entries) {
-        if (!e.isIntersecting) continue;
-        const d = e.target as HTMLElement;
-        setRail({ place: d.dataset.place!, date: d.dataset.date ?? "", icon: Number(d.dataset.icon ?? 0) as Rail["icon"] });
-      }
-    }, { rootMargin: "-48% 0px -48% 0px" });
-    els.forEach((el) => io.observe(el));
-    return () => io.disconnect();
-  }, []);
+    const onKey = (e: KeyboardEvent) => {
+      const trip = document.getElementById("trip")?.getBoundingClientRect();
+      if (!trip || trip.bottom < 0 || trip.top > innerHeight) return;
+      if (e.key === "ArrowRight") go(i + 1);
+      if (e.key === "ArrowLeft") go(i - 1);
+    };
+    addEventListener("keydown", onKey);
+    return () => removeEventListener("keydown", onKey);
+  }, [i, go]);
+
+  const route = map.pts.map((p) => p.join(",")).join(" ");
+  const driven = map.pts.slice(0, i + 1).map((p) => p.join(",")).join(" ");
+  const [cx, cy] = map.pts[i];
+  const flip = i < last && map.pts[i + 1][0] < cx; // face the way the road goes
 
   return (
     <div className="oqa">
-      <SideRail rail={rail} />
+      <SideRail place={stop.place} date={stop.date} lit={stop.ask ? 1 : 0} />
 
       <header className="oqa-top">
         <a href="/">456 Solutions</a>
@@ -74,7 +74,7 @@ export default function AmericaPage() {
       </header>
 
       {/* ---------------- hero ---------------- */}
-      <section className="oqa-hero" data-place="One Question for America" data-date="2025" data-icon="0">
+      <section className="oqa-hero">
         <div className="oqa-poster">
           {/* swap for the real poster when it lands: public/assets/america/film/poster.jpg */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -88,14 +88,15 @@ export default function AmericaPage() {
             July 4th to 14th, 2024.
           </p>
           <div className="oqa-actions">
-            <button className="oqa-btn" onClick={() => play(4)}>▶ Watch the whole film</button>
-            <span className="oqa-runtime">75 min · free · <abbr title="Restricted">R</abbr> for cursing, guns, politics</span>
+            <a className="oqa-btn" href="#trip">Take the trip ↓</a>
+            <a className="oqa-btn ghost" href="#film">▶ Watch the film</a>
           </div>
+          <p className="oqa-runtime">75 min · free · <abbr title="Restricted">R</abbr> for cursing, guns, politics</p>
         </div>
       </section>
 
       {/* ---------------- why ---------------- */}
-      <section className="oqa-why" data-place="Manhattan" data-date="June 11th 2025" data-icon="0">
+      <section className="oqa-why">
         <p className="oqa-narr">
           This project was created in 2024 in response to a heated election, a profit-driven news media
           amplifying the division, and an online discourse controlled more and more by bots.
@@ -107,111 +108,116 @@ export default function AmericaPage() {
         <p className="oqa-from">— from the opening of the film</p>
       </section>
 
-      {/* ---------------- player + question 1 ---------------- */}
-      <section className="oqa-q oqa-q1" data-place="Question #1" data-date="221 people" data-icon="1">
-        <div className="oqa-q-head">
-          <Ask className="oqa-q-icon" />
-          <div>
-            <p className="oqa-q-num">Question #1</p>
-            <h2>What is one question you would ask everyone in America?</h2>
-          </div>
+      {/* ---------------- the road trip ---------------- */}
+      <section className="oqa-trip" id="trip">
+        <div className="oqa-trip-head">
+          <h2>The road trip</h2>
+          <p>{stops.length} stops. Pick a pin, or drive it one stop at a time.</p>
         </div>
 
-        <div className="oqa-q1-grid">
-          <div className="oqa-watch" id="watch">
-            <div className="oqa-player"><div id="oqa-player" /></div>
-            <p className="oqa-hint">Pick any question. The film jumps to it.</p>
-          </div>
-          <div className="oqa-wall">
-            {asked.map((a) => (
-              <div key={a.t} data-place={a.place} data-date={a.date} data-icon="1">
-                <Still t={a.t} sub={a.q} onPlay={() => play(a.t)} />
-              </div>
+        <div className="oqa-days" role="tablist" aria-label="Days">
+          {days.map((d) => {
+            const first = stops.findIndex((s) => s.day === d);
+            return (
+              <button key={d} role="tab" aria-selected={stop.day === d}
+                      className={stop.day === d ? "on" : stop.day > d ? "past" : ""}
+                      onClick={() => go(first)}>
+                <b>Day {d}</b><span>July {d + 3}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="oqa-trip-grid">
+          <svg className="oqa-map" viewBox="0 0 960 560" role="group" aria-label="Map of the drive from Los Angeles to New York">
+            <path className="oqa-map-nation" d={map.nation} />
+            <path className="oqa-map-states" d={map.states} />
+            <polyline className="oqa-road" points={route} />
+            <polyline className="oqa-road-done" points={driven} />
+            {map.pts.map(([x, y], n) => (
+              <g key={n} className={`oqa-pin${n === i ? " on" : n < i ? " past" : ""}`}
+                 transform={`translate(${x} ${y})`} onClick={() => go(n)}
+                 role="button" tabIndex={0} aria-label={`${stops[n].place}, ${stops[n].date}`}
+                 onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(n); } }}>
+                <circle className="hit" r="15" />
+                <circle className="dot" r={n === i ? 8 : 5.5} />
+                {n === i && <circle className="ring" r="15" />}
+              </g>
             ))}
-          </div>
-        </div>
-      </section>
+            <g className="oqa-car" style={{ transform: `translate(${cx}px, ${cy}px) scale(var(--cs)) translateY(-14px) scaleX(${flip ? -1 : 1})` }}>
+              <Car />
+            </g>
+            <text className="oqa-map-label" x={cx} y={cy + 38} textAnchor="middle">{stop.place}</text>
+          </svg>
 
-      {/* ---------------- question 2 ---------------- */}
-      <section className="oqa-q" data-place="Question #2" data-date="asked right back" data-icon="2">
-        <div className="oqa-q-head">
-          <Flip className="oqa-q-icon" />
-          <div>
-            <p className="oqa-q-num">Question #2</p>
-            <h2>Answer your own question.</h2>
-          </div>
-        </div>
-        <div className="oqa-pairs">
-          {flipped.map((f) => (
-            <div className="oqa-pair" key={f.ask} data-place={f.place} data-date="" data-icon="2">
-              <Still t={f.ask} sub={f.q} onPlay={() => play(f.ask)} />
-              <Flip className="oqa-pair-arrow" />
-              <Still t={f.answer} sub={f.a} onPlay={() => play(f.ask)} label={f.a} />
+          <article className="oqa-card" aria-live="polite">
+            <div className={`oqa-card-frame${playing ? " playing" : ""}`}>
+              {playing ? (
+                <iframe src={embed(stop.t, true)} title={`One Question for America — ${stop.place}`}
+                        allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+                        referrerPolicy="strict-origin-when-cross-origin" allowFullScreen />
+              ) : (
+                <button className="oqa-card-still" onClick={() => setPlaying(true)} aria-label={`Play the ${stop.place} stop`}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={frame(stop.img)} alt="" />
+                  <span className="oqa-card-play">▶</span>
+                </button>
+              )}
             </div>
-          ))}
+            <p className="oqa-card-meta">Day {stop.day} of 11 · Stop {i + 1} of {stops.length}</p>
+            <h3>{stop.place}{stop.where ? <small>{stop.where}</small> : null}</h3>
+            <p className="oqa-card-date">{stop.date}</p>
+            {stop.ask ? (
+              <div className="oqa-tease">
+                <p>Someone here asked America:</p>
+                <p className="oqa-sub">-{stop.ask}</p>
+              </div>
+            ) : (
+              <div className="oqa-tease"><p>No spoilers from this stop. You&apos;ll have to watch.</p></div>
+            )}
+            <div className="oqa-card-nav">
+              <button onClick={() => go(i - 1)} disabled={i === 0}>← Back</button>
+              <button className="play" onClick={() => setPlaying(true)}>▶ Watch this stop</button>
+              <button onClick={() => go(i + 1)} disabled={i === last}>Next stop →</button>
+            </div>
+          </article>
         </div>
-      </section>
-
-      {/* ---------------- question 3 ---------------- */}
-      <section className="oqa-q" data-place="Question #3" data-date="the last one" data-icon="3">
-        <div className="oqa-q-head">
-          <Happy className="oqa-q-icon" />
-          <div>
-            <p className="oqa-q-num">Question #3</p>
-            <h2>Are you happy?</h2>
-          </div>
-        </div>
-        <div className="oqa-happy">
-          <div className="oqa-faces" role="img"
-               aria-label={`${HAPPY.yes} of ${HAPPY.total} faces smiling`}>
-            {Array.from({ length: HAPPY.total }, (_, i) => (
-              <Happy key={i} sad={i >= HAPPY.yes} className={i >= HAPPY.yes ? "no" : ""} />
-            ))}
-          </div>
-          <div className="oqa-happy-side">
-            <p className="oqa-big">83%</p>
-            <p className="oqa-happy-cap">said yes. More or less.</p>
-            <ul className="oqa-lines">
-              {happyLines.map((h) => (
-                <li key={h.t}>
-                  <button onClick={() => play(h.t)}>
-                    <span className="oqa-sub">-{h.a}</span>
-                    <span className="oqa-at">{h.place} · {clock(h.t)}</span>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      </section>
-
-      {/* ---------------- route ---------------- */}
-      <section className="oqa-route" data-place="14 states" data-date="July 4th – 14th 2024" data-icon="0">
-        <h2>The route</h2>
-        <p className="oqa-route-cap">
-          Driven Los Angeles to New York. Shown in reverse, starting where we ended and ending where we began.
+        <p className="oqa-trip-foot">
+          The film runs this trip backwards, starting where it ended (Staten Island) and ending where it began (Venice Beach).
         </p>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className="oqa-map" src="/assets/america/film/map.jpg" alt="Map of every stop, Los Angeles to New York" loading="lazy" />
-        <ol className="oqa-days">
-          {days.map((d) => (
-            <li key={d.date}>
-              <span className="oqa-day">{d.date}</span>
-              <span className="oqa-stops">
-                {d.stops.map(([name, t], i) => (
-                  <span key={name + t}>
-                    <button onClick={() => play(t + 4)}>{name}</button>
-                    {i < d.stops.length - 1 && <span className="oqa-dot"> · </span>}
-                  </span>
-                ))}
-              </span>
-            </li>
-          ))}
+      </section>
+
+      {/* ---------------- the three questions ---------------- */}
+      <section className="oqa-three">
+        <h2>Everyone got the same three questions</h2>
+        <ol>
+          {questions.map((q, n) => {
+            const Icon = [Ask, Flip, Happy][n];
+            return (
+              <li key={q}>
+                <Icon className="oqa-three-icon" />
+                <span className="oqa-q-num">Question #{n + 1}</span>
+                <p>{q}</p>
+              </li>
+            );
+          })}
         </ol>
+        <p className="oqa-three-foot">221 people answered. We&apos;re not telling you what they said.</p>
+      </section>
+
+      {/* ---------------- the film ---------------- */}
+      <section className="oqa-film" id="film">
+        <h2>Watch the whole thing</h2>
+        <div className="oqa-player">
+          <iframe src={embed(0, false)} title="One Question for America" loading="lazy"
+                  allow="encrypted-media; picture-in-picture; fullscreen"
+                  referrerPolicy="strict-origin-when-cross-origin" allowFullScreen />
+        </div>
+        <p className="oqa-hint">75 minutes · free on YouTube</p>
       </section>
 
       {/* ---------------- credits ---------------- */}
-      <footer className="oqa-credits" data-place="Credits" data-date="2025" data-icon="0">
+      <footer className="oqa-credits">
         <div className="oqa-billing">
           <p><small>Directed by</small> Michael Linares</p>
           <p><small>Created &amp; produced by</small> Michael Linares <small>and</small> Jason Zilberkweit</p>

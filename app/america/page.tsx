@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import { Open_Sans } from "next/font/google";
 import AmericaPage from "@/components/america/AmericaPage";
+import { buildMap } from "@/lib/americaMap";
 import "@/components/america/america.css";
 
 const openSans = Open_Sans({ subsets: ["latin"], weight: ["400", "800"], variable: "--oqa-font" });
 
-const desc = "A documentary by Michael Linares. Three questions, 221 strangers, eleven days in a car from Los Angeles to New York City, July 2024. Watch it free.";
+const desc = "A documentary by Michael Linares. Three questions, 221 strangers, eleven days in a car from Los Angeles to New York City, July 2024. Take the trip, then watch it free.";
 
 export const metadata: Metadata = {
   title: "One Question for America — a documentary by Michael Linares",
@@ -21,9 +22,11 @@ export const metadata: Metadata = {
 };
 
 export default function America() {
+  // the map is drawn at build time, so the browser only gets finished SVG paths
+  const map = buildMap();
   return (
     <div className={openSans.variable}>
-      <AmericaPage />
+      <AmericaPage map={map} />
     </div>
   );
 }
