@@ -8,6 +8,7 @@ import {
 } from "./pixelTrip";
 import { drawSeq, panelAt } from "./trip/scare";
 import { render3D, outSide, type Proj } from "./trip/pop3d";
+import { drawUs } from "./trip/us";
 
 const PLAYLIST_URI = "spotify:playlist:2UalUa7nhW74YeW9MRVKI7";
 type Spot = { play: () => void; togglePlay: () => void; addListener: (e: string, f: (x: { data: { isPaused: boolean } }) => void) => void };
@@ -52,6 +53,12 @@ export default function RoadRail() {
   const spot = useRef<Spot | null>(null);
   const spotEl = useRef<HTMLDivElement>(null);
 
+  const cost = useRef(0);                              // ms the 3D layer takes per frame (it backs off on slow phones)
+  // how far out of the van we are: we get out at every hold but the crash
+  const outAt = () => {
+    const h = holdR.current, sm = (u: number) => { const v = Math.min(1, Math.max(0, u)); return v * v * (3 - 2 * v); };
+    return h && h.i !== SEQ.hold ? sm(h.u / 0.15) * sm((1 - h.u) / 0.15) : 0;
+  };
   // the van, Jason and me, and whatever pops up out of Kansas: real 3D, drawn every frame
   const draw3D = (t: number) => {
     const b = box.current, pl = plane.current;
@@ -59,7 +66,8 @@ export default function RoadRail() {
     const vy = van.current, bend = bendAt(vy), tilted = bend.tilt > 0 || bend.spin > 0;
     const use = tilted ? v3out.current : v3in.current, other = tilted ? v3in.current : v3out.current;
     if (!use) return;
-    const dpr = Math.min(2, devicePixelRatio || 1), cw = b.clientWidth, ch = b.clientHeight;
+    const dpr = tilted ? 1 : Math.min(1.5, devicePixelRatio || 1), cw = b.clientWidth, ch = b.clientHeight;
+    if (v3in.current) v3in.current.style.display = tilted ? "none" : "";
     for (const c of [use, other]) if (c && (c.width !== Math.round(cw * dpr) || c.height !== Math.round(ch * dpr))) { c.width = Math.round(cw * dpr); c.height = Math.round(ch * dpr); }
     other?.getContext("2d")?.clearRect(0, 0, other.width, other.height);
     const g = use.getContext("2d");
@@ -71,16 +79,17 @@ export default function RoadRail() {
     else {
       const tr = getComputedStyle(pl).transform, M = new DOMMatrix(tr === "none" ? undefined : tr), ox = cw / 2, oy = ch / 2;
       const zs = 1 + bend.spin * 1.25 + bend.tilt * 0.5;              // the CSS scale() is 2D: heights need it too
-      proj = (x, y, z) => {
-        const q = M.transformPoint(new DOMPoint(x * s - ox, py + y * s - oy, z * s * zs, 1));
-        if (q.w <= 0.05) return null;
-        return [q.x / q.w + ox, q.y / q.w + oy - z * s * lean, q.w * 1000 - (y + z * 0.5) * 0.01];
+      const { m11, m12, m14, m21, m22, m24, m31, m32, m34, m41, m42, m44 } = M;
+      proj = (x, y, z) => {                                          // M · (x, y, z, 1), no allocations
+        const X = x * s - ox, Y = py + y * s - oy, Z = z * s * zs;
+        const w = m14 * X + m24 * Y + m34 * Z + m44;
+        if (w <= 0.05) return null;
+        return [(m11 * X + m21 * Y + m31 * Z + m41) / w + ox, (m12 * X + m22 * Y + m32 * Z + m42) / w + oy - z * s * lean, w * 1000 - (y + z * 0.5) * 0.01];
       };
     }
     const a = vanX(vy + 2) - vanX(vy - 2), n = Math.hypot(a, 4);
-    const h = holdR.current, smooth = (u: number) => { const v = Math.min(1, Math.max(0, u)); return v * v * (3 - 2 * v); };
-    const out = h && h.i !== SEQ.hold ? smooth(h.u / 0.15) * smooth((1 - h.u) / 0.15) : 0;
-    render3D(g, { proj, t, vy, spin: bend.spin, dusk: bend.dusk, van: { x: vanX(vy), y: vy, fx: a / n, fy: 4 / n }, out, side: outSide(vy), w: cw, h: ch, pops: true, near: bend.tilt < 0.3 });
+    const out = outAt();
+    render3D(g, { proj, t, vy, spin: bend.spin, dusk: bend.dusk, van: { x: vanX(vy), y: vy, fx: a / n, fy: 4 / n }, out, side: outSide(vy), w: cw, h: ch, pops: true, near: bend.tilt < 0.3, max: cost.current > 12 ? 6 : tilted ? 14 : 20 });
   };
 
   // the soundtrack: the film's playlist through Spotify's player (it needs a tap to start)
@@ -138,7 +147,11 @@ export default function RoadRail() {
         ctx.fillStyle = car.south ? "#ff3b3b" : "#fff6a0"; ctx.fillRect(x, y, 2, 1);
       }
       drawLive(ctx, now, still, strip.current.live);
+      { const vy = van.current, o = outAt(), f = (x: number, y: number, w: number, h: number, c: string) => { ctx.fillStyle = c; ctx.fillRect(Math.round(x), Math.round(y), w, h); };
+        if (o > 0) drawUs(f, still ? 0 : now / 1000, vanX(vy), vy, o, outSide(vy)); }
+      const t0 = performance.now();
       draw3D(still ? 0 : now / 1000);
+      cost.current = cost.current * 0.9 + (performance.now() - t0) * 0.1;
       if (!still) strip.current.hd.forEach((h, k) => {
         if (!h.anim) return;
         const c = hdEls.current[k], g = c?.getContext("2d");

@@ -27,7 +27,8 @@ export type View = {
   side: number;         // which side of the van we get out on (+1 = map right)
   w: number; h: number; // canvas size, css px
   pops: boolean;
-  near: boolean;        // false: leave out what stands between the camera and the road (it'd fill the screen)
+  near: boolean;
+  max: number;          // most landmarks to draw at once        // false: leave out what stands between the camera and the road (it'd fill the screen)
 };
 
 type Prim =
@@ -90,7 +91,9 @@ export function render3D(ctx: CanvasRenderingContext2D, v: View) {
 
   /* ---------- the popped-up landmarks ---------- */
   const vd = pr(v.van.x, v.van.y, 0)?.[2] ?? 0;
-  const list = v.pops ? POP.slice() : [];
+  // only the nearest few: a phone has to draw all this every frame
+  const list = v.pops ? POP.filter((o) => Math.abs(o.y - v.vy) < 190).sort((a, b) => Math.abs(a.y - v.vy) - Math.abs(b.y - v.vy)).slice(0, v.max) : [];
+  const mirrored = new Set<Pop>();
   for (let i = 0; i < list.length; i++) {
     const o = list[i];
     const dist = Math.abs(o.y - v.vy);
@@ -98,11 +101,11 @@ export function render3D(ctx: CanvasRenderingContext2D, v: View) {
     const g = back((185 - dist) / 45);
     if (g <= 0.01) continue;
     const base = pr(o.x, o.y, 0);
-    if (!v.near && base && base[2] < vd) {
+    if (!v.near && base && base[2] < vd && !mirrored.has(o)) {
       // side-on, what's on the near side would fill the screen: it pops up across the road instead
       const dx = 2 * (v.van.x - o.x) + 10;
       const m = { ...o, x: o.x + dx };
-      if (Math.abs(o.y - v.vy) < 190) list.push(m);
+      mirrored.add(m); list.push(m);                       // (once: a mirrored one never flips back)
       continue;
     }
     if (!base || base[0] < -250 || base[0] > v.w + 250 || base[1] < -400 || base[1] > v.h + 250) continue;
@@ -113,7 +116,7 @@ export function render3D(ctx: CanvasRenderingContext2D, v: View) {
       case "turbine": {
         const H = (o.h ?? 30) * g, hub = H + 0.6;
         shadow([[o.x - 1, o.y], [o.x + 1, o.y], [o.x + 9, o.y + H * 0.5], [o.x + 7, o.y + H * 0.5]]);
-        const n = 6;
+        const n = 4;
         for (let i = 0; i < n; i++) {                                   // a tapered white tower
           const a0 = (i / n) * 6.283, a1 = ((i + 1) / n) * 6.283, r0 = 0.9, r1 = 0.45;
           face([[o.x + Math.cos(a0) * r0, o.y + Math.sin(a0) * r0, 0], [o.x + Math.cos(a1) * r0, o.y + Math.sin(a1) * r0, 0],
@@ -143,8 +146,8 @@ export function render3D(ctx: CanvasRenderingContext2D, v: View) {
         }
         face([[o.x - fx * 1.5, o.y - fy * 1.5, H + 0.9], [o.x - fx * 6, o.y - fy * 6, H + 2.2], [o.x - fx * 6, o.y - fy * 6, H - 0.4], [o.x - fx * 1.5, o.y - fy * 1.5, H + 0.3]], "#c83a2a");   // the tail vane
         const R = 4.2 * g, hx = o.x + fx * 0.9, hy = o.y + fy * 0.9, hz = H + 0.6, sp = 2 + hash(o.y) * 1.2;
-        for (let b = 0; b < 12; b++) {
-          const a = t * sp + (b * 2 * Math.PI) / 12, a2 = a + 0.2;
+        for (let b = 0; b < 8; b++) {
+          const a = t * sp + (b * 2 * Math.PI) / 8, a2 = a + 0.28;
           const pt = (an: number, r: number): [number, number, number] => [hx - fy * Math.cos(an) * r, hy + fx * Math.cos(an) * r, hz + Math.sin(an) * r];
           face([pt(a, 1.2), pt(a, R), pt(a2, R), pt(a2, 1.2)], b % 2 ? "#e8e8e8" : "#cfcfcf", "rgba(0,0,0,.35)");
         }
@@ -267,33 +270,6 @@ export function render3D(ctx: CanvasRenderingContext2D, v: View) {
     };
     head(1, "#2f8a3a", "#5a3a1a", false);     // Jason, green Cummins tee
     head(-1, "#f2f2f2", "#4a2e1a", true);     // me
-    // out of the van for an interview: Jason filming, me with the mic
-    if (v.out > 0.05) {
-      const s = v.side * (fx >= 0 ? 1 : 1);
-      const walk = smooth((v.out - 0.15) / 0.5);
-      const K = 1.8, lw = (n: number) => n * Math.max(1, Math.abs((pr(v.van.x + 1, v.van.y, 0)?.[0] ?? 1) - (pr(v.van.x, v.van.y, 0)?.[0] ?? 0)) / 3);
-      const person = (a0: number, a1: number, b1: number, shirt: string, hair: string, prop: "cam" | "mic") => {
-        const a = a0 + (a1 - a0) * walk, b = s * (B + 0.6 + (b1 - B - 0.6) * walk);
-        const step = walk < 1 && walk > 0 ? Math.sin(t * 12) * 0.5 * K : 0;
-        const p = at(a, b, 0);
-        for (const l of [-0.4, 0.4]) { const f0 = at(a + l * step, b + l * K, 0), h0 = at(a, b + l * 0.5 * K, 2.4 * K); seg(f0, h0, "#2a3a5a", lw(2.4)); }
-        seg(at(a, b, 2.4 * K), at(a, b, 4.6 * K), shirt, lw(4.6));
-        const hd = at(a, b, 5.5 * K); dot(hd[0], hd[1], hd[2], 1.0 * K, "#f0c8a0", ink);
-        const hr = at(a - 0.25 * K, b, 6.0 * K); dot(hr[0], hr[1], hr[2], 0.75 * K, hair);
-        const toward = s * K;   // facing out, toward whoever we're talking to
-        if (prop === "mic") {
-          const hand = at(a + 0.3 * K, b + toward * 1.4, 4.4 * K), mic = at(a + 0.4 * K, b + toward * 2.2, 5.0 * K);
-          seg(at(a, b, 4.3 * K), hand, "#f0c8a0", lw(1.8)); seg(hand, mic, "#111", lw(1.8)); dot(mic[0], mic[1], mic[2], 0.4 * K, "#333");
-        } else {
-          const cam = at(a + 0.2 * K, b + toward * 1.0, 5.4 * K);
-          seg(at(a, b, 4.4 * K), cam, "#f0c8a0", lw(1.8)); dot(cam[0], cam[1], cam[2], 0.75 * K, "#111");
-          dot(cam[0], cam[1], cam[2] + 0.1, 0.3 * K, "#6a9ad8");
-        }
-        shadows.push(((): number[] => { const o: number[] = []; for (let k = 0; k < 8; k++) { const an = (k / 8) * 6.283; const q = pr(p[0] + Math.cos(an) * 1.0 + 0.4, p[1] + Math.sin(an) * 0.8 + 0.5, 0); if (!q) return []; o.push(q[0], q[1]); } return o; })());
-      };
-      person(1.2, 3.4, B + 6.5, "#f2f2f2", "#4a2e1a", "mic");     // me, from the passenger door
-      person(-0.6, -2.4, B + 5.0, "#2f8a3a", "#5a3a1a", "cam");   // Jason, round from the driver's side
-    }
   }
 
   /* ---------- paint, back to front ---------- */
