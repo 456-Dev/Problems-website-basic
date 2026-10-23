@@ -1,6 +1,7 @@
 "use client";
 
 import RoadRail from "./RoadRail";
+import Chip from "./Chip";
 import { VIDEO_ID, questions } from "@/lib/america";
 
 const WATCH = `https://www.youtube.com/watch?v=${VIDEO_ID}`;
@@ -13,6 +14,7 @@ const PLAYLIST = "https://open.spotify.com/playlist/2UalUa7nhW74YeW9MRVKI7";
 export default function AmericaPage() {
   return (
     <div className="oqa">
+      <Chip />
       {/* behind everything, in 8-bit */}
       <div className="oqa-bgword" aria-hidden>
         {Array.from({ length: 4 }, (_, k) => <p key={k}>i deserve a little bit more</p>)}

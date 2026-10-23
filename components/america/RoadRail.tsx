@@ -10,10 +10,6 @@ import { drawSeq, panelAt } from "./trip/scare";
 import { render3D, outSide, type Proj } from "./trip/pop3d";
 import { drawUs } from "./trip/us";
 
-const PLAYLIST_URI = "spotify:playlist:2UalUa7nhW74YeW9MRVKI7";
-type Spot = { play: () => void; togglePlay: () => void; addListener: (e: string, f: (x: { data: { isPaused: boolean } }) => void) => void };
-declare global { interface Window { onSpotifyIframeApiReady?: (api: { createController: (el: HTMLElement, o: object, cb: (c: Spot) => void) => void }) => void } }
-
 // The 8-bit road trip at the bottom of the page: a phone-wide map seen from above,
 // LA at the top and Staten Island at the bottom, a little landscape per stop. When you reach
 // it, the frame holds still on screen and the map scrolls top to bottom as you keep
@@ -49,9 +45,12 @@ export default function RoadRail() {
   const v3out = useRef<HTMLCanvasElement>(null);     // ...and over it, when the map tilts away in Kansas
   const panR = useRef({ y: 0, s: 4 });
   const holdR = useRef<{ i: number; u: number } | null>(null);
-  const [music, setMusic] = useState<"off" | "loading" | "on" | "paused">("off");
-  const spot = useRef<Spot | null>(null);
-  const spotEl = useRef<HTMLDivElement>(null);
+  const [music, setMusic] = useState(false);              // the 8-bit song (Chip.tsx) playing?
+  useEffect(() => {
+    const on = (e: Event) => setMusic((e as CustomEvent<boolean>).detail);
+    addEventListener("oqa-music-state", on);
+    return () => removeEventListener("oqa-music-state", on);
+  }, []);
 
   const cost = useRef(0);                              // ms the 3D layer takes per frame (it backs off on slow phones)
   // how far out of the van we are: we get out at every hold but the crash
@@ -92,23 +91,6 @@ export default function RoadRail() {
     render3D(g, { proj, t, vy, spin: bend.spin, dusk: bend.dusk, van: { x: vanX(vy), y: vy, fx: a / n, fy: 4 / n }, out, side: outSide(vy), w: cw, h: ch, pops: true, near: bend.tilt < 0.3, max: cost.current > 12 ? 6 : tilted ? 14 : 20 });
   };
 
-  // the soundtrack: the film's playlist through Spotify's player (it needs a tap to start)
-  const toggleMusic = () => {
-    if (spot.current) { spot.current.togglePlay(); return; }
-    if (music === "loading") return;
-    setMusic("loading");
-    window.onSpotifyIframeApiReady = (api) => {
-      if (!spotEl.current) return;
-      api.createController(spotEl.current, { uri: PLAYLIST_URI, width: "100%", height: 80 }, (c) => {
-        spot.current = c;
-        c.addListener("ready", () => c.play());
-        c.addListener("playback_update", (e) => setMusic(e.data.isPaused ? "paused" : "on"));
-      });
-    };
-    const js = document.createElement("script");
-    js.src = "https://open.spotify.com/embed/iframe-api/v1"; js.async = true;
-    document.body.appendChild(js);
-  };
 
   // the landscape, drawn once
   useEffect(() => {
@@ -241,10 +223,8 @@ export default function RoadRail() {
             <p key={q.text} className={`oqa-road-say ${q.who}${q.href ? " link" : ""}`} style={{ top: Math.max(150, pan.y + (vy - 9) * pan.s) }}>
               {q.href ? <a href={q.href} target="_blank" rel="noopener">{q.text}</a> : q.text}</p>
           ))}
-          <button type="button" className={`oqa-music ${music}`} onPointerDown={(e) => e.stopPropagation()} onClick={toggleMusic}
-            aria-label={music === "on" ? "Pause the music" : "Play the trip's music"}>
-            {music === "on" ? "♫ ON  ❚❚" : music === "loading" ? "♫ ..." : "♫ MUSIC ▶"}</button>
-          <div className={`oqa-spot${music === "off" ? "" : " on"}`} onPointerDown={(e) => e.stopPropagation()}><div ref={spotEl} /></div>
+          <button type="button" className={`oqa-music${music ? " on" : ""}`} onPointerDown={(e) => e.stopPropagation()} onClick={() => dispatchEvent(new Event("oqa-music"))}
+            aria-label={music ? "Pause the music" : "Play the music"}>{music ? "♫ ON ❚❚" : "♫ MUSIC ▶"}</button>
         </div>
         <p className="oqa-road-end">STATEN ISLAND</p>
       </div>
