@@ -4,7 +4,11 @@
 .oqa {
   --grey: #5b5b5b;
   --sub: #f2f2f2;
-  --pin: #4fc3f7;            /* the blue of the map pins in the film's intro */
+  --red: #b22234;            /* the poster's flag */
+  --navy: #3c3b6e;
+  --paper: #efe8d6;          /* the poster's paper */
+  --ink: #111;
+  --pin: var(--red);
   background: #000; color: #fff; min-height: 100vh;
   font-family: var(--oqa-font), "Open Sans", "Segoe UI", Arial, sans-serif;
 }
@@ -13,14 +17,20 @@
 .oqa button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
 .oqa button:disabled { opacity: .3; cursor: default; }
 .oqa :focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
-.oqa h2 { margin: 0; font-weight: 800; font-size: clamp(28px, 3.6vw, 50px); line-height: 1.05; letter-spacing: -.02em; }
+.oqa h2 { margin: 0; font-family: var(--oqa-head), sans-serif; font-weight: 900; font-size: clamp(28px, 3.6vw, 50px); line-height: 1.05; letter-spacing: -.01em; }
+/* every heading is a white title card, a hair askew, like the poster and the thumbnail */
+.oqa h2 span { display: inline-block; background: #fff; color: #000; padding: .06em .22em .1em; margin: 0 0 .12em; transform: rotate(-.4deg); }
+.oqa h2 span + span { transform: rotate(.3deg); }
+/* a strip of the flag between sections */
+.oqa-stripes { height: 14px; max-width: 1320px; margin: 0 auto; border-block: 2px solid #000;
+  background: repeating-linear-gradient(90deg, var(--red) 0 22px, #fff 22px 44px); opacity: .9; }
 
 /* ---- the road trip: a phone-wide 8-bit map at the bottom of the page. The frame sticks
    while you scroll its section, and the map pans LA (top) to NYC (bottom) inside it ---- */
-.oqa-trek { position: relative; border-top: 2px solid #fff; }
+.oqa-trek { position: relative; }
 .oqa-road-col { position: sticky; top: 0; height: 100vh; width: min(100%, 430px); margin: 0 auto;
   display: flex; flex-direction: column; padding: 12px 0; }
-.oqa-strip { position: relative; flex: 1; overflow: hidden; border: 2px solid #fff; background: #000;
+.oqa-strip { position: relative; flex: 1; overflow: hidden; border: 3px solid #fff; background: #000; box-shadow: 10px 10px 0 var(--red);
   cursor: ns-resize; }
 .oqa-strip canvas { position: absolute; left: 0; top: 0; width: 100%; image-rendering: pixelated; }
 .oqa-road-end { margin: 0; padding: 6px 0; text-align: center; font-family: var(--oqa-pixel), monospace; font-size: 12px; color: #cfcfcf; }
@@ -34,19 +44,22 @@
 .oqa-top a:hover { color: #fff; }
 
 /* ---- hero ---- */
-.oqa-hero { display: flex; flex-direction: column; align-items: center; gap: 40px; text-align: center;
-  padding: 18px 28px 70px; max-width: 1320px; margin: 0 auto; }
+.oqa-hero { display: flex; flex-direction: column; align-items: center; gap: 36px; text-align: center;
+  padding: 18px 28px 60px; max-width: 1320px; margin: 0 auto; }
 .oqa-poster { width: min(100%, 760px); }
 .oqa-poster img { display: block; width: 100%; max-height: 82vh; object-fit: contain; margin: 0 auto; }
-.oqa-hero h1 { margin: 0 0 18px; font-weight: 800; font-size: clamp(38px, 5.2vw, 76px); line-height: 1; letter-spacing: -.02em; }
-.oqa-hero h1 span { display: inline-block; background: #fff; color: #000; padding: .04em .16em .1em; margin: 0 0 .12em; }
+.oqa-hero h1 { margin: 0 0 18px; font-family: var(--oqa-head), sans-serif; font-weight: 900; font-size: clamp(38px, 5.2vw, 76px); line-height: 1; letter-spacing: -.02em; }
+.oqa-hero h1 span { display: inline-block; background: #fff; color: #000; padding: .04em .16em .1em; margin: 0 0 .12em; transform: rotate(-.5deg); }
+.oqa-hero h1 span + span { transform: rotate(.4deg); }
+.oqa-poster img { box-shadow: 0 30px 80px rgba(178, 34, 52, .18), 0 0 0 1px #222; }
 .oqa-credit { margin: 0 0 22px; font-size: 19px; color: #d9d9d9; }
 .oqa-log { margin: 0 auto 30px; font-size: 21px; line-height: 1.45; max-width: 30ch; }
 .oqa-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin: 0 0 16px; }
 .oqa-btn { display: inline-block; background: #fff; color: #000 !important; font-weight: 800; font-size: 17px;
   padding: 15px 22px; border-radius: 3px; text-decoration: none; border: 2px solid #fff; transition: transform .12s; }
 .oqa-btn.ghost { background: transparent; color: #fff !important; }
-.oqa-btn:hover { transform: translateY(-2px); }
+.oqa-btn:hover { transform: translateY(-2px); background: var(--red); border-color: var(--red); color: #fff !important; }
+.oqa-btn.ghost:hover { background: #fff; border-color: #fff; color: #000 !important; }
 .oqa-runtime { margin: 0; font-size: 15px; color: #bdbdbd; }
 .oqa-runtime abbr { text-decoration: none; border: 1.5px solid #bdbdbd; padding: 0 5px; font-weight: 800; color: #fff; }
 
@@ -54,7 +67,7 @@
 .oqa-sub { margin: 0; color: var(--sub); font-size: 21px; line-height: 1.35; }
 
 /* ---- the road trip ---- */
-.oqa-trip { max-width: 1400px; margin: 0 auto; padding: 50px 28px 40px; }
+.oqa-trip { max-width: 1400px; margin: 0 auto; padding: 50px 28px 60px; }
 .oqa-trip-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 22px; margin: 0 0 18px; }
 .oqa-trip-head p { margin: 0; color: #9d9d9d; font-size: 17px; }
 
@@ -63,21 +76,22 @@
 .oqa-days button b { display: block; font-size: 14px; font-weight: 800; }
 .oqa-days button span { font-size: 12px; color: #8a8a8a; }
 .oqa-days button.past { border-color: #3a3a3a; background: #0c0c0c; }
-.oqa-days button.on { background: #fff; color: #000; border-color: #fff; }
-.oqa-days button.on span { color: #444; }
+.oqa-days button.past { border-color: #3a3a3a; background: #0c0c0c; box-shadow: inset 0 -3px 0 var(--red); }
+.oqa-days button.on { background: var(--red); color: #fff; border-color: var(--red); }
+.oqa-days button.on span { color: #ffd9de; }
 .oqa-days button:hover:not(.on) { border-color: #777; }
 
 .oqa-trip-grid { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(330px, 1fr); gap: 26px; align-items: start; }
 .oqa-map { --cs: 1.35; display: block; width: 100%; height: auto; overflow: visible; }
 .oqa-pin .hit, .oqa-pin .dot, .oqa-pin .ring { transform-box: fill-box; transform-origin: center; }
-.oqa-map-nation { fill: #0d0d0d; stroke: #3a3a3a; stroke-width: 1.2; }
-.oqa-map-states { fill: none; stroke: #232323; stroke-width: .8; }
-.oqa-road { fill: none; stroke: #3d3d3d; stroke-width: 2; stroke-dasharray: 5 6; stroke-linejoin: round; }
-.oqa-road-done { fill: none; stroke: #fff; stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }
+.oqa-map-nation { fill: var(--paper); stroke: #000; stroke-width: 2.5; }
+.oqa-map-states { fill: none; stroke: #c7bc9f; stroke-width: 1; }
+.oqa-road { fill: none; stroke: var(--navy); stroke-width: 2.5; stroke-dasharray: 6 6; stroke-linejoin: round; opacity: .55; }
+.oqa-road-done { fill: none; stroke: var(--red); stroke-width: 4.5; stroke-linejoin: round; stroke-linecap: round; }
 .oqa-pin { cursor: pointer; }
 .oqa-pin .hit { fill: transparent; }
-.oqa-pin .dot { fill: #555; stroke: #000; stroke-width: 1.5; transition: fill .15s; }
-.oqa-pin.past .dot { fill: #fff; }
+.oqa-pin .dot { fill: #fff; stroke: var(--navy); stroke-width: 2.5; transition: fill .15s; }
+.oqa-pin.past .dot { fill: var(--navy); stroke: #fff; stroke-width: 1.5; }
 .oqa-pin.on .dot { fill: var(--pin); }
 .oqa-pin .ring { fill: none; stroke: var(--pin); stroke-width: 2; animation: oqa-ping 1.6s ease-out infinite; transform-box: fill-box; transform-origin: center; }
 .oqa-pin:hover .dot { fill: var(--pin); }
@@ -86,35 +100,45 @@
 @keyframes oqa-ping { from { opacity: 1; transform: scale(.6); } to { opacity: 0; transform: scale(1.6); } }
 @keyframes oqa-ping-big { from { opacity: 1; transform: scale(1.1); } to { opacity: 0; transform: scale(2.8); } }
 .oqa-car { transition: transform .7s cubic-bezier(.45, 0, .2, 1); pointer-events: none; }
-.oqa-car-body { fill: #fff; stroke: #000; stroke-width: 1.4; }
-.oqa-map-label { fill: #fff; font-size: 21px; font-weight: 800; paint-order: stroke; stroke: #000; stroke-width: 5px; pointer-events: none; }
+.oqa-car-body { fill: #fff; stroke: #000; stroke-width: 1.6; }
+.oqa-map-label { fill: #000; font-family: var(--oqa-head), sans-serif; font-size: 22px; font-weight: 900; paint-order: stroke; stroke: var(--paper); stroke-width: 6px; pointer-events: none; }
 
-.oqa-card { background: #0a0a0a; border: 1px solid #222; padding: 0 0 18px; }
+.oqa-card { background: var(--paper); color: var(--ink); border: 2px solid #000; box-shadow: 8px 8px 0 var(--red); padding: 0 0 18px; }
 /* hide the burned-in subtitle band: the teaser below is all you get */
 .oqa-card-frame { position: relative; aspect-ratio: 960 / 474; background: #000; overflow: hidden; }
 .oqa-card-frame img { position: absolute; left: 0; top: 0; width: 100%; height: auto; display: block; }
-.oqa-card-meta { margin: 14px 18px 4px; font-size: 13px; color: #8a8a8a; }
-.oqa-card h3 { margin: 0 18px; font-size: 32px; font-weight: 800; line-height: 1.05; letter-spacing: -.02em; }
-.oqa-card h3 small { display: block; margin-top: 4px; font-size: 16px; font-weight: 400; color: #bdbdbd; letter-spacing: 0; }
-.oqa-card-date { margin: 4px 18px 0; font-size: 15px; color: #8a8a8a; }
-.oqa-tease { margin: 16px 18px 0; padding: 14px 0 0; border-top: 1px solid #1e1e1e; min-height: 92px; }
-.oqa-tease p { margin: 0 0 6px; color: #9d9d9d; font-size: 15px; }
-.oqa-tease .oqa-sub { color: var(--sub); font-size: 22px; }
-.oqa-card-nav { display: flex; gap: 8px; margin: 16px 18px 0; }
-.oqa-card-nav button { flex: 1; padding: 11px 8px; border: 1px solid #333; font-size: 14px; font-weight: 800; transition: border-color .15s; }
-.oqa-card-nav button:hover:not(:disabled) { border-color: #fff; }
+.oqa-card-frame { border-bottom: 2px solid #000; }
+.oqa-card-meta { margin: 14px 18px 4px; font-size: 13px; color: #6a6250; text-transform: uppercase; letter-spacing: .06em; }
+.oqa-card h3 { margin: 0 18px; font-family: var(--oqa-head), sans-serif; font-size: 34px; font-weight: 900; line-height: 1.05; }
+.oqa-card h3 small { display: block; margin-top: 4px; font-family: var(--oqa-font), sans-serif; font-size: 16px; font-weight: 400; color: #4a4434; }
+.oqa-card-date { margin: 4px 18px 0; font-size: 15px; color: #6a6250; }
+.oqa-tease { margin: 16px 18px 0; padding: 14px 0 0; border-top: 2px dashed #b8ad90; min-height: 92px; }
+.oqa-tease p { margin: 0 0 8px; color: #4a4434; font-size: 15px; }
+.oqa-tease .oqa-sub { display: inline; background: #000; color: #fff; font-size: 21px; line-height: 1.6; padding: .1em .35em;
+  box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+.oqa-card-nav { display: flex; gap: 8px; margin: 18px 18px 0; }
+.oqa-card-nav button { flex: 1; padding: 11px 8px; border: 2px solid #000; font-size: 14px; font-weight: 800; color: #000; transition: background .15s, color .15s; }
+.oqa-card-nav button:last-child { background: #000; color: #fff; }
+.oqa-card-nav button:hover:not(:disabled) { background: var(--red); border-color: var(--red); color: #fff; }
 .oqa-trip-foot { margin: 16px 0 0; color: #7d7d7d; font-size: 14px; }
 
 /* ---- three questions, no answers ---- */
-.oqa-three { max-width: 1200px; margin: 0 auto; padding: 80px 28px 40px; }
-.oqa-three ol { list-style: none; margin: 28px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
-.oqa-three-icon { width: 58px; height: 58px; color: #fff; display: block; margin: 0 0 14px; }
-.oqa-q-num { color: #9d9d9d; font-size: 15px; }
-.oqa-three li p { margin: 6px 0 0; font-size: 24px; font-weight: 800; line-height: 1.2; letter-spacing: -.01em; }
+.oqa-three { max-width: 1200px; margin: 0 auto; padding: 60px 28px 70px; }
+.oqa-three ol { list-style: none; margin: 34px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px; }
+.oqa-three li { position: relative; overflow: hidden; background: var(--paper); color: var(--ink); border: 2px solid #000;
+  padding: 22px 22px 26px; min-height: 230px; box-shadow: 8px 8px 0 var(--navy); }
+.oqa-three li:nth-child(2) { transform: rotate(.6deg); box-shadow: 8px 8px 0 var(--red); }
+.oqa-three li:nth-child(3) { transform: rotate(-.5deg); }
+/* the poster's big grey outlined question mark, peeking out of each card */
+.oqa-q-mark { position: absolute; right: -6px; bottom: -58px; font-family: var(--oqa-head), sans-serif; font-weight: 900;
+  font-size: 210px; line-height: 1; color: #d6d6d6; -webkit-text-stroke: 3px #000; pointer-events: none; }
+.oqa-q-num { position: relative; display: inline-block; background: #000; color: #fff; font-size: 13px; font-weight: 800;
+  letter-spacing: .08em; text-transform: uppercase; padding: 4px 8px; }
+.oqa-three li p { position: relative; margin: 14px 0 0; max-width: 78%; font-family: var(--oqa-head), sans-serif; font-size: 27px; font-weight: 900; line-height: 1.12; }
 .oqa-three-foot { margin: 34px 0 0; color: #bdbdbd; font-size: 19px; }
 
 /* ---- the film ---- */
-.oqa-film { max-width: 1320px; margin: 0 auto; padding: 10px 28px 70px; }
+.oqa-film { max-width: 1320px; margin: 0 auto; padding: 50px 28px 70px; }
 .oqa-film h2 { margin-bottom: 20px; }
 .oqa-player { position: relative; aspect-ratio: 16 / 9; background: #111; outline: 2px solid #fff; outline-offset: 6px; }
 .oqa-player iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
@@ -122,11 +146,11 @@
 .oqa-hint a { color: #fff; }
 
 /* ---- credits: a poster billing block ---- */
-.oqa-credits { padding: 90px 28px 70px; max-width: 980px; margin: 0 auto; text-align: center; }
+.oqa-credits { padding: 70px 28px 60px; max-width: 980px; margin: 0 auto; text-align: center; }
 .oqa-billing { font-stretch: condensed; text-transform: uppercase; letter-spacing: .06em; color: #cfcfcf; font-size: 19px; line-height: 1.7; }
 .oqa-billing p { margin: 0; }
 .oqa-billing small { font-size: 12px; color: #8a8a8a; letter-spacing: .1em; }
-.oqa-rating { display: inline-flex; align-items: stretch; margin: 40px 0 34px; border: 2px solid #fff; text-align: left; }
+.oqa-rating { display: inline-flex; align-items: stretch; margin: 40px 0 34px; border: 2px solid #fff; text-align: left; transform: rotate(-.5deg); }
 .oqa-rating b { display: grid; place-items: center; padding: 0 16px; font-size: 52px; font-weight: 800; border-right: 2px solid #fff; }
 .oqa-rating span { padding: 9px 16px; font-size: 15px; line-height: 1.4; max-width: 260px; }
 .oqa-rating strong { display: block; letter-spacing: .12em; font-size: 14px; }
@@ -141,6 +165,9 @@
   .oqa-top, .oqa-hero, .oqa-trip, .oqa-three, .oqa-film, .oqa-credits { padding-left: 14px; padding-right: 14px; }
   .oqa-hero { gap: 26px; }
   .oqa-three ol { grid-template-columns: 1fr; gap: 24px; }
+  .oqa-three li { min-height: 170px; }
+  .oqa-q-mark { font-size: 170px; bottom: -48px; }
+  .oqa-card { box-shadow: 6px 6px 0 var(--red); }
   .oqa-map { --cs: 2.4; }
   .oqa-pin .hit, .oqa-pin .dot { transform: scale(1.9); }
   .oqa-pin .ring { animation-name: oqa-ping-big; }

@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
-import { Open_Sans, Press_Start_2P } from "next/font/google";
+import { Lato, Open_Sans, Press_Start_2P } from "next/font/google";
 import AmericaPage from "@/components/america/AmericaPage";
 import { buildMap } from "@/lib/americaMap";
 import "@/components/america/america.css";
 
 const openSans = Open_Sans({ subsets: ["latin"], weight: ["400", "800"], variable: "--oqa-font" });
+const lato = Lato({ subsets: ["latin"], weight: ["700", "900"], variable: "--oqa-head" });
 const pixel = Press_Start_2P({ subsets: ["latin"], weight: "400", variable: "--oqa-pixel" });
 
 const desc = "A documentary by Michael Linares. Three questions, over 200 strangers, eleven days in a car from Los Angeles to New York City, July 2024. Take the trip, then watch it free.";
@@ -26,7 +27,7 @@ export default function America() {
   // the map is drawn at build time, so the browser only gets finished SVG paths
   const map = buildMap();
   return (
-    <div className={`${openSans.variable} ${pixel.variable}`}>
+    <div className={`${openSans.variable} ${lato.variable} ${pixel.variable}`}>
       <AmericaPage map={map} />
     </div>
   );

@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Ask, Flip, Happy } from "./Icons";
 import RoadRail from "./RoadRail";
 import { VIDEO_ID, stops, questions, frame } from "@/lib/america";
 import type { MapData } from "@/lib/americaMap";
@@ -77,9 +76,10 @@ export default function AmericaPage({ map }: { map: MapData }) {
         </div>
       </section>
 
+      <div className="oqa-stripes" aria-hidden="true" />
       {/* ---------------- the film ---------------- */}
       <section className="oqa-film" id="film">
-        <h2>Watch the film</h2>
+        <h2><span>Watch the film</span></h2>
         <div className="oqa-player">
           <iframe src={embed(0, false)} title="One Question for America"
                   allow="encrypted-media; picture-in-picture; fullscreen"
@@ -88,10 +88,11 @@ export default function AmericaPage({ map }: { map: MapData }) {
         <p className="oqa-hint">75 minutes · free · <a href={WATCH} target="_blank" rel="noopener noreferrer">Open on YouTube ↗</a></p>
       </section>
 
+      <div className="oqa-stripes" aria-hidden="true" />
       {/* ---------------- the road trip ---------------- */}
       <section className="oqa-trip" id="trip">
         <div className="oqa-trip-head">
-          <h2>The road trip</h2>
+          <h2><span>The road trip</span></h2>
           <p>{stops.length} stops. Pick a pin, or drive it one stop at a time.</p>
         </div>
 
@@ -157,15 +158,15 @@ export default function AmericaPage({ map }: { map: MapData }) {
         </p>
       </section>
 
+      <div className="oqa-stripes" aria-hidden="true" />
       {/* ---------------- the three questions ---------------- */}
       <section className="oqa-three">
-        <h2>Everyone got the same three questions</h2>
+        <h2><span>Everyone got the same</span> <span>three questions</span></h2>
         <ol>
           {questions.map((q, n) => {
-            const Icon = [Ask, Flip, Happy][n];
             return (
               <li key={q}>
-                <Icon className="oqa-three-icon" />
+                <span className="oqa-q-mark" aria-hidden="true">?</span>
                 <span className="oqa-q-num">Question #{n + 1}</span>
                 <p>{q}</p>
               </li>
@@ -175,6 +176,7 @@ export default function AmericaPage({ map }: { map: MapData }) {
         <p className="oqa-three-foot">Over 200 people answered. We&apos;re not telling you what they said.</p>
       </section>
 
+      <div className="oqa-stripes" aria-hidden="true" />
       {/* ---------------- credits ---------------- */}
       <footer className="oqa-credits">
         <div className="oqa-billing">

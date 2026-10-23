@@ -2,7 +2,7 @@
 // at the bottom, seen from above like an old RPG map. The highway switches back and
 // forth down the strip, passing each stop's landmark. Pure canvas, no assets.
 
-export const W = 96;       // strip width in "pixels"
+export const W = 84;       // strip width in "pixels"
 export const SH = 96;      // height of one stop
 const CW = 64;             // each stop's scene is drawn in its own 64 x 72 frame...
 const SY = 10;             // ...this far down the stop
@@ -45,8 +45,9 @@ const sceneY0 = (sc: Scene) => (sc === "memphis" || sc === "clinton" ? GY - 32 :
 
 // the road runs down the left side of even stops and the right side of odd ones,
 // and the scene sits on the other side
-const side = (i: number) => (i % 2 ? 83 : 13);
-const sceneX = (i: number) => (i % 2 ? 4 : 28);
+const side = (i: number) => (i % 2 ? 74 : 10);
+const sceneX = (i: number) => (i % 2 ? 0 : 20);
+export const RH = 6;       // half the highway's width
 
 // where the highway's centre is at strip row y
 export function roadX(y: number) {
@@ -70,7 +71,6 @@ export function fireSpot(): [number, number] {
 }
 
 type Px = (x: number, y: number, w: number, h: number, c: string) => void;
-let cellX = 0;                                   // left of the scene frame being drawn (water fills it)
 const eve = false;                               // (no time of day from up here)
 const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
 const hex = (c: string) => [1, 3, 5].map((k) => parseInt(c.slice(k, k + 2), 16));
@@ -118,32 +118,85 @@ export function drawStrip(ctx: CanvasRenderingContext2D) {
   // the highway: asphalt, white edges, a dashed yellow centre line, bridge rails over water
   let prev = roadX(0);
   for (let y = 0; y < HT; y++) {
-    const x = roadX(y), l = Math.round(Math.min(prev, x) - 4), r = Math.round(Math.max(prev, x) + 4);
+    const x = roadX(y), l = Math.round(Math.min(prev, x) - RH), r = Math.round(Math.max(prev, x) + RH);
     const sc = SCENES[Math.floor(y / SH)], local = y - Math.floor(y / SH) * SH;
     const wet = WET.has(sc) && local >= SY + GY + 2 && local < SY + ROAD_Y;
-    px(l - 1, y, 1, 1, wet ? "#9a9aa2" : "#e8e8e8"); px(r + 1, y, 1, 1, wet ? "#9a9aa2" : "#e8e8e8");
+    px(l - 2, y, 1, 1, wet ? "#6a6a72" : "rgba(0,0,0,.25)"); px(r + 2, y, 1, 1, wet ? "#6a6a72" : "rgba(0,0,0,.25)");
+    px(l - 1, y, 1, 1, wet ? "#b8b8c0" : "#e8e8e8"); px(r + 1, y, 1, 1, wet ? "#b8b8c0" : "#e8e8e8");
     px(l, y, r - l + 1, 1, "#3a3a3e");
     prev = x;
   }
-  for (let y = 0; y < HT; y++) if (y % 6 < 3) px(roadX(y), y, 1, 1, "#ffd23f");
+  for (let y = 0; y < HT; y++) if (y % 8 < 4) px(Math.round(roadX(y)), y, 1, 1, "#ffd23f");
 
-  // each stop: a mile sign by the road, something small, and the landmark
+  // every stop's landmark goes on its own layer first, so it can get a bold outline and
+  // so the scenery knows where not to go
+  const lay = document.createElement("canvas");
+  lay.width = W; lay.height = HT;
+  const lc = lay.getContext("2d")!;
+  const lpx: Px = (x, y, w, h, c) => { lc.fillStyle = c; lc.fillRect(Math.round(x), Math.round(y), w, h); };
   SCENES.forEach((sc, i) => {
-    const y0 = i * SH, rx = side(i), sx = i % 2 ? rx - 14 : rx + 7;
-    px(sx + 2, y0 + SY + 4, 1, 6, "#8a8a8a"); px(sx + 5, y0 + SY + 4, 1, 6, "#8a8a8a");
-    px(sx, y0 + SY - 2, 8, 7, "#1f7a3a"); px(sx, y0 + SY - 2, 8, 1, "#e8e8e8");
-    px(sx + 1, y0 + SY, 6, 1, "#e8e8e8"); px(sx + 1, y0 + SY + 2, 4, 1, "#e8e8e8");
-    ctx.save(); ctx.translate(sceneX(i), y0 + SY);
-    cellX = 0;
-    if (PEAKS.has(sc) && sc !== "gatlinburg") { peak(px, 8, 2, 8, "#7d8cab"); peak(px, 54, 4, 7, "#6a7590"); }
-    filler(sc, 13, px);
+    lc.save(); lc.translate(sceneX(i), i * SH + SY);
+    if (PEAKS.has(sc) && sc !== "gatlinburg") { peak(lpx, 8, 2, 8, "#7d8cab"); peak(lpx, 54, 4, 7, "#6a7590"); }
+    filler(sc, 13, lpx);
     const clip: Px = (x, y, w, h, c) => {
       const xa = Math.max(Math.round(x), 0), xb = Math.min(Math.round(x) + w, CW), yb = Math.min(Math.round(y) + h, ROAD_Y);
-      if (xb > xa && yb > Math.round(y)) px(xa, y, xb - xa, yb - Math.round(y), c);
+      if (xb > xa && yb > Math.round(y)) lpx(xa, y, xb - xa, yb - Math.round(y), c);
     };
     drawScene(sc, LX, sceneY0(sc), clip, rnd);
-    ctx.restore();
+    lc.restore();
   });
+  const L = lc.getImageData(0, 0, W, HT).data;
+  const solid = (x: number, y: number) => x >= 0 && x < W && y >= 0 && y < HT && L[(y * W + x) * 4 + 3] > 40;
+  const occ = new Uint8Array(W * HT);
+  for (let k = 0; k < W * HT; k++) occ[k] = L[k * 4 + 3] > 40 ? 1 : 0;
+  const busy = (x: number, y: number) => x < 0 || x >= W || y < 0 || y >= HT || occ[y * W + x] === 1;
+
+  // fill the empty ground with the scenery of each region (boats on water, everything else on land)
+  const G = ctx.getImageData(0, 0, W, HT).data;
+  const wet = (x: number, y: number) => { const at = (y * W + x) * 4; return G[at + 2] > G[at] + 40 && G[at + 2] > G[at + 1]; };
+  SCENES.forEach((sc, i) => {
+    const kit = KIT[REGION[sc]], y0 = i * SH;
+    let placed = 0;
+    for (let t = 0; t < 140 && placed < 11; t++) {
+      const x = 1 + Math.floor(rnd() * (W - 10)), y = y0 + Math.floor(rnd() * (SH - 10));
+      if (y < 4) continue;
+      let ok = true;
+      for (let yy = y - 2; yy < y + 11 && ok; yy++) {
+        const rx = roadX(yy);
+        if (x + 9 > rx - RH - 3 && x - 1 < rx + RH + 3) ok = false;
+        for (let xx = x - 2; xx < x + 11 && ok; xx += 2) if (busy(xx, yy)) ok = false;
+      }
+      const onWater = [[x, y], [x + 8, y], [x, y + 8], [x + 8, y + 8], [x + 4, y + 4]].some(([a, b2]) => wet(a, Math.min(HT - 1, b2)));
+      if (!ok || onWater !== (REGION[sc] === "harbor")) continue;
+      kit[Math.floor(rnd() * kit.length)](px, x, y, rnd);
+      for (let yy = y; yy < y + 9; yy++) for (let xx = x; xx < x + 9; xx++) occ[yy * W + xx] = 1;
+      placed++;
+    }
+  });
+
+  // the mile signs
+  SCENES.forEach((_, i) => {
+    const y0 = i * SH, rx = side(i), sx = i % 2 ? rx - RH - 11 : rx + RH + 3;
+    px(sx + 2, y0 + SY + 4, 1, 6, "#8a8a8a"); px(sx + 5, y0 + SY + 4, 1, 6, "#8a8a8a");
+    px(sx - 1, y0 + SY - 3, 10, 9, "#111");
+    px(sx, y0 + SY - 2, 8, 7, "#1f7a3a"); px(sx, y0 + SY - 2, 8, 1, "#e8e8e8");
+    px(sx + 1, y0 + SY, 6, 1, "#e8e8e8"); px(sx + 1, y0 + SY + 2, 4, 1, "#e8e8e8");
+  });
+
+  // landmarks on top: a shadow, a dark outline, then the art
+  const out = lc.createImageData(W, HT), o = out.data;
+  for (let y = 0; y < HT; y++) for (let x = 0; x < W; x++) {
+    if (solid(x, y)) continue;
+    const at = (y * W + x) * 4;
+    const edge = solid(x - 1, y) || solid(x + 1, y) || solid(x, y - 1) || solid(x, y + 1);
+    const shade = solid(x - 2, y - 2) || solid(x - 1, y - 2) || solid(x - 2, y - 1);
+    if (edge) { o[at] = 18; o[at + 1] = 18; o[at + 2] = 22; o[at + 3] = 235; }
+    else if (shade) { o[at + 3] = 70; }
+  }
+  const sh = document.createElement("canvas"); sh.width = W; sh.height = HT;
+  sh.getContext("2d")!.putImageData(out, 0, 0);
+  ctx.drawImage(sh, 0, 0);
+  ctx.drawImage(lay, 0, 0);
 }
 
 // Venice: the Pacific from above, surf rolling onto the sand
@@ -168,6 +221,66 @@ function filler(sc: Scene, x: number, px: Px) {
   else if (!WET.has(sc) && !["vegas", "casino", "nashville"].includes(sc)) { px(x + 1, b - 3, 6, 3, "#3f7a3a"); px(x + 2, b - 4, 4, 1, "#4f8f45"); }
 }
 
+/* ---------- scenery for the empty ground, by region ---------- */
+
+type Deco = (px: Px, x: number, y: number, rnd: () => number) => void;
+const REGION: Record<Scene, string> = {
+  venice: "coast", oc: "coast", vegas: "desert", desert: "desert", arches: "desert",
+  vail: "mtn", lake: "mtn", denver: "mtn", truckstop: "plains", silo: "plains", plains: "plains", tulsa: "oil",
+  oregon: "plains", clinton: "south", river: "south", casino: "south", watertower: "south", graceland: "south",
+  memphis: "south", nashville: "south", bucees: "south", gatlinburg: "mtn", smoky: "mtn", waffle: "hills",
+  fair: "hills", dish: "hills", suburb: "east", dc: "east", jersey: "east", liberty: "harbor",
+};
+const tree: Deco = (px, x, y, rnd) => {
+  const g = ["#2f7a2a", "#3a8a30", "#2a6a26"][Math.floor(rnd() * 3)];
+  px(x + 1, y + 6, 6, 2, "rgba(0,0,0,.25)");
+  px(x + 1, y, 5, 6, g); px(x, y + 1, 7, 4, g); px(x + 2, y + 1, 2, 2, "#5aa84a"); px(x + 3, y + 6, 1, 2, "#5a3a1a");
+};
+const pineT: Deco = (px, x, y) => { px(x + 1, y + 7, 6, 1, "rgba(0,0,0,.25)"); pine(px, x + 3, y, "#1a4f26"); };
+const palmT: Deco = (px, x, y) => { px(x + 3, y + 9, 4, 1, "rgba(0,0,0,.2)"); palm(px, x + 4, y + 1); };
+const cactus: Deco = (px, x, y) => {
+  px(x + 3, y, 2, 8, "#2f8a3a"); px(x + 1, y + 2, 1, 3, "#2f8a3a"); px(x + 1, y + 4, 2, 1, "#2f8a3a");
+  px(x + 6, y + 1, 1, 3, "#2f8a3a"); px(x + 5, y + 3, 2, 1, "#2f8a3a"); px(x + 3, y, 1, 8, "#4aaa4a"); px(x + 2, y + 8, 4, 1, "rgba(0,0,0,.2)");
+};
+const rock: Deco = (px, x, y) => { px(x + 1, y + 3, 6, 3, "#8a7a6a"); px(x + 2, y + 2, 4, 1, "#a8988a"); px(x + 2, y + 6, 6, 1, "rgba(0,0,0,.25)"); };
+const tumble: Deco = (px, x, y) => { px(x + 2, y + 2, 4, 1, "#9a7a4a"); px(x + 1, y + 3, 1, 2, "#9a7a4a"); px(x + 6, y + 3, 1, 2, "#9a7a4a"); px(x + 2, y + 5, 4, 1, "#9a7a4a"); px(x + 3, y + 3, 2, 2, "#b8945a"); };
+const skull: Deco = (px, x, y) => { px(x + 2, y + 2, 4, 3, "#f0ead8"); px(x + 3, y + 3, 1, 1, "#222"); px(x + 5, y + 3, 1, 1, "#222"); px(x, y + 1, 2, 1, "#f0ead8"); px(x + 6, y + 1, 2, 1, "#f0ead8"); };
+const cow: Deco = (px, x, y) => {
+  px(x + 1, y + 6, 7, 1, "rgba(0,0,0,.25)");
+  px(x + 1, y + 2, 6, 4, "#f2f2f2"); px(x + 2, y + 2, 2, 2, "#222"); px(x + 5, y + 4, 2, 1, "#222");
+  px(x + 7, y + 2, 2, 2, "#f2f2f2"); px(x + 8, y + 3, 1, 1, "#f0a8a8"); px(x + 1, y + 6, 1, 1, "#444"); px(x + 6, y + 6, 1, 1, "#444");
+};
+const hay: Deco = (px, x, y) => { px(x + 1, y + 2, 5, 5, "#d8b048"); px(x + 2, y + 1, 3, 1, "#d8b048"); px(x + 2, y + 3, 3, 3, "#b88f2a"); px(x + 3, y + 4, 1, 1, "#e8c860"); px(x + 2, y + 7, 5, 1, "rgba(0,0,0,.25)"); };
+const barn: Deco = (px, x, y) => { px(x, y + 2, 8, 6, "#b8342a"); px(x + 1, y, 6, 2, "#8a2a22"); px(x + 3, y + 4, 2, 4, "#f2f2f2"); px(x + 3, y + 5, 2, 1, "#b8342a"); px(x + 1, y + 8, 8, 1, "rgba(0,0,0,.25)"); };
+const pump: Deco = (px, x, y) => { px(x + 1, y + 7, 7, 1, "#444"); px(x + 3, y + 3, 1, 4, "#222"); px(x + 1, y + 2, 7, 1, "#222"); px(x, y + 2, 2, 3, "#222"); px(x + 7, y + 3, 1, 3, "#666"); px(x + 5, y + 5, 2, 2, "#c8a020"); };
+const house: Deco = (px, x, y, rnd) => {
+  const roof = ["#7a2f1f", "#4a4a5a", "#3a5a7a", "#6a4a3a"][Math.floor(rnd() * 4)], wall = ["#e8e2d0", "#d8c8a8", "#b8c8d8", "#f0d8c0"][Math.floor(rnd() * 4)];
+  px(x + 1, y + 3, 7, 5, wall); px(x, y + 1, 9, 2, roof); px(x + 1, y, 7, 1, roof); px(x + 4, y + 5, 1, 3, "#5a3a1a"); px(x + 2, y + 4, 1, 1, "#7ab8e8"); px(x + 6, y + 4, 1, 1, "#7ab8e8"); px(x + 1, y + 8, 8, 1, "rgba(0,0,0,.25)");
+};
+const cabin: Deco = (px, x, y) => { px(x + 1, y + 3, 7, 5, "#7a4a22"); for (let k = 4; k < 8; k += 2) px(x + 1, y + k, 7, 1, "#5a3418"); px(x, y + 1, 9, 2, "#3a2a1a"); px(x + 6, y - 1, 1, 2, "#6a6a6a"); px(x + 6, y - 3, 1, 1, "#c8c8c8"); px(x + 1, y + 8, 8, 1, "rgba(0,0,0,.25)"); };
+const deer: Deco = (px, x, y) => { px(x + 2, y + 3, 5, 3, "#9a6a3a"); px(x + 6, y + 1, 2, 2, "#9a6a3a"); px(x + 6, y, 1, 1, "#5a3a1a"); px(x + 8, y, 1, 1, "#5a3a1a"); px(x + 2, y + 6, 1, 2, "#5a3a1a"); px(x + 6, y + 6, 1, 2, "#5a3a1a"); px(x + 1, y + 3, 1, 1, "#f2f2f2"); };
+const pond: Deco = (px, x, y) => { px(x + 1, y + 2, 7, 4, "#2f6fb0"); px(x, y + 3, 9, 2, "#2f6fb0"); px(x + 2, y + 3, 3, 1, "#7fb6e8"); px(x + 7, y + 1, 1, 2, "#3a8a30"); };
+const car: Deco = (px, x, y, rnd) => { const c = ["#e0302f", "#3a6fd8", "#ffd23f", "#2faa4a", "#8a8a8a"][Math.floor(rnd() * 5)]; px(x + 1, y + 2, 7, 4, c); px(x + 3, y + 2, 3, 4, "rgba(0,0,0,.25)"); px(x + 6, y + 2, 1, 4, "#1a2a3a"); px(x + 1, y + 6, 7, 1, "rgba(0,0,0,.25)"); };
+const billboard: Deco = (px, x, y, rnd) => {
+  const [a, b] = [["#e0302f", "#ffd23f"], ["#3a6fd8", "#f2f2f2"], ["#111", "#ffd23f"], ["#f2f2f2", "#e0302f"]][Math.floor(rnd() * 4)];
+  px(x + 2, y + 5, 1, 4, "#6a6a6a"); px(x + 6, y + 5, 1, 4, "#6a6a6a"); px(x - 1, y - 1, 11, 7, "#111");
+  px(x, y, 9, 5, a); px(x + 1, y + 1, 7, 1, b); px(x + 1, y + 3, 4, 1, b);
+};
+const flowers: Deco = (px, x, y, rnd) => { for (let k = 0; k < 6; k++) px(x + Math.floor(rnd() * 8), y + Math.floor(rnd() * 7), 1, 1, ["#ff5a8a", "#ffd23f", "#f2f2f2", "#b04ad8"][k % 4]); };
+const boat: Deco = (px, x, y) => { px(x + 1, y + 3, 7, 3, "#f2f2f2"); px(x + 2, y + 6, 5, 1, "#c8c8c8"); px(x + 4, y + 1, 2, 2, "#e0302f"); px(x, y + 7, 9, 1, "#7fb6e8"); };
+const buoy: Deco = (px, x, y) => { px(x + 3, y + 3, 2, 3, "#ff8a1f"); px(x + 3, y + 3, 2, 1, "#f2f2f2"); px(x + 1, y + 6, 6, 1, "#7fb6e8"); };
+const KIT: Record<string, Deco[]> = {
+  coast: [palmT, palmT, tree, flowers, car],
+  desert: [cactus, cactus, rock, tumble, skull, billboard],
+  mtn: [pineT, pineT, pineT, rock, cabin, deer],
+  plains: [hay, hay, cow, barn, billboard, tumble],
+  oil: [pump, pump, cow, hay, billboard],
+  south: [tree, tree, house, cow, billboard, pond],
+  hills: [pineT, tree, cabin, deer, cow, house],
+  east: [tree, house, house, car, billboard],
+  harbor: [boat, buoy, boat],
+};
+
 /* ---------- little sprites ---------- */
 
 function palm(px: Px, x: number, y: number) {
@@ -187,9 +300,7 @@ function bldg(px: Px, x: number, y: number, w: number, h: number, c: string, win
   if (eve) win = "#ffd27a";                       // lights coming on
   for (let yy = y + 1; yy < y + h - 1; yy += 2) for (let xx = x + 1; xx < x + w - 1; xx += 2) if (rnd() > 0.35) px(xx, yy, 1, 1, win);
 }
-function water(px: Px, _y: number, _h: number) {
-  px(cellX, GY + 2, W, ROAD_Y - GY - 2, "#2f6fb0"); px(cellX, GY + 3, W, 1, "#5f9fe0");
-}
+function water(_px: Px, _y: number, _h: number) { /* the river is part of the ground */ }
 function bridge(_px: Px, _y: number, _h: number) { /* the road is already a bridge in wet cells */ }
 
 // the Great Smokies: blue ridge after ridge, fog lying in every valley

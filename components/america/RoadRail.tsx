@@ -64,11 +64,11 @@ export default function RoadRail() {
       for (const car of cars) {
         if (!still) car.y = (car.y + (car.south ? 1 : -1) * car.v * dt + HT) % HT;
         // seen from above: southbound keeps to the left lane (screen right of travel), northbound the other
-        const y = Math.round(car.y), x = Math.round(roadX(y)) + (car.south ? -3 : 1);
-        ctx.fillStyle = car.c; ctx.fillRect(x, y, 3, 5);
-        ctx.fillStyle = "rgba(0,0,0,.25)"; ctx.fillRect(x, y + 2, 3, 1);
-        ctx.fillStyle = "#1a2a3a"; ctx.fillRect(x, car.south ? y + 3 : y + 1, 3, 1);       // windshield faces forward
-        ctx.fillStyle = "#fff6a0"; ctx.fillRect(x, car.south ? y + 4 : y, 1, 1); ctx.fillRect(x + 2, car.south ? y + 4 : y, 1, 1);
+        const y = Math.round(car.y), x = Math.round(roadX(y)) + (car.south ? -5 : 2);
+        ctx.fillStyle = car.c; ctx.fillRect(x, y, 4, 6);
+        ctx.fillStyle = "rgba(0,0,0,.25)"; ctx.fillRect(x, y + 2, 4, 2);
+        ctx.fillStyle = "#1a2a3a"; ctx.fillRect(x, car.south ? y + 4 : y + 1, 4, 1);       // windshield faces forward
+        ctx.fillStyle = "#fff6a0"; ctx.fillRect(x, car.south ? y + 5 : y, 1, 1); ctx.fillRect(x + 3, car.south ? y + 5 : y, 1, 1);
       }
       const flick = still ? 0 : Math.floor(now / 120);
       for (let k = 0; k < 12; k++) {
