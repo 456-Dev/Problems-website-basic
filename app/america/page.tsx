@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Press_Start_2P } from "next/font/google";
 import AmericaPage from "@/components/america/AmericaPage";
-import { buildMap } from "@/lib/americaMap";
 import "@/components/america/america.css";
 
 const pixel = Press_Start_2P({ subsets: ["latin"], weight: "400", variable: "--oqa-pixel" });
@@ -22,11 +21,9 @@ export const metadata: Metadata = {
 };
 
 export default function America() {
-  // the map is drawn at build time, so the browser only gets finished SVG paths
-  const map = buildMap();
   return (
     <div className={pixel.variable}>
-      <AmericaPage map={map} />
+      <AmericaPage />
     </div>
   );
 }

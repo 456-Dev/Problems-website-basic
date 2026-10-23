@@ -143,7 +143,7 @@ export default function RoadRail() {
   const map = { transform: bend.tilt || bend.spin ? `perspective(700px) rotateX(${(bend.tilt * 62).toFixed(2)}deg) rotateZ(${(bend.spin * 90).toFixed(2)}deg) scale(${(1 + bend.spin * 1.25 + bend.tilt * 0.5).toFixed(3)})` : undefined };
 
   return (
-    <section className="oqa-trek" ref={sec} aria-label="The road trip, LA to NYC" style={{ height: `${Math.round((HT / 128) * 52)}vh` }}>
+    <section className="oqa-trek" id="trip" ref={sec} aria-label="The road trip, LA to NYC" style={{ height: `${Math.round((HT / 128) * 52)}vh` }}>
       <div className="oqa-road-col">
         <p className="oqa-road-end">LA</p>
         <div className="oqa-strip" ref={box}
