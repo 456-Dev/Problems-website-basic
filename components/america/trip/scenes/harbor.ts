@@ -1,5 +1,5 @@
-// The last stretch: under a bank of clouds through New Jersey, then out over the Outerbridge
-// and up Staten Island to the Verrazzano, with the harbor, Lady Liberty and Manhattan ahead.
+// The last stretch: under a storm through New Jersey, then north-up over the harbor (the original
+// design): down through Jersey City and Bayonne, over the Bayonne Bridge, across Staten Island to the Verrazzano.
 import { W, ROAD_END, roadX, hash } from "../core";
 import { HARBOR } from "../../harbor";
 import type { SceneMod, Px } from "../kit";
@@ -24,6 +24,11 @@ function depth() {
   }
   return (DEPTH = d);
 }
+const inQuad = (x: number, y: number, q: [number, number][]) => {
+  let c = false;
+  for (let i = 0, j = q.length - 1; i < q.length; j = i++) { const [xi, yi] = q[i], [xj, yj] = q[j]; if ((yi > y) !== (yj > y) && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) c = !c; }
+  return c;
+};
 const WATER = ["#5aa8dc", "#4796d0", "#3a86c4", "#3078b8", "#2a6aac", "#25609f"];
 
 // zones on Staten Island (rows/cols in harbor space)
@@ -81,6 +86,7 @@ function harborGround(px: Px, y0: number) {
       continue;
     }
     if (isGov(x, y)) { px(X, Y, 1, 1, r < 0.3 ? "#3f8a3a" : "#5aa04a"); continue; }   // Governors Island
+    if (inQuad(x, y, HARBOR.cp)) { px(X, Y, 1, 1, r < 0.12 ? "#2a6a2c" : r < 0.2 ? "#5a9ad0" : "#3f8a3a"); continue; }   // Central Park
     px(X, Y, 1, 1, (y % 3 === 0 || x % 4 === 0) ? "#5a5a62" : "#7a7a84");             // Manhattan streets under the towers
   }
   // Linden's tank farm: white tanks
@@ -96,44 +102,63 @@ function harborGround(px: Px, y0: number) {
 
 type Item = { y: number; draw: (px: Px) => void };
 
-// Lady Liberty on her star fort, torch up. Base (x, y) = bottom center of the island.
+// Lady Liberty on her star fort, torch up, crown, tablet, outlined so she reads against the skyline.
+// Base (x, y) = bottom center of the island.
+const LIB = [
+  ".f................",
+  "fof...............",
+  "fff...............",
+  ".H................",
+  "HHH...............",
+  ".A................",
+  ".A................",
+  ".A.......c........",
+  ".A....c..c..c.....",
+  ".A.....c.c.c......",
+  ".AA...cchhhcc.....",
+  "..A.....hhhh......",
+  "..A.....hssh......",
+  "..AA....hhhh......",
+  "...A.....hh.......",
+  "...AAGGGGGGGGG....",
+  "....AGGgGGGGgGG...",
+  ".....GGgGGGGGgGTT.",
+  ".....GgGGgGGGGGTT.",
+  ".....GgGGgGGGgGTT.",
+  ".....GGgGGgGGgGTd.",
+  ".....GGgGGgGGGgGd.",
+  "....GGgGGgGGGgGGd.",
+  "....GGgGGgGGGgGGd.",
+  "....GgGGgGGGgGGGd.",
+  "....GgGGgGGGgGGGd.",
+  "...GGgGGgGGGgGGGd.",
+  "...GGgGGgGGGgGGGd.",
+  "...GgGGgGGGgGGGGd.",
+  "...GgGGgGGGgGGGdd.",
+  "..GGgGGgGGGgGGGdd.",
+  "..dddddddddddddd..",
+];
+const LCOL: Record<string, string> = { f: "#ffd23f", o: "#ff8a1f", H: "#d8a830", A: "#6fc4a8", c: "#8fe0c4", h: "#7ad0b4", s: "#4f9a84", G: "#5fb89c", g: "#9ae6cc", T: "#3f8a78", d: "#2f6a5a" };
+export const LIB_H = LIB.length + 12 + 4;          // figure + pedestal + fort
 function liberty(px: Px, x: number, y: number) {
-  for (let k = -2; k <= 2; k++) { const w = 15 - Math.abs(k) * 3; px(x - Math.floor(w / 2), y + k - 2, w, 1, "#5aa04a"); }   // the island
-  px(x - 4, y - 3, 9, 2, "#c8bca8"); px(x - 5, y - 2, 1, 1, "#c8bca8"); px(x + 5, y - 2, 1, 1, "#c8bca8"); px(x, y - 4, 1, 1, "#c8bca8");   // Fort Wood
-  px(x - 3, y - 5, 7, 2, "#c8bca8"); px(x - 3, y - 4, 7, 1, "#a89c88");
-  const p = y - 5;                                                          // the pedestal
-  px(x - 2, p - 9, 5, 9, "#d8ccb4"); px(x + 2, p - 9, 1, 9, "#b0a48c"); px(x - 2, p - 9, 5, 1, "#ece4d0");
-  px(x - 2, p - 5, 5, 1, "#b0a48c"); px(x - 1, p - 7, 1, 1, "#8a7e6a"); px(x + 1, p - 7, 1, 1, "#8a7e6a");
-  // the statue itself, 13 x 24, drawn from a little map; her right side falls into shadow
-  const ART = [
-    ".F...........",
-    "FfF..........",
-    "FFF..........",
-    ".H...........",
-    ".A...c.c.c...",
-    ".A....ccc....",
-    ".A...chhhc...",
-    ".A....hhh....",
-    ".A....hHh....",
-    "..A..GGgGG...",
-    "..AAGGGgGGG..",
-    "....GGgGGGTT.",
-    "....GgGGGgTT.",
-    "....GGgGGGTT.",
-    "....GgGGgGTd.",
-    "....GGgGGGG..",
-    "...GGgGGGgG..",
-    "...GgGGgGGGd.",
-    "...GGgGGGgGd.",
-    "...GgGGgGGGd.",
-    "..GGgGGGgGGd.",
-    "..GgGGgGGGGd.",
-    "..GGGGGGGGGd.",
-    ".dddddddddd..",
-  ];
-  const COL: Record<string, string> = { F: "#ffd23f", f: "#ff8a1f", H: "#c8961a", A: "#4fa88c", c: "#7ad0b4", h: "#6fc4a8", G: "#5fb89c", g: "#9ae0c8", T: "#3f8a78", d: "#2f6a5a" };
-  const top = p - 9 - ART.length;
-  ART.forEach((row, r) => [...row].forEach((ch, k) => { if (ch !== ".") px(x - 6 + k, top + r, 1, 1, COL[ch]); }));
+  for (let k = -2; k <= 2; k++) { const w = 23 - Math.abs(k) * 4; px(x - Math.floor(w / 2), y + k - 1, w, 1, k > 0 ? "#3f8a3a" : "#5aa04a"); }   // the island
+  // Fort Wood: an eleven-point star, here a low star of granite
+  px(x - 9, y - 4, 19, 3, "#c8bca8"); px(x - 9, y - 4, 19, 1, "#e0d6c2");
+  for (const d of [-10, 10]) px(x + d, y - 3, 1, 2, "#c8bca8");
+  px(x - 6, y - 5, 13, 1, "#c8bca8"); px(x - 1, y - 6, 3, 1, "#c8bca8");
+  const p = y - 4;                                                          // the pedestal: 10 wide, 12 tall, lit on the left
+  px(x - 5, p - 12, 11, 12, "#d8ccb4"); px(x + 3, p - 12, 3, 12, "#b0a48c"); px(x - 5, p - 12, 11, 1, "#f2ead8");
+  px(x - 6, p - 9, 13, 1, "#e8dcc4"); px(x - 6, p - 3, 13, 1, "#e8dcc4");
+  for (const dx of [-3, 0, 3]) px(x + dx, p - 7, 1, 3, "#8a7e6a");
+  // the statue, outlined in dark green so the silhouette reads in front of the towers
+  const top = p - 12 - LIB.length, x0 = x - 9;
+  const on = (r: number, k: number) => LIB[r]?.[k] !== undefined && LIB[r][k] !== ".";
+  LIB.forEach((row, r) => [...row].forEach((ch, k) => {
+    if (ch !== "." || !(on(r - 1, k) || on(r + 1, k) || on(r, k - 1) || on(r, k + 1))) return;
+    px(x0 + k, top + r, 1, 1, "#173830");
+  }));
+  for (let r = -1; r <= LIB.length; r++) for (const k of [-1, 18]) if (on(r, k + 1) || on(r, k - 1)) px(x0 + k, top + r, 1, 1, "#173830");
+  LIB.forEach((row, r) => [...row].forEach((ch, k) => { if (ch !== ".") px(x0 + k, top + r, 1, 1, LCOL[ch]); }));
 }
 
 function shadeHex(c: string, d: number) {
@@ -149,7 +174,7 @@ function tower(px: Px, x: number, y: number, w: number, h: number, c: string, ki
   if (kind === 2 && h < 12) { px(x + 1, y - h - 2, 1, 2, "#7a4a2a"); px(x, y - h - 2, 3, 1, "#8a5a3a"); }   // a wooden water tower
 }
 function oneWTC(px: Px, x: number, y: number) {
-  const h = 44;
+  const h = 36;
   for (let r = 0; r < h; r++) {
     const u = r / h, w = Math.max(2, Math.round(5 - 3 * u));               // tapers to the top
     const xx = x + Math.round((5 - w) / 2);
@@ -261,7 +286,7 @@ const CLOUDS: Cloud[] = (() => {
     [16, 4, 0.8], [96, 2, 0.7], [58, 18, 1.0], [118, 26, 1.0],
     [18, 34, 1.4], [108, 38, 1.5], [60, 42, 0.8], [38, 54, 1.25], [122, 60, 1.3], [6, 74, 1.4], [92, 76, 1.35], [66, 90, 0.75],
     [28, 96, 1.3], [118, 98, 1.2], [100, 114, 1.05], [20, 116, 1.0],
-    [76, 132, 0.9], [14, 138, 0.8], [118, 146, 0.75], [52, 154, 0.85], [96, 166, 0.65], [26, 172, 0.6],
+    [76, 130, 0.9], [14, 136, 0.8], [118, 142, 0.75], [48, 146, 0.7],
   ];
   return spots.map(([cx, cy, s], k): Cloud => {
     const puffs: Puff[] = [];
@@ -468,7 +493,7 @@ export const SC_HARBOR: Partial<Record<string, SceneMod>> = {
       } });
       // the storm, above the van: we drive in under it, through the worst of it, and come out over Staten Island
       const oy = 12;
-      hd.push({ x: 0, y: y0 - oy, w: W, h: h + oy + 26, res: 3, top: true, anim: true, draw: (g, w, hh, t, vy) => drawStorm(g, w, hh, t, oy, vy - y0) });
+      hd.push({ x: 0, y: y0 - oy, w: W, h: h + oy + 10, res: 3, top: true, anim: true, draw: (g, w, hh, t, vy) => drawStorm(g, w, hh, t, oy, vy - y0) });
     },
   },
   harbor: {
@@ -490,7 +515,7 @@ export const SC_HARBOR: Partial<Record<string, SceneMod>> = {
       for (let k = 0; k < 14; k++) { const x = GREENBELT[0] - 7 + Math.floor(hr(k, 21) * 14), y = GREENBELT[1] - 8 + Math.floor(hr(k, 22) * 14); if (![0, 2, 4, 6, 8].some((d) => roadAt(x, Y(y + d), 9))) pine(px, x, Y(y), k % 2 ? "#1f5a2a" : "#174a24"); }
       // the Goethals and the Bayonne arch, side on
       { const [gx, gy] = HARBOR.goethals; arch(px, gx - 7, Y(gy + 2), gx + 7, Y(gy - 2), 4, "#4a7a8a"); }
-      { const [bx, by] = HARBOR.bayonne; arch(px, bx - 4, Y(by + 2), bx + 9, Y(by - 2), 7, "#9aa0a8"); }
+
       // Fort Wadsworth by the bridge
       { const [fx, fy] = HARBOR.wadsworth; px(fx - 6, Y(fy) + 2, 5, 3, "#a89c88"); px(fx - 5, Y(fy) + 3, 3, 1, "#7a6e5a"); }
       // the St. George ferry terminal
@@ -498,19 +523,19 @@ export const SC_HARBOR: Partial<Record<string, SceneMod>> = {
 
       // back to front: Liberty, Ellis, Governors, the towers, the Brooklyn Bridge
       const items: Item[] = [];
-      const LX = HARBOR.liberty[0] + 8, LY = HARBOR.liberty[1] - 6;             // out in the water, right across from the Verrazzano
+      const LX = HARBOR.liberty[0] + 8, LY = HARBOR.liberty[1] + 13;            // out in the Upper Bay, in front of downtown, clear of the road
       items.push({ y: GOV[1] + 2, draw: (p) => { p(GOV[0] - 1, Y(GOV[1]) - 2, 3, 3, "#c8a050"); p(GOV[0], Y(GOV[1]) - 1, 1, 1, "#8a6a30"); } });
       // towers on a grid over Manhattan, plus Jersey City's waterfront and downtown Brooklyn
-      const special = (x: number, y: number) => near(x, y, HARBOR.wtc, 3, 3) || near(x, y, HARBOR.esb, 4, 3) || near(x, y, HARBOR.chrysler, 3, 3) || near(x, y, [LX, LY - 20], 5, 22);
+      const special = (x: number, y: number) => near(x, y, HARBOR.wtc, 3, 3) || near(x, y, HARBOR.esb, 4, 3) || near(x, y, HARBOR.chrysler, 3, 3) || near(x, y, [LX, LY - 24], 11, 26);
       const PAL = ["#8a96a8", "#a8b4c4", "#6a7a90", "#c8c0b0", "#b8b0a8", "#7a8aa0", "#d0d4d8", "#9aa8b4", "#b89a80"];
-      for (let y = 112; y < HH - 1; y += 2) for (let x = 28 + (y % 4 === 0 ? 0 : 2); x < 80; x += 4) {
+      for (let y = 2; y < HH - 1; y += 2) for (let x = 1 + (y % 4 === 0 ? 0 : 2); x < W - 2; x += 4) {
         const c = M(x, y);
-        const jc = c === "j" && near(x, y, HARBOR.jc, 5, 9);
-        const db = false;
+        const jc = c === "j" && near(x, y, HARBOR.jc, 5, 9) && !roadAt(x, Y(y), 9) && !roadAt(x + 4, Y(y), 9);
+        const db = c === "b" && near(x, y, HARBOR.dtbk, 5, 4);
         if (c !== "m" && !jc && !db) continue;
-        if ((c === "m" && (isGov(x, y) || M(x + 3, y) === "." || M(x, y + 1) === ".")) || special(x, y)) continue;
+        if ((c === "m" && (isGov(x, y) || inQuad(x, y, HARBOR.cp) || M(x + 3, y) === "." || M(x, y + 1) === ".")) || special(x, y)) continue;
         const dW = Math.hypot(x - HARBOR.wtc[0], (y - HARBOR.wtc[1]) * 1.3), dE = Math.hypot(x - HARBOR.esb[0], (y - HARBOR.esb[1]) * 1.2);
-        let h = 5 + 20 * Math.exp(-((dW / 8) ** 2)) + 22 * Math.exp(-((dE / 10) ** 2)) + hr(x, y, 9) * 7;
+        let h = 4 + 15 * Math.exp(-((dW / 8) ** 2)) + 17 * Math.exp(-((dE / 10) ** 2)) + hr(x, y, 9) * 5;
         if (jc) h = 10 + hr(x, y, 4) * 12;
         if (db) h = 6 + hr(x, y, 4) * 8;
         const w = 3 + Math.floor(hr(x, y, 2) * 2), col = PAL[Math.floor(hr(x, y, 5) * PAL.length)], kind = h > 18 ? Math.floor(hr(x, y, 6) * 2) : 2;
@@ -519,31 +544,38 @@ export const SC_HARBOR: Partial<Record<string, SceneMod>> = {
       items.push({ y: HARBOR.wtc[1], draw: (p) => oneWTC(p, HARBOR.wtc[0] - 2, Y(HARBOR.wtc[1])) });
       items.push({ y: HARBOR.esb[1], draw: (p) => empire(p, HARBOR.esb[0] - 3, Y(HARBOR.esb[1])) });
       items.push({ y: HARBOR.chrysler[1], draw: (p) => chrysler(p, HARBOR.chrysler[0] - 2, Y(HARBOR.chrysler[1])) });
-      items.push({ y: 162, draw: (p) => { tower(p, 41, Y(161), 2, 36, "#c8ccd4", 1); tower(p, 46, Y(164), 2, 30, "#2a2e3a", 1); } });   // billionaires' row pencils
+      { const [ex0, ey0] = HARBOR.esb;                                         // billionaires' row pencils, north of the Empire State
+        items.push({ y: ey0 - 9, draw: (p) => { tower(p, ex0 + 1, Y(ey0 - 10), 2, 34, "#c8ccd4", 1); tower(p, ex0 + 6, Y(ey0 - 8), 2, 28, "#2a2e3a", 1); } }); }
       items.push({ y: 998, draw: (p) => brooklynBridge(p, HARBOR.bkbA[0] - 6, HARBOR.bkbB[0] + 8, Y(HARBOR.bkbA[1] + 2)) });    // in front of the skyline, the classic view
       items.push({ y: 999, draw: (p) => liberty(p, LX, Y(LY)) });              // and Lady Liberty in front of it all
       items.sort((a, b) => a.y - b.y).forEach((it) => it.draw(px));
-      px(HARBOR.battery[0] - 7, Y(HARBOR.battery[1]) - 10, 1, 12, "#cfcfcf");
-      live.push({ k: "flag", x: HARBOR.battery[0] - 6, y: Y(HARBOR.battery[1]) - 10, w: 7, h: 5, kind: "us" });
 
       // at the end of the road, the last interview: a guy in a Yankees cap on the corner
       { const [ex2, ey2] = HARBOR.vzS, gx = Math.round(roadX(Y(ey2 - 8))) - 12, gy = Y(ey2 - 10);
         person(px, gx, gy, "#2a3a8a", "#1a2a5a", "#3a3a4a", "#c8946a"); px(gx + 1, gy, 1, 1, "#f2f2f2");
         void ex2;
-        says.push({ a: ROAD_END - 44, b: ROAD_END - 22, who: "us", text: "“Why don't you think we can get along?”" });
-        says.push({ a: ROAD_END - 22, b: ROAD_END + 1, who: "them", text: "“Because Jason's here.”" });
+        // the last words of the trip are the first words of the film: it plays backwards, starting where we ended
+        says.push({ a: ROAD_END - 62, b: ROAD_END - 46, who: "us", text: "“Are you happy?”" });
+        says.push({ a: ROAD_END - 46, b: ROAD_END - 30, who: "them", text: "“Yes. Very much.”" });
+        says.push({ a: ROAD_END - 30, b: ROAD_END - 10, who: "us", text: "“Should we get the show on the road?”" });
+        says.push({ a: ROAD_END - 10, b: ROAD_END + 1, who: "them", text: "“Let's do it.”" });
       }
-      // the Verrazzano and the Outerbridge truss sit above the van and the boats
-      const [ex, ey] = HARBOR.vzS;
-      const VZ: [number, number, number, number] = [ex + 1, Y(ey) + 1, ex + 29, Y(ey) + 12];   // across the Narrows to Bay Ridge
+      // the Verrazzano and the Bayonne arch sit above the van and the boats
+      const ex = Math.round(roadX(ROAD_END)), ey = ROAD_END - y0;                 // from the end of the road
+      const VZ: [number, number, number, number] = [ex + 3, Y(ey) + 1, ex + 38, Y(ey) - 6];    // across the Narrows to Bay Ridge
       verrazzanoWater(px, y0, ...VZ);
       canopy.push((f) => verrazzano(f, ...VZ));
-      canopy.push((f) => {
-        for (let y = y0; y < y0 + 30; y++) {
-          const x = roadX(y);
-          if (M(x, y - y0) !== "." || y >= ROAD_END) continue;
-          f(x - 6, y, 1, 1, "#4a6a5a"); f(x + 6, y, 1, 1, "#4a6a5a");
-          if (y % 3 === 0) { f(x - 6, y, 13, 1, "#6a8a7a"); f(x - 5, y - 1, 1, 1, "#4a6a5a"); f(x + 5, y + 1, 1, 1, "#4a6a5a"); }
+      canopy.push((f) => {                     // the Bayonne Bridge: the steel arch over the Kill Van Kull, rails on the deck
+        const ys: number[] = [];
+        for (let y = y0; y < ROAD_END; y++) if (M(roadX(y), y - y0) === ".") ys.push(y);
+        if (!ys.length) return;
+        const a = ys[0] - 3, b = ys[ys.length - 1] + 3;
+        for (let y = a; y <= b; y++) {
+          const x = roadX(y), u = (y - a) / (b - a), rise = Math.round(11 * 4 * u * (1 - u));
+          f(x - 6, y, 1, 1, "#3a4048"); f(x + 6, y, 1, 1, "#3a4048");
+          f(x + 7 + rise, y, 2, 1, "#2a3038"); f(x + 6 + rise, y, 1, 1, "#e8ecf2");          // the arch, side on, bowed out to the east
+          if (y % 2 === 0 && rise > 1) f(x + 7, y, rise - 1, 1, "#9aa2ac");                   // hangers
+          f(x - 7, y, 1, 1, "#9aa2ac");
         }
       });
 
@@ -554,7 +586,7 @@ export const SC_HARBOR: Partial<Record<string, SceneMod>> = {
         let d = u * tot, k = 0; while (k < L.length - 1 && d > L[k]) { d -= L[k]; k++; }
         const v = Math.min(1, d / L[k]); return [P[k][0] + (P[k + 1][0] - P[k][0]) * v, P[k][1] + (P[k + 1][1] - P[k][1]) * v];
       };
-      const FERRY: [number, number][] = [[HARBOR.stgeorge[0] + 3, HARBOR.stgeorge[1] + 2], [LX + 7, LY - 8], [HARBOR.battery[0] + 3, HARBOR.battery[1] - 1]];
+      const FERRY: [number, number][] = [[HARBOR.stgeorge[0] + 3, HARBOR.stgeorge[1] - 1], [LX + 13, LY - 6], [HARBOR.battery[0] + 3, HARBOR.battery[1] + 2]];
       const SHIP: [number, number][] = [[HARBOR.lowerbay[0] + 10, HARBOR.lowerbay[1] - 6], [HARBOR.lowerbay[0], HARBOR.lowerbay[1]], [(HARBOR.vzS[0] + HARBOR.vzB[0]) / 2 + 1, (HARBOR.vzS[1] + HARBOR.vzB[1]) / 2], [HARBOR.shipB[0] + 4, HARBOR.shipB[1]]];
       const [kx, ky] = HARBOR.kvk;
       live.push({ k: "fn", fn: (f, t, ctx) => {
@@ -586,7 +618,7 @@ export const SC_HARBOR: Partial<Record<string, SceneMod>> = {
           const x = cx + Math.cos(a) * 10, y = cy + Math.sin(a) * 5, up = Math.floor(t * 6 + k) % 2;
           f(x - 1, Y(y) - up, 1, 1, "#ffffff"); f(x, Y(y), 1, 1, "#ffffff"); f(x + 1, Y(y) - up, 1, 1, "#ffffff");
         }
-        if (Math.floor(t * 7) % 3 === 0) f(LX - 5, Y(LY) - 37, 1, 1, "#ffffff");    // the torch flickers
+        if (Math.floor(t * 7) % 3 === 0) f(LX - 8, Y(LY) - 4 - 12 - LIB.length + 1, 1, 1, "#ffffff");    // the torch flickers
       } });
     },
   },

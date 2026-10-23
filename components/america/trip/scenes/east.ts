@@ -259,18 +259,12 @@ function drawAlien(ctx: CanvasRenderingContext2D, w: number, h: number, t: numbe
   }
 }
 
-// the Rivian Adventure Network stop: 40 x 34. Four white chargers with the yellow compass mark,
-// a green R1T and a white R1S plugged in, cables live, the RIVIAN sign out front
+// the Rivian chargers, kept subtle (no sign): 40 x 34. Four white posts with yellow caps,
+// a green R1T and a white R1S plugged in, cables live
 function rivian(px: Px, live: Live[], x: number, y: number) {
   const Y = "#f5c518";
   px(x, y + 8, 40, 26, "#4a4a4e"); px(x, y + 8, 40, 1, "#6a6a6e");                                   // the lot
   for (let k = 0; k < 5; k++) px(x + 2 + k * 9, y + 20, 1, 13, "#d8d8d8");                            // stall lines
-  // the sign: dark panel, RIVIAN in white, the yellow compass (two chevrons) beside it
-  px(x + 3, y + 6, 1, 3, "#5a5a5a"); px(x + 30, y + 6, 1, 3, "#5a5a5a");
-  px(x, y - 2, 34, 9, "#16201e"); px(x, y - 2, 34, 1, "#2a3a36");
-  word(px, x + 2, y, "RIVIAN", "#f2f2f2", null);
-  px(x + 27, y, 1, 1, Y); px(x + 26, y + 1, 1, 1, Y); px(x + 28, y + 1, 1, 1, Y); px(x + 27, y + 2, 1, 1, Y);
-  px(x + 30, y, 1, 1, Y); px(x + 29, y + 1, 1, 1, Y); px(x + 31, y + 1, 1, 1, Y); px(x + 30, y + 2, 1, 1, Y); px(x + 27, y + 4, 4, 1, Y);
   // the chargers: white posts, yellow cap, a little screen
   for (let k = 0; k < 4; k++) { const cx = x + 6 + k * 9; px(cx, y + 11, 3, 6, "#f2f2f2"); px(cx, y + 11, 3, 1, Y); px(cx + 1, y + 13, 1, 2, "#1a2a3a"); px(cx, y + 17, 3, 1, "#9a9a9a"); }
   // R1T (Launch Green pickup) and R1S (white), nose to the chargers: full-width light bar, oval lamps

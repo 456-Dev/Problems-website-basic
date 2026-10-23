@@ -165,7 +165,7 @@ export default function RoadRail() {
               style={{ left: h.x * pan.s, width: h.w * pan.s, height: h.h * pan.s, transform: `translateY(${pan.y + h.y * pan.s}px)` }} />
           ))}
           </div>
-          {bend.dusk > 0 && <div className="oqa-dusk" style={{ opacity: bend.dusk }} />}
+          {bend.dusk > 0 && <div className="oqa-dusk" style={{ opacity: bend.dusk * 0.6 }} />}
           <canvas ref={scareEl} key={seq < 0 ? "off" : panelAt(seq)} className={`oqa-seq${seq >= 0 ? " on" : ""}`} width={384} height={384} aria-hidden />
           <div className="oqa-road-here"><b>{day(stop.date)}</b>{def.label ?? stop.place}</div>
           {says.map((q) => (
