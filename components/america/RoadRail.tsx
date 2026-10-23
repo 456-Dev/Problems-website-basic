@@ -139,7 +139,8 @@ export default function RoadRail() {
   const says = [...SAYS, ...strip.current.says].filter((q) => vy >= q.a && vy < q.b
     && (q.hold === undefined || (hold && hold.i === q.hold && hold.u >= (q.u0 ?? 0) && hold.u < (q.u1 ?? 1.01)) || (!hold && vy < q.b - 1)));
   const bend = bendAt(vy);
-  const map = { transform: bend.tilt ? `perspective(900px) rotateX(${(bend.tilt * 38).toFixed(2)}deg) scale(${(1 + bend.tilt * 0.25).toFixed(3)})` : undefined };
+  // the plane tips the other way (top toward you), then swings to horizontal right before the crash
+  const map = { transform: bend.tilt ? `perspective(900px) rotateX(${(-bend.tilt * 40).toFixed(2)}deg) rotateZ(${(bend.spin * 90).toFixed(2)}deg) scale(${(1 + bend.tilt * 0.3 + bend.spin * 1.1).toFixed(3)})` : undefined };
 
   return (
     <section className="oqa-trek" ref={sec} aria-label="The road trip, LA to NYC" style={{ height: `${Math.round((HT / 128) * 52)}vh` }}>

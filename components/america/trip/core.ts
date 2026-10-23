@@ -19,7 +19,7 @@ export const SCENES: Def[] = [
   { sc: "venice", h: 150, stop: 0 }, { sc: "la", h: 130, stop: 0, label: "Los Angeles" }, { sc: "oc", h: 170, stop: 1 },
   { sc: "vegas", h: 200, stop: 2 }, { sc: "desert", h: 140, stop: 3 }, { sc: "arches", h: 210, stop: 4 },
   { sc: "vail", h: 140, stop: 5 }, { sc: "lake", h: 300, stop: 6 }, { sc: "denver", h: 170, stop: 7 },
-  { sc: "truckstop", h: 130, stop: 8 }, { sc: "silo", h: 130, stop: 9 }, { sc: "plains", h: 150, stop: 10 },
+  { sc: "truckstop", h: 130, stop: 8 }, { sc: "silo", h: 270, stop: 9 }, { sc: "plains", h: 290, stop: 10 },
   { sc: "tulsa", h: 210, stop: 11 }, { sc: "oregon", h: 190, stop: 12 }, { sc: "clinton", h: 150, stop: 13, label: "Little Rock" },
   { sc: "casino", h: 150, stop: 15, label: "Horseshoe · Hernando" }, { sc: "graceland", h: 190, stop: 17, label: "Graceland · Memphis" },
   { sc: "nashville", h: 230, stop: 19, label: "Nashville · Buc-ee's" }, { sc: "gatlinburg", h: 220, stop: 21 },
@@ -136,9 +136,10 @@ export function holdAt(p: number): { i: number; u: number } | null {
 export const SEQ = { hold: 1 };
 export function bendAt(vy: number) {
   const a = top("silo") + 10, b = HOLDS[1].y;     // a long dramatic sundown: Colby, Hays, into Oklahoma
-  if (vy <= a || vy > b) return { tilt: 0, dusk: 0 };
+  if (vy <= a || vy > b) return { tilt: 0, spin: 0, dusk: 0 };
   const u = (vy - a) / (b - a);
-  return { tilt: u * u, dusk: Math.min(1, u * 1.3) };
+  // the last stretch before the bar: the whole world swings round to horizontal, holds, then we hit the wall
+  return { tilt: u * u, spin: smooth((vy - (b - 70)) / 40), dusk: Math.min(1, u * 1.3) };
 }
 
 // speech bubbles, shown while the van is between a and b

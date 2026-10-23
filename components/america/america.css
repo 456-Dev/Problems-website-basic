@@ -49,7 +49,7 @@
 .oqa-strip canvas.oqa-hd { width: auto; image-rendering: auto; filter: drop-shadow(0 2px 3px rgba(0,0,0,.35)); }
 .oqa-strip canvas.oqa-hd.top { filter: none; pointer-events: none; }
 /* Kansas → Oklahoma: the ground plane bends away into the sundown */
-.oqa-plane { position: absolute; inset: 0; transform-origin: 50% 85%; transition: transform .2s linear; }
+.oqa-plane { position: absolute; inset: 0; transform-origin: 50% 50%; transition: transform .2s linear; }
 .oqa-dusk { position: absolute; inset: 0; pointer-events: none; mix-blend-mode: multiply;
   background: linear-gradient(#5a1a40 0%, #c8502a 45%, #ff9a4a 70%, #ffd8a0 100%); }
 /* the crash sequence through the Trade Winds: full frame, a white flash on every cut */
