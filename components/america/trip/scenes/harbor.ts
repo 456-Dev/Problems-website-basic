@@ -213,34 +213,83 @@ function libertySmall(px: Px, live: Live[], x: number, y: number) {
   live.push({ k: "fn", fn: (f, t) => { f(x + 1, y - 19, 1, 2, Math.floor(t * 6) % 2 ? "#ffd23f" : "#ff8a1f"); } });
 }
 
-// the Bayonne Bridge, rendered: a shaded steel arch rib (two ribs for depth), bracing, hangers down
-// to the deck, a girder along the deck edge and a soft shadow on the water. (bx, by) = the overlay's
-// top-left in map pixels, rows a..b = the span.
-function bayonne3D(g: CanvasRenderingContext2D, w: number, h: number, bx: number, by: number, a: number, b: number) {
+// the Bayonne Bridge in 3D. The map is seen from the south with height going up the screen, so the arch is
+// built in world space (ground x, y + height z) and projected: screen = (x, y - z). Depth = ground y (south
+// is nearer). It's split in two canvases: `far` sits under the van/cars (deck, hangers, anything north of the
+// van, the tug in the Kill Van Kull that slips under the deck), `near` sits over them (the parts of the arch
+// south of the van, so it passes under the steel instead of over it, plus shore piers/trees tucking the feet in).
+let by0 = 0;                                                             // the harbor scene's top row, for the tug
+type Seg = { d: number; draw: (g: CanvasRenderingContext2D) => void };
+function bayonneGeo(a: number, b: number) {
+  const R = 10, HW = 4.2, RIB = 5.4;                                   // rise, half deck width, rib offset (map px)
+  const C = (y: number): [number, number] => [roadX(y), y];
+  const N = (y: number): [number, number] => { const dx = roadX(y + 0.5) - roadX(y - 0.5), l = Math.hypot(dx, 1); return [1 / l, -dx / l]; };   // ground normal, points east-ish
+  const z = (y: number) => { const u = (y - a) / (b - a); return R * 4 * u * (1 - u) - 1.2; };
+  const P = (y: number, off: number, h: number): [number, number, number] => { const [cx, cy] = C(y), [nx, ny] = N(y); return [cx + nx * off, cy + ny * off, h]; };
+  return { R, HW, RIB, z, P };
+}
+function bayonne3D(g: CanvasRenderingContext2D, w: number, h: number, bx: number, by: number, a: number, b: number, layer: "far" | "near", vy: number, t: number) {
   g.clearRect(0, 0, w, h);
-  const S = w / Math.max(1, Math.round(w / 8));          // canvas px per map px
-  const X = (x: number) => (x - bx) * S, Yc = (y: number) => (y - by) * S;
-  const pts = (off: number, lift: number) => { const out: [number, number][] = []; for (let y = a; y <= b; y += 0.5) { const u = (y - a) / (b - a), r = 13 * 4 * u * (1 - u); out.push([X(roadX(y) + 7 + r * lift + off), Yc(y)]); } return out; };
-  const line = (P: [number, number][], width: number, style: string | CanvasGradient) => { g.beginPath(); P.forEach(([x, y], k) => (k ? g.lineTo(x, y) : g.moveTo(x, y))); g.lineWidth = width; g.strokeStyle = style; g.lineCap = "round"; g.lineJoin = "round"; g.stroke(); };
-  // shadow of the arch on the water
-  g.save(); g.globalAlpha = 0.28; line(pts(3, 0.8), S * 1.6, "#0a1a2a"); g.restore();
-  // the deck girder, a rounded steel box
-  const deck = (off: number) => { const P: [number, number][] = []; for (let y = a; y <= b; y += 0.5) P.push([X(roadX(y) + off), Yc(y)]); return P; };
-  line(deck(6.5), S * 1.2, "#3a424c"); line(deck(6.5), S * 0.7, "#c8d0d8"); line(deck(-6.5), S * 1.2, "#3a424c"); line(deck(-6.5), S * 0.7, "#c8d0d8");
-  // hangers from the near rib down to the deck
-  g.lineWidth = Math.max(1, S * 0.18); g.strokeStyle = "rgba(200,210,220,0.9)";
-  for (let y = a + 1; y < b; y += 1.5) { const u = (y - a) / (b - a), r = 13 * 4 * u * (1 - u); if (r < 1.5) continue; g.beginPath(); g.moveTo(X(roadX(y) + 7), Yc(y)); g.lineTo(X(roadX(y) + 7 + r), Yc(y)); g.stroke(); }
-  // the far rib (darker), cross bracing, the near rib (lit, glossy)
-  line(pts(-1.6, 0.92), S * 1.5, "#3a4450");
-  g.lineWidth = S * 0.35; g.strokeStyle = "#6a7480";
-  for (let y = a + 2; y < b - 1; y += 2.5) { const u = (y - a) / (b - a), r = 13 * 4 * u * (1 - u); g.beginPath(); g.moveTo(X(roadX(y) + 7 + r - 1.6 * 0.92 + (r * 0.92 - r)), Yc(y)); g.lineTo(X(roadX(y + 1.2) + 7 + 13 * 4 * ((y + 1.2 - a) / (b - a)) * (1 - (y + 1.2 - a) / (b - a))), Yc(y + 1.2)); g.stroke(); }
-  line(pts(0, 1), S * 1.9, "#4a5460");
-  line(pts(0, 1), S * 1.3, "#aeb8c4");
-  line(pts(-0.25, 1), S * 0.45, "#f4f8fc");
-  // a glint where the sun catches the crown of the arch
-  const m = (a + b) / 2, gx = X(roadX(m) + 7 + 13), gy = Yc(m);
-  const sp = g.createRadialGradient(gx, gy, 0, gx, gy, S * 3); sp.addColorStop(0, "rgba(255,255,255,0.9)"); sp.addColorStop(1, "rgba(255,255,255,0)");
-  g.fillStyle = sp; g.fillRect(gx - S * 3, gy - S * 3, S * 6, S * 6);
+  const S = w / Math.max(1, Math.round(w / 8));
+  const { HW, RIB, z, P } = bayonneGeo(a, b);
+  const X = (p: [number, number, number]) => (p[0] - bx) * S, Yp = (p: [number, number, number]) => (p[1] - p[2] - by) * S;
+  const cut = vy + 1.5;                                                  // world rows south of this are in front of the van
+  const mine = (d: number) => (layer === "near" ? d > cut : d <= cut);
+  const segs: Seg[] = [];
+  const seg = (p: [number, number, number], q: [number, number, number], wd: number, col: string | ((g: CanvasRenderingContext2D) => string | CanvasGradient)) => {
+    const d = Math.max(p[1], q[1]); if (!mine(d)) return;
+    segs.push({ d, draw: (g) => { g.beginPath(); g.moveTo(X(p), Yp(p)); g.lineTo(X(q), Yp(q)); g.lineWidth = wd * S; g.strokeStyle = typeof col === "string" ? col : col(g); g.lineCap = "round"; g.stroke(); } });
+  };
+  const step = 0.5;
+  // the tug in the Kill Van Kull, under the deck
+  if (layer === "far") { const [kx, ky] = HARBOR.kvk, u = (Math.sin(t * 0.15) + 1) / 2, x = kx - 4 + u * 9, y = by0 + ky + Math.round(u * 2);
+    if (M(Math.floor(x), Math.floor(y - by0)) === ".") segs.push({ d: -1e9, draw: (g) => {
+      const q = (xx: number, yy: number, ww: number, hh: number, c: string) => { g.fillStyle = c; g.fillRect((xx - bx) * S, (yy - by) * S, ww * S, hh * S); };
+      g.globalAlpha = 0.5; q(x - 3, y + 0.5, 3, 1, "#e8f4ff"); g.globalAlpha = 1;
+      q(x, y, 3, 2, "#8a5a3a"); q(x + 3, y, 2, 2, "#e0302f"); q(x + 3, y, 1, 1, "#f2f2f2"); } }); }
+  // shadow of the arch on the water (sun low in the west: thrown east-southeast)
+  if (layer === "far") segs.push({ d: -1e8, draw: (g) => { g.save(); g.globalAlpha = 0.22; g.strokeStyle = "#06141f"; g.lineCap = "round";
+    for (const o of [-RIB, RIB]) { g.beginPath(); for (let y = a; y <= b; y += step) { const p = P(y, o, 0), s2 = Math.max(0, z(y)); const xx = (p[0] + s2 * 0.55 - bx) * S, yy = (p[1] + s2 * 0.25 - by) * S; y === a ? g.moveTo(xx, yy) : g.lineTo(xx, yy); } g.lineWidth = S * 1.3; g.stroke(); }
+    g.restore(); } });
+  // piers down to the water at each end of the main span, and the deck girders
+  for (const y of [a + 1, b - 1]) for (const o of [-HW, HW]) { const top = P(y, o, 0), bot = P(y, o, -3); seg(bot, top, 1.3, "#6a6e74"); }
+  for (let y = a - 2; y < b + 2; y += step) {
+    for (const o of [-HW - 0.4, HW + 0.4]) { const p = P(y, o, 0.3), q = P(y + step, o, 0.3); const nearSide = o > 0;
+      if (layer === "far") { seg(P(y, o, -0.6), P(y + step, o, -0.6), 1.1, "#2a3038"); seg(p, q, 0.55, nearSide ? "#d4dbe2" : "#9aa4ae"); } }
+  }
+  // hangers: straight down from each rib to the deck edge
+  for (let y = a + 1.5; y < b - 1; y += 1.25) { const zz = z(y); if (zz < 1.2) continue;
+    for (const o of [-RIB, RIB]) { const top = P(y, o, zz - 0.6), bot = P(y, (o > 0 ? 1 : -1) * (HW + 0.4), 0.3); seg(bot, top, 0.16, o > 0 ? "rgba(214,222,230,0.95)" : "rgba(150,160,172,0.85)"); } }
+  // cross bracing between the ribs over the top: the Bayonne's K-truss, where the arch clears the deck
+  for (let y = a + 3; y < b - 3; y += 2.2) { const z1 = z(y), z2 = z(y + 2.2); if (Math.min(z1, z2) < 4) continue;
+    seg(P(y, -RIB, z1), P(y, RIB, z1), 0.35, "#5a646e"); seg(P(y, -RIB, z1), P(y + 2.2, RIB, z2), 0.25, "#6a7480"); }
+  // the two ribs: a deep steel box, lit from the west (upper left) - far rib darker
+  for (const o of [-RIB, RIB]) {
+    const lit = o < 0;                                                     // west rib catches the sun
+    const runs: [number, number, number][][] = []; let cur: [number, number, number][] | null = null;
+    for (let y = a; y <= b + 1e-6; y += step) { const p = P(y, o, z(y));
+      if (mine(p[1])) { if (!cur) { cur = []; runs.push(cur); } cur.push(p); } else if (cur) { cur.push(p); cur = null; } }
+    for (const run of runs) {
+      const d = Math.max(...run.map((p) => p[1]));
+      const poly = (g: CanvasRenderingContext2D, dx: number, dz: number, wd: number, col: string) => { g.beginPath(); run.forEach((p, k) => { const xx = X(p) + dx * S, yy = Yp(p) - dz * S; k ? g.lineTo(xx, yy) : g.moveTo(xx, yy); }); g.lineWidth = wd * S; g.strokeStyle = col; g.lineCap = "butt"; g.lineJoin = "round"; g.stroke(); };
+      segs.push({ d, draw: (g) => { poly(g, 0, 0, 2, "#2c343e"); poly(g, 0, 0, 1.4, lit ? "#8e9aa8" : "#a8b4c2"); poly(g, -0.25, 0.35, 0.45, lit ? "#e8eef4" : "#f6f9fc"); } });
+    }
+  }
+  segs.sort((u, v) => u.d - v.d).forEach((s) => s.draw(g));
+  // a glint on the crown, only on whichever canvas owns the crown right now
+  const m = (a + b) / 2, cp = P(m, -RIB, z(m) + 0.3);
+  if (mine(cp[1])) { const gx = X(cp), gy = Yp(cp), r = S * (2.6 + Math.sin(t * 1.3) * 0.4);
+    const sp = g.createRadialGradient(gx, gy, 0, gx, gy, r); sp.addColorStop(0, "rgba(255,255,255,0.9)"); sp.addColorStop(1, "rgba(255,255,255,0)");
+    g.fillStyle = sp; g.fillRect(gx - r, gy - r, r * 2, r * 2); }
+  // the shores tuck the feet in: a concrete abutment + a few trees drawn over each foot, on the near canvas
+  if (layer === "near") for (const [y, k] of [[b + 1.5, 0], [a - 1.5, 1]] as [number, number][]) {
+    for (const o of [-RIB - 1.2, RIB + 1.2]) { const p = P(y, o, 0); g.fillStyle = "#8a8c88"; g.fillRect((p[0] - 1.5 - bx) * S, (p[1] - 1.6 - by) * S, 3 * S, 2.4 * S); g.fillStyle = "#b4b6b0"; g.fillRect((p[0] - 1.5 - bx) * S, (p[1] - 1.6 - by) * S, 3 * S, 0.7 * S); }
+    for (let j = 0; j < 3; j++) { const o = (j % 2 ? 1 : -1) * (RIB + 3 + j * 1.6), p = P(y + (k ? -1 : 1) * (0.8 + j * 0.7), o, 0);
+      const cx = (p[0] - bx) * S, cy = (p[1] - by) * S, r = S * (1.5 + (j % 2) * 0.4);
+      g.fillStyle = "#3a2a1a"; g.fillRect(cx - S * 0.25, cy - S * 0.6, S * 0.5, S * 1.2);
+      g.fillStyle = "#1f5a2a"; g.beginPath(); g.arc(cx, cy - r, r, 0, Math.PI * 2); g.fill();
+      g.fillStyle = "#3a8a3a"; g.beginPath(); g.arc(cx - r * 0.3, cy - r * 1.25, r * 0.55, 0, Math.PI * 2); g.fill(); }
+  }
   void h;
 }
 
@@ -552,10 +601,12 @@ export const SC_HARBOR: Partial<Record<string, SceneMod>> = {
       { const ys: number[] = [];
         for (let y = y0; y < ROAD_END; y++) if (M(roadX(y), y - y0) === ".") ys.push(y);
         if (ys.length) {
-          const a = ys[0] - 4, b = ys[ys.length - 1] + 4;
-          let lo = 999, hi = -999; for (let y = a; y <= b; y++) { lo = Math.min(lo, roadX(y)); hi = Math.max(hi, roadX(y)); }
-          const bx = Math.floor(lo - 9), bw = Math.ceil(hi + 24) - bx;
-          hd.push({ x: bx, y: a - 2, w: bw, h: b - a + 6, res: 8, draw: (g, w, hh) => bayonne3D(g, w, hh, bx, a - 2, a, b) });
+          const a = ys[0] - 3, b = ys[ys.length - 1] + 3;
+          let lo = 999, hi = -999; for (let y = a - 4; y <= b + 4; y++) { lo = Math.min(lo, roadX(y)); hi = Math.max(hi, roadX(y)); }
+          const bx = Math.floor(Math.min(lo, HARBOR.kvk[0] - 6) - 14), bw = Math.ceil(Math.max(hi, HARBOR.kvk[0] + 8) + 20) - bx, by = a - 18, bh = b - a + 26;
+          by0 = y0;
+          for (const layer of ["far", "near"] as const)
+            hd.push({ x: bx, y: by, w: bw, h: bh, res: 8, anim: true, top: layer === "near", draw: (g, w, hh, t, vy) => bayonne3D(g, w, hh, bx, by, a, b, layer, vy, t) });
         } }
 
       // boats: two orange ferries, a container ship in through the Narrows, a tug, sailboats; gulls; sparkle
@@ -567,7 +618,6 @@ export const SC_HARBOR: Partial<Record<string, SceneMod>> = {
       };
       const FERRY: [number, number][] = [[HARBOR.stgeorge[0] + 3, HARBOR.stgeorge[1] - 1], [LX + 13, LY - 6], [HARBOR.battery[0] + 3, HARBOR.battery[1] + 2]];
       const SHIP: [number, number][] = [[HARBOR.lowerbay[0] + 10, HARBOR.lowerbay[1] - 6], [HARBOR.lowerbay[0], HARBOR.lowerbay[1]], [(HARBOR.vzS[0] + HARBOR.vzB[0]) / 2 + 1, (HARBOR.vzS[1] + HARBOR.vzB[1]) / 2], [HARBOR.shipB[0] + 4, HARBOR.shipB[1]]];
-      const [kx, ky] = HARBOR.kvk;
       live.push({ k: "fn", fn: (f, t, ctx) => {
         const D = depth();
         for (let k = 0; k < 40; k++) {
@@ -585,8 +635,6 @@ export const SC_HARBOR: Partial<Record<string, SceneMod>> = {
             f(x, Y(y) + 4, 2, 1, "#f2f2f2");
             ctx.globalAlpha = 0.5; f(x + 1, Y(y) - 7, 2, 3, "#e8f4ff"); ctx.globalAlpha = 1;
           } }
-        { const u = (Math.sin(t * 0.15) + 1) / 2, x = kx - 4 + u * 9, y = ky + Math.round(u * 2);   // a tug in the Kill Van Kull
-          if (M(x, y) === ".") { f(x, Y(y), 3, 2, "#8a5a3a"); f(x + 3, Y(y), 2, 2, "#e0302f"); f(x + 3, Y(y), 1, 1, "#f2f2f2"); } }
         for (let k = 0; k < 7; k++) {                                            // sailboats out in the Lower Bay
           const [bx, by] = k < 4 ? HARBOR.lowerbay : HARBOR.raritan, x = bx - 10 + hash(k * 5) * 22 + Math.sin(t * 0.1 + k) * 4, y = by - 10 + hash(k * 9) * 22;
           if (M(x, y) !== "." || M(x + 2, y + 3) !== ".") continue;
