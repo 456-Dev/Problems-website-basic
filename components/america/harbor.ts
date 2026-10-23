@@ -6,6 +6,10 @@ export const HARBOR = {
   vzS: [44,95] as [number, number], vzB: [39,105] as [number, number],
   liberty: [71,126] as [number, number], ellis: [73,130] as [number, number], george: [60,105] as [number, number], battery: [69,138] as [number, number],
   wtc: [73,141] as [number, number], esb: [80,159] as [number, number], gov: [65,133] as [number, number],
+  // more landmarks for the finale
+  coney: [15,110] as [number, number], bkbA: [68,144] as [number, number], bkbB: [64,145] as [number, number], stgeorge: [60,105] as [number, number],
+  outerbridge: [56,19] as [number, number], goethals: [83,69] as [number, number], bayonne: [75,85] as [number, number], freshkills: [61,53] as [number, number],
+  greenbelt: [55,71] as [number, number], chrysler: [79,163] as [number, number], portliz: [90,94] as [number, number], linden: [79,55] as [number, number], wadsworth: [41,96] as [number, number],
   rows: [
     "jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj",
     "jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj.jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj",
