@@ -38,14 +38,15 @@
 .oqa-top a:hover { color: #fff; }
 
 /* ---- hero ---- */
-.oqa-hero { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 44px; align-items: center;
+.oqa-hero { display: flex; flex-direction: column; align-items: center; gap: 40px; text-align: center;
   padding: 18px 28px 70px; max-width: 1320px; margin: 0 auto; }
-.oqa-poster img { display: block; width: 100%; max-height: 82vh; object-fit: contain; }
+.oqa-poster { width: min(100%, 760px); }
+.oqa-poster img { display: block; width: 100%; max-height: 82vh; object-fit: contain; margin: 0 auto; }
 .oqa-hero h1 { margin: 0 0 18px; font-weight: 800; font-size: clamp(38px, 5.2vw, 76px); line-height: 1; letter-spacing: -.02em; }
 .oqa-hero h1 span { display: inline-block; background: #fff; color: #000; padding: .04em .16em .1em; margin: 0 0 .12em; }
 .oqa-credit { margin: 0 0 22px; font-size: 19px; color: #d9d9d9; }
-.oqa-log { margin: 0 0 30px; font-size: 21px; line-height: 1.45; max-width: 30ch; }
-.oqa-actions { display: flex; flex-wrap: wrap; gap: 12px; margin: 0 0 16px; }
+.oqa-log { margin: 0 auto 30px; font-size: 21px; line-height: 1.45; max-width: 30ch; }
+.oqa-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin: 0 0 16px; }
 .oqa-btn { display: inline-block; background: #fff; color: #000 !important; font-weight: 800; font-size: 17px;
   padding: 15px 22px; border-radius: 3px; text-decoration: none; border: 2px solid #fff; transition: transform .12s; }
 .oqa-btn.ghost { background: transparent; color: #fff !important; }
@@ -146,7 +147,7 @@
   .oqa-rail-here { width: 54px; font-size: 5px; }
   .oqa-rail-end { font-size: 7px; }
         .oqa-top, .oqa-hero, .oqa-trip, .oqa-three, .oqa-film, .oqa-credits { padding-left: 14px; padding-right: 14px; }
-  .oqa-hero { grid-template-columns: 1fr; gap: 26px; }
+  .oqa-hero { gap: 26px; }
   .oqa-three ol { grid-template-columns: 1fr; gap: 24px; }
   .oqa-map { --cs: 2.4; }
   .oqa-pin .hit, .oqa-pin .dot { transform: scale(1.9); }
