@@ -1,6 +1,6 @@
 // West: California (Venice, LA, Orange County), Las Vegas, Utah (Bicknell, Moab), Colorado (Vail, the Rockies, Denver).
 // July 4th to July 8th: flags everywhere.
-import { W, HOLDS, roadX, room, free, roomiest, hash } from "../core";
+import { W, HOLDS, STAND, roadX, room, free, roomiest, hash } from "../core";
 import { palm, peak, stars } from "../kit";
 import { PRIDE } from "../fx";
 import type { SceneMod, Px } from "../kit";
@@ -419,7 +419,7 @@ export const SC_WEST: Partial<Record<string, SceneMod>> = {
         palm2(px, x + 13, y - 2, 9, -2); palm2(px, x + 15, y - 2, 9, 2);
         for (let k = 0; k < 4; k++) car(px, x + 2 + k * 5, y + 19, ["#f2f2f2", "#1a1a1a", "#e0302f", "#3a6fd8"][k]);
         px(x - 1, y + 25, 33, 7, "#f8f8f4"); T(px, x + 1, y + 26, "IN N OUT", "#e0302f"); }
-      caesars(px, live, 2, y0 + 109);
+      for (let k = 0; k < 5; k++) palm2(px, 5 + k * 7, y0 + 112 + (k % 2) * 5, 11, k % 2 ? 1 : -1);   // a row of palms down the boulevard
     },
   },
   oc: {
@@ -510,19 +510,43 @@ export const SC_WEST: Partial<Record<string, SceneMod>> = {
         const fy = y0 + 10 + k * 14, side = k % 2 ? "r" : "l", fx = Math.max(6, Math.min(W - 8, free(fy, 10, 12, side) + 6));
         live.push({ k: "boom", x: fx, y: fy, c, ph: k * 0.45 });
       }
-      // the Strip: Flamingo's pink, Caesars' columns, Bellagio's fountains dancing
+      // the Bellagio, its fountains dancing
       { const y = y0 + 64, x = 3, w = Math.min(54, Math.floor(room(y, 40).lo - 8) - x);
         px(x, y, w, 10, "#e8d8c0"); px(x, y, w, 1, "#c8b8a0"); for (let xx = x + 1; xx < x + w - 1; xx += 2) for (let yy = y + 2; yy < y + 9; yy += 2) px(xx, yy, 1, 1, "#fff0b0");
         px(x, y + 10, w, 20, "#1f5a8a"); px(x + 1, y + 11, w - 2, 18, "#2a7ab8");
         live.push({ k: "fn", fn: (f, t) => { for (let k = 0; k < 9; k++) { const hgt = 3 + Math.abs(Math.sin(t * 2.2 + k * 0.7)) * 9, xx = x + 3 + k * ((w - 6) / 8); for (let r = 0; r < hgt; r++) f(xx, y + 26 - r, 1, 1, r > hgt - 2 ? "#ffffff" : "#bfe8ff"); } } });
         px(x, y + 30, w, 2, "#5a5a6a"); }
-      { const y = y0 + 98, x = 4;
-        px(x, y, 22, 14, "#f2f2f2"); for (let k = 1; k < 22; k += 3) px(x + k, y + 4, 1, 10, "#c8c8c8"); px(x, y, 22, 3, "#e8e8e0");
-        px(x + 26, y, 18, 14, "#ff5ad1"); px(x + 27, y + 1, 16, 2, "#ff9ae0"); for (let k = 0; k < 5; k++) px(x + 28 + k * 3, y + 5, 2, 7, "#ffd0f0");
-        px(x + 38, y - 6, 3, 6, "#ff5ad1"); px(x + 40, y - 8, 2, 2, "#ff5ad1"); px(x + 39, y - 2, 1, 2, "#ffd23f");
-        live.push({ k: "club", x: x + 26, y: y + 13, w: 18, h: 1 }); }
+      // Caesars Palace, and a street preacher next to it with his REPENT sign
+      { const y = y0 + 104; caesars(px, live, 2, y);
+        const lim = Math.floor(room(y, 24).lo - 6), side = lim - 38 >= 12;      // beside it if there's room, else under it
+        const q = side ? 39 : 4, py = side ? y + 4 : y + 30;
+        const sx = side ? q - 1 : q + 6, sy = side ? py - 12 : py - 1;           // the sign: white board, red letters, on a stick
+        px(sx, sy, 25, 9, "#111"); px(sx + 1, sy + 1, 23, 7, "#f8f8f0"); T(px, sx + 1, sy + 2, "REPENT", "#d01818");
+        px(side ? sx + 12 : sx - 1, sy + 9, 1, side ? 4 : 2, "#6a4a2a");
+        px(q + 1, py, 5, 2, "#d8d8d8"); px(q + 1, py + 2, 5, 4, "#e0b090"); px(q + 2, py + 3, 1, 1, "#111"); px(q + 4, py + 3, 1, 1, "#111");
+        px(q + 1, py + 5, 5, 2, "#c8c8c8");                                                                          // the white beard
+        px(q, py + 7, 7, 7, "#2a2a3a"); px(q + 3, py + 7, 1, 3, "#f2f2f2");                                        // dark suit
+        px(q + 1, py + 14, 2, 4, "#1a1a24"); px(q + 4, py + 14, 2, 4, "#1a1a24"); px(q, py + 18, 3, 1, "#111"); px(q + 4, py + 18, 3, 1, "#111");
+        px(q - 2, py + 9, 2, 3, "#5a1a1a");                                                                        // the bible
+        live.push({ k: "fn", fn: (f, t) => { if (Math.floor(t * 2.5) % 2) f(sx + 1, sy + 1, 23, 7, "rgba(255,255,255,.18)"); } }); }
+      // the Flamingo: pink tower, the neon plume, and flamingos strutting round the lawn
+      { const y = y0 + 44, x = Math.min(Math.max(free(y, 36, 38, "r"), 66), W - 39);
+        px(x, y, 38, 20, "#ff6fb4"); px(x, y, 38, 1, "#ffb0d8"); for (let r = y + 3; r < y + 19; r += 3) for (let c = x + 2; c < x + 36; c += 3) px(c, r, 2, 1, "#ffd8ec");
+        px(x + 1, y - 7, 36, 7, "#1a0a14"); T(px, x + 3, y - 6, "FLAMINGO", "#ff7ac0");
+        live.push({ k: "fn", fn: (f, t) => { if (Math.floor(t * 3) % 4) { f(x + 3, y - 7, 32, 1, "#ff4aa8"); f(x + 3, y - 1, 32, 1, "#ff4aa8"); } } });
+        px(x, y + 20, 38, 14, "#3faa4a"); px(x, y + 20, 38, 1, "#5ac85a");
+        live.push({ k: "fn", fn: (f, t) => {
+          for (let k = 0; k < 5; k++) {
+            const sp = 0.25 + hash(k * 3) * 0.2, ph = hash(k * 11) * 6.28, u = 0.5 + 0.5 * Math.sin(t * sp + ph);
+            const fx = Math.round(x + 2 + u * 31), fy = y + 22 + (k % 3) * 4, dir = Math.cos(t * sp + ph) >= 0 ? 1 : -1, step = Math.floor(t * 4 + k) % 2;
+            f(fx, fy + 3, 3, 2, "#ff7ab8"); f(fx + (dir > 0 ? 3 : -1), fy + 3, 1, 1, "#ff9ad0");                        // body
+            const nx = dir > 0 ? fx + 2 : fx; f(nx, fy, 1, 3, "#ff7ab8"); f(nx + (dir > 0 ? 0 : -1), fy - 1, 2, 1, "#ff7ab8");   // neck, head
+            f(dir > 0 ? nx + 2 : nx - 2, fy - 1, 1, 1, "#111");                                                       // beak
+            f(fx + 1, fy + 5, 1, 2 - step, "#e0508a"); f(fx + 2, fy + 5, 1, 1 + step, "#e0508a");                     // legs
+          }
+        } }); }
       // the Luxor: a black glass pyramid, its beam going straight up into the night
-      { const y = y0 + 122, lim = Math.floor(room(y, 26).lo - 8), w = Math.min(30, lim - 3), x = Math.max(2, lim - w - 1);
+      { const y = y0 + 136, lim = Math.floor(room(y, 26).lo - 8), w = Math.min(26, lim - 3), x = Math.max(2, lim - w - 1);
         if (w > 14) {
           const cx = x + Math.floor(w / 2), hh = Math.floor(w / 2);
           for (let r = 0; r <= hh; r++) { px(cx - r, y + r, r + 1, 1, "#2a2a36"); px(cx, y + r, r + 1, 1, "#14141c"); }
@@ -537,16 +561,27 @@ export const SC_WEST: Partial<Record<string, SceneMod>> = {
         for (let k = 0; k < 14; k++) px(x + 1 + Math.floor(rnd() * 13), y + 8 + Math.floor(rnd() * 36), 1, 1, "#fff6c8");
         px(x, y, 22, 7, "#1a1406"); T(px, x + 2, y + 1, "TRUMP", "#ffd860");
         px(x - 2, y + 46, 26, 2, "#3a3448"); flag(px, live, x + 11, y - 12, 11, 8, 5);
-        // the preacher: a lamp post making a little stage, a bible, a cross he keeps lifting at the cars
-        const r = room(hy - 8, 16), q = Math.ceil(r.hi + 7);
-        glow.push((g) => { g(q - 3, hy - 14, 16, 18, "#4a3a5a"); });
-        px(q + 12, hy - 22, 1, 24, "#5a5a6a"); px(q + 9, hy - 22, 4, 1, "#5a5a6a"); px(q + 9, hy - 21, 2, 1, "#fff6a0");
-        px(q + 1, hy - 12, 5, 2, "#2a1a0a"); px(q + 1, hy - 10, 5, 4, "#c08a5a"); px(q + 2, hy - 9, 1, 1, "#111"); px(q + 4, hy - 9, 1, 1, "#111"); px(q + 1, hy - 7, 5, 1, "#3a2a1a");
-        px(q, hy - 6, 7, 7, "#f2f2f2"); px(q + 3, hy - 6, 1, 5, "#1a1a1a");
-        px(q + 1, hy + 1, 2, 5, "#2a2a3a"); px(q + 4, hy + 1, 2, 5, "#2a2a3a"); px(q, hy + 6, 3, 1, "#111"); px(q + 4, hy + 6, 3, 1, "#111");
-        px(q - 3, hy - 5, 3, 4, "#1a1a1a"); px(q - 2, hy - 4, 1, 2, "#ffd23f"); px(q - 1, hy - 5, 1, 1, "#c08a5a");
-        live.push({ k: "fn", fn: (f, t) => { const lift = Math.floor(t * 1.2) % 2 ? 2 : 0;
-          f(q + 7, hy - 6 - lift, 1, 5, "#c08a5a"); f(q + 8, hy - 17 - lift, 1, 12, "#c8a060"); f(q + 6, hy - 14 - lift, 5, 1, "#c8a060"); f(q + 8, hy - 17 - lift, 1, 1, "#ffe8a0"); } }); }
+        // the Serbian couple out on the Strip with their little dog, who want to know: heaven or hell?
+        const r = room(hy - 8, 16), q = Math.min(W - 22, Math.ceil(r.hi + 21));
+        STAND[0] = { side: 1, x: q - 1 };
+        glow.push((g) => { g(q - 3, hy - 16, 24, 22, "#4a3a5a"); });
+        // him: dark buzz cut, stubble, black leather jacket, a little Serbian flag (red, blue, white)
+        px(q + 1, hy - 12, 5, 1, "#1a1410"); px(q + 1, hy - 11, 5, 4, "#e0b090"); px(q + 2, hy - 10, 1, 1, "#111"); px(q + 4, hy - 10, 1, 1, "#111"); px(q + 1, hy - 8, 5, 1, "#8a6a50");
+        px(q, hy - 7, 7, 8, "#1a1a1e"); px(q + 3, hy - 7, 1, 4, "#e8e8e8"); px(q + 1, hy + 1, 2, 5, "#2a3450"); px(q + 4, hy + 1, 2, 5, "#2a3450"); px(q, hy + 6, 3, 1, "#111"); px(q + 4, hy + 6, 3, 1, "#111");
+        px(q - 1, hy - 6, 1, 4, "#1a1a1e"); px(q - 2, hy - 15, 1, 12, "#9a9a9a");
+        px(q - 8, hy - 15, 6, 1, "#c6363c"); px(q - 8, hy - 14, 6, 1, "#0c4076"); px(q - 8, hy - 13, 6, 1, "#f2f2f2");
+        // her: long dark hair, red top, white jeans, holding his hand
+        const w2 = q + 8;
+        px(w2, hy - 12, 6, 2, "#3a2014"); px(w2, hy - 10, 1, 7, "#3a2014"); px(w2 + 5, hy - 10, 1, 7, "#3a2014");
+        px(w2 + 1, hy - 10, 4, 4, "#f0c8a0"); px(w2 + 2, hy - 9, 1, 1, "#111"); px(w2 + 4, hy - 9, 1, 1, "#111"); px(w2 + 2, hy - 7, 2, 1, "#c84a5a");
+        px(w2 + 1, hy - 6, 4, 7, "#d01830"); px(w2, hy - 4, 1, 3, "#f0c8a0"); px(q + 7, hy - 3, 1, 1, "#f0c8a0");
+        px(w2 + 1, hy + 1, 2, 5, "#ecebe4"); px(w2 + 3, hy + 1, 2, 5, "#ecebe4"); px(w2 + 1, hy + 6, 2, 1, "#111"); px(w2 + 3, hy + 6, 2, 1, "#111");
+        // the dog: small, white, on a red leash, tail going
+        const dx = w2 + 8, dy = hy + 2;
+        for (let k = 0; k < 5; k++) px(w2 + 5 + k, hy - 3 + Math.round(k * 0.9), 1, 1, "#e0302f");
+        px(dx, dy, 6, 3, "#f2f2f2"); px(dx + 5, dy - 2, 3, 3, "#f2f2f2"); px(dx + 7, dy - 1, 1, 1, "#111"); px(dx + 5, dy - 2, 1, 1, "#d8d8d8");
+        px(dx, dy + 3, 1, 2, "#f2f2f2"); px(dx + 4, dy + 3, 1, 2, "#f2f2f2");
+        live.push({ k: "fn", fn: (f, t) => { const wag = Math.floor(t * 10) % 2; f(dx - 1, dy - 1 + wag, 1, 2, "#f2f2f2"); } }); }
       // the Little White Wedding Chapel, Elvis out front
       { const y = y0 + 166, x = Math.max(free(y, 26, 30, "r"), 54);
         px(x, y + 6, 18, 12, "#f8f8f4"); for (let r = 0; r < 5; r++) px(x + 9 - r * 2, y + 2 + r, 1 + r * 4, 1, "#e8e8e8"); px(x + 8, y - 6, 2, 9, "#f8f8f4"); px(x + 8, y - 8, 1, 2, "#ffd23f");

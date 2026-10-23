@@ -6,9 +6,9 @@ type F = (x: number, y: number, w: number, h: number, c: string) => void;
 const PAL: Record<string, string> = {
   h: "#4a2e1a", j: "#5a3a1a", s: "#f0c8a0", e: "#111111", b: "#5a3a22", m: "#c87a6a",
   w: "#f2f2f2", W: "#cfcfcf", g: "#2f8a3a", G: "#1f6a2a", r: "#c8202a", p: "#3a5a8a", P: "#2a4470",
-  k: "#111111", K: "#3a3a3a", l: "#6a9ad8", o: "#000000",
+  k: "#111111", K: "#3a3a3a", l: "#6a9ad8", o: "#000000", U: "#8a8f99", V: "#6f747e", u: "#6a6f79",
 };
-// me: messy brown hair, beard, white tee, jeans, the mic held out (to the right)
+// me: messy brown hair, beard, grey suit over a white shirt (no tie), the mic held out (to the right)
 const ME = [
   "..ohhho......",
   ".ohhhhho.....",
@@ -17,14 +17,14 @@ const ME = [
   ".osssssso....",
   ".obbmbbo.....",
   "..obbbo......",
-  ".owwwwwo.....",
-  "owwwwwwwsso..",
-  "owwwwwwwo.kKo",
-  "osowwwwo..ko.",
-  "oso.ppo......",
-  "..oppPpo.....",
-  "..opo.opo....",
-  "..opo.opo....",
+  ".oVUwUVo.....",
+  "oUUVwVUUsso..",
+  "oUUUwUUUo.kKo",
+  "osoUUUUo..ko.",
+  "oso.uuo......",
+  "..ouuuuo.....",
+  "..ouo.ouo....",
+  "..ouo.ouo....",
   "..oko.oko....",
 ];
 // Jason: brown hair, green CUMMINS tee, the camera up on his right shoulder (lens to the right)
@@ -60,17 +60,21 @@ function sprite(f: F, art: string[], x: number, y: number, flip: boolean, step: 
   });
 }
 
-// out = 0..1 how far out of the van we are; side = +1 we get out to the map's right; van at (vx, vy)
-export function drawUs(f: F, t: number, vx: number, vy: number, out: number, side: number) {
+// out = 0..1 how far out of the van we are; side = +1 we get out to the map's right; van at (vx, vy);
+// stand = where the people we're interviewing stand (we stop in front of them, never on top of them)
+export function drawUs(f: F, t: number, vx: number, vy: number, out: number, side: number, stand?: { side: number; x: number }) {
   if (out <= 0.02) return;
+  if (stand) side = stand.side;
   const walk = Math.min(1, Math.max(0, (out - 0.1) / 0.6));
   const moving = walk > 0 && walk < 1;
   const step = moving ? (Math.floor(t * 6) % 2 ? 1 : -1) : 0;
   const flip = side < 0;                          // face away from the van, toward whoever we're talking to
   const door = vx + side * 4;
   // me from the passenger door, out ahead; Jason round the back, a step behind me, filming
-  const mx = door + side * (2 + 11 * walk) - (flip ? 13 : 0), my = vy - 12 + walk * 3;
-  const jx = door + side * (2 + 3 * walk) - (flip ? 13 : 0), jy = vy - 6 + walk * 8;
+  const room = stand ? (side > 0 ? stand.x - 15 - door : door - 15 - stand.x) : 99;
+  const meR = Math.max(-6, Math.min(2 + 11 * walk, room)), jR = Math.max(-8, Math.min(2 + 3 * walk, meR - 4));
+  const mx = door + side * meR - (flip ? 13 : 0), my = vy - 12 + walk * 3;
+  const jx = door + side * jR - (flip ? 13 : 0), jy = vy - 6 + walk * 8;
   if (walk < 0.15) return;                        // still climbing out
   // shadows
   for (const [x, y] of [[mx, my], [jx, jy]]) { f(x + 2, y + 16, 8, 1, "rgba(0,0,0,.25)"); }

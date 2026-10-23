@@ -12,7 +12,7 @@ import { SC_MID } from "./trip/scenes/mid";
 import { SC_EAST } from "./trip/scenes/east";
 import { SC_PATERSON } from "./trip/scenes/paterson";
 import { SC_HARBOR } from "./trip/scenes/harbor";
-import { POP } from "./trip/pop3d";
+import { POP, TURB } from "./trip/pop3d";
 
 export { W, HT, ROAD_END, SCENES, SAYS, HOLDS, SEQ, sceneAt, roadX, vanX, vanAt, progressAt, holdAt, bendAt, type Say } from "./trip/core";
 export { drawLive, type Live } from "./trip/fx";
@@ -28,7 +28,7 @@ export function drawStrip(ctx: CanvasRenderingContext2D): Strip {
   const rnd = () => ((seed = (seed * 9301 + 49297) % 233280) / 233280);
   const px: Px = (x, y, w, h, c) => { ctx.fillStyle = c; ctx.fillRect(Math.round(x), Math.round(y), w, h); };
   const out: Strip = { live: [], hd: [], canopy: [], says: [] };
-  POP.length = 0;
+  POP.length = 0; TURB.length = 0;
   const glows: [number, number, Fn[]][] = [];
   const mk = (i: number, p: Px, glow: Fn[]): Ctx => ({ ctx, px: p, y0: Y0[i], h: SCENES[i].h, rnd, live: out.live, hd: out.hd, canopy: out.canopy, glow, says: out.says });
 

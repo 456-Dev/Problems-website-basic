@@ -9,6 +9,7 @@ import {
 import { drawSeq, panelAt } from "./trip/scare";
 import { render3D, outSide, type Proj } from "./trip/pop3d";
 import { drawUs } from "./trip/us";
+import { STAND } from "./trip/core";
 
 // The 8-bit road trip at the bottom of the page: a phone-wide map seen from above,
 // LA at the top and Staten Island at the bottom, a little landscape per stop. When you reach
@@ -88,7 +89,7 @@ export default function RoadRail() {
     }
     const a = vanX(vy + 2) - vanX(vy - 2), n = Math.hypot(a, 4);
     const out = outAt();
-    render3D(g, { proj, t, vy, spin: bend.spin, dusk: bend.dusk, van: { x: vanX(vy), y: vy, fx: a / n, fy: 4 / n }, out, side: outSide(vy), w: cw, h: ch, pops: true, near: bend.tilt < 0.3, max: cost.current > 12 ? 6 : tilted ? 14 : 20 });
+    render3D(g, { proj, t, vy, spin: bend.spin, dusk: bend.dusk, van: { x: vanX(vy), y: vy, fx: a / n, fy: 4 / n }, out, side: outSide(vy), w: cw, h: ch, pops: true, near: bend.tilt < 0.3, max: cost.current > 12 ? 6 : tilted ? 14 : 20, night: bend.night });
   };
 
 
@@ -130,7 +131,7 @@ export default function RoadRail() {
       }
       drawLive(ctx, now, still, strip.current.live);
       { const vy = van.current, o = outAt(), f = (x: number, y: number, w: number, h: number, c: string) => { ctx.fillStyle = c; ctx.fillRect(Math.round(x), Math.round(y), w, h); };
-        if (o > 0) drawUs(f, still ? 0 : now / 1000, vanX(vy), vy, o, outSide(vy)); }
+        if (o > 0) drawUs(f, still ? 0 : now / 1000, vanX(vy), vy, o, outSide(vy), holdR.current ? STAND[holdR.current.i] : undefined); }
       const t0 = performance.now();
       draw3D(still ? 0 : now / 1000);
       cost.current = cost.current * 0.9 + (performance.now() - t0) * 0.1;

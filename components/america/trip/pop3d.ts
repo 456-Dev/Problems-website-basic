@@ -17,6 +17,8 @@ export type Pop =
   | { k: "sign"; x: number; y: number; w: number; h: number; lift: number; bg: string; lines: [string, string][] };
 // filled by the scene modules while the strip is drawn (drawStrip clears it first)
 export const POP: Pop[] = [];
+// every wind turbine's light (x, y on the map), flat or 3D: at night they're all you can see
+export const TURB: [number, number][] = [];
 
 // map (x, y, height) → screen [x, y, depth] (bigger depth = farther), or null if behind the camera
 export type Proj = (x: number, y: number, z: number) => [number, number, number] | null;
@@ -27,8 +29,9 @@ export type View = {
   side: number;         // which side of the van we get out on (+1 = map right)
   w: number; h: number; // canvas size, css px
   pops: boolean;
-  near: boolean;
-  max: number;          // most landmarks to draw at once        // false: leave out what stands between the camera and the road (it'd fill the screen)
+  near: boolean;        // false: leave out what stands between the camera and the road (it'd fill the screen)
+  max: number;          // most landmarks to draw at once
+  night: number;        // 0..1: the last of Kansas goes black, the headlights and the turbines' red lights the only light
 };
 
 type Prim =
@@ -43,16 +46,18 @@ const back = (u: number) => { const v = clamp(u), c = 2.2; return 1 + (c + 1) * 
 
 const rgb = (c: string) => [1, 3, 5].map((i) => parseInt(c.slice(i, i + 2), 16));
 const SUNSET = [255, 122, 58];
+let NIGHT = 0;
 // flat shading: low sun from the west (up the map), warmer as the sun goes
 function shade(c: string, n: [number, number, number], dusk: number) {
   const L = [-0.25, -0.75, 0.6], len = Math.hypot(...n) || 1;
   const k = 0.62 + 0.42 * Math.max(0, (n[0] * L[0] + n[1] * L[1] + n[2] * L[2]) / len);
   const [r, g, b] = rgb(c), w = dusk * 0.28;
-  const f = (v: number, s: number) => Math.round(Math.min(255, (v * (1 - w) + s * w) * k * (1 - dusk * 0.18)));
+  const f = (v: number, s: number) => Math.round(Math.min(255, (v * (1 - w) + s * w) * k * (1 - dusk * 0.18) * (1 - NIGHT * 0.85)));
   return `rgb(${f(r, SUNSET[0])},${f(g, SUNSET[1])},${f(b, SUNSET[2])})`;
 }
 
 export function render3D(ctx: CanvasRenderingContext2D, v: View) {
+  NIGHT = v.night;
   const P: Prim[] = [], shadows: number[][] = [];
   const { proj, t, dusk } = v;
   const pr = (x: number, y: number, z: number) => proj(x, y, z);
@@ -103,7 +108,8 @@ export function render3D(ctx: CanvasRenderingContext2D, v: View) {
     const base = pr(o.x, o.y, 0);
     if (!v.near && base && base[2] < vd && !mirrored.has(o)) {
       // side-on, what's on the near side would fill the screen: it pops up across the road instead
-      const dx = 2 * (v.van.x - o.x) + 10;
+      // (billboards go up right along the far shoulder, facing the road)
+      const dx = o.k === "sign" ? v.van.x + 9 - o.x : 2 * (v.van.x - o.x) + 10;
       const m = { ...o, x: o.x + dx };
       mirrored.add(m); list.push(m);                       // (once: a mirrored one never flips back)
       continue;
@@ -269,13 +275,30 @@ export function render3D(ctx: CanvasRenderingContext2D, v: View) {
       }
     };
     head(1, "#2f8a3a", "#5a3a1a", false);     // Jason, green Cummins tee
-    head(-1, "#f2f2f2", "#4a2e1a", true);     // me
+    head(-1, "#8a8f99", "#4a2e1a", true);     // me, grey suit
   }
 
   /* ---------- paint, back to front ---------- */
+  if (v.night > 0.01) {
+    // the dark, with the headlights cut out of it
+    const { x: vx, y: vy, fx, fy } = v.van, Lx = fy, Ly = -fx, L = 52;
+    const g0 = pr(vx + fx * 5, vy + fy * 5, 0), g1 = pr(vx + fx * (5 + L), vy + fy * (5 + L), 0);
+    const cone = [[5, -2.4], [5, 2.4], [5 + L, 2.4 + L * 0.3], [5 + L, -2.4 - L * 0.3]].map(([a, b]) => pr(vx + fx * a + Lx * b, vy + fy * a + Ly * b, 0));
+    ctx.fillStyle = `rgba(0,0,6,${0.94 * v.night})`; ctx.fillRect(0, 0, v.w, v.h);
+    if (g0 && g1 && cone.every(Boolean)) {
+      const path = () => { ctx.beginPath(); cone.forEach((q, i) => (i ? ctx.lineTo(q![0], q![1]) : ctx.moveTo(q![0], q![1]))); ctx.closePath(); };
+      const grad = (c0: string, c1: string) => { const gr = ctx.createLinearGradient(g0[0], g0[1], g1[0], g1[1]); gr.addColorStop(0, c0); gr.addColorStop(1, c1); return gr; };
+      ctx.save();
+      ctx.globalCompositeOperation = "destination-out"; path(); ctx.fillStyle = grad(`rgba(0,0,0,${0.9 * v.night})`, "rgba(0,0,0,0)"); ctx.fill();
+      ctx.globalCompositeOperation = "lighter"; path(); ctx.fillStyle = grad(`rgba(255,226,140,${0.28 * v.night})`, "rgba(255,226,140,0)"); ctx.fill();
+      ctx.restore();
+    }
+  }
   ctx.fillStyle = `rgba(20,10,30,${0.22 + dusk * 0.1})`;
   for (const p of shadows) { if (p.length < 6) continue; ctx.beginPath(); ctx.moveTo(p[0], p[1]); for (let i = 2; i < p.length; i += 2) ctx.lineTo(p[i], p[i + 1]); ctx.fill(); }
   P.sort((a, b) => b.d - a.d);
+  const dim = (c: string) => NIGHT < 0.01 || c[0] !== "#" || c === "#ff2a1a" || c === "#fff6a0" ? c
+    : "#" + [1, 3, 5].map((i) => Math.round(parseInt(c.slice(i, i + 2), 16) * (1 - NIGHT * 0.85)).toString(16).padStart(2, "0")).join("");
   ctx.lineJoin = "round"; ctx.lineCap = "round";
   for (const q of P) {
     if (q.k === "poly") {
@@ -283,9 +306,9 @@ export function render3D(ctx: CanvasRenderingContext2D, v: View) {
       ctx.fillStyle = q.fill; ctx.fill();
       if (q.line) { ctx.strokeStyle = q.line; ctx.lineWidth = q.lw ?? 1; ctx.stroke(); }
     } else if (q.k === "line") {
-      ctx.beginPath(); ctx.moveTo(q.p[0], q.p[1]); ctx.lineTo(q.p[2], q.p[3]); ctx.strokeStyle = q.line; ctx.lineWidth = q.lw; ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(q.p[0], q.p[1]); ctx.lineTo(q.p[2], q.p[3]); ctx.strokeStyle = dim(q.line); ctx.lineWidth = q.lw; ctx.stroke();
     } else if (q.k === "dot") {
-      ctx.beginPath(); ctx.arc(q.p[0], q.p[1], q.r, 0, 6.283); ctx.fillStyle = q.fill; ctx.fill();
+      ctx.beginPath(); ctx.arc(q.p[0], q.p[1], q.r, 0, 6.283); ctx.fillStyle = dim(q.fill); ctx.fill();
       if (q.line) { ctx.strokeStyle = q.line; ctx.lineWidth = 1; ctx.stroke(); }
     } else {
       // a billboard: the board, then its words mapped onto it (affine is plenty at this size)
@@ -304,6 +327,20 @@ export function render3D(ctx: CanvasRenderingContext2D, v: View) {
       });
       ctx.restore();
     }
+  }
+
+  // every turbine out there blinking red together, the only thing you can see
+  if (v.night > 0.01) {
+    const on = (t * 0.8) % 1 < 0.35;
+    for (const [x, y] of TURB) {
+      if (Math.abs(y - v.vy) > 420) continue;
+      const q = pr(x, y, 31);
+      if (!q || q[0] < -10 || q[0] > v.w + 10 || q[1] < -10 || q[1] > v.h + 10) continue;
+      ctx.globalAlpha = v.night * (on ? 1 : 0.18);
+      ctx.fillStyle = "rgba(255,40,30,.25)"; ctx.beginPath(); ctx.arc(q[0], q[1], 7, 0, 6.283); ctx.fill();
+      ctx.fillStyle = "#ff3020"; ctx.beginPath(); ctx.arc(q[0], q[1], 2.2, 0, 6.283); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
   }
 }
 

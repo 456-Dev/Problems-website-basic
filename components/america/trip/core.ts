@@ -140,11 +140,11 @@ export function holdAt(p: number): { i: number; u: number } | null {
 export const SEQ = { hold: 1 };
 export function bendAt(vy: number) {
   const a = top("silo") + 10, b = HOLDS[1].y;
-  if (vy <= a || vy > b) return { tilt: 0, spin: 0, dusk: 0 };
+  if (vy <= a || vy > b) return { tilt: 0, spin: 0, dusk: 0, night: 0 };
   const u = (vy - a) / (b - a);
   // the middle of the trip: the camera slowly swings round (spin) and drops (tilt) until we're looking
   // at the road side-on, sun going down behind it; it holds there, then we hit the wall
-  return { tilt: smooth(u / 0.45), spin: smooth((u - 0.1) / 0.5), dusk: Math.min(1, u * 1.3) };
+  return { tilt: smooth(u / 0.45), spin: smooth((u - 0.1) / 0.5), dusk: Math.min(1, u * 1.3), night: smooth((u - 0.62) / 0.3) };
 }
 
 // speech bubbles, shown while the van is between a and b
@@ -167,6 +167,10 @@ export const SAYS: Say[] = [
   { a: Y0[SUN] + 60, b: Y0[SUN] + 160, who: "us", text: "“Michael! Trump got shot in Pennsylvania!”" },
   ...mcdQ,
 ];
+
+// where whoever we interview stands at each hold (filled in by the scenes): which side of the van,
+// and the x of their nearest edge, so we climb out and stop in front of them, not on top of them
+export const STAND: { side: number; x: number }[] = [];
 
 /* ---------- placing things beside the road ---------- */
 
