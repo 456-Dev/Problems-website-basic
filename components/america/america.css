@@ -63,7 +63,7 @@
 .oqa-btn.ghost:hover { background: #fff; border-color: #fff; color: #000 !important; }
 .oqa-runtime { margin: 0; font-size: 15px; color: #bdbdbd; }
 .oqa-runtime { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-.oqa-r-logo { height: 46px; width: auto; background: #fff; padding: 3px; display: block; }
+.oqa-r-logo { height: 30px; width: auto; background: #fff; padding: 3px; display: block; }
 
 /* subtitles, wherever a person speaks */
 .oqa-sub { margin: 0; color: var(--sub); font-size: 21px; line-height: 1.35; }
@@ -127,15 +127,12 @@
 
 /* ---- three questions, no answers ---- */
 .oqa-three { max-width: 1200px; margin: 0 auto; padding: 60px 28px 70px; }
-.oqa-three ol { list-style: none; margin: 34px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px; }
-.oqa-three li { position: relative; background: var(--paper); color: var(--ink); border: 2px solid #000;
-  padding: 22px 22px 26px; min-height: 230px; }
-/* the poster's big grey outlined question mark, peeking out of each card */
-.oqa-q-mark { position: absolute; right: 16px; bottom: 12px; font-family: var(--film); font-weight: 700;
-  font-size: 110px; line-height: .8; color: #d6d6d6; -webkit-text-stroke: 3px #000; pointer-events: none; }
-.oqa-q-num { position: relative; display: inline-block; background: #000; color: #fff; font-size: 13px; font-weight: 800;
-  letter-spacing: .08em; text-transform: uppercase; padding: 4px 8px; }
-.oqa-three li p { position: relative; margin: 14px 0 0; max-width: 78%; font-family: var(--film); font-size: 27px; font-weight: 700; line-height: 1.12; }
+.oqa-three ol { list-style: none; margin: 34px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 0;
+  border-top: 1px solid #333; }
+.oqa-three li { padding: 26px 28px 30px 0; border-bottom: 1px solid #333; }
+.oqa-three li + li { padding-left: 28px; border-left: 1px solid #333; }
+.oqa-q-num { display: block; color: #8a8a8a; font-size: 15px; font-weight: 600; letter-spacing: .12em; }
+.oqa-three li p { margin: 12px 0 0; font-size: 28px; font-weight: 600; line-height: 1.2; }
 .oqa-three-foot { margin: 34px 0 0; color: #bdbdbd; font-size: 19px; }
 
 /* ---- the film ---- */
@@ -152,8 +149,9 @@
 .oqa-billing p { margin: 0; }
 .oqa-billing small { font-size: 12px; color: #8a8a8a; letter-spacing: .1em; }
 .oqa-rating { display: block; margin: 40px 0 34px; }
-.oqa-rating img { display: block; width: 190px; height: auto; background: #fff; padding: 6px; }
-.oqa-rating p { margin: 10px 0 0; color: #bdbdbd; font-size: 16px; }
+.oqa-rating { display: flex; align-items: center; gap: 14px; }
+.oqa-rating img { display: block; width: 52px; height: auto; background: #fff; padding: 3px; }
+.oqa-rating p { margin: 0; color: #bdbdbd; font-size: 16px; }
 .oqa-contact { margin: 0 0 12px; color: #bdbdbd; font-size: 17px; }
 .oqa-contact a { color: #fff; }
 
@@ -164,9 +162,9 @@
 @media (max-width: 900px) {
   .oqa-top, .oqa-hero, .oqa-trip, .oqa-three, .oqa-film, .oqa-credits { padding-left: 14px; padding-right: 14px; }
   .oqa-hero { gap: 26px; }
-  .oqa-three ol { grid-template-columns: 1fr; gap: 24px; }
-  .oqa-three li { min-height: 160px; }
-  .oqa-q-mark { font-size: 90px; }
+  .oqa-three ol { grid-template-columns: 1fr; gap: 0; }
+  .oqa-three li, .oqa-three li + li { padding: 22px 0; border-left: 0; }
+  .oqa-three li p { font-size: 24px; }
   .oqa-card { box-shadow: none; }
   .oqa-map { padding: 0 10px; }
   .oqa-map { --cs: 2.4; }
@@ -175,4 +173,11 @@
   .oqa-map-label { font-size: 30px; stroke-width: 7px; transform: translateY(26px); }
   .oqa-card h3 { font-size: 26px; }
   .oqa-card-nav button { font-size: 13px; padding: 10px 4px; }
+}
+
+/* wide screens: poster left, title and copy beside it */
+@media (min-width: 901px) {
+  .oqa-hero { flex-direction: row; align-items: center; gap: 56px; }
+  .oqa-poster { flex: 0 0 52%; }
+  .oqa-hero-text { flex: 1; }
 }

@@ -167,8 +167,7 @@ export default function AmericaPage({ map }: { map: MapData }) {
           {questions.map((q, n) => {
             return (
               <li key={q}>
-                <span className="oqa-q-mark" aria-hidden="true">?</span>
-                <span className="oqa-q-num">Question #{n + 1}</span>
+                <span className="oqa-q-num">{String(n + 1).padStart(2, "0")}</span>
                 <p>{q}</p>
               </li>
             );
