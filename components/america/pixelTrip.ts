@@ -1,5 +1,6 @@
 // Draws the 8-bit road trip strip: one little landscape per stop, left (LA) to
-// right (NYC), side view, with the highway running along the bottom. Pure canvas, no assets.
+// right (NYC), seen from above like an old RPG map, with the highway winding along
+// the bottom. Pure canvas, no assets.
 
 export const CW = 64;     // width of one stop's landscape, in "pixels"
 export const HH = 84;     // strip height
@@ -23,13 +24,13 @@ export const SCENES: Scene[] = [
 export const WW = SCENES.length * CW;
 
 const GROUND: Record<Scene, [string, string]> = {
-  venice: ["#e8c98a", "#d9b56f"], oc: ["#7fae4a", "#709c40"], vegas: ["#2a1d3a", "#3a2850"],
+  venice: ["#e8c98a", "#d9b56f"], oc: ["#7fae4a", "#709c40"], vegas: ["#b8805a", "#a8724e"],
   desert: ["#d98c4a", "#c4763a"], arches: ["#cf6f3c", "#b85c2e"], vail: ["#3f7a3a", "#356a31"],
   lake: ["#3f7a3a", "#35693a"], denver: ["#6c8a3e", "#5f7a35"], truckstop: ["#d8b54a", "#c9a23c"],
   silo: ["#d1ad48", "#bf9a3a"], plains: ["#d8b54a", "#c9a23c"], tulsa: ["#8a9a4a", "#7c8b41"],
   oregon: ["#a8945a", "#968250"], clinton: ["#5c8a3e", "#517a36"], river: ["#5c8a3e", "#517a36"],
-  casino: ["#241a33", "#33264a"], watertower: ["#7a9a45", "#6b893c"], graceland: ["#5f9a45", "#548a3c"],
-  memphis: ["#5c7a3e", "#516b36"], nashville: ["#1f2340", "#2b3055"], bucees: ["#8a9a5a", "#7c8b4e"],
+  casino: ["#4f6a3e", "#465f36"], watertower: ["#7a9a45", "#6b893c"], graceland: ["#5f9a45", "#548a3c"],
+  memphis: ["#5c7a3e", "#516b36"], nashville: ["#4f6a45", "#465f3c"], bucees: ["#8a9a5a", "#7c8b4e"],
   gatlinburg: ["#2f6b3a", "#285c32"], smoky: ["#22483a", "#1c3c30"], waffle: ["#3f6a3a", "#355a32"],
   fair: ["#5f9a45", "#548a3c"], dish: ["#5a8f42", "#4f7f3a"], suburb: ["#6a9a4a", "#5d8a41"],
   dc: ["#6aa04a", "#5d9041"], jersey: ["#4f7a3a", "#456b33"], liberty: ["#2f5f8a", "#28527a"],
@@ -40,7 +41,6 @@ const NIGHT = new Set<Scene>(["vegas", "casino", "nashville"]);
 const EVE = new Set<Scene>(["arches", "tulsa", "river", "memphis", "smoky", "waffle", "dc"]);
 const WET = new Set<Scene>(["clinton", "river", "memphis", "liberty"]);
 const PEAKS = new Set<Scene>(["vail", "lake", "denver", "gatlinburg"]);
-const MESAS = new Set<Scene>(["desert", "arches", "vegas"]);
 const FLAT = new Set<Scene>(["plains", "silo", "truckstop", "tulsa", "venice"]);
 const LX = 26;                                   // where a cell's landmark sits
 const sceneY0 = (sc: Scene) => (sc === "memphis" || sc === "clinton" ? GY - 32 : GY - 52);
@@ -55,131 +55,93 @@ type Px = (x: number, y: number, w: number, h: number, c: string) => void;
 let cellX = 0;                                   // the cell being drawn (water fills just that cell)
 let eve = false;                                 // is that cell at sundown (lights on)
 
-// sky colors, top / middle / horizon
-const SKY = {
-  day: [[0x3f, 0x86, 0xcc], [0x7a, 0xb8, 0xe6], [0xc4, 0xe2, 0xf4]],
-  eve: [[0x2a, 0x24, 0x60], [0xc4, 0x56, 0x7a], [0xff, 0xb0, 0x60]],
-  night: [[0x07, 0x06, 0x1a], [0x15, 0x11, 0x3a], [0x2e, 0x24, 0x60]],
-};
 const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
-const tod = (sc: Scene) => (NIGHT.has(sc) ? SKY.night : EVE.has(sc) ? SKY.eve : SKY.day);
-
-// the far ridgeline behind a stop: height and colour at strip column t
-const RF = 20;
-function ridge(sc: Scene, t: number): [number, string] {
-  const night = NIGHT.has(sc), ev = EVE.has(sc);
-  if (sc === "smoky") return [18 + 4 * Math.sin(t / 7), "#47527c"];
-  if (PEAKS.has(sc)) return [14 + 9 * Math.abs(Math.sin(t / 11)) + 3 * Math.sin(t / 4.1), "#7d8cab"];
-  if (MESAS.has(sc)) return [Math.sin(t / 13) > 0.2 ? 12 : 4, night ? "#3a2a4a" : ev ? "#a8584a" : "#c98a62"];
-  if (FLAT.has(sc)) return [2, ev ? "#8a6a7a" : "#9ab8a0"];
-  return [3 + 2 * Math.sin(t / 9) + 1.5 * Math.sin(t / 3.7), night ? "#2a2348" : ev ? "#6a4a6e" : "#8fb08a"];
-}
 
 // what a stop's bare ground looks like on row y (grass, water, verge)
 const hex = (c: string) => [1, 3, 5].map((k) => parseInt(c.slice(k, k + 2), 16));
-const lerpHex = (a: string, b: string, t: number) => {
-  const A = hex(a), B = hex(b);
-  return "#" + A.map((v, k) => Math.round(v + (B[k] - v) * t).toString(16).padStart(2, "0")).join("");
-};
-function baseRow(sc: Scene, y: number): number[] {
-  const [g1, g2] = GROUND[sc], wet = WET.has(sc);
-  if (y > ROAD_Y + 10) return hex(wet ? "#2f6fb0" : g2);
-  if (wet && y === GY + 3) return hex("#5f9fe0");
-  if (wet && y >= GY + 2) return hex("#2f6fb0");
+function baseRow(sc: Scene, x: number, y: number): number[] {
+  const g1 = GROUND[sc][0];
+  if (!WET.has(sc)) return hex(g1);
+  if (y === GY + 3) return hex("#5f9fe0");
+  if (y >= GY + 2) return hex("#2f6fb0");
   return hex(g1);
 }
 
 // Dither each stop's bare ground and water into the next stop's across the seam,
-// so grass turns to sand turns to river gradually. Signs, trees and landmarks stay put.
+// so grass turns to sand turns to river gradually. Runs before anything is built on it.
 function blendGround(ctx: CanvasRenderingContext2D) {
-  const F = 16, img = ctx.getImageData(0, GY, WW, HH - GY), d = img.data;
+  const F = 30, img = ctx.getImageData(0, 0, WW, HH), d = img.data;
+  const noise = (x: number, y: number) => { const n = Math.sin(x * 127.1 + y * 311.7) * 43758.5453; return n - Math.floor(n); };
   const same = (at: number, c: number[]) => Math.abs(d[at] - c[0]) + Math.abs(d[at + 1] - c[1]) + Math.abs(d[at + 2] - c[2]) < 6;
   for (let i = 1; i < SCENES.length; i++) {
     const a = SCENES[i - 1], b = SCENES[i];
     for (let u = -F; u < F; u++) {
       const x = i * CW + u, own = u < 0 ? a : b, other = u < 0 ? b : a;
       const w = 0.5 * (1 - (Math.abs(u + 0.5) - 0.5) / F);   // ~0.5 at the seam, 0 at the band's edge
-      for (let y = GY; y < HH; y++) {
-        if (y >= ROAD_Y && y <= ROAD_Y + 10) continue;          // leave the highway alone
-        const at = ((y - GY) * WW + x) * 4, mine = baseRow(own, y);
+      for (let y = 0; y < HH; y++) {
+        const at = (y * WW + x) * 4, mine = baseRow(own, x, y);
         const fleck = hex(GROUND[own][1]);
         if (!same(at, mine) && !same(at, fleck)) continue;      // something's drawn here
-        if (BAYER[(y & 3) * 4 + (x & 3)] / 16 >= w) continue;
-        const c = baseRow(other, y);
+        if (noise(x, y) >= w) continue;
+        const c = baseRow(other, x, y);
         d[at] = c[0]; d[at + 1] = c[1]; d[at + 2] = c[2];
       }
     }
   }
-  ctx.putImageData(img, 0, GY);
-}
-
-// One continuous sky for the whole strip: each stop has its own time of day, and
-// neighbours fade into each other over a wide band, dithered like an old console.
-function paintSky(ctx: CanvasRenderingContext2D) {
-  const img = ctx.createImageData(WW, GY), d = img.data, F = 26, STEP = 10;
-  const mix = (a: number[], b: number[], t: number) => a.map((v, k) => v + (b[k] - v) * t);
-  for (let x = 0; x < WW; x++) {
-    const i = Math.floor(x / CW), u = x - i * CW;
-    let pal = tod(SCENES[i]);
-    const nb = u < F && i > 0 ? i - 1 : u >= CW - F && i < SCENES.length - 1 ? i + 1 : -1;
-    if (nb >= 0) {
-      const e = u < F ? u : CW - 1 - u, w = 0.5 + 0.5 * (e / F), t = 1 - w * w * (3 - 2 * w);
-      const o = tod(SCENES[nb]);
-      pal = pal.map((c, k) => mix(c, o[k], t));
-    }
-    for (let y = 0; y < GY; y++) {
-      const f = y / (GY - 1), c = f < 0.5 ? mix(pal[0], pal[1], f / 0.5) : mix(pal[1], pal[2], (f - 0.5) / 0.5);
-      const off = (BAYER[(y & 3) * 4 + (x & 3)] / 16 - 0.5) * STEP, at = (y * WW + x) * 4;
-      for (let k = 0; k < 3; k++) d[at + k] = Math.max(0, Math.min(255, Math.round((c[k] + off) / STEP) * STEP));
-      d[at + 3] = 255;
-    }
-  }
   ctx.putImageData(img, 0, 0);
 }
+
+
+// how far the highway wanders up (-) or down (+) from ROAD_Y at strip column x
+export const roadOffF = (x: number) => -1 + 2.6 * Math.sin(x / 41) + 0.8 * Math.sin(x / 17 + 1);
+export const roadOff = (x: number) => Math.round(roadOffF(x));
+const roadTop = (x: number) => ROAD_Y + roadOff(x);
 
 export function drawStrip(ctx: CanvasRenderingContext2D) {
   let seed = 7;
   const rnd = () => ((seed = (seed * 9301 + 49297) % 233280) / 233280);
   const px: Px = (x, y, w, h, c) => { ctx.fillStyle = c; ctx.fillRect(Math.round(x), Math.round(y), w, h); };
 
-  paintSky(ctx);
-  SCENES.forEach((sc, i) => { if (sc === "smoky") smokies(ctx, px, i * CW); });   // first, so the neighbours draw over its spill
-  SCENES.forEach((sc, i) => {
-    const x0 = i * CW, night = NIGHT.has(sc), [g1, g2] = GROUND[sc];
-    eve = EVE.has(sc);
-    // clouds by day (pink at sundown), stars by night
-    if (night) stars(px, x0 + 6, 1, CW - 12, 30, rnd, 14);
-    else for (let k = 0; k < 2; k++) {
-      const cx = x0 + 4 + Math.floor(rnd() * (CW - 18)), cy = 4 + Math.floor(rnd() * 22);
-      const [c1, c2] = eve ? ["#ffc4a8", "#d8708a"] : ["#ffffff", "#e2eef8"];
-      px(cx, cy + 1, 12, 2, c1); px(cx + 2, cy, 6, 1, c1); px(cx + 1, cy + 3, 10, 1, c2);
-    }
-    if (sc === "venice") { px(x0 + 46, 6, 7, 7, "#ffe27a"); px(x0 + 47, 5, 5, 9, "#ffe27a"); px(x0 + 45, 7, 9, 5, "#ffe27a"); }
-    if (sc === "vegas") { px(x0 + 50, 5, 5, 5, "#f4f0d0"); px(x0 + 52, 5, 3, 3, "#0b0a24"); }
-    // far-off ridgeline, eased into the neighbours' ridgelines near the edges
-    if (sc !== "smoky") for (let x = 0; x < CW; x++) {
-      const t = x0 + x, nb = x < RF && i > 0 ? i - 1 : x >= CW - RF && i < SCENES.length - 1 ? i + 1 : -1;
-      let [h, c] = ridge(sc, t);
-      if (nb >= 0) {
-        const e = x < RF ? x : CW - 1 - x, w = 0.5 + 0.5 * (e / RF), k = 1 - w * w * (3 - 2 * w);
-        const [h2, c2] = ridge(SCENES[nb], t);
-        h += (h2 - h) * k;
-        c = lerpHex(c, c2, k);
+  // a stop's landmark, kept inside its stop and off the road
+  const landmark = (sc: Scene, i: number) => {
+    const x0 = i * CW;
+    cellX = x0;
+    const clip: Px = (x, y, w, h, c) => {
+      for (let xx = Math.max(Math.round(x), x0); xx < Math.min(Math.round(x) + w, x0 + CW); xx++) {
+        const yb = Math.min(Math.round(y) + h, roadTop(xx));
+        if (yb > Math.round(y)) px(xx, y, 1, yb - Math.round(y), c);
       }
-      px(t, GY - Math.round(h), 1, Math.round(h), c);
-      if (PEAKS.has(sc) && h > 19) px(t, GY - Math.round(h), 1, 2, "#f2f2f2");
+    };
+    drawScene(sc, x0 + LX, sceneY0(sc), clip, rnd);
+  };
+
+  // the ground, seen from above, with grass flecks (and a river alongside the road in wet stops)
+  SCENES.forEach((sc, i) => {
+    const x0 = i * CW, [g1, g2] = GROUND[sc];
+    px(x0, 0, CW, HH, g1);
+    for (let k = 0; k < 110; k++) px(x0 + Math.floor(rnd() * CW), Math.floor(rnd() * HH), 1, 1, g2);
+    if (WET.has(sc)) for (let x = x0; x < x0 + CW; x++) {
+      const t = roadTop(x);
+      px(x, GY + 2, 1, t - GY - 2, "#2f6fb0"); px(x, GY + 3, 1, 1, "#5f9fe0"); px(x, t + 11, 1, HH - t - 11, "#2f6fb0");
     }
-    // ground, with grass flecks
-    px(x0, GY, CW, ROAD_Y - GY, g1);
-    for (let k = 0; k < 40; k++) px(x0 + Math.floor(rnd() * CW), GY + Math.floor(rnd() * (ROAD_Y - GY)), 1, 1, g2);
-    px(x0, ROAD_Y + 11, CW, HH - ROAD_Y - 11, g2);
-    if (WET.has(sc)) { px(x0, GY + 2, CW, ROAD_Y - GY - 2, "#2f6fb0"); px(x0, GY + 3, CW, 1, "#5f9fe0"); px(x0, ROAD_Y + 11, CW, HH - ROAD_Y - 11, "#2f6fb0"); }
-    // the highway (a bridge where there's water)
-    for (let x = x0; x < x0 + CW; x++) {
-      px(x, ROAD_Y, 1, 11, "#3a3a3e"); px(x, ROAD_Y, 1, 1, "#e8e8e8"); px(x, ROAD_Y + 10, 1, 1, "#e8e8e8");
-      if (x % 6 < 3) px(x, ROAD_Y + 5, 1, 1, "#ffd23f");
-      if (WET.has(sc)) { px(x, ROAD_Y - 3, 1, 1, "#9a9aa2"); if (x % 4 === 0) px(x, ROAD_Y - 2, 1, 2, "#9a9aa2"); px(x, ROAD_Y + 11, 1, 1, "#7a7a82"); }
-    }
+  });
+  blendGround(ctx);
+  // the Smokies' ridges spill into their neighbours, so they go down before anything stands on them
+  SCENES.forEach((sc, i) => { if (sc === "smoky") smokies(ctx, px, i * CW); });
+
+  // the highway, winding a little (a bridge where there's water)
+  for (let x = 0; x < WW; x++) {
+    const t = roadTop(x), wet = WET.has(SCENES[Math.floor(x / CW)]);
+    px(x, t, 1, 11, "#3a3a3e"); px(x, t, 1, 1, "#e8e8e8"); px(x, t + 10, 1, 1, "#e8e8e8");
+    if (x % 6 < 3) px(x, t + 5, 1, 1, "#ffd23f");
+    if (wet) { px(x, t - 3, 1, 1, "#9a9aa2"); if (x % 4 === 0) px(x, t - 2, 1, 2, "#9a9aa2"); px(x, t + 11, 1, 1, "#7a7a82"); }
+  }
+
+  SCENES.forEach((sc, i) => {
+    const x0 = i * CW;
+    eve = EVE.has(sc);
+    if (sc === "venice") ocean(px, x0);
+    if (PEAKS.has(sc) && sc !== "gatlinburg") { peak(px, x0 + 10, 1, 9, "#7d8cab"); peak(px, x0 + 52, 4, 7, "#6a7590"); }
     // a green mile sign at the start of every stop, telephone pole mid-cell
     px(x0 + 3, GY - 3, 1, 9, "#8a8a8a"); px(x0 + 6, GY - 3, 1, 9, "#8a8a8a");
     px(x0 + 1, GY - 10, 8, 7, "#1f7a3a"); px(x0 + 1, GY - 10, 8, 1, "#e8e8e8");
@@ -187,24 +149,29 @@ export function drawStrip(ctx: CanvasRenderingContext2D) {
     px(x0 + 50, GY - 20, 1, 22, "#6a4a2a"); px(x0 + 48, GY - 19, 5, 1, "#6a4a2a");
     // something small by the road, by region
     filler(sc, x0 + 13, px);
-    // the landmark
-    cellX = x0;
-    const clip: Px = (x, y, w, h, c) => {
-      const xa = Math.max(x, x0), xb = Math.min(x + w, x0 + CW), yb = Math.min(y + h, ROAD_Y);
-      if (xb > xa && yb > y) px(xa, y, xb - xa, yb - y, c);
-    };
-    drawScene(sc, x0 + LX, sceneY0(sc), clip, rnd);
+    landmark(sc, i);
   });
-  blendGround(ctx);
-  // sundown light: warm the evening stops, feathered into their neighbours
+  // time of day: sundown stops glow orange, night stops go blue, each feathered into its neighbours
   ctx.globalCompositeOperation = "multiply";
   SCENES.forEach((sc, i) => {
-    if (!EVE.has(sc)) return;
-    const a = i * CW - 20, b = (i + 1) * CW + 20, g = ctx.createLinearGradient(a, 0, b, 0);
-    g.addColorStop(0, "#ffffff"); g.addColorStop(0.3, "#ffcfa8"); g.addColorStop(0.7, "#ffcfa8"); g.addColorStop(1, "#ffffff");
-    ctx.fillStyle = g; ctx.fillRect(a, 0, b - a, ROAD_Y);
+    const tint = EVE.has(sc) ? "#ffa870" : NIGHT.has(sc) ? "#6c74d0" : "";
+    if (!tint) return;
+    const a = i * CW - 32, b = (i + 1) * CW + 32, g = ctx.createLinearGradient(a, 0, b, 0);
+    g.addColorStop(0, "#ffffff"); g.addColorStop(0.33, tint); g.addColorStop(0.67, tint); g.addColorStop(1, "#ffffff");
+    ctx.fillStyle = g; ctx.fillRect(a, 0, b - a, HH);
   });
   ctx.globalCompositeOperation = "source-over";
+  // ...then the lights come on: windows, signs and neon shine through the dusk
+  ctx.globalCompositeOperation = "screen";
+  SCENES.forEach((sc, i) => {
+    if (!EVE.has(sc) && !NIGHT.has(sc)) return;
+    const cx = i * CW + LX + 8, cy = sceneY0(sc) + 34, g = ctx.createRadialGradient(cx, cy, 2, cx, cy, 22);
+    g.addColorStop(0, "rgba(255,200,110,.22)"); g.addColorStop(1, "rgba(255,190,90,0)");
+    ctx.fillStyle = g; ctx.fillRect(cx - 22, cy - 22, 44, 44);
+  });
+  ctx.globalCompositeOperation = "source-over";
+  // night stops get their landmark drawn again on top, so the neon stays bright
+  SCENES.forEach((sc, i) => { if (NIGHT.has(sc)) landmark(sc, i); });
   // telephone wires, sagging pole to pole
   ctx.globalAlpha = 0.55;
   for (let i = 0; i < SCENES.length - 1; i++) {
@@ -212,6 +179,18 @@ export function drawStrip(ctx: CanvasRenderingContext2D) {
     for (let x = 0; x < CW; x++) px(a + x, GY - 18 + Math.round(3 * Math.sin((x / CW) * Math.PI)), 1, 1, "#222");
   }
   ctx.globalAlpha = 1;
+}
+
+// Venice: the Pacific from above, surf rolling onto the sand, the coast bending away east
+function ocean(px: Px, x0: number) {
+  for (let x = 0; x < CW; x++) {
+    const shore = Math.round(30 + 4 * Math.sin(x / 6) - Math.max(0, x - 30) * 0.9);
+    if (shore <= 0) continue;
+    px(x0 + x, 0, 1, shore, "#2f7fc8");
+    px(x0 + x, shore - 4, 1, 2, "#5aa2e0");
+    px(x0 + x, shore - 1, 1, 2, "#f4f4f4");
+    if (x % 7 === 2) px(x0 + x, Math.round(shore * 0.4), 2, 1, "#7fc0f0");
+  }
 }
 
 function filler(sc: Scene, x: number, px: Px) {
@@ -251,14 +230,8 @@ function water(px: Px, _y: number, _h: number) {
 }
 function bridge(_px: Px, _y: number, _h: number) { /* the road is already a bridge in wet cells */ }
 
-// the Great Smokies at sunset: a low striped sun behind ridge after ridge, fog in every valley
+// the Great Smokies at sundown: ridge after ridge, fog lying in every valley
 function smokies(ctx: CanvasRenderingContext2D, px: Px, x0: number) {
-  const sx = x0 + 40, sy = GY - 27;
-  for (let dy = -8; dy <= 8; dy++) {
-    if (dy > 1 && dy % 3 === 0) continue;          // retro sunset stripes
-    const w = Math.round(Math.sqrt(64 - dy * dy));
-    px(sx - w, sy + dy, 2 * w + 1, 1, dy < -3 ? "#ffe08a" : dy < 2 ? "#ffb85a" : "#ff8a4a");
-  }
   const LAYERS = ["#c8a0bc", "#9c86b0", "#6e6a98", "#47527c", "#2a3a58"];
   const SPILL = 22;                                 // ridges run on into the next stops, thinning out
   LAYERS.forEach((c, k) => {
@@ -299,9 +272,7 @@ function word(px: Px, x: number, y: number, s: string) {
 function drawScene(sc: Scene, L: number, y0: number, px: Px, rnd: () => number) {
   const b = y0 + 52; // baseline near the bottom of the scene
   switch (sc) {
-    case "venice": // the Pacific, palms, a red-and-blue lifeguard tower on the sand
-      px(L - 26, b - 6, 40, 6, "#3a8fd6"); px(L - 26, b - 6, 40, 1, "#7fc0f0"); px(L - 26, b - 3, 40, 1, "#5fa8e8");
-      px(L + 12, b - 1, 4, 1, "#f4f4f4"); px(L + 8, b - 4, 3, 1, "#f4f4f4");
+    case "venice": // palms and a red-and-blue lifeguard tower on the sand
       px(L + 20, b - 10, 8, 5, "#3a6fd8"); px(L + 19, b - 11, 10, 1, "#e0302f"); px(L + 21, b - 9, 2, 2, "#cfe8ff");
       px(L + 20, b - 5, 1, 10, "#f2f2f2"); px(L + 27, b - 5, 1, 10, "#f2f2f2"); px(L + 24, b - 5, 1, 10, "#d8d8d8");
       palm(px, L + 2, b - 6); palm(px, L + 33, b - 4);

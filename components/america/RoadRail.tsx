@@ -2,10 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import { stops } from "@/lib/america";
-import { CW, HH, WW, ROAD_Y, SCENES, drawStrip, fireSpot } from "./pixelTrip";
+import { CW, HH, WW, ROAD_Y, SCENES, drawStrip, fireSpot, roadOff, roadOffF } from "./pixelTrip";
 
 // An 8-bit road trip along the bottom of the page, LA on the left, NYC on the
-// right, one little side-view landscape per stop. Traffic runs both ways on the
+// right, one little landscape per stop, seen from above. Traffic runs both ways on the
 // highway; our white minivan drives east on its own. Click or drag to move it.
 
 const TRIP_SECS = 75;   // one full drive, LA to NYC
@@ -45,12 +45,12 @@ export default function RoadRail() {
       ctx.clearRect(0, 0, WW, HH);
       for (const car of cars) {
         if (!still) car.x = (car.x + (car.east ? 1 : -1) * car.v * dt + WW) % WW;
-        const x = Math.round(car.x), y = car.east ? ROAD_Y + 6 : ROAD_Y + 1;
-        ctx.fillStyle = car.c; ctx.fillRect(x, y + 1, 6, 2); ctx.fillRect(x + 1, y, 4, 1);  // body + cabin
-        ctx.fillStyle = "#1a2a3a"; ctx.fillRect(car.east ? x + 3 : x + 1, y, 2, 1);        // windshield faces forward
-        ctx.fillStyle = "#111"; ctx.fillRect(x + 1, y + 3, 1, 1); ctx.fillRect(x + 4, y + 3, 1, 1); // wheels
-        ctx.fillStyle = "#fff6a0"; ctx.fillRect(car.east ? x + 5 : x, y + 1, 1, 1);         // headlight
-        ctx.fillStyle = "#ff3b3b"; ctx.fillRect(car.east ? x : x + 5, y + 1, 1, 1);         // tail light
+        const x = Math.round(car.x), y = (car.east ? ROAD_Y + 6 : ROAD_Y + 1) + roadOff(x + 3);
+        // seen from above: body, a darker roof, windshield facing the way it drives
+        ctx.fillStyle = car.c; ctx.fillRect(x, y, 6, 3);
+        ctx.fillStyle = "rgba(0,0,0,.25)"; ctx.fillRect(x + 2, y, 2, 3);
+        ctx.fillStyle = "#1a2a3a"; ctx.fillRect(car.east ? x + 4 : x + 1, y, 1, 3);
+        ctx.fillStyle = "#fff6a0"; ctx.fillRect(car.east ? x + 5 : x, y, 1, 1); ctx.fillRect(car.east ? x + 5 : x, y + 2, 1, 1);
       }
       const flick = still ? 0 : Math.floor(now / 120);
       for (let k = 0; k < 12; k++) {
@@ -105,7 +105,8 @@ export default function RoadRail() {
   const wx = 10 + p * (WW - 20);       // keep the van fully on the road at both ends
   const offset = Math.min(0, Math.max(view.w - WW * s, view.w * 0.4 - wx * s));
   const vanX = offset + wx * s;
-  const vs = s * 1.25;                         // the van is drawn a bit bigger than traffic so you can find it
+  const vs = s * 1.25;
+  const tilt = Math.atan2(roadOffF(wx + 2) - roadOffF(wx - 2), 4);   // follow the bends                         // the van is drawn a bit bigger than traffic so you can find it
   const n = SCENES.length;
   const at = Math.min(n - 1, Math.floor(wx / CW));
   const stop = stops[Math.min(stops.length - 1, at)];
@@ -123,18 +124,18 @@ export default function RoadRail() {
       >
         <canvas ref={canvas} width={WW} height={HH} style={layer} />
         <canvas ref={fx} width={WW} height={HH} style={layer} />
-        <svg className="oqa-van" viewBox="-1 -1 14 9"
-          style={{ left: vanX, top: (ROAD_Y + 10) * s, width: 14 * vs, height: 9 * vs }}>
-          {/* 8-bit white minivan, side view, heading east, black outline */}
-          <rect x="-0.5" y="0.5" width="13" height="6" fill="#000" />
-          <rect x="0" y="1" width="11" height="5" fill="#e6e6e6" />
-          <rect x="0" y="1" width="9" height="1" fill="#ffffff" />
-          <rect x="1" y="2" width="2" height="2" fill="#1a2a3a" /><rect x="4" y="2" width="2" height="2" fill="#1a2a3a" />
-          <rect x="7" y="2" width="2" height="2" fill="#1a2a3a" />
-          <rect x="9" y="2" width="2" height="2" fill="#1a2a3a" /><rect x="11" y="3" width="1" height="3" fill="#e6e6e6" />
-          <rect x="11" y="4" width="1" height="1" fill="#fff6a0" /><rect x="0" y="4" width="1" height="1" fill="#e0302f" />
-          <rect x="1" y="5" width="3" height="3" fill="#000" /><rect x="8" y="5" width="3" height="3" fill="#000" />
-          <rect x="2" y="6" width="1" height="1" fill="#9a9a9a" /><rect x="9" y="6" width="1" height="1" fill="#9a9a9a" />
+        <svg className="oqa-van" viewBox="-1 -1 14 8"
+          style={{ left: vanX, top: (ROAD_Y + 7.5 + roadOffF(wx)) * s, width: 14 * vs, height: 8 * vs,
+                   transform: `translate(-50%, -50%) rotate(${tilt}rad)` }}>
+          {/* 8-bit white minivan from above, heading east, black outline */}
+          <rect x="-1" y="-1" width="14" height="8" fill="#000" />
+          <rect x="0" y="0" width="12" height="6" fill="#e6e6e6" />
+          <rect x="3" y="1" width="6" height="4" fill="#ffffff" />
+          <rect x="3" y="1" width="6" height="1" fill="#cfcfcf" /><rect x="3" y="4" width="6" height="1" fill="#cfcfcf" />
+          <rect x="9" y="0" width="2" height="6" fill="#1a2a3a" /><rect x="0" y="1" width="1" height="4" fill="#1a2a3a" />
+          <rect x="11" y="0" width="1" height="1" fill="#fff6a0" /><rect x="11" y="5" width="1" height="1" fill="#fff6a0" />
+          <rect x="0" y="0" width="1" height="1" fill="#e0302f" /><rect x="0" y="5" width="1" height="1" fill="#e0302f" />
+          <rect x="9" y="-1" width="1" height="1" fill="#e6e6e6" /><rect x="9" y="6" width="1" height="1" fill="#e6e6e6" />
         </svg>
         <span className="oqa-rail-end west">LA</span>
         <span className="oqa-rail-end east">NYC</span>
