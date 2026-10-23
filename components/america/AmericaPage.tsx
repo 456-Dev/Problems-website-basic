@@ -72,7 +72,11 @@ export default function AmericaPage({ map }: { map: MapData }) {
             <a className="oqa-btn" href="#film">▶ Watch the film</a>
             <a className="oqa-btn ghost" href="#trip">Take the trip ↓</a>
           </div>
-          <p className="oqa-runtime">75 min · free · <abbr title="Restricted">R</abbr> for cursing, guns, politics</p>
+          <div className="oqa-runtime">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img className="oqa-r-logo" src="/assets/america/rated-r.svg" alt="Rated R" />
+            <span>75 min · free · for cursing, guns, politics</span>
+          </div>
         </div>
       </section>
 
@@ -183,8 +187,9 @@ export default function AmericaPage({ map }: { map: MapData }) {
           <p><small>Screened at</small> The Frida Cinema, Santa Ana, CA</p>
         </div>
         <div className="oqa-rating">
-          <b>R</b>
-          <span><strong>RESTRICTED</strong>Cursing, guns, politics. And one hermit crab.</span>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/assets/america/rated-r.svg" alt="Rated R, Restricted" />
+          <p>Cursing, guns, politics. And one hermit crab.</p>
         </div>
         <p className="oqa-contact">
           Want to screen it, write about it, or just talk? <a href={`mailto:${MAIL}`}>{MAIL}</a>
