@@ -2,7 +2,7 @@
    black letterbox, white subtitles, and a highway down the right edge for a scrollbar. */
 
 .oqa {
-  --rail: 76px;
+  --rail: 92px;
   --grey: #5b5b5b;
   --sub: #f2f2f2;
   --pin: #4fc3f7;            /* the blue of the map pins in the film's intro */
@@ -23,24 +23,15 @@
   background: #000; display: flex; flex-direction: column; justify-content: space-between;
   align-items: center; padding: 12px 0;
 }
-.oqa-rail-end { font-weight: 800; font-size: 13px; letter-spacing: .06em; color: #cfcfcf; padding: 4px 0; }
-.oqa-road-v {
-  position: relative; flex: 1; width: 46px; margin: 6px 0; border-radius: 4px; cursor: ns-resize; touch-action: none;
-  background:
-    linear-gradient(#fff, #fff) left 4px top 0 / 2px 100% no-repeat,
-    linear-gradient(#fff, #fff) right 4px top 0 / 2px 100% no-repeat,
-    repeating-linear-gradient(to bottom, #ffd23f 0 18px, transparent 18px 36px) center var(--dash) / 3px 100% repeat-y,
-    #1b1b1b;
-}
-.oqa-road-trail { position: absolute; left: 0; right: 0; top: 0; height: calc(var(--p) * 100%); background: rgba(255,255,255,.07); border-radius: 4px 4px 0 0; }
-.oqa-van { position: absolute; left: 50%; width: 30px; height: 56px; top: calc(var(--p) * (100% - 56px));
-  transform: translateX(-50%); filter: drop-shadow(0 3px 4px rgba(0,0,0,.6)); pointer-events: none; }
-.oqa-van .body { fill: #c8102e; }
-.oqa-van .roof { fill: #e23a50; }
-.oqa-van .glass { fill: #16222e; }
-.oqa-van .tire { fill: #000; }
-.oqa-van .light { fill: #fff6c2; }
-.oqa-road-v:hover { box-shadow: 0 0 0 1px #444; }
+.oqa-rail-end { font-family: var(--oqa-pixel), monospace; font-size: 9px; color: #cfcfcf; padding: 3px 0; }
+.oqa-strip { position: relative; flex: 1; width: 80px; margin: 4px 0; overflow: hidden; cursor: ns-resize; touch-action: none;
+  border: 2px solid #fff; background: #000; }
+.oqa-strip canvas { position: absolute; left: 0; top: 0; width: 100%; image-rendering: pixelated; }
+.oqa-van { position: absolute; transform: translate(-50%, -50%); image-rendering: pixelated; shape-rendering: crispEdges;
+  filter: drop-shadow(0 2px 0 rgba(0,0,0,.5)); pointer-events: none; }
+.oqa-rail-here { font-family: var(--oqa-pixel), monospace; font-size: 7px; line-height: 1.5; text-align: center; color: #fff;
+  width: 84px; min-height: 34px; padding: 4px 0 0; word-break: break-word; }
+.oqa-rail-here b { display: block; color: #ffd23f; font-weight: 400; }
 
 .oqa-top { display: flex; justify-content: space-between; padding: 18px 28px; font-size: 14px; color: #bdbdbd; }
 .oqa-top a { text-decoration: none; }
@@ -150,10 +141,10 @@
   .oqa-trip-grid { grid-template-columns: 1fr; }
 }
 @media (max-width: 900px) {
-  .oqa { --rail: 40px; }
-  .oqa-road-v { width: 32px; }
-  .oqa-van { width: 22px; height: 41px; top: calc(var(--p) * (100% - 41px)); }
-  .oqa-rail-end { font-size: 10px; }
+  .oqa { --rail: 46px; }
+  .oqa-strip { width: 40px; border-width: 1px; }
+  .oqa-rail-here { width: 44px; font-size: 5px; }
+  .oqa-rail-end { font-size: 7px; }
         .oqa-top, .oqa-hero, .oqa-trip, .oqa-three, .oqa-film, .oqa-credits { padding-left: 14px; padding-right: 14px; }
   .oqa-hero { grid-template-columns: 1fr; gap: 26px; }
   .oqa-three ol { grid-template-columns: 1fr; gap: 24px; }
