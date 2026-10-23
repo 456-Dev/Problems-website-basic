@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     description: desc,
     url: "https://456solutions.org/america",
     type: "video.movie",
-    images: [{ url: "https://456solutions.org/assets/america/film/poster.jpg", width: 1280, height: 720 }],
+    images: [{ url: "https://456solutions.org/assets/america/film/og.jpg", width: 1280, height: 720 }],
   },
   twitter: { card: "summary_large_image" },
 };

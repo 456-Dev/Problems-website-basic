@@ -61,9 +61,8 @@ export default function AmericaPage({ map }: { map: MapData }) {
       {/* ---------------- hero ---------------- */}
       <section className="oqa-hero">
         <div className="oqa-poster">
-          {/* swap for the real poster when it lands: public/assets/america/film/poster.jpg */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/assets/america/film/poster.jpg" alt="One Question for America — poster" />
+          <img src="/assets/america/film/poster-wall.jpg" alt="One Question for America — poster" />
         </div>
         <div className="oqa-hero-text">
           <h1><span>“One Question</span> <span>for America”</span></h1>
