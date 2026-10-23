@@ -2,10 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import { stops } from "@/lib/america";
-import { W, HT, SCENES, TRAIL, sceneAt, roadX, vanX, drawStrip, drawLive, drawCanopy, type Live } from "./pixelTrip";
+import { W, HT, ROAD_END, SCENES, SAYS, sceneAt, roadX, vanX, drawStrip, drawLive, drawCanopy, drawDish3D, type Live } from "./pixelTrip";
 
 // The 8-bit road trip at the bottom of the page: a phone-wide map seen from above,
-// LA at the top and NYC at the bottom, a little landscape per stop. When you reach
+// LA at the top and Staten Island at the bottom, a little landscape per stop. When you reach
 // it, the frame holds still on screen and the map scrolls top to bottom as you keep
 // scrolling, our white minivan driving the highway with you. Click or drag to jump.
 
@@ -32,15 +32,25 @@ export default function RoadRail() {
   const fx = useRef<HTMLCanvasElement>(null);
   const over = useRef<HTMLCanvasElement>(null);
   const live = useRef<Live[]>([]);
+  const hdRef = useRef<HTMLCanvasElement>(null);
+  const [hd, setHd] = useState<{ x: number; y: number; w: number; h: number } | null>(null);
   const box = useRef<HTMLDivElement>(null);
 
   // the landscape, drawn once
   useEffect(() => {
     const ctx = canvas.current?.getContext("2d");
     if (ctx) live.current = drawStrip(ctx);
+    const h = live.current.find((l) => l.k === "hd");
+    if (h && h.k === "hd") setHd({ x: h.x, y: h.y, w: h.w, h: h.h });
     const o = over.current?.getContext("2d");
     if (o) drawCanopy(o);
   }, []);
+
+  // Green Bank's telescope: a smooth "3D render", on purpose nothing like the pixels around it
+  useEffect(() => {
+    const c = hdRef.current, ctx = c?.getContext("2d");
+    if (c && ctx && hd) drawDish3D(ctx, c.width, c.height);
+  }, [hd]);
 
   // traffic, the van, and everything else that moves (fire, fireworks, dogs, the club)
   useEffect(() => {
@@ -49,7 +59,7 @@ export default function RoadRail() {
     let seed = 11;
     const rnd = () => ((seed = (seed * 9301 + 49297) % 233280) / 233280);
     const cars: Car[] = Array.from({ length: 34 }, (_, i) => ({
-      south: i % 2 === 1, y: rnd() * HT, v: 12 + rnd() * 14, c: CAR_COLORS[Math.floor(rnd() * CAR_COLORS.length)],
+      south: i % 2 === 1, y: rnd() * ROAD_END, v: 12 + rnd() * 14, c: CAR_COLORS[Math.floor(rnd() * CAR_COLORS.length)],
     }));
     const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
     let raf = 0, last = performance.now();
@@ -57,7 +67,7 @@ export default function RoadRail() {
       const dt = Math.min(0.1, (now - last) / 1000); last = now;
       ctx.clearRect(0, 0, W, HT);
       for (const car of cars) {
-        if (!still) car.y = (car.y + (car.south ? 1 : -1) * car.v * dt + HT) % HT;
+        if (!still) car.y = (car.y + (car.south ? 1 : -1) * car.v * dt + ROAD_END) % ROAD_END;
         // seen from above: southbound keeps to the left lane (screen right of travel), northbound the other
         const y = Math.round(car.y), x = Math.round(roadX(y) + (car.south ? -3 : 1));
         ctx.fillStyle = car.c; ctx.fillRect(x, y, 2, 4);
@@ -81,7 +91,7 @@ export default function RoadRail() {
       if (!b || !sc) return;
       const r = sc.getBoundingClientRect(), s = b.clientWidth / W;
       const p = Math.min(1, Math.max(0, -r.top / Math.max(1, r.height - innerHeight)));
-      van.current = 12 + p * (HT - 22);
+      van.current = 12 + p * (ROAD_END - 12);
       setVy(van.current);
       setPan({ s, y: Math.min(0, Math.max(b.clientHeight - HT * s, b.clientHeight * 0.5 - van.current * s)) });
     };
@@ -97,13 +107,13 @@ export default function RoadRail() {
     const b = box.current, sc = sec.current;
     if (!b || !sc) return;
     const y = (clientY - b.getBoundingClientRect().top - pan.y) / pan.s;
-    const p = Math.min(1, Math.max(0, (y - 12) / (HT - 22)));
+    const p = Math.min(1, Math.max(0, (y - 12) / (ROAD_END - 12)));
     scrollTo({ top: sc.offsetTop + p * (sc.offsetHeight - innerHeight) });
   };
 
   const def = SCENES[sceneAt(vy)];
   const stop = stops[def.stop];
-  const lost = vy > TRAIL.a - 14 && vy < TRAIL.b + 4;    // the Smokies detour
+  const says = SAYS.filter((q) => vy >= q.a && vy < q.b);
 
   return (
     <section className="oqa-trek" ref={sec} aria-label="The road trip, LA to NYC" style={{ height: `${Math.round((HT / 64) * 45)}vh` }}>
@@ -114,14 +124,19 @@ export default function RoadRail() {
           onPointerMove={(e) => { if (drag.current) jump(e.clientY); }}
           onPointerUp={() => { drag.current = false; }}
           onPointerCancel={() => { drag.current = false; }}>
-          {[canvas, fx, over].map((ref, k) => (
+          <canvas ref={canvas} width={W} height={HT} style={{ height: HT * pan.s, transform: `translateY(${pan.y}px)` }} />
+          {hd && <canvas ref={hdRef} className="oqa-hd" width={hd.w * 8} height={hd.h * 8}
+            style={{ left: hd.x * pan.s, width: hd.w * pan.s, height: hd.h * pan.s, transform: `translateY(${pan.y + hd.y * pan.s}px)` }} />}
+          {[fx, over].map((ref, k) => (
             <canvas key={k} ref={ref} width={W} height={HT}
               style={{ height: HT * pan.s, transform: `translateY(${pan.y}px)` }} />
           ))}
           <div className="oqa-road-here"><b>Day {stop.day}</b>{def.label ?? stop.place}</div>
-          {lost && <p className="oqa-road-say" style={{ top: pan.y + (TRAIL.a - 4) * pan.s }}>&ldquo;hey Jason, turn right onto this trail&rdquo;</p>}
+          {says.map((q) => (
+            <p key={q.text} className={`oqa-road-say ${q.who}`} style={{ top: pan.y + (vy - 9) * pan.s }}>{q.text}</p>
+          ))}
         </div>
-        <p className="oqa-road-end">NYC</p>
+        <p className="oqa-road-end">STATEN ISLAND</p>
       </div>
     </section>
   );
