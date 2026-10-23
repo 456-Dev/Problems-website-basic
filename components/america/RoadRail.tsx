@@ -140,7 +140,7 @@ export default function RoadRail() {
     && (q.hold === undefined || (hold && hold.i === q.hold && hold.u >= (q.u0 ?? 0) && hold.u < (q.u1 ?? 1.01)) || (!hold && vy < q.b - 1)));
   const bend = bendAt(vy);
   // the plane tips the other way (top toward you), then swings to horizontal right before the crash
-  const map = { transform: bend.tilt ? `perspective(900px) rotateX(${(-bend.tilt * 40).toFixed(2)}deg) rotateZ(${(bend.spin * 90).toFixed(2)}deg) scale(${(1 + bend.tilt * 0.45 + bend.spin * 1.6).toFixed(3)})` : undefined };
+  const map = { transform: bend.tilt || bend.spin ? `perspective(700px) rotateX(${(bend.tilt * 62).toFixed(2)}deg) rotateZ(${(bend.spin * 90).toFixed(2)}deg) scale(${(1 + bend.spin * 1.25 + bend.tilt * 0.5).toFixed(3)})` : undefined };
 
   return (
     <section className="oqa-trek" ref={sec} aria-label="The road trip, LA to NYC" style={{ height: `${Math.round((HT / 128) * 52)}vh` }}>
@@ -151,6 +151,7 @@ export default function RoadRail() {
           onPointerMove={(e) => { if (drag.current) jump(e.clientY); }}
           onPointerUp={() => { drag.current = false; }}
           onPointerCancel={() => { drag.current = false; }}>
+          {(bend.tilt > 0 || bend.spin > 0) && <div className="oqa-sky" style={{ opacity: Math.max(bend.tilt, bend.spin) }} />}
           <div className="oqa-plane" style={map}>
           <canvas ref={canvas} width={W} height={HT} style={{ height: HT * pan.s, transform: `translateY(${pan.y}px)` }} />
           {hds.map((h, k) => !h.top && (

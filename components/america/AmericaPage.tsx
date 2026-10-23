@@ -201,6 +201,21 @@ export default function AmericaPage({ map }: { map: MapData }) {
       </footer>
 
       <RoadRail />
+
+      {/* ---------------- the very bottom: promote the movie ---------------- */}
+      <section className="oqa-promo" aria-label="Watch One Question for America">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <a href="#film"><img src="/assets/america/film/poster-wall.jpg" alt="One Question for America — poster" /></a>
+        <div>
+          <p className="oqa-promo-kick">YOU JUST DROVE IT. NOW WATCH IT.</p>
+          <h2>“One Question for America”</h2>
+          <p>Eleven days, LA to New York, over 200 strangers, three questions. 75 minutes, free.</p>
+          <div className="oqa-actions">
+            <a className="oqa-btn" href="#film">▶ Watch the film</a>
+            <a className="oqa-btn ghost" href={WATCH} target="_blank" rel="noopener noreferrer">YouTube ↗</a>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

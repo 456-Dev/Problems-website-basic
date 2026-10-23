@@ -49,13 +49,15 @@
 .oqa-strip canvas.oqa-hd { width: auto; image-rendering: auto; filter: drop-shadow(0 2px 3px rgba(0,0,0,.35)); }
 .oqa-strip canvas.oqa-hd.top { filter: none; pointer-events: none; }
 /* Kansas → Oklahoma: the ground plane bends away into the sundown */
+.oqa-sky { position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(circle at 50% 30%, #fff2b0 0 6%, #ffb050 7%, rgba(255,140,60,0) 22%), linear-gradient(#1a0a30 0%, #6a1a48 25%, #c8402a 45%, #ff9a4a 60%, #3a1a10 61%); }
 .oqa-plane { position: absolute; inset: 0; transform-origin: 50% 50%; transition: transform .2s linear; }
 .oqa-dusk { position: absolute; inset: 0; pointer-events: none; mix-blend-mode: multiply;
   background: linear-gradient(#5a1a40 0%, #c8502a 45%, #ff9a4a 70%, #ffd8a0 100%); }
 /* the crash sequence through the Trade Winds: full frame, a white flash on every cut */
 .oqa-strip canvas.oqa-seq { top: 0; left: 0; width: 100%; height: 100%; opacity: 0; pointer-events: none; image-rendering: pixelated; object-fit: contain; background: #000; }
-.oqa-strip canvas.oqa-seq.on { opacity: 1; animation: oqa-cut .35s steps(4) both, oqa-shake .1s steps(2) 3; }
-@keyframes oqa-cut { 0% { filter: brightness(6); transform: scale(1.12); } 100% { filter: none; transform: none; } }
+.oqa-strip canvas.oqa-seq.on { opacity: 1; animation: oqa-cut .6s ease-out both; }
+@keyframes oqa-cut { 0% { filter: brightness(1.8); opacity: .4; } 100% { filter: none; opacity: 1; } }
 @keyframes oqa-shake { 0% { margin-left: -5px; } 100% { margin-left: 5px; } }
 @keyframes oqa-say { from { opacity: 0; transform: translateY(-80%); } to { opacity: 1; transform: translateY(-100%); } }
 
@@ -200,3 +202,12 @@
   .oqa-poster { flex: 0 0 52%; }
   .oqa-hero-text { flex: 1; }
 }
+
+/* ---- the very bottom: you just drove it, now watch it ---- */
+.oqa-promo { display: grid; grid-template-columns: minmax(0, 260px) minmax(0, 1fr); gap: 28px; align-items: center;
+  max-width: 860px; margin: 0 auto; padding: 72px 20px 96px; }
+.oqa-promo img { width: 100%; display: block; border: 3px solid #fff; }
+.oqa-promo h2 { margin: 0 0 6px; font-size: clamp(28px, 6vw, 46px); line-height: 1.05; }
+.oqa-promo p { margin: 0 0 18px; color: #cfcfcf; }
+.oqa-promo .oqa-promo-kick { font-family: var(--oqa-pixel), monospace; font-size: 11px; color: #ffd23f; margin-bottom: 12px; }
+@media (max-width: 640px) { .oqa-promo { grid-template-columns: 1fr; text-align: left; } .oqa-promo img { max-width: 240px; } }

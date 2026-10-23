@@ -19,7 +19,7 @@ export const SCENES: Def[] = [
   { sc: "venice", h: 150, stop: 0 }, { sc: "la", h: 130, stop: 0, label: "Los Angeles" }, { sc: "oc", h: 170, stop: 1 },
   { sc: "vegas", h: 200, stop: 2 }, { sc: "desert", h: 140, stop: 3 }, { sc: "arches", h: 210, stop: 4 },
   { sc: "vail", h: 140, stop: 5 }, { sc: "lake", h: 300, stop: 6 }, { sc: "denver", h: 170, stop: 7 },
-  { sc: "truckstop", h: 130, stop: 8 }, { sc: "silo", h: 270, stop: 9 }, { sc: "plains", h: 290, stop: 10 },
+  { sc: "truckstop", h: 230, stop: 8 }, { sc: "silo", h: 820, stop: 9 }, { sc: "plains", h: 1020, stop: 10 },
   { sc: "tulsa", h: 210, stop: 11 }, { sc: "oregon", h: 190, stop: 12 }, { sc: "clinton", h: 150, stop: 13, label: "Little Rock" },
   { sc: "casino", h: 150, stop: 15, label: "Horseshoe · Hernando" }, { sc: "graceland", h: 190, stop: 17, label: "Graceland · Memphis" },
   { sc: "nashville", h: 230, stop: 19, label: "Nashville · Buc-ee's" }, { sc: "gatlinburg", h: 220, stop: 21 },
@@ -56,9 +56,9 @@ const pathX = (y: number) => {             // Catmull-Rom through the waypoints
 
 const SUN = at("sunset"), KS0 = top("truckstop"), KS1 = bottom("plains"), CL = top("clouds"), HB0 = PATH[0][1];
 export const KX = MID - 16;                 // across Kansas the road goes dead straight
-// (Kansas got 260 rows longer in v8; east of its dead-straight middle the curves keep their old phase,
+// (Kansas got 1660 rows longer in v8/v9; east of its dead-straight middle the curves keep their old phase,
 // so every scene after it still sits where it was drawn)
-const KANSAS_EXTRA = 260, KMID = (top("truckstop") + bottom("plains")) / 2;
+const KANSAS_EXTRA = 1660, KMID = (top("truckstop") + bottom("plains")) / 2;
 const wander = (y0: number) => {
   const y = y0 > KMID ? y0 - KANSAS_EXTRA : y0;
   let x = MID + 20 * Math.sin(y / 37) + 6 * Math.sin(y / 11.3);
@@ -139,11 +139,12 @@ export function holdAt(p: number): { i: number; u: number } | null {
 // until the van crashes into the Trade Winds; after the crash sequence it's morning in Tulsa
 export const SEQ = { hold: 1 };
 export function bendAt(vy: number) {
-  const a = top("silo") + 10, b = HOLDS[1].y;     // a long dramatic sundown: Colby, Hays, into Oklahoma
+  const a = top("silo") + 10, b = HOLDS[1].y;
   if (vy <= a || vy > b) return { tilt: 0, spin: 0, dusk: 0 };
   const u = (vy - a) / (b - a);
-  // the last stretch before the bar: the whole world swings round to horizontal, holds, then we hit the wall
-  return { tilt: u * u, spin: smooth((vy - (b - 70)) / 40), dusk: Math.min(1, u * 1.3) };
+  // the middle of the trip: the camera slowly swings round (spin) and drops (tilt) until we're looking
+  // at the road side-on, sun going down behind it; it holds there, then we hit the wall
+  return { tilt: smooth(u / 0.45), spin: smooth((u - 0.1) / 0.5), dusk: Math.min(1, u * 1.3) };
 }
 
 // speech bubbles, shown while the van is between a and b
