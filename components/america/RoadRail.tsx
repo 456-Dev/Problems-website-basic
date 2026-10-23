@@ -13,21 +13,13 @@ const CAR_COLORS = ["#e0302f", "#3a6fd8", "#ffd23f", "#2faa4a", "#ff8a1f", "#b04
 
 type Car = { south: boolean; y: number; v: number; c: string };
 
-// our white minivan from above, black outline, nose pointing the way the road goes
+// our white minivan from above, black outline, heading down the map
 function drawVan(ctx: CanvasRenderingContext2D, vy: number) {
-  const y = Math.round(vy), x = Math.round(roadX(y)), slope = roadX(y + 2) - roadX(y - 2);
+  const y = Math.round(vy), l = Math.round(roadX(y)) - 3, t = y - 5;
   const f = (a: number, b: number, w: number, h: number, c: string) => { ctx.fillStyle = c; ctx.fillRect(a, b, w, h); };
-  if (Math.abs(slope) < 4) {                       // driving down the strip
-    const l = x - 4, t = y - 6;
-    f(l, t, 7, 12, "#000"); f(l + 1, t + 1, 5, 10, "#e6e6e6"); f(l + 2, t + 3, 3, 5, "#ffffff");
-    f(l + 1, t + 8, 5, 2, "#1a2a3a"); f(l + 2, t + 1, 3, 1, "#1a2a3a");
-    f(l + 1, t + 10, 1, 1, "#fff6a0"); f(l + 5, t + 10, 1, 1, "#fff6a0"); f(l + 1, t + 1, 1, 1, "#e0302f"); f(l + 5, t + 1, 1, 1, "#e0302f");
-  } else {                                         // across a switchback, east or west
-    const east = slope > 0, l = x - 6, t = y - 4;
-    f(l, t, 12, 7, "#000"); f(l + 1, t + 1, 10, 5, "#e6e6e6"); f(l + 4, t + 2, 4, 3, "#ffffff");
-    f(east ? l + 8 : l + 2, t + 1, 2, 5, "#1a2a3a"); f(east ? l + 1 : l + 10, t + 2, 1, 3, "#1a2a3a");
-    f(east ? l + 10 : l + 1, t + 1, 1, 1, "#fff6a0"); f(east ? l + 10 : l + 1, t + 5, 1, 1, "#fff6a0");
-  }
+  f(l, t, 6, 10, "#000"); f(l + 1, t + 1, 4, 8, "#e6e6e6"); f(l + 1, t + 3, 4, 3, "#ffffff");
+  f(l + 1, t + 6, 4, 2, "#1a2a3a"); f(l + 1, t + 1, 1, 1, "#e0302f"); f(l + 4, t + 1, 1, 1, "#e0302f");
+  f(l + 1, t + 8, 1, 1, "#fff6a0"); f(l + 4, t + 8, 1, 1, "#fff6a0");
 }
 
 export default function RoadRail() {
@@ -52,7 +44,7 @@ export default function RoadRail() {
     if (!ctx) return;
     let seed = 11;
     const rnd = () => ((seed = (seed * 9301 + 49297) % 233280) / 233280);
-    const cars: Car[] = Array.from({ length: 44 }, (_, i) => ({
+    const cars: Car[] = Array.from({ length: 34 }, (_, i) => ({
       south: i % 2 === 1, y: rnd() * HT, v: 12 + rnd() * 14, c: CAR_COLORS[Math.floor(rnd() * CAR_COLORS.length)],
     }));
     const [fxX, fxY] = fireSpot();
@@ -64,11 +56,10 @@ export default function RoadRail() {
       for (const car of cars) {
         if (!still) car.y = (car.y + (car.south ? 1 : -1) * car.v * dt + HT) % HT;
         // seen from above: southbound keeps to the left lane (screen right of travel), northbound the other
-        const y = Math.round(car.y), x = Math.round(roadX(y)) + (car.south ? -5 : 2);
-        ctx.fillStyle = car.c; ctx.fillRect(x, y, 4, 6);
-        ctx.fillStyle = "rgba(0,0,0,.25)"; ctx.fillRect(x, y + 2, 4, 2);
-        ctx.fillStyle = "#1a2a3a"; ctx.fillRect(x, car.south ? y + 4 : y + 1, 4, 1);       // windshield faces forward
-        ctx.fillStyle = "#fff6a0"; ctx.fillRect(x, car.south ? y + 5 : y, 1, 1); ctx.fillRect(x + 3, car.south ? y + 5 : y, 1, 1);
+        const y = Math.round(car.y), x = Math.round(roadX(y) + (car.south ? -3 : 1));
+        ctx.fillStyle = car.c; ctx.fillRect(x, y, 2, 4);
+        ctx.fillStyle = "#1a2a3a"; ctx.fillRect(x, car.south ? y + 2 : y + 1, 2, 1);       // windshield faces forward
+        ctx.fillStyle = car.south ? "#ff3b3b" : "#fff6a0"; ctx.fillRect(x, y, 2, 1);
       }
       const flick = still ? 0 : Math.floor(now / 120);
       for (let k = 0; k < 12; k++) {

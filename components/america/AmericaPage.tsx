@@ -76,7 +76,6 @@ export default function AmericaPage({ map }: { map: MapData }) {
         </div>
       </section>
 
-      <div className="oqa-stripes" aria-hidden="true" />
       {/* ---------------- the film ---------------- */}
       <section className="oqa-film" id="film">
         <h2><span>Watch the film</span></h2>
@@ -88,7 +87,6 @@ export default function AmericaPage({ map }: { map: MapData }) {
         <p className="oqa-hint">75 minutes · free · <a href={WATCH} target="_blank" rel="noopener noreferrer">Open on YouTube ↗</a></p>
       </section>
 
-      <div className="oqa-stripes" aria-hidden="true" />
       {/* ---------------- the road trip ---------------- */}
       <section className="oqa-trip" id="trip">
         <div className="oqa-trip-head">
@@ -128,7 +126,7 @@ export default function AmericaPage({ map }: { map: MapData }) {
             <g className="oqa-car" style={{ transform: `translate(${cx}px, ${cy}px) scale(var(--cs)) translateY(-14px) scaleX(${flip ? -1 : 1})` }}>
               <Car />
             </g>
-            <text className="oqa-map-label" x={cx} y={cy + 38} textAnchor="middle">{stop.place}</text>
+            <text className="oqa-map-label" x={cx < 160 ? cx - 14 : cx > 800 ? cx + 14 : cx} y={cy + 38} textAnchor={cx < 160 ? "start" : cx > 800 ? "end" : "middle"}>{stop.place}</text>
           </svg>
 
           <article className="oqa-card" aria-live="polite">
@@ -158,7 +156,6 @@ export default function AmericaPage({ map }: { map: MapData }) {
         </p>
       </section>
 
-      <div className="oqa-stripes" aria-hidden="true" />
       {/* ---------------- the three questions ---------------- */}
       <section className="oqa-three">
         <h2><span>Everyone got the same</span> <span>three questions</span></h2>
@@ -176,7 +173,6 @@ export default function AmericaPage({ map }: { map: MapData }) {
         <p className="oqa-three-foot">Over 200 people answered. We&apos;re not telling you what they said.</p>
       </section>
 
-      <div className="oqa-stripes" aria-hidden="true" />
       {/* ---------------- credits ---------------- */}
       <footer className="oqa-credits">
         <div className="oqa-billing">

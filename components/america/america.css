@@ -18,19 +18,15 @@
 .oqa button:disabled { opacity: .3; cursor: default; }
 .oqa :focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
 .oqa h2 { margin: 0; font-family: var(--oqa-head), sans-serif; font-weight: 900; font-size: clamp(28px, 3.6vw, 50px); line-height: 1.05; letter-spacing: -.01em; }
-/* every heading is a white title card, a hair askew, like the poster and the thumbnail */
-.oqa h2 span { display: inline-block; background: #fff; color: #000; padding: .06em .22em .1em; margin: 0 0 .12em; transform: rotate(-.4deg); }
-.oqa h2 span + span { transform: rotate(.3deg); }
-/* a strip of the flag between sections */
-.oqa-stripes { height: 14px; max-width: 1320px; margin: 0 auto; border-block: 2px solid #000;
-  background: repeating-linear-gradient(90deg, var(--red) 0 22px, #fff 22px 44px); opacity: .9; }
+/* every heading is a white title card, like the poster and the thumbnail */
+.oqa h2 span { display: inline-block; background: #fff; color: #000; padding: .06em .22em .1em; margin: 0 0 .12em; }
 
 /* ---- the road trip: a phone-wide 8-bit map at the bottom of the page. The frame sticks
    while you scroll its section, and the map pans LA (top) to NYC (bottom) inside it ---- */
 .oqa-trek { position: relative; }
 .oqa-road-col { position: sticky; top: 0; height: 100vh; width: min(100%, 430px); margin: 0 auto;
   display: flex; flex-direction: column; padding: 12px 0; }
-.oqa-strip { position: relative; flex: 1; overflow: hidden; border: 3px solid #fff; background: #000; box-shadow: 10px 10px 0 var(--red);
+.oqa-strip { position: relative; flex: 1; overflow: hidden; border: 3px solid #fff; background: #000;
   cursor: ns-resize; }
 .oqa-strip canvas { position: absolute; left: 0; top: 0; width: 100%; image-rendering: pixelated; }
 .oqa-road-end { margin: 0; padding: 6px 0; text-align: center; font-family: var(--oqa-pixel), monospace; font-size: 12px; color: #cfcfcf; }
@@ -49,9 +45,7 @@
 .oqa-poster { width: min(100%, 760px); }
 .oqa-poster img { display: block; width: 100%; max-height: 82vh; object-fit: contain; margin: 0 auto; }
 .oqa-hero h1 { margin: 0 0 18px; font-family: var(--oqa-head), sans-serif; font-weight: 900; font-size: clamp(38px, 5.2vw, 76px); line-height: 1; letter-spacing: -.02em; }
-.oqa-hero h1 span { display: inline-block; background: #fff; color: #000; padding: .04em .16em .1em; margin: 0 0 .12em; transform: rotate(-.5deg); }
-.oqa-hero h1 span + span { transform: rotate(.4deg); }
-.oqa-poster img { box-shadow: 0 30px 80px rgba(178, 34, 52, .18), 0 0 0 1px #222; }
+.oqa-hero h1 span { display: inline-block; background: #fff; color: #000; padding: .04em .16em .1em; margin: 0 0 .12em; }
 .oqa-credit { margin: 0 0 22px; font-size: 19px; color: #d9d9d9; }
 .oqa-log { margin: 0 auto 30px; font-size: 21px; line-height: 1.45; max-width: 30ch; }
 .oqa-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin: 0 0 16px; }
@@ -103,10 +97,11 @@
 .oqa-car-body { fill: #fff; stroke: #000; stroke-width: 1.6; }
 .oqa-map-label { fill: #000; font-family: var(--oqa-head), sans-serif; font-size: 22px; font-weight: 900; paint-order: stroke; stroke: var(--paper); stroke-width: 6px; pointer-events: none; }
 
-.oqa-card { background: var(--paper); color: var(--ink); border: 2px solid #000; box-shadow: 8px 8px 0 var(--red); padding: 0 0 18px; }
+.oqa-card { background: var(--paper); color: var(--ink); border: 2px solid #000; padding: 0 0 18px; overflow: hidden; }
 /* hide the burned-in subtitle band: the teaser below is all you get */
-.oqa-card-frame { position: relative; aspect-ratio: 960 / 474; background: #000; overflow: hidden; }
-.oqa-card-frame img { position: absolute; left: 0; top: 0; width: 100%; height: auto; display: block; }
+/* crop each still to the picture itself: no letterbox, no place/date rail, no subtitle */
+.oqa-card-frame { position: relative; aspect-ratio: 835 / 468; background: #000; overflow: hidden; }
+.oqa-card-frame img { position: absolute; left: -7.43%; top: -.86%; width: 114.97%; max-width: none; height: auto; display: block; }
 .oqa-card-frame { border-bottom: 2px solid #000; }
 .oqa-card-meta { margin: 14px 18px 4px; font-size: 13px; color: #6a6250; text-transform: uppercase; letter-spacing: .06em; }
 .oqa-card h3 { margin: 0 18px; font-family: var(--oqa-head), sans-serif; font-size: 34px; font-weight: 900; line-height: 1.05; }
@@ -125,13 +120,11 @@
 /* ---- three questions, no answers ---- */
 .oqa-three { max-width: 1200px; margin: 0 auto; padding: 60px 28px 70px; }
 .oqa-three ol { list-style: none; margin: 34px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px; }
-.oqa-three li { position: relative; overflow: hidden; background: var(--paper); color: var(--ink); border: 2px solid #000;
-  padding: 22px 22px 26px; min-height: 230px; box-shadow: 8px 8px 0 var(--navy); }
-.oqa-three li:nth-child(2) { transform: rotate(.6deg); box-shadow: 8px 8px 0 var(--red); }
-.oqa-three li:nth-child(3) { transform: rotate(-.5deg); }
+.oqa-three li { position: relative; background: var(--paper); color: var(--ink); border: 2px solid #000;
+  padding: 22px 22px 26px; min-height: 230px; }
 /* the poster's big grey outlined question mark, peeking out of each card */
-.oqa-q-mark { position: absolute; right: -6px; bottom: -58px; font-family: var(--oqa-head), sans-serif; font-weight: 900;
-  font-size: 210px; line-height: 1; color: #d6d6d6; -webkit-text-stroke: 3px #000; pointer-events: none; }
+.oqa-q-mark { position: absolute; right: 16px; bottom: 12px; font-family: var(--oqa-head), sans-serif; font-weight: 900;
+  font-size: 110px; line-height: .8; color: #d6d6d6; -webkit-text-stroke: 3px #000; pointer-events: none; }
 .oqa-q-num { position: relative; display: inline-block; background: #000; color: #fff; font-size: 13px; font-weight: 800;
   letter-spacing: .08em; text-transform: uppercase; padding: 4px 8px; }
 .oqa-three li p { position: relative; margin: 14px 0 0; max-width: 78%; font-family: var(--oqa-head), sans-serif; font-size: 27px; font-weight: 900; line-height: 1.12; }
@@ -150,7 +143,7 @@
 .oqa-billing { font-stretch: condensed; text-transform: uppercase; letter-spacing: .06em; color: #cfcfcf; font-size: 19px; line-height: 1.7; }
 .oqa-billing p { margin: 0; }
 .oqa-billing small { font-size: 12px; color: #8a8a8a; letter-spacing: .1em; }
-.oqa-rating { display: inline-flex; align-items: stretch; margin: 40px 0 34px; border: 2px solid #fff; text-align: left; transform: rotate(-.5deg); }
+.oqa-rating { display: inline-flex; align-items: stretch; margin: 40px 0 34px; border: 2px solid #fff; text-align: left; }
 .oqa-rating b { display: grid; place-items: center; padding: 0 16px; font-size: 52px; font-weight: 800; border-right: 2px solid #fff; }
 .oqa-rating span { padding: 9px 16px; font-size: 15px; line-height: 1.4; max-width: 260px; }
 .oqa-rating strong { display: block; letter-spacing: .12em; font-size: 14px; }
@@ -165,13 +158,14 @@
   .oqa-top, .oqa-hero, .oqa-trip, .oqa-three, .oqa-film, .oqa-credits { padding-left: 14px; padding-right: 14px; }
   .oqa-hero { gap: 26px; }
   .oqa-three ol { grid-template-columns: 1fr; gap: 24px; }
-  .oqa-three li { min-height: 170px; }
-  .oqa-q-mark { font-size: 170px; bottom: -48px; }
-  .oqa-card { box-shadow: 6px 6px 0 var(--red); }
+  .oqa-three li { min-height: 160px; }
+  .oqa-q-mark { font-size: 90px; }
+  .oqa-card { box-shadow: none; }
+  .oqa-map { padding: 0 10px; }
   .oqa-map { --cs: 2.4; }
   .oqa-pin .hit, .oqa-pin .dot { transform: scale(1.9); }
   .oqa-pin .ring { animation-name: oqa-ping-big; }
-  .oqa-map-label { font-size: 40px; stroke-width: 9px; transform: translateY(30px); }
+  .oqa-map-label { font-size: 30px; stroke-width: 7px; transform: translateY(26px); }
   .oqa-card h3 { font-size: 26px; }
   .oqa-card-nav button { font-size: 13px; padding: 10px 4px; }
 }
