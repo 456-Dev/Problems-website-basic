@@ -134,7 +134,7 @@ export function holdAt(p: number): { i: number; u: number } | null {
 // until the van crashes into the Trade Winds; after the crash sequence it's morning in Tulsa
 export const SEQ = { hold: 1 };
 export function bendAt(vy: number) {
-  const a = bottom("plains") - 110, b = HOLDS[1].y;
+  const a = top("silo") + 10, b = HOLDS[1].y;     // a long dramatic sundown: Colby, Hays, into Oklahoma
   if (vy <= a || vy > b) return { tilt: 0, dusk: 0 };
   const u = (vy - a) / (b - a);
   return { tilt: u * u, dusk: Math.min(1, u * 1.3) };
@@ -142,7 +142,7 @@ export function bendAt(vy: number) {
 
 // speech bubbles, shown while the van is between a and b
 // (hold/u0/u1: only while parked in that hold, between those fractions of it)
-export type Say = { a: number; b: number; text: string; who: "us" | "them" | "note"; hold?: number; u0?: number; u1?: number };
+export type Say = { a: number; b: number; text: string; who: "us" | "them" | "note"; hold?: number; u0?: number; u1?: number; href?: string };
 const mcdQ = (() => {
   const lines: [Say["who"], string][] = [
     ["note", "First interview after hearing the news"],

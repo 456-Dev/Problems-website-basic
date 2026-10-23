@@ -169,7 +169,8 @@ export default function RoadRail() {
           <canvas ref={scareEl} key={seq < 0 ? "off" : panelAt(seq)} className={`oqa-seq${seq >= 0 ? " on" : ""}`} width={384} height={384} aria-hidden />
           <div className="oqa-road-here"><b>{day(stop.date)}</b>{def.label ?? stop.place}</div>
           {says.map((q) => (
-            <p key={q.text} className={`oqa-road-say ${q.who}`} style={{ top: pan.y + (vy - 9) * pan.s }}>{q.text}</p>
+            <p key={q.text} className={`oqa-road-say ${q.who}${q.href ? " link" : ""}`} style={{ top: pan.y + (vy - 9) * pan.s }}>
+              {q.href ? <a href={q.href} target="_blank" rel="noopener">{q.text}</a> : q.text}</p>
           ))}
         </div>
         <p className="oqa-road-end">STATEN ISLAND</p>
