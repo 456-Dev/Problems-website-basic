@@ -54,3 +54,13 @@ export function drawScare(ctx: CanvasRenderingContext2D, w: number, h: number, t
     ctx.fillRect(x * s + jit, y * s, s, s);
   }));
 }
+
+// The crash sequence while the van is parked in the Tulsa hold (u = 0..1 through it).
+// RoadRail shows this full-frame over the map and flashes white whenever the panel changes (panelAt).
+export const PANELS = 4;
+export const panelAt = (u: number) => Math.min(PANELS - 1, Math.floor(u * PANELS));
+export function drawSeq(ctx: CanvasRenderingContext2D, w: number, h: number, u: number, t: number) {
+  const k = panelAt(u);
+  if (k === PANELS - 1) return drawScare(ctx, w, h, t);
+  ctx.fillStyle = ["#fff", "#1a1024", "#0a1a5a"][k]; ctx.fillRect(0, 0, w, h);
+}

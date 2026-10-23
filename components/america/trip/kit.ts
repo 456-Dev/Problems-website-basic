@@ -2,11 +2,12 @@
 // plus the types every scene module shares.
 
 import { W, roadX } from "./core";
+import type { Say } from "./core";
 import type { Live } from "./fx";
 
 export type Px = (x: number, y: number, w: number, h: number, c: string) => void;
 // something drawn on its own smooth hi-res canvas over the pixels (res = canvas px per map px)
-export type HD = { x: number; y: number; w: number; h: number; res?: number; top?: boolean; anim?: boolean; draw: (ctx: CanvasRenderingContext2D, w: number, h: number, t: number) => void };
+export type HD = { x: number; y: number; w: number; h: number; res?: number; top?: boolean; anim?: boolean; draw: (ctx: CanvasRenderingContext2D, w: number, h: number, t: number, vy: number) => void };
 export type Fn = (f: Px) => void;
 export type Ctx = {
   ctx: CanvasRenderingContext2D; px: Px; y0: number; h: number; rnd: () => number;
@@ -14,6 +15,7 @@ export type Ctx = {
   hd: HD[];          // hi-res overlays
   canopy: Fn[];      // static things drawn above the van (bridges, trees over a trail)
   glow: Fn[];        // lights drawn after the night tint
+  says: Say[];       // speech bubbles: shown while the van is between rows a and b (see core Say)
 };
 export type SceneMod = {
   ground?: [string, string];

@@ -4,7 +4,7 @@
 // stretch of the country in trip/scenes/*. drawStrip = the still map (it also collects the
 // moving bits, the hi-res overlays and what sits above the van), drawLive = the moving bits.
 
-import { W, HT, SCENES, Y0, ROAD_END, TRAIL, DRIVE, roadX, vanX, room, harborAt, top, type Scene } from "./trip/core";
+import { W, HT, SCENES, Y0, ROAD_END, TRAIL, DRIVE, roadX, vanX, room, harborAt, top, type Scene, type Say } from "./trip/core";
 import type { Ctx, Fn, HD, Px, SceneMod } from "./trip/kit";
 import type { Live } from "./trip/fx";
 import { SC_WEST } from "./trip/scenes/west";
@@ -13,22 +13,22 @@ import { SC_EAST } from "./trip/scenes/east";
 import { SC_PATERSON } from "./trip/scenes/paterson";
 import { SC_HARBOR } from "./trip/scenes/harbor";
 
-export { W, HT, ROAD_END, SCENES, SAYS, HOLDS, SCARE, sceneAt, roadX, vanX, vanAt, progressAt, holdAt } from "./trip/core";
+export { W, HT, ROAD_END, SCENES, SAYS, HOLDS, SEQ, sceneAt, roadX, vanX, vanAt, progressAt, holdAt, bendAt, type Say } from "./trip/core";
 export { drawLive, type Live } from "./trip/fx";
 export type { HD, Fn } from "./trip/kit";
 
 const MODS: Partial<Record<Scene, SceneMod>> = { ...SC_WEST, ...SC_MID, ...SC_EAST, ...SC_PATERSON, ...SC_HARBOR };
 
-export type Strip = { live: Live[]; hd: HD[]; canopy: Fn[] };
+export type Strip = { live: Live[]; hd: HD[]; canopy: Fn[]; says: Say[] };
 
 // set globalThis.__tripOverlap = [] to collect landmark pixels that land on the road
 export function drawStrip(ctx: CanvasRenderingContext2D): Strip {
   let seed = 7;
   const rnd = () => ((seed = (seed * 9301 + 49297) % 233280) / 233280);
   const px: Px = (x, y, w, h, c) => { ctx.fillStyle = c; ctx.fillRect(Math.round(x), Math.round(y), w, h); };
-  const out: Strip = { live: [], hd: [], canopy: [] };
+  const out: Strip = { live: [], hd: [], canopy: [], says: [] };
   const glows: [number, number, Fn[]][] = [];
-  const mk = (i: number, p: Px, glow: Fn[]): Ctx => ({ ctx, px: p, y0: Y0[i], h: SCENES[i].h, rnd, live: out.live, hd: out.hd, canopy: out.canopy, glow });
+  const mk = (i: number, p: Px, glow: Fn[]): Ctx => ({ ctx, px: p, y0: Y0[i], h: SCENES[i].h, rnd, live: out.live, hd: out.hd, canopy: out.canopy, glow, says: out.says });
 
   SCENES.forEach(({ sc, h }, i) => {
     const y0 = Y0[i], m = MODS[sc] ?? {};

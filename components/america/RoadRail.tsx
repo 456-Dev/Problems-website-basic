@@ -3,10 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 import { stops } from "@/lib/america";
 import {
-  W, HT, ROAD_END, SCENES, SAYS, SCARE, sceneAt, roadX, vanX, vanAt, progressAt, holdAt,
+  W, HT, ROAD_END, SCENES, SAYS, SEQ, sceneAt, roadX, vanX, vanAt, progressAt, holdAt, bendAt,
   drawStrip, drawLive, drawCanopy, type Strip, type HD,
 } from "./pixelTrip";
-import { drawScare } from "./trip/scare";
+import { drawSeq, panelAt } from "./trip/scare";
 
 // The 8-bit road trip at the bottom of the page: a phone-wide map seen from above,
 // LA at the top and Staten Island at the bottom, a little landscape per stop. When you reach
@@ -34,13 +34,15 @@ export default function RoadRail() {
   const [vy, setVy] = useState(12);              // the van's row on the strip
   const van = useRef(12);
   const [pan, setPan] = useState({ y: 0, s: 4 });   // map offset (css px) and pixel scale
-  const [scare, setScare] = useState(false);
+  const [seq, setSeq] = useState(-1);               // the crash sequence: -1 = off, else 0..1 through it
+  const seqU = useRef(-1);
+  const [hold, setHold] = useState<{ i: number; u: number } | null>(null);
   const sec = useRef<HTMLElement>(null);
   const drag = useRef(false);
   const canvas = useRef<HTMLCanvasElement>(null);
   const fx = useRef<HTMLCanvasElement>(null);
   const over = useRef<HTMLCanvasElement>(null);
-  const strip = useRef<Strip>({ live: [], hd: [], canopy: [] });
+  const strip = useRef<Strip>({ live: [], hd: [], canopy: [], says: [] });
   const [hds, setHds] = useState<HD[]>([]);
   const hdEls = useRef<(HTMLCanvasElement | null)[]>([]);
   const scareEl = useRef<HTMLCanvasElement>(null);
@@ -57,7 +59,7 @@ export default function RoadRail() {
 
   // the hi-res bits (Green Bank's dish, the alien, the clouds...): on purpose nothing like the pixels around them
   useEffect(() => {
-    hds.forEach((h, k) => { const c = hdEls.current[k], g = c?.getContext("2d"); if (c && g) h.draw(g, c.width, c.height, 2.2); });
+    hds.forEach((h, k) => { const c = hdEls.current[k], g = c?.getContext("2d"); if (c && g) h.draw(g, c.width, c.height, 2.2, van.current); });
   }, [hds]);
 
   // traffic, the van, and everything else that moves
@@ -90,10 +92,10 @@ export default function RoadRail() {
         if (!c || !g) return;
         const r = c.getBoundingClientRect();                      // only the ones on screen
         if (r.bottom < -50 || r.top > innerHeight + 50) return;
-        h.draw(g, c.width, c.height, now / 1000);
+        h.draw(g, c.width, c.height, now / 1000, van.current);
       });
       const sc = scareEl.current, sg = sc?.getContext("2d");
-      if (sc && sg && sc.dataset.on === "1") drawScare(sg, sc.width, sc.height, now / 1000);
+      if (sc && sg && seqU.current >= 0) drawSeq(sg, sc.width, sc.height, seqU.current, now / 1000);
       raf = requestAnimationFrame(frame);
     };
     raf = requestAnimationFrame(frame);
@@ -110,8 +112,9 @@ export default function RoadRail() {
       const r = sc.getBoundingClientRect(), s = b.clientWidth / W;
       const p = Math.min(1, Math.max(0, -r.top / Math.max(1, r.height - innerHeight)));
       van.current = vanAt(p);
-      const hold = holdAt(p);
-      setScare(!!hold && hold.i === SCARE.hold && hold.u >= SCARE.from);
+      const hd = holdAt(p);
+      seqU.current = hd && hd.i === SEQ.hold ? hd.u : -1;
+      setSeq(seqU.current); setHold(hd);
       setVy(van.current);
       setPan({ s, y: Math.min(0, Math.max(b.clientHeight - HT * s, b.clientHeight * 0.5 - van.current * s)) });
     };
@@ -133,7 +136,10 @@ export default function RoadRail() {
 
   const def = SCENES[sceneAt(vy)];
   const stop = stops[def.stop];
-  const says = SAYS.filter((q) => vy >= q.a && vy < q.b);
+  const says = [...SAYS, ...strip.current.says].filter((q) => vy >= q.a && vy < q.b
+    && (q.hold === undefined || (hold && hold.i === q.hold && hold.u >= (q.u0 ?? 0) && hold.u < (q.u1 ?? 1.01)) || (!hold && vy < q.b - 1)));
+  const bend = bendAt(vy);
+  const map = { transform: bend.tilt ? `perspective(900px) rotateX(${(bend.tilt * 38).toFixed(2)}deg) scale(${(1 + bend.tilt * 0.25).toFixed(3)})` : undefined };
 
   return (
     <section className="oqa-trek" ref={sec} aria-label="The road trip, LA to NYC" style={{ height: `${Math.round((HT / 128) * 52)}vh` }}>
@@ -144,6 +150,7 @@ export default function RoadRail() {
           onPointerMove={(e) => { if (drag.current) jump(e.clientY); }}
           onPointerUp={() => { drag.current = false; }}
           onPointerCancel={() => { drag.current = false; }}>
+          <div className="oqa-plane" style={map}>
           <canvas ref={canvas} width={W} height={HT} style={{ height: HT * pan.s, transform: `translateY(${pan.y}px)` }} />
           {hds.map((h, k) => !h.top && (
             <canvas key={k} ref={(el) => { hdEls.current[k] = el; }} className="oqa-hd" width={Math.round(h.w * (h.res ?? 8))} height={Math.round(h.h * (h.res ?? 8))}
@@ -157,7 +164,9 @@ export default function RoadRail() {
             <canvas key={k} ref={(el) => { hdEls.current[k] = el; }} className="oqa-hd top" width={Math.round(h.w * (h.res ?? 8))} height={Math.round(h.h * (h.res ?? 8))}
               style={{ left: h.x * pan.s, width: h.w * pan.s, height: h.h * pan.s, transform: `translateY(${pan.y + h.y * pan.s}px)` }} />
           ))}
-          <canvas ref={scareEl} className={`oqa-scare${scare ? " on" : ""}`} data-on={scare ? "1" : "0"} width={256} height={256} aria-hidden />
+          </div>
+          {bend.dusk > 0 && <div className="oqa-dusk" style={{ opacity: bend.dusk }} />}
+          <canvas ref={scareEl} key={seq < 0 ? "off" : panelAt(seq)} className={`oqa-seq${seq >= 0 ? " on" : ""}`} width={384} height={384} aria-hidden />
           <div className="oqa-road-here"><b>{day(stop.date)}</b>{def.label ?? stop.place}</div>
           {says.map((q) => (
             <p key={q.text} className={`oqa-road-say ${q.who}`} style={{ top: pan.y + (vy - 9) * pan.s }}>{q.text}</p>

@@ -99,8 +99,8 @@ export function vanX(y: number) {
 // HOLDS: the van parks at row y while you scroll `len` more rows' worth
 export type Hold = { y: number; len: number };
 export const HOLDS: Hold[] = [
-  { y: top("vegas") + 150, len: 70 },        // the preacher outside Trump's tower
-  { y: top("tulsa") + 120, len: 90 },        // Tulsa: something in the alley
+  { y: top("vegas") + 150, len: 130 },       // the preacher outside Trump's tower: a question, then an answer
+  { y: top("tulsa") + 40, len: 220 },        // the crash: through the Trade Winds bar at night (trip/scare.ts drawSeq)
 ];
 export const SCROLL = ROAD_END - 12 + HOLDS.reduce((a, h) => a + h.len, 0);
 // scroll progress (0..1) → the van's row
@@ -130,11 +130,19 @@ export function holdAt(p: number): { i: number; u: number } | null {
   }
   return null;
 }
-// the Tulsa jump scare: the back half of the Tulsa hold
-export const SCARE = { hold: 1, from: 0.45 };
+// the Kansas → Oklahoma sundown: the ground plane bends away (tilt 0..1) and the light goes (dusk 0..1)
+// until the van crashes into the Trade Winds; after the crash sequence it's morning in Tulsa
+export const SEQ = { hold: 1 };
+export function bendAt(vy: number) {
+  const a = bottom("plains") - 110, b = HOLDS[1].y;
+  if (vy <= a || vy > b) return { tilt: 0, dusk: 0 };
+  const u = (vy - a) / (b - a);
+  return { tilt: u * u, dusk: Math.min(1, u * 1.3) };
+}
 
 // speech bubbles, shown while the van is between a and b
-export type Say = { a: number; b: number; text: string; who: "us" | "them" | "note" };
+// (hold/u0/u1: only while parked in that hold, between those fractions of it)
+export type Say = { a: number; b: number; text: string; who: "us" | "them" | "note"; hold?: number; u0?: number; u1?: number };
 const mcdQ = (() => {
   const lines: [Say["who"], string][] = [
     ["note", "First interview after hearing the news"],
@@ -146,7 +154,8 @@ const mcdQ = (() => {
   return lines.map(([who, text], k): Say => ({ a: a + k * step, b: a + (k + 1) * step, who, text }));
 })();
 export const SAYS: Say[] = [
-  { a: HOLDS[0].y - 30, b: HOLDS[0].y + 1, who: "them", text: "“Are you going to heaven or to hell?”" },
+  { a: HOLDS[0].y - 30, b: HOLDS[0].y + 1, who: "them", text: "“Are you going to heaven or to hell?”", hold: 0, u0: 0, u1: 0.5 },
+  { a: HOLDS[0].y - 1, b: HOLDS[0].y + 1, who: "us", text: "“A little bit of both.”", hold: 0, u0: 0.5, u1: 1.01 },
   { a: TRAIL.a - 20, b: TRAIL.b + 6, who: "us", text: "“hey Jason, turn right onto this trail”" },
   { a: Y0[SUN] + 60, b: Y0[SUN] + 160, who: "us", text: "“Michael! Trump got shot in Pennsylvania!”" },
   ...mcdQ,
