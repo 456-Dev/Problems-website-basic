@@ -126,7 +126,7 @@ const hit = (rec: R4[], x: number, y: number, w: number, h: number) => rec.some(
 // redder and in rolling waves the further into the sundown you get, until they've got you
 function windfarm(px: Px, live: Live[], rec: R4[], ya: number, yb: number, seed: number) {
   const T: [number, number][] = [];
-  for (let gy = ya; gy < yb - 20; gy += 13) for (let gx = 4 + ((Math.round((gy - ya) / 13)) % 2) * 6; gx < W - 2; gx += 12) {
+  for (let gy = ya; gy < yb - 20; gy += 15) for (let gx = 4 + ((Math.round((gy - ya) / 15)) % 2) * 7; gx < W - 2; gx += 14) {
     const x = Math.round(gx + (hash(gx * 7 + gy + seed) - 0.5) * 4), y = Math.round(gy + (hash(gx + gy * 3 + seed) - 0.5) * 4);
     const r = room(y - 8, 28);
     if (x + 11 > r.lo - 6 && x - 8 < r.hi + 6) continue;
@@ -138,7 +138,9 @@ function windfarm(px: Px, live: Live[], rec: R4[], ya: number, yb: number, seed:
     px(x, y, 1, 18, mix("#f2f2f2", "#ffc89a", u)); px(x + 1, y, 1, 18, mix("#cfcfcf", "#a85a5a", u)); px(x - 1, y - 1, 3, 2, "#f2f2f2");
     for (let k = 1; k < 9; k++) px(x + 1 + k, y + 18 + Math.floor(k / 3), 1, 1, mix("#7a5a18", "#3a1030", u));   // its shadow, long, off to the east
   }
-  T.forEach(([x, y], i) => live.push(blades(x + 1, y, 7, 1.4 + hash(i + seed) * 0.4, i)));
+  // every rotor in one pass (there are hundreds of them now)
+  const B = T.map(([x, y], i) => blades(x + 1, y, 7, 1.4 + hash(i + seed) * 0.4, i));
+  live.push({ k: "fn", fn: (f, t, ctx) => { for (const b of B) if (b.k === "fn") b.fn(f, t, ctx); } });
   live.push({ k: "fn", fn: (f, t, ctx) => {
     for (const [x, y] of T) {
       const u = sun(y), sp = 0.9 + u * 1.4, ph = (t * sp - u * u * (y * 0.03 + Math.abs(x - 64) * 0.04)) % 1;
@@ -228,7 +230,7 @@ export const SC_MID: Partial<Record<string, SceneMod>> = {
     ground: ["#e8c040", "#d8ac30"],
     edge: pick(eHay),
     under: ({ px, y0, h }) => wheat(px, y0, h),
-    draw: ({ px, y0, live }) => {
+    draw: ({ px, y0, h, live }) => {
       let x = 0, y = 0;
       // the truck stop
       y = y0 + 25; x = at(y - 14, 50, 58, "r") + 4; x = Math.min(x, W - 62);
@@ -266,13 +268,24 @@ export const SC_MID: Partial<Record<string, SceneMod>> = {
       // a combine going up and down the wheat out past it all
       live.push(combine(at(y0 + 90, 30, 12, "r") + 30 > W - 8 ? W - 9 : at(y0 + 90, 30, 12, "r") + 30, y0 + 84, y0 + 120));
       { const b = field("l", y0 + 100, y0 + 124, 30); live.push(herd(4, b.x0, b.x1, y0 + 100, y0 + 124, 2)); }
+      // a Union Pacific grain train rolling west on the track beside I-70, hopper after hopper
+      { const ya = y0 + 140, yb = y0 + h, tx = Math.max(2, Math.round(room(ya, yb - ya).lo - 16));
+        for (let yy = ya; yy < yb; yy++) { px(tx, yy, 5, 1, "#8a7a62"); px(tx + 1, yy, 1, 1, "#5a5a5e"); px(tx + 3, yy, 1, 1, "#5a5a5e"); if (yy % 3 === 0) px(tx, yy, 5, 1, "#6a4a2a"); }
+        live.push({ k: "fn", fn: (f, t) => {
+          const head = ya + ((t * 6) % (yb - ya + 160)) - 150;
+          for (let k = 0; k < 14; k++) {
+            const cy = head - k * 9; if (cy < ya - 8 || cy > yb - 8) continue;
+            if (k === 0) { f(tx, cy, 5, 8, "#ffd23f"); f(tx, cy + 6, 5, 2, "#c8202a"); f(tx + 1, cy + 7, 3, 1, "#cfe8ff"); }
+            else { f(tx, cy, 5, 8, k % 4 === 1 ? "#a85a2a" : "#c8c0b0"); f(tx, cy, 5, 1, "#5a5048"); f(tx + 1, cy + 2, 3, 4, k % 4 === 1 ? "#8a4a22" : "#a8a090"); }
+          }
+        } }); }
     },
   },
   silo: { // Colby, the sun going down: corn to the horizon, the elevator, a crossroad, and the wind farm starting to blink
     ground: ["#e8b838", "#d8a42c"],
     under: ({ px, y0, h }) => {
       corn(px, y0, h);
-      for (let x = 0; x < W; x++) { px(x, y0 + 138, 1, 5, "#b89a62"); if (hash(x) > 0.7) px(x, y0 + 139 + (x % 3), 1, 1, "#a0844e"); }  // the county road
+      for (let x = 0; x < W; x++) { px(x, y0 + 318, 1, 5, "#b89a62"); if (hash(x) > 0.7) px(x, y0 + 319 + (x % 3), 1, 1, "#a0844e"); }  // the county road
     },
     draw: ({ px: px0, y0, h, live }) => {
       const rec: R4[] = [], px = recorder(px0, rec);
@@ -287,34 +300,55 @@ export const SC_MID: Partial<Record<string, SceneMod>> = {
       px(x + 32, y + 20, 4, 1, "#8a8f99"); px(x + 35, y + 20, 1, 12, "#8a8f99");                 // the spout
       semi(px, x + 8, y + 31, "#2f8a3a", "#c8a050");
       // the farm by the crossroad, a pickup on the dirt road
-      y = y0 + 120; x = at(y, 16, 30, "l");
+      y = y0 + 300; x = at(y, 16, 30, "l");
       pad(px, x - 1, y - 1, 30, 16, "#7aa84a", "#6a983a");
       px(x, y + 5, 14, 9, "#b8302a"); for (let r = 0; r < 5; r++) px(x + 5 - r, y + r, 4 + 2 * r, 1, "#5a2a1a");
       px(x + 5, y + 8, 4, 6, "#f2f2f2"); px(x + 6, y + 9, 2, 5, "#7a1a14");
       px(x + 17, y + 7, 9, 7, "#ece6d8"); px(x + 16, y + 5, 11, 2, "#5a5a6a"); px(x + 19, y + 9, 2, 2, "#8ab0d8");
-      px(at(y0 + 138, 5, 8, "r") + 20, y0 + 138, 8, 3, "#c8302a"); px(at(y0 + 138, 5, 8, "r") + 21, y0 + 137, 4, 1, "#9ad0e8");
+      px(at(y0 + 318, 5, 8, "r") + 20, y0 + 318, 8, 3, "#c8302a"); px(at(y0 + 318, 5, 8, "r") + 21, y0 + 317, 4, 1, "#9ad0e8");
       // a green road sign at the crossroad
-      x = beside(y0 + 144, 10, 18, "r", 2);
-      px(x + 8, y0 + 150, 1, 6, "#9a9a9a"); px(x, y0 + 144, 21, 7, "#1f6a3a"); px(x + 1, y0 + 145, 19, 5, "#2f8a4a"); word(px, x + 1, y0 + 145, "COLBY", "#f2f2f2", null);
-      rec.push([0, y0 + 137, W, 7]);                                                                            // keep the county road clear
+      x = beside(y0 + 324, 10, 18, "r", 2);
+      px(x + 8, y0 + 330, 1, 6, "#9a9a9a"); px(x, y0 + 324, 21, 7, "#1f6a3a"); px(x + 1, y0 + 325, 19, 5, "#2f8a4a"); word(px, x + 1, y0 + 325, "COLBY", "#f2f2f2", null);
+      rec.push([0, y0 + 317, W, 7]);                                                                            // keep the county road clear
       // a scarecrow out in the rows, arms out, hat, a crow on his arm
-      y = y0 + 64; x = at(y, 18, 14, "l") + 2;
+      y = y0 + 130; x = at(y, 18, 14, "l") + 2;
       pad(px, x - 2, y + 14, 16, 4, "#b89a62", "#a0844e");
       px(x + 6, y + 3, 1, 15, "#6a4a2a"); px(x, y + 6, 13, 1, "#6a4a2a");
       px(x + 4, y, 5, 1, "#3a2a1a"); px(x + 3, y + 1, 7, 1, "#3a2a1a"); px(x + 5, y + 2, 3, 3, "#e8c890"); px(x + 5, y + 3, 1, 1, "#111"); px(x + 7, y + 3, 1, 1, "#111");
       px(x + 3, y + 5, 7, 6, "#3a6fd8"); px(x + 4, y + 5, 1, 6, "#e0302f"); px(x + 1, y + 6, 2, 2, "#e8c890"); px(x + 10, y + 6, 2, 2, "#e8c890");
       px(x + 11, y + 4, 2, 2, "#111"); px(x + 13, y + 5, 1, 1, "#e8a020");
       // a farmstead with grain bins way down the road, a pickup out front
-      y = y0 + 200; x = at(y, 30, 40, "r");
+      y = y0 + 470; x = at(y, 30, 40, "r");
       pad(px, x - 2, y - 2, 42, 32, "#8aa84a", "#7a983a");
       for (let k = 0; k < 3; k++) { const bx = x + k * 9; px(bx, y + 4, 8, 14, "#c8ccd2"); px(bx, y + 4, 1, 14, "#e8ecf0"); px(bx + 7, y + 4, 1, 14, "#9aa0a8"); for (let r = 0; r < 4; r++) px(bx + 3 - r, y + r, 2 + 2 * r, 1, "#a8acb2"); }
       px(x + 28, y + 8, 12, 10, "#ece6d8"); for (let r = 0; r < 4; r++) px(x + 33 - r, y + 4 + r, 2 + 2 * r, 1, "#5a5a6a"); px(x + 31, y + 11, 2, 2, "#ffe9a0"); px(x + 36, y + 12, 2, 6, "#5a3a1a");
       car(px, x + 4, y + 22, "#c8302a"); car(px, x + 16, y + 22, "#3a6fd8");
+      // cows out in a fenced pasture
+      { const b = field("l", y0 + 400, y0 + 432, 34); pad(px, b.x0 - 1, y0 + 399, b.x1 - b.x0 + 2, 34, "#7aa84a", "#6a983a"); live.push(herd(4, b.x0, b.x1, y0 + 400, y0 + 432, 11)); }
+      // a lone tractor still working at dusk, headlights on, crawling up and down a strip
+      { const ya = y0 + 590, yb = y0 + 660, tx = at(ya, 70, 14, "l") + 5;
+        pad(px, tx - 4, ya - 2, 16, yb - ya + 12, mix("#9a6a2a", "#5a2a2a", sun(ya)), mix("#8a5a22", "#4a2222", sun(ya)));
+        rec.push([tx - 4, ya - 2, 16, yb - ya + 12]);
+        live.push({ k: "fn", fn: (f, t, ctx) => {
+          const span = yb - ya, p = (t * 2.5) % (2 * span), down = p < span, yy = Math.round(down ? ya + p : yb - (p - span));
+          ctx.globalAlpha = 0.35; f(tx - 1, down ? yy + 7 : yy - 6, 8, 5, "#fff2a0"); ctx.globalAlpha = 1;      // the headlights
+          f(tx, yy, 6, 7, "#2f8a3a"); f(tx + 1, yy + (down ? 1 : 3), 4, 3, "#cfe8ff"); f(tx - 1, yy + 1, 1, 3, "#111"); f(tx + 6, yy + 1, 1, 3, "#111");
+          f(tx - 1, yy + 5, 1, 2, "#111"); f(tx + 6, yy + 5, 1, 2, "#111"); f(tx + 2, down ? yy + 7 : yy - 1, 2, 1, "#fff6c0");
+        } }); }
+      // a tornado on the far horizon, roping down out of the sunset
+      { const tx = W - 14, ty = y0 + 700;
+        live.push({ k: "fn", fn: (f, t, ctx) => {
+          ctx.globalAlpha = 0.55;
+          f(tx - 10, ty - 6, 22, 4, "#4a2a3a"); f(tx - 7, ty - 8, 16, 2, "#5a3a4a");
+          for (let k = 0; k < 34; k++) { const w = Math.max(1, 7 - k * 0.2), dx = Math.sin(t * 2 + k * 0.25) * (1 + k * 0.12); f(tx + dx - w / 2, ty - 2 + k, w, 1, k % 3 ? "#6a4a52" : "#7a5a5a"); }
+          for (let k = 0; k < 10; k++) { const a = t * 4 + k; f(tx + Math.cos(a) * (3 + k % 4), ty + 32 + Math.sin(a) * 1.5, 1, 1, "#8a6a4a"); }
+          ctx.globalAlpha = 1;
+        } }); }
       windfarm(px0, live, rec, y0 + 10, y0 + h, 1);
       // a crop duster sweeping low over the corn, back and forth, spray behind it
       live.push({ k: "fn", fn: (f, t, ctx) => {
         const P = 9, u = (t % P) / P, dir = u < 0.5 ? 1 : -1, v = u < 0.5 ? u * 2 : (u - 0.5) * 2;
-        const x = dir > 0 ? -16 + v * (W + 32) : W + 16 - v * (W + 32), y = y0 + (dir > 0 ? 92 : 176);
+        const x = dir > 0 ? -16 + v * (W + 32) : W + 16 - v * (W + 32), y = y0 + (dir > 0 ? 220 : 520);
         f(x - 4, y, 9, 2, "#ffd23f"); f(x - 1, y - 3, 3, 8, "#ffd23f"); f(x + dir * 5, y, 1, 2, "#e0302f"); f(x - dir * 5, y - 1, 1, 4, "#ffd23f");
         f(x + dir * 2, y, 1, 1, "#3a6fd8");
         for (let k = 1; k < 10; k++) { ctx.globalAlpha = 0.35 * (1 - k / 10); f(x - dir * (4 + k * 2), y + 1 + (k % 2), 2, 2, "#f2f2e0"); } ctx.globalAlpha = 1;
@@ -339,17 +373,17 @@ export const SC_MID: Partial<Record<string, SceneMod>> = {
       px(x + 12, y + 10, 1, 2, "#9a9a9a");
       px(x + 2, y + 15, 6, 1, "#ff5ad1"); px(x + 18, y + 15, 6, 1, "#ff5ad1"); car(px, x + 2, y + 25 - 4, "#8a8a8a");
       // the big white cross on the rise, and the twin-towered Cathedral of the Plains
-      y = y0 + 84; x = at(y, 36, 30, "r");
+      y = y0 + 190; x = at(y, 36, 30, "r");
       for (let r = 0; r < 8; r++) px(x + 14 - r * 2, y + 28 + r, 4 + r * 4, 1, "#5f9a3a");
       px(x + 14, y, 3, 30, "#f8f8f8"); px(x + 16, y, 1, 30, "#d8d8d8"); px(x + 8, y + 7, 15, 3, "#f8f8f8"); px(x + 8, y + 9, 15, 1, "#d8d8d8");
-      y = y0 + 122; x = at(y, 30, 26, "l");
+      y = y0 + 320; x = at(y, 30, 26, "l");
       pad(px, x - 2, y + 22, 30, 6, "#7aa84a", "#6a983a");
       px(x, y + 10, 24, 14, "#d8c8a0"); for (let r = 0; r < 6; r++) px(x + 8 - r, y + 4 + r, 8 + 2 * r, 1, "#a8402a");
       for (const dx of [0, 19]) { px(x + dx, y - 2, 5, 26, "#e0d0a8"); px(x + dx + 1, y - 6, 3, 4, "#5aa88a"); px(x + dx + 2, y - 8, 1, 2, "#5aa88a"); px(x + dx + 2, y + 2, 1, 3, "#5a4a3a"); }
       px(x + 10, y + 13, 4, 11, "#5a3a1a"); for (const dx of [7, 16]) px(x + dx, y + 13, 2, 5, "#7aa0c8");
       px(x + 11, y + 9, 2, 2, "#e0302f");
       // bison in Frontier Park
-      y = y0 + 168; x = at(y, 20, 34, "r");
+      y = y0 + 480; x = at(y, 20, 34, "r");
       pad(px, x - 1, y - 1, 34, 20, "#8aa84a", "#8a6a42");
       for (const [dx, dy] of [[3, 3], [14, 9], [23, 4]]) {
         px(x + dx, y + dy + 1, 7, 4, "#5a3a22"); px(x + dx - 1, y + dy, 4, 4, "#3a2414"); px(x + dx + 1, y + dy - 1, 2, 1, "#3a2414");
@@ -357,21 +391,29 @@ export const SC_MID: Partial<Record<string, SceneMod>> = {
         px(x + dx - 1, y + dy, 1, 1, "#e8e0c8");
       }
       // windmills, wheels turning
-      for (const [ry, side] of [[60, "l"], [196, "l"], [226, "r"]] as const) {
+      for (const [ry, side] of [[70, "l"], [560, "l"], [600, "r"], [780, "r"], [860, "l"]] as const) {
         y = y0 + ry; x = at(y - 4, 20, 10, side) + 5;
         for (let r = 0; r < 16; r++) { px(x - Math.floor(r / 4), y + r, 1, 1, "#8a8a8a"); px(x + Math.floor(r / 4), y + r, 1, 1, "#8a8a8a"); }
         for (let r = 4; r < 16; r += 4) px(x - Math.floor(r / 4), y + r, 2 * Math.floor(r / 4) + 1, 1, "#8a8a8a");
         px(x + 1, y - 1, 5, 1, "#9a9a9a"); px(x + 5, y - 3, 1, 3, "#e0302f");
-        live.push(wheel(x, y - 1, 2 + ry * 0.01));
+        live.push(wheel(x, y - 1, 2 + (ry % 97) * 0.02));
         px(x + 3, y + 14, 6, 2, "#6a8a9a");                                  // the stock tank
       }
-      { const b = field("r", y0 + 236, y0 + 264, 36); live.push(herd(5, b.x0, b.x1, y0 + 236, y0 + 264, 3)); rec.push([b.x0, y0 + 236, b.x1 - b.x0, 28]); }
-      { const b = field("l", y0 + 150, y0 + 178, 30); live.push(herd(3, b.x0, b.x1, y0 + 150, y0 + 178, 7)); rec.push([b.x0, y0 + 150, b.x1 - b.x0, 28]); }
+      { const b = field("r", y0 + 680, y0 + 708, 36); live.push(herd(5, b.x0, b.x1, y0 + 680, y0 + 708, 3)); rec.push([b.x0, y0 + 680, b.x1 - b.x0, 28]); }
+      { const b = field("l", y0 + 400, y0 + 428, 30); live.push(herd(3, b.x0, b.x1, y0 + 400, y0 + 428, 7)); rec.push([b.x0, y0 + 400, b.x1 - b.x0, 28]); }
+      // the state line: WELCOME TO OKLAHOMA, and a last lonely farmhouse with one light on
+      y = y0 + h - 70; x = beside(y, 16, 44, "r", 3);
+      px(x + 6, y + 10, 1, 7, "#7a5a3a"); px(x + 36, y + 10, 1, 7, "#7a5a3a"); px(x, y, 44, 11, "#f2f2f2"); px(x + 1, y + 1, 42, 9, "#1f4a8a");
+      word(px, x + 3, y + 2, "OKLAHOMA", "#f2f2f2", null);
+      y = y0 + 930; x = at(y, 16, 22, "l");
+      pad(px, x - 2, y - 2, 24, 18, mix("#6a8a3a", "#4a2a3a", 0.9), mix("#5a7a32", "#3a2230", 0.9));
+      px(x, y + 6, 12, 8, "#d8c8b0"); for (let r = 0; r < 4; r++) px(x + 5 - r, y + 2 + r, 2 + 2 * r, 1, "#5a3a3a"); px(x + 3, y + 8, 2, 2, "#ffe070");
+      px(x + 15, y + 2, 4, 12, "#c8ccd2"); px(x + 15, y + 1, 4, 1, "#a8acb2");
       windfarm(px0, live, rec, y0, y0 + h, 2);
       // the hypnosis: a red pulse that breathes up from the Oklahoma line, slower and deeper as it goes
       live.push({ k: "fn", fn: (f, t, ctx) => {
         const p = 0.5 + 0.5 * Math.sin(t * 2.4);
-        for (let yy = y0 + 40; yy < y0 + h; yy += 2) { const u = (yy - y0 - 40) / (h - 40); ctx.globalAlpha = 0.16 * u * u * (0.35 + 0.65 * p); f(0, yy, W, 2, "#ff1a3a"); }
+        for (let yy = y0 + Math.round(h * 0.5); yy < y0 + h; yy += 2) { const u = (yy - y0 - h * 0.5) / (h * 0.5); ctx.globalAlpha = 0.16 * u * u * (0.35 + 0.65 * p); f(0, yy, W, 2, "#ff1a3a"); }
         for (let k = 0; k < 3; k++) {                                                                          // rings rolling out from the road
           const v = (t * 0.35 + k / 3) % 1, r = 6 + v * 70, cx = roadX(y0 + h - 4), cy = y0 + h - 4; ctx.globalAlpha = 0.22 * (1 - v);
           for (let a = 0; a < 64; a++) { const th = (a / 64) * Math.PI; f(cx + Math.cos(th) * r, cy - Math.sin(th) * r * 0.7, 1, 1, "#ff4a4a"); }
@@ -618,6 +660,25 @@ export const SC_MID: Partial<Record<string, SceneMod>> = {
       folk(px, x + 45, y + 40, { shirt: "#e88aa0", skin: "#f2d0b8", hair: "#e8e0c8", pants: "#4a5a8a" });
       px(x + 39, y + 41, 1, 2, "#f2d0b8"); px(x + 38, y + 40, 1, 1, "#f2d0b8");
       ((x: number, y: number) => live.push({ k: "fn", fn: (f, t) => { const b = Math.floor(t * 2) % 2; f(x + 43, y + 35 - b, 1, 2, "#ffd23f"); f(x + 43, y + 38 - b, 1, 1, "#ffd23f"); f(x + 47, y + 36 + b, 1, 1, "#ffffff"); } }))(x, y);   // "!" and a sparkle
+      // the Arkansas State Capitol: a little US Capitol, white dome on its drum, the portico, two wings, on its lawn
+      y = y0 + 2; x = at(y, 36, 44, "l");
+      pad(px, x - 2, y + 26, 48, 8, "#5aa848", "#4a9840");
+      px(x, y + 16, 44, 11, "#ece8dc"); px(x, y + 16, 44, 1, "#ffffff"); px(x, y + 26, 44, 1, "#b8b4a8");             // the wings
+      for (let k = 2; k < 44; k += 3) if (k < 15 || k > 28) px(x + k, y + 18, 1, 7, "#c8c4b8");
+      px(x + 15, y + 14, 14, 13, "#f4f2ea"); for (let r = 0; r < 4; r++) px(x + 16 + r, y + 10 + r, 12 - 2 * r, 1, "#f4f2ea");   // the portico, pediment
+      for (let k = 0; k < 6; k++) px(x + 16 + k * 2, y + 17, 1, 9, "#d0ccc0");
+      px(x + 17, y + 8, 10, 3, "#e8e4d8"); for (let k = 0; k < 10; k += 2) px(x + 17 + k, y + 8, 1, 3, "#c8c4b8");     // the drum
+      for (let r = 0; r < 6; r++) { const w = Math.round(Math.sqrt(36 - (5 - r) ** 2) * 1.6); px(x + 22 - w / 2, y + 2 + r, w, 1, r < 2 ? "#ffffff" : "#e8e8e0"); }   // the dome
+      px(x + 21, y, 2, 2, "#f4f2ea"); px(x + 21, y - 2, 2, 2, "#d8b84a");                                               // lantern, gold
+      px(x + 18, y + 30, 8, 4, "#d8d4c8");                                                                               // the steps
+      // a clueless journalist on the lawn: mic held out to nobody, the cameraman filming the wrong way
+      { const jx = x + 2, jy = y + 34;
+        folk(px, jx, jy, { shirt: "#3a4a6a", skin: "#f0c8a0", hair: "#c8a040", pants: "#2a2a3a" });
+        px(jx - 2, jy + 3, 2, 1, "#1a1a1a"); px(jx - 3, jy + 2, 1, 2, "#3a3a3a");                                     // the mic, pointed at a tree
+        folk(px, jx + 9, jy, { shirt: "#5a5a5a", skin: "#c08a5a", cap: "#1a1a1a", pants: "#3a3a2a" });
+        px(jx + 13, jy + 2, 4, 3, "#1a1a1a"); px(jx + 17, jy + 3, 1, 1, "#5a8ac8");                                    // camera, facing away from her
+        live.push({ k: "fn", fn: (f, t) => { const b = Math.floor(t * 1.5) % 2; f(jx + 1, jy - 5 - b, 2, 1, "#ffd23f"); f(jx + 2, jy - 4 - b, 1, 1, "#ffd23f"); f(jx + 1, jy - 2 - b, 1, 1, "#ffd23f"); } });   // "?"
+      }
     },
   },
   casino: { // the Horseshoe in Tunica, Hernando's water tower and its cookie-cutter grey subdivisions, the sweet shop with sprinkles
@@ -819,7 +880,7 @@ export const SC_MID: Partial<Record<string, SceneMod>> = {
     ground: ["#2a3448", "#333d55"],
     edge: pick(eTree),
     under: ({ px, y0 }) => { for (let y = 0; y < 116; y++) for (let x = 0; x < W; x++) if (hash(x * 13 + y * 31) < 0.03) px(x, y0 + y, 1, 1, "#3a4a68"); },
-    draw: ({ px, y0, rnd, live }) => {
+    draw: ({ px, y0, h, rnd, live, says }) => {
       let x = 0, y = 0;
       // the Batman building
       y = y0 + 6; x = at(y, 52, 24, "r");
@@ -862,18 +923,29 @@ export const SC_MID: Partial<Record<string, SceneMod>> = {
           f(bx + 1 + k * 1.5, yy, 1, 2, ["#e0302f", "#ffd23f", "#f2f2f2", "#5af0ff"][k]); f(bx + 1 + k * 1.5, yy - 1, 1, 1, "#e0b090"); } } }); }
       crane(px, live, at(y0 + 140, 56, 40, "l"), y0 + 142, -1);
       site(px, live, at(y0 + 136, 46, 30, "r"), y0 + 136, 26);
-      // Buc-ee's: the beaver, the pumps, the endless store
-      y = y0 + 198; x = at(y, 30, 48, "r");
-      pad(px, x - 2, y + 4, 52, 26, "#5a5a62", "#4a4a52");
-      px(x + 2, y + 20, 44, 9, "#d8c8a8"); px(x + 1, y + 19, 46, 1, "#c8202a"); for (let k = 0; k < 6; k++) px(x + 4 + k * 7, y + 22, 5, 4, "#9ad0e8");
-      for (let k = 0; k < 5; k++) { px(x + 4 + k * 8, y + 7, 3, 6, "#e8e8e8"); px(x + 5 + k * 8, y + 8, 1, 2, "#e0302f"); }
-      px(x + 2, y + 5, 44, 2, "#c8202a"); px(x + 2, y + 5, 44, 1, "#ffd23f");
-      { const cx = x + 24, cy = y - 5;
-        px(cx, cy + 9, 1, 8, "#7a7a7a");
-        for (let k = -9; k <= 9; k++) { const ww = Math.round(Math.sqrt(81 - k * k)); px(cx - ww, cy + k, 2 * ww + 1, 1, Math.abs(k) > 7 || ww > 7 ? "#c8202a" : "#ffd23f"); }
-        px(cx - 4, cy - 4, 9, 9, "#8a5a2a"); px(cx - 5, cy - 6, 3, 2, "#8a5a2a"); px(cx + 3, cy - 6, 3, 2, "#8a5a2a");
-        px(cx - 5, cy - 7, 11, 2, "#c8202a"); px(cx - 2, cy - 2, 1, 1, "#000"); px(cx + 2, cy - 2, 1, 1, "#000"); px(cx - 1, cy + 1, 3, 1, "#3a2010"); px(cx - 1, cy + 2, 3, 2, "#f2f2f2"); px(cx, cy + 2, 1, 2, "#c8c8c8"); }
-      flagPole(px, x - 6 < 1 ? x + 49 : x - 6, y - 4, 14, 7, 4);
+      // Buc-ee's: it's enormous. A canopy as long as a block, two rows of pumps, the store, and the beaver on a sign the size of a billboard
+      y = y0 + 184; x = Math.ceil(room(y - 2, 46).hi + 8); const bw = W - 2 - x, np = Math.floor((bw - 4) / 7);
+      pad(px, x - 2, y - 2, bw + 3, 46, "#6a6a72", "#5a5a62");
+      for (let k = 0; k < np + 1; k++) px(x + 2 + k * 7, y + 38, 1, 4, "#e8e8e8");                                         // parking stripes
+      px(x, y, bw, 4, "#c8202a"); px(x, y, bw, 1, "#ffd23f"); px(x, y + 4, bw, 1, "#8a1a1a");                               // the canopy
+      for (let k = 0; k <= np; k++) px(x + 2 + k * 7, y + 5, 1, 14, "#cfcfcf");
+      for (const ry of [7, 14]) for (let k = 0; k < np; k++) { px(x + 4 + k * 7, y + ry, 3, 5, "#f2f2f2"); px(x + 5 + k * 7, y + ry + 1, 1, 2, "#c8202a"); px(x + 4 + k * 7, y + ry + 5, 3, 1, "#5a5a5a"); }
+      car(px, x + 10, y + 9, "#f2f2f2"); car(px, x + bw - 14, y + 16, "#c8202a");
+      px(x + 2, y + 25, bw - 4, 12, "#d8c8a8"); px(x + 1, y + 24, bw - 2, 1, "#c8202a"); px(x + 1, y + 23, bw - 2, 1, "#ffd23f");   // the store
+      for (let k = 0; k * 7 + 9 < bw; k++) px(x + 4 + k * 7, y + 27, 5, 5, "#9ad0e8"); px(x + Math.floor(bw / 2) - 3, y + 30, 6, 7, "#5a3a1a");
+      // Dawn at a pump, by her car
+      folk(px, x + 18, y + 9, { shirt: "#e85a9a", skin: "#f0c8a0", hair: "#c8a040", pants: "#3a4a6a" });
+      says.push({ a: y - 34, b: y + 2, who: "us", text: "“What's your favorite holiday?”" }, { a: y + 2, b: y + 40, who: "them", text: "“Mine will be Christmas.”" });
+      // the beaver: a giant round sign on a pole across the road
+      { const sx = at(y0 + 186, 40, 32, "l"), cx = sx + 15, cy = y0 + 200, R = 14;
+        px(cx - 1, cy + R, 3, 22, "#7a7a7a");
+        for (let k = -R; k <= R; k++) { const ww = Math.round(Math.sqrt(R * R - k * k)); px(cx - ww, cy + k, 2 * ww + 1, 1, Math.abs(k) > R - 3 || ww > R - 3 ? "#c8202a" : "#ffd23f"); }
+        px(cx - 7, cy - 6, 15, 14, "#8a5a2a"); px(cx - 8, cy - 9, 4, 3, "#8a5a2a"); px(cx + 5, cy - 9, 4, 3, "#8a5a2a"); px(cx - 7, cy - 4, 15, 1, "#7a4a22");
+        px(cx - 9, cy - 11, 19, 3, "#c8202a"); px(cx - 5, cy - 13, 11, 2, "#c8202a");                                        // the cap
+        px(cx - 4, cy - 2, 2, 2, "#000"); px(cx + 3, cy - 2, 2, 2, "#000"); px(cx - 4, cy - 2, 1, 1, "#ffffff"); px(cx + 3, cy - 2, 1, 1, "#ffffff");
+        px(cx - 2, cy + 2, 5, 2, "#3a2010"); px(cx - 1, cy + 4, 3, 3, "#f2f2f2"); px(cx, cy + 4, 1, 3, "#c8c8c8");                  // nose, teeth
+        live.push({ k: "fn", fn: (f, t) => { if (Math.floor(t * 1.5) % 4 === 0) f(cx + 3, cy - 1, 2, 1, "#8a5a2a"); } });        // he winks
+      }
     },
   },
 };

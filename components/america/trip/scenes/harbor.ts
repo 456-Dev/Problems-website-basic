@@ -506,7 +506,7 @@ export const SC_HARBOR: Partial<Record<string, SceneMod>> = {
 
       // back to front: Liberty, Ellis, Governors, the towers, the Brooklyn Bridge
       const items: Item[] = [];
-      const LX = HARBOR.liberty[0] + 8, LY = HARBOR.liberty[1] + 13;            // out in the Upper Bay, in front of downtown, clear of the road
+      const LX = HARBOR.liberty[0], LY = HARBOR.liberty[1] + 3;               // Liberty Island, open bay water all round her
       items.push({ y: GOV[1] + 2, draw: (p) => { p(GOV[0] - 1, Y(GOV[1]) - 2, 3, 3, "#c8a050"); p(GOV[0], Y(GOV[1]) - 1, 1, 1, "#8a6a30"); } });
       // towers on a grid over Manhattan, plus Jersey City's waterfront and downtown Brooklyn
       const special = (x: number, y: number) => near(x, y, HARBOR.wtc, 3, 3) || near(x, y, HARBOR.esb, 4, 3) || near(x, y, HARBOR.chrysler, 3, 3) || near(x, y, [LX, LY - 8], 5, 10);
@@ -540,8 +540,8 @@ export const SC_HARBOR: Partial<Record<string, SceneMod>> = {
         // the last words of the trip are the first words of the film: it plays backwards, starting where we ended
         says.push({ a: ROAD_END - 62, b: ROAD_END - 46, who: "us", text: "“Are you happy?”" });
         says.push({ a: ROAD_END - 46, b: ROAD_END - 30, who: "them", text: "“Yes. Very much.”" });
-        says.push({ a: ROAD_END - 30, b: ROAD_END - 10, who: "us", text: "“Should we get the show on the road?”" });
-        says.push({ a: ROAD_END - 10, b: ROAD_END + 1, who: "them", text: "“Let's do it.”" });
+        says.push({ a: ROAD_END - 30, b: ROAD_END - 12, who: "them", text: "“Should we get the show on the road?”" });
+        says.push({ a: ROAD_END - 12, b: ROAD_END + 1, who: "us", text: "“We are going to start where we ended and end where we began!”" });
       }
       // the Verrazzano and the Bayonne arch sit above the van and the boats
       const ex = Math.round(roadX(ROAD_END)), ey = ROAD_END - y0;                 // from the end of the road

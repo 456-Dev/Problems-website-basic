@@ -104,7 +104,7 @@ export function vanX(y: number) {
 export type Hold = { y: number; len: number };
 export const HOLDS: Hold[] = [
   { y: top("vegas") + 150, len: 130 },       // the preacher outside Trump's tower: a question, then an answer
-  { y: top("tulsa") + 40, len: 290 },        // the crash: through the Trade Winds bar at night (trip/scare.ts drawSeq)
+  { y: top("tulsa") + 40, len: 340 },        // the crash: through the Trade Winds bar at night (trip/scare.ts drawSeq)
   { y: top("graceland") + 128, len: 170 },   // the Pyramid: the Bass Pro guy walks us through the guns
 ];
 export const SCROLL = ROAD_END - 12 + HOLDS.reduce((a, h) => a + h.len, 0);

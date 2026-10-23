@@ -13,7 +13,7 @@
 import { GLYPH } from "./kit";
 
 const N = 96;
-const CUTS = [0, 0.1, 0.27, 0.42, 0.54, 0.68, 0.84];   // where each panel starts, as a fraction of the hold
+const CUTS = [0, 0.09, 0.24, 0.37, 0.48, 0.6, 0.72, 0.84];   // where each panel starts, as a fraction of the hold
 export const PANELS = CUTS.length;
 export const panelAt = (u: number) => { let k = 0; while (k < PANELS - 1 && u >= CUTS[k + 1]) k++; return k; };
 
@@ -42,9 +42,9 @@ export function drawSeq(ctx: CanvasRenderingContext2D, w: number, h: number, u: 
   };
   const tw: Wf = (str, sc = 1) => (str.length * 4 - 1) * sc;
   ctx.clearRect(0, 0, w, h);
-  ([crash, bar, news, hall, pimp, birds, laugh] as Panel[])[k](P, A, txt, tw, t, tau, v);
+  ([crash, bar, news, hall, pimp, birds, laugh, calm] as Panel[])[k](P, A, txt, tw, t, tau, v);
   // a scanline grain over everything, like a camera that's been dropped
-  A(0.12, () => { for (let y = 0; y < N; y += 2) P(0, y, N, 1, "#000"); });
+  if (k < 7) A(0.07, () => { for (let y = 0; y < N; y += 2) P(0, y, N, 1, "#000"); });
 }
 
 /* ---------- CRASH: the van through the wall ---------- */
@@ -65,13 +65,13 @@ function crash(P: Pf, A: Af, txt: Tf, tw: Wf, t: number, tau: number) {
   for (let k = 0; k < 6; k++) V(10 + k * 6, 4 + (k % 3), 1, 6, "#c8e8ff");                                                   // the windshield cracking
   V(4, 18, 10, 6, "#fff6c0"); V(38, 18, 10, 6, "#fff6c0"); V(16, 22, 20, 6, "#2a2a2e"); V(18, 30, 16, 4, "#c8c8c8");
   V(0, 38, 8, 6, "#111"); V(44, 38, 8, 6, "#111"); V(24, 31, 4, 2, "#e0302f");
-  A(0.35 + 0.2 * Math.sin(t * 20), () => { P(vx - 10, vy + 14 * vs, 30, 14, "#fff6c0"); P(vx + 36 * vs, vy + 14 * vs, 30, 14, "#fff6c0"); });
+  A(0.35, () => { P(vx - 10, vy + 14 * vs, 30, 14, "#fff6c0"); P(vx + 36 * vs, vy + 14 * vs, 30, 14, "#fff6c0"); });
   for (let k = 0; k < 46; k++) {                                                                                             // bricks and glass, at you
     const a = h1(k * 11) * Math.PI * 2, sp = 20 + h1(k * 5) * 60, d = (tau * sp + h1(k) * 8) % 70;
     const x = 50 + Math.cos(a) * d, y = 62 + Math.sin(a) * d * 0.8 + d * d * 0.004, sz = 1 + Math.floor(d / 18);
     P(x, y, sz + 1, sz, k % 4 === 0 ? "#e8f8ff" : k % 3 === 0 ? "#8a8a8a" : "#7a3a2a");
   }
-  A(Math.max(0, 0.9 - tau * 2.5), () => P(0, 0, N, N, "#ffffff"));                                                          // the impact
+  A(Math.max(0, 0.35 - tau * 1.2), () => P(0, 0, N, N, "#ffffff"));                                                          // the impact
 }
 
 /* ---------- BAR: the regulars (a warm, normal Tulsa dive bar) ---------- */
@@ -88,10 +88,14 @@ function bar(P: Pf, A: Af, txt: Tf, tw: Wf, t: number, tau: number) {
   P(76, 22, 14, 24, "#c8302a"); P(77, 22, 12, 6, "#ffd23f"); P(78, 30, 10, 8, "#2a1a10");
   for (let k = 0; k < 5; k++) P(78 + k * 2, 40, 1, 4, ["#ff5ad1", "#5af0ff", "#ffd23f", "#5aff7a", "#ff8a3a"][(k + Math.floor(t * 4)) % 5]);
   for (let k = 0; k < 2; k++) { const u = (t * 0.7 + k / 2) % 1; A(1 - u, () => { P(84 + u * 8, 20 - u * 14, 1, 3, "#ffd23f"); P(85 + u * 8, 20 - u * 14, 2, 1, "#ffd23f"); }); }
-  // the bartender: cap, glasses, plaid, a big smile, drying a glass
-  P(40, 26, 12, 4, "#3a3a4a"); P(39, 29, 14, 1, "#2a2a3a"); P(41, 30, 10, 9, "#e0b090"); P(42, 33, 3, 2, "#3a2a2a"); P(47, 33, 3, 2, "#3a2a2a"); P(42, 33, 8, 1, "#5a4a4a");
-  P(43, 34, 1, 1, "#ffffff"); P(48, 34, 1, 1, "#ffffff"); P(43, 36, 6, 1, "#7a2a2a"); P(44, 37, 4, 1, "#f2f2f2"); P(41, 35, 1, 1, "#f0a090"); P(50, 35, 1, 1, "#f0a090");
+  // the bartender: a woman, long red hair down past her shoulders, hoop earrings, lipstick, a big smile, drying a glass
+  P(39, 26, 14, 5, "#a8441e"); P(38, 29, 3, 16, "#a8441e"); P(51, 29, 3, 16, "#a8441e"); P(40, 25, 12, 1, "#c8582a");
+  P(41, 30, 10, 9, "#f0c0a0"); P(41, 30, 10, 2, "#a8441e");
+  P(42, 33, 2, 2, "#2a1a1a"); P(48, 33, 2, 2, "#2a1a1a"); P(42, 32, 3, 1, "#3a2010"); P(47, 32, 3, 1, "#3a2010"); P(43, 33, 1, 1, "#ffffff"); P(49, 33, 1, 1, "#ffffff");
+  P(43, 36, 6, 1, "#d02a4a"); P(44, 37, 4, 1, "#f2f2f2"); P(41, 35, 1, 1, "#f08a90"); P(50, 35, 1, 1, "#f08a90");
+  P(40, 35, 1, 2, "#ffd23f"); P(52, 35, 1, 2, "#ffd23f");                                                     // hoops
   for (let y = 39; y < 50; y++) for (let x = 37; x < 55; x++) P(x, y, 1, 1, (x % 4 === 0 || y % 4 === 0) ? "#2a3a6a" : "#c83a2a");
+  P(43, 39, 6, 2, "#f0c0a0");                                                                                 // a scoop neck
   { const w = Math.sin(t * 5) * 1.5; P(54 + w, 40, 4, 5, "#d8f0f8"); P(53 + w, 39, 6, 1, "#f2f2f2"); P(55 + w, 42, 3, 1, "#a8d8e8"); }
   // the bar top, the TIP jar with a few bucks in it, a basket of fries
   P(0, 48, N, 6, "#7a4422"); P(0, 48, N, 1, "#b8783e"); P(0, 54, N, 18, "#4a2814");
@@ -112,7 +116,7 @@ function bar(P: Pf, A: Af, txt: Tf, tw: Wf, t: number, tau: number) {
   P(66, 68, 2, 2, "#f2f2f2"); P(78, 70, 2, 2, "#e0302f"); P(86, 67, 2, 2, "#ffd23f"); P(72, 69, 2, 2, "#3a6fd8"); P(56, 60, 1, 14, "#c8a070");   // balls, a cue
   // the 4th regular is shooting pool
   P(52, 60, 8, 12, "#d8a040"); P(53, 53, 6, 7, "#6a4028"); P(53, 52, 6, 2, "#3a2a1a"); P(54, 56, 1, 1, "#111"); P(57, 56, 1, 1, "#111"); P(55, 58, 3, 1, "#7a2a2a"); P(53, 72, 2, 20, "#2a3a5a"); P(57, 72, 2, 20, "#2a3a5a");
-  [["#e8c890", 0, 1.2, 0], ["#7a4a2a", 1.9, 1.5, 0], ["#f2f2f2", 3.4, 1.9, 1]].forEach(([c, ph, sp, pup], k) => {
+  [["#e8c890", 0, 1.2, 0], ["#7a4a2a", 1.9, 1.5, 0]].forEach(([c, ph, sp, pup], k) => {
     const a = t * (sp as number) + (ph as number), q = Math.sin(a), dir = Math.cos(a) >= 0 ? 1 : -1, small = pup === 1;
     const col = c as string, ear = k === 1 ? "#4a2a14" : k === 2 ? "#c8a070" : "#b8905a", s = small ? 0.7 : 1;
     const dx = 62 + (q + 1) * 11 + k * 2, dy = small ? 87 : 84, bw = Math.round(9 * s), hop = small && Math.floor(t * 6) % 4 === 0 ? -1 : 0;
@@ -139,7 +143,7 @@ function news(P: Pf, A: Af, txt: Tf, tw: Wf, t: number) {
   P(4, 6, 88, 66, "#1a1a1a"); P(6, 8, 84, 62, "#2a2a2e");
   const X = 8, Y = 10, SW = 80, SH = 58;
   for (let y = 0; y < SH; y++) P(X, Y + y, SW, 1, y < SH / 2 ? "#0a1a5a" : "#1a2a7a");
-  for (let a = 0; a < 16; a++) { const th = a * Math.PI / 8 + t * 1.5; for (let r = 4; r < 44; r += 2) { const x = X + 40 + Math.cos(th) * r, y = Y + 22 + Math.sin(th) * r * 0.7; if (x > X && x < X + SW - 1 && y > Y && y < Y + SH - 1) P(x, y, 1, 1, a % 2 ? "#c8202a" : "#3a5ad8"); } }
+  for (let a = 0; a < 16; a++) { const th = a * Math.PI / 8 + t * 0.4; for (let r = 4; r < 44; r += 2) { const x = X + 40 + Math.cos(th) * r, y = Y + 22 + Math.sin(th) * r * 0.7; if (x > X && x < X + SW - 1 && y > Y && y < Y + SH - 1) P(x, y, 1, 1, a % 2 ? "#c8202a" : "#3a5ad8"); } }
   // the anchor: big hair, red dress, eyebrows all the way up, mouth going, jabbing a finger at you
   const ax = X + 30, ay = Y + 10;
   P(ax - 2, ay, 20, 16, "#f0d070"); P(ax, ay + 2, 16, 14, "#f0c8a0"); P(ax - 3, ay + 4, 3, 16, "#f0d070"); P(ax + 16, ay + 4, 3, 16, "#f0d070");
@@ -148,19 +152,19 @@ function news(P: Pf, A: Af, txt: Tf, tw: Wf, t: number) {
   const m = Math.floor(t * 9) % 3; P(ax + 5, ay + 11, 6, 1 + m, "#7a1a1a"); P(ax + 5, ay + 11, 6, 1, "#c84a5a");
   P(ax - 4, ay + 16, 24, 12, "#c8202a"); P(ax + 6, ay + 16, 4, 3, "#f0c8a0");
   P(ax + 18, ay + 20, 6, 2, "#f0c8a0"); P(ax + 23, ay + 18 + (Math.floor(t * 4) % 2) * 2, 2, 4, "#f0c8a0");
-  const fl = Math.floor(t * 5) % 2;
+  const fl = Math.floor(t * 1.2) % 2;
   P(X, Y + 2, 36, 9, fl ? "#ffffff" : "#c8202a"); txt(X + 3, Y + 4, "BREAKING", fl ? "#c8202a" : "#ffffff");
   P(X + 62, Y + 2, 18, 9, "#ffd23f"); txt(X + 64, Y + 4, "LIVE", "#111");
   P(X, Y + 37, SW, 14, "#c8202a"); P(X, Y + 37, SW, 1, "#ffd23f");
   txt(X + 2, Y + 39, "WHITE HOUSE", "#ffffff"); txt(X + 2, Y + 45, "IN CHAOS!!!", "#ffd23f");
-  P(X + 54, Y + 39, 24, 10, "#111"); txt(X + 56, Y + 41, "ALERT", Math.floor(t * 8) % 2 ? "#ff3b3b" : "#ffffff");
+  P(X + 54, Y + 39, 24, 10, "#111"); txt(X + 56, Y + 41, "ALERT", "#ff3b3b");
   P(X, Y + 50, SW, 8, "#0a0a2a");
   { const msg = "PARKINSONS?  PANIC IN WASHINGTON  WHAT ARE THEY HIDING?  STAY TUNED  ", wpx = tw(msg) + 4, off = (t * 26) % wpx;
     for (const o of [0, wpx]) txt(X + 2 - off + o, Y + 52, msg, "#ffffff"); }
   P(0, 6, 8, 66, "#1a1a1a"); P(88, 6, 8, 66, "#1a1a1a"); P(6, 8, 2, 62, "#2a2a2e"); P(88, 8, 2, 62, "#2a2a2e");   // the bezel over the ticker's ends
-  A(0.25 + 0.15 * fl, () => P(0, 72, N, 24, "#3a4aa8"));                                       // its glow on the bar, faces lit blue
+  A(0.25, () => P(0, 72, N, 24, "#3a4aa8"));                                       // its glow on the bar, faces lit blue
   for (let k = 0; k < 3; k++) { const x = 16 + k * 28; P(x, 80, 10, 16, "#06060a"); P(x + 2, 76, 6, 6, "#06060a"); A(0.6, () => P(x + 2, 77, 6, 3, "#5a6ad8")); }
-  if (Math.floor(t * 2.3) % 6 === 0) A(0.5, () => { for (let y = 8; y < 70; y += 3) P(6, y + Math.floor(t * 40) % 3, 84, 1, "#ffffff"); });
+  
 }
 
 /* ---------- HALL: out the back ---------- */
@@ -174,23 +178,23 @@ function hall(P: Pf, A: Af, txt: Tf, tw: Wf, t: number, tau: number) {
   for (let k = 0; k < 3; k++) { const d = 1 - k * 0.28, dw = 8 * d, dh = 26 * d, ox = 40 * d;      // doors down both walls, numbered
     P(vx - 8 - ox, vy - dh / 2, dw, dh, "#5a2a1a"); P(vx + 8 + ox - dw, vy - dh / 2, dw, dh, "#5a2a1a");
     if (k === 0) { txt(vx - 8 - ox, vy - dh / 2 - 7, "12", "#c8a060"); txt(vx + ox, vy - dh / 2 - 7, "13", "#c8a060"); } }
-  const on = Math.floor(t * 6) % 9 !== 0 && !(tau > 1.4 && Math.floor(t * 12) % 3 === 0);     // the lights, going
+  const on = Math.floor(t * 1.5) % 5 !== 0;     // the lights, going
   for (let k = 0; k < 3; k++) { const d = 1 - k * 0.3, y = vy - 8 - 34 * d; P(vx - 7 * d, y, 14 * d, 2, on ? "#f8f8d8" : "#3a3a30"); if (on) A(0.1, () => P(vx - 30 * d, y + 2, 60 * d, 40 * d, "#f8f8d8")); }
   // something at the far end. Every time the lights drop, it's closer.
   const near = Math.min(1, Math.floor(tau * 1.6) * 0.22), fh = 10 + near * 34, fw = fh * 0.32, fy = vy + 8 - fh * 0.75;
   P(vx - fw / 2, fy, fw, fh, "#d8d8d0"); P(vx - fw / 2 - 1, fy, fw + 2, fh * 0.35, "#0a0a0a"); P(vx - fw / 2 - 1, fy, 1, fh * 0.6, "#0a0a0a"); P(vx + fw / 2, fy, 1, fh * 0.6, "#0a0a0a");
   P(vx - fw * 0.28, fy + fh * 0.2, Math.max(1, fw * 0.18), 1, "#ff2a2a"); P(vx + fw * 0.1, fy + fh * 0.2, Math.max(1, fw * 0.18), 1, "#ff2a2a");
-  if (!on) A(0.88, () => P(0, 0, N, N, "#000"));
+  if (!on) A(0.45, () => P(0, 0, N, N, "#000"));
 }
 
 /* ---------- SCARE: the pimp with the bat ---------- */
 function pimp(P: Pf, A: Af, txt: Tf, tw: Wf, t: number, tau: number) {
   P(0, 0, N, N, "#000");
-  if (tau < 0.08) {                                                                                     // a snap of static first
+  if (tau < 0) {                                                                                     // a snap of static first
     for (let y = 0; y < N; y++) for (let x = 0; x < N; x += 2) { const q = h1(x * 131 + y * 977 + Math.floor(t * 60) * 7); P(x, y, 2, 1, q > 0.6 ? "#e8e8e8" : q > 0.3 ? "#6a6a6a" : "#1a1a1a"); }
     return;
   }
-  const z = Math.min(0.92, 0.35 + (tau - 0.08) * 5), jx = (Math.floor(t * 40) % 3 - 1) * 2, jy = Math.floor(t * 33) % 3 - 1;   // he comes at the glass
+  const z = Math.min(0.92, 0.35 + tau * 2.2), jx = 0, jy = 0;   // he comes at the glass
   const F: Pf = (x, y, w, hh, c) => P(48 + (x - 48) * z + jx, 54 + (y - 54) * z + jy, w * z + 1, hh * z + 1, c);
   // the bat, swinging down at you from up right
   const sw = Math.min(1, Math.max(0, (tau - 0.25) * 2.4)), ang = -1.15 - sw * 1.9, bx = 66, by = 70;   // up over his shoulder, then down across at you
@@ -215,8 +219,8 @@ function pimp(P: Pf, A: Af, txt: Tf, tw: Wf, t: number, tau: number) {
   F(18, 22, 60, 5, "#5a1a6a"); F(30, 6, 36, 17, "#7a2a8a"); F(30, 18, 36, 3, "#ffd23f");
   for (let k = 0; k < 22; k++) F(62 + k * 1.3, 18 - k * 0.9 - Math.sin(k * 0.5) * 2, 3, 2, k % 3 ? "#ff3b5a" : "#ffffff");
   bat();                                                                                               // the bat comes over his shoulder, right at you
-  A(0.2 + 0.2 * Math.sin(t * 30), () => P(0, 0, N, N, "#8a0000"));
-  if (sw > 0.85) A(0.7, () => P(0, 0, N, N, "#ffffff"));                                              // CRACK
+  A(0.12, () => P(0, 0, N, N, "#8a0000"));
+  if (sw > 0.85) A(0.2, () => P(0, 0, N, N, "#ffffff"));                                              // CRACK
   if (Math.floor(t * 13) % 4 === 0) for (let k = 0; k < 3; k++) P(0, h1(Math.floor(t * 13) * 7 + k) * N, N, 2, "#e8e8e8");
 }
 
@@ -269,4 +273,29 @@ function laugh(P: Pf, A: Af, txt: Tf, tw: Wf, t: number, tau: number, v: number)
   }
   const msg = "HA HA HA", sz = 2, wv = Math.round(Math.sin(t * 9) * 2);
   txt(48 - tw(msg, sz) / 2 + 1, 81 + wv, msg, "#2a1a1a", sz); txt(48 - tw(msg, sz) / 2, 80 + wv, msg, "#ffd23f", sz);
+}
+
+/* ---------- CALM: and then it's quiet. Sunrise over Tulsa, the van on an empty road, birds settling ---------- */
+function calm(P: Pf, A: Af, txt: Tf, tw: Wf, t: number, tau: number) {
+  const SKY = ["#f6d6c0", "#f8dcc0", "#fae4c4", "#fcecca", "#fef2d4", "#fff6de", "#f0f2e8", "#dceaf0"];
+  for (let y = 0; y < 60; y++) P(0, y, N, 1, SKY[Math.min(7, Math.floor((59 - y) / 8))]);
+  const rise = Math.min(1, tau / 4), sy = 58 - rise * 8;                                       // the sun, coming up slow
+  A(0.35, () => { for (let r = 22; r > 10; r -= 3) for (let y = -r; y <= r; y++) { const w = Math.sqrt(r * r - y * y); if (sy + y < 60) P(48 - w, sy + y, w * 2, 1, "#ffe8a8"); } });
+  for (let y = -8; y <= 8; y++) { const w = Math.sqrt(64 - y * y); if (sy + y < 60) P(48 - w, sy + y, w * 2, 1, "#fff4c8"); }
+  // Tulsa's skyline, soft and far away
+  for (const [x, w, h] of [[14, 6, 10], [21, 5, 16], [27, 7, 12], [62, 6, 18], [69, 4, 11], [74, 8, 14], [83, 5, 9]]) P(x, 60 - h, w, h, "#b8a8b8");
+  P(66, 38, 1, 4, "#b8a8b8");
+  // the land, a long empty road to the horizon
+  for (let y = 60; y < N; y++) P(0, y, N, 1, y < 66 ? "#a8b890" : y < 76 ? "#94aa78" : "#7e9a64");
+  for (let y = 60; y < N; y++) { const w = 1 + (y - 60) * 0.9; P(48 - w, y, w * 2, 1, "#6a6a70"); if ((y - Math.floor(t * 6)) % 6 < 3 && y > 62) P(48 - (y - 60) * 0.04, y, 1 + (y - 60) * 0.06, 1, "#e8d890"); }
+  // our van, parked on the shoulder, the three of us sitting on the hood
+  P(58, 80, 16, 9, "#f2f2f2"); P(59, 78, 12, 3, "#e8e8e8"); P(60, 79, 9, 2, "#9ab0c8"); P(59, 89, 3, 2, "#2a2a2a"); P(70, 89, 3, 2, "#2a2a2a");
+  for (const [x, c] of [[60, "#3a6a9a"], [64, "#c8302a"], [68, "#4a8a4a"]] as [number, string][]) { P(x, 74, 3, 4, c); P(x, 72, 3, 2, "#e0b090"); }
+  // birds on a wire, settling one by one
+  P(0, 30, N, 1, "#6a6060"); P(6, 26, 1, 34, "#7a6a5a"); P(90, 26, 1, 34, "#7a6a5a");
+  for (let k = 0; k < 9; k++) {
+    const x = 12 + k * 9, land = 0.4 + k * 0.35, u = Math.min(1, Math.max(0, (tau - land) / 0.8)), y = 29 - (1 - u) * (18 + k * 2), xx = x + (1 - u) * 12;
+    const flap = u < 1 && Math.floor(t * 8 + k) % 2;
+    P(xx, y - 1, 3, 2, "#3a3a44"); if (flap) { P(xx - 1, y - 2, 1, 1, "#3a3a44"); P(xx + 3, y - 2, 1, 1, "#3a3a44"); }
+  }
 }

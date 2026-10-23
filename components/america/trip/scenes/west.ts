@@ -113,36 +113,137 @@ function suburb(px: Px, rnd: () => number, ya: number, yb: number, xa: number, x
 /* ---------- the scenes ---------- */
 
 // The very first person on the trip: the hermit crab man at the Venice jetty (film, July 4th).
-// Shirtless, beard, glasses, orange-and-white striped towel, a gold Star of David, green shorts,
-// a sick little hermit crab in his cupped hands.
+// Shirtless, beard, glasses, orange-and-white striped towel, a gold Star of David, green shorts.
+// He's small; the hermit crab he's holding out is big, and it's the one doing the talking.
 function crabMan(px: Px, live: Live[], x: number, y: number) {
   const SK = "#d8a07a", SKD = "#c08a64", GOLD = "#ffd23f";
-  px(x - 2, y - 2, 30, 36, "#e8c98a");                                                   // clear sand round him
+  px(x - 2, y - 2, 30, 28, "#e8c98a");                                                   // clear sand round him
   // the rock jetty behind him, running out to the water
-  for (let k = 0; k < 9; k++) { const rx = x + 15 + (k % 3) * 4, ry = y + 4 + Math.floor(k / 3) * 7 + (k % 2); px(rx, ry, 5, 4, "#7a7670"); px(rx + 1, ry, 3, 1, "#a8a49c"); px(rx, ry + 3, 5, 1, "#5a5650"); }
-  // hair, face, glasses, beard
-  px(x + 4, y, 7, 2, "#6a4a2a"); px(x + 3, y + 1, 1, 4, "#6a4a2a"); px(x + 11, y + 1, 1, 4, "#6a4a2a");
-  px(x + 4, y + 2, 7, 6, SK);
-  px(x + 4, y + 4, 3, 2, "#1a1a1a"); px(x + 8, y + 4, 3, 2, "#1a1a1a"); px(x + 7, y + 4, 1, 1, "#1a1a1a");
-  px(x + 5, y + 4, 1, 1, "#cfe8ff"); px(x + 9, y + 4, 1, 1, "#cfe8ff");
-  px(x + 4, y + 7, 7, 3, "#7a5a3a"); px(x + 5, y + 10, 5, 1, "#7a5a3a"); px(x + 6, y + 8, 1, 1, "#b8a898"); px(x + 9, y + 9, 1, 1, "#b8a898");
-  px(x + 6, y + 7, 3, 1, "#c86a5a");
-  // bare chest, the towel stripes over both shoulders
-  px(x + 2, y + 11, 11, 10, SK); px(x + 2, y + 18, 11, 1, SKD);
-  for (let k = 0; k < 12; k++) { const c = k % 3 === 2 ? "#f2f2f2" : "#ff7a1a"; px(x + 2, y + 11 + k, 2, 1, k % 2 ? c : "#f2f2f2"); px(x + 11, y + 11 + k, 2, 1, k % 2 ? "#f2f2f2" : c); }
-  // the gold chain and Star of David
-  px(x + 5, y + 11, 1, 1, GOLD); px(x + 9, y + 11, 1, 1, GOLD); px(x + 6, y + 12, 1, 1, GOLD); px(x + 8, y + 12, 1, 1, GOLD);
-  ["..#..", "#####", ".#.#.", "#####", "..#.."].forEach((r, j) => [...r].forEach((c, i) => { if (c === "#") px(x + 5 + i, y + 13 + j, 1, 1, GOLD); }));
-  px(x + 7, y + 15, 1, 1, SK);
-  // arms in to the cupped hands, the crab in them
-  px(x + 1, y + 12, 1, 7, SK); px(x + 13, y + 12, 1, 7, SK); px(x + 2, y + 19, 3, 1, SK); px(x + 10, y + 19, 3, 1, SK);
-  px(x + 4, y + 19, 7, 2, SK); px(x + 4, y + 21, 7, 1, SKD);
-  px(x + 6, y + 18, 3, 2, "#a86a3a"); px(x + 7, y + 18, 1, 1, "#e8c89a");
-  // green shorts, drawstring, legs, bare feet
-  px(x + 3, y + 22, 9, 5, "#2f9a4a"); px(x + 3, y + 22, 9, 1, "#1f7a3a"); px(x + 7, y + 22, 1, 3, "#f2f2f2"); px(x + 7, y + 25, 1, 2, "#e8c98a");
-  px(x + 4, y + 27, 2, 5, SK); px(x + 9, y + 27, 2, 5, SK); px(x + 3, y + 32, 3, 1, SKD); px(x + 9, y + 32, 3, 1, SKD);
-  // the crab poking its legs out now and then
-  live.push({ k: "fn", fn: (f, t) => { if (Math.floor(t * 2) % 3) { f(x + 5, y + 19, 1, 1, "#d8402a"); f(x + 9, y + 19, 1, 1, "#d8402a"); f(x + 9, y + 18, 1, 1, "#e8604a"); } } });
+  for (let k = 0; k < 6; k++) { const rx = x - 1 + (k % 3) * 4, ry = y + 18 + Math.floor(k / 3) * 4 + (k % 2); px(rx, ry, 4, 3, "#7a7670"); px(rx + 1, ry, 2, 1, "#a8a49c"); }
+  // hair, face, glasses, beard (small)
+  px(x + 2, y, 5, 1, "#6a4a2a"); px(x + 1, y + 1, 1, 3, "#6a4a2a"); px(x + 7, y + 1, 1, 3, "#6a4a2a");
+  px(x + 2, y + 1, 5, 4, SK);
+  px(x + 2, y + 2, 2, 1, "#1a1a1a"); px(x + 5, y + 2, 2, 1, "#1a1a1a"); px(x + 4, y + 2, 1, 1, "#1a1a1a");
+  px(x + 2, y + 4, 5, 2, "#7a5a3a"); px(x + 3, y + 6, 3, 1, "#7a5a3a"); px(x + 4, y + 4, 1, 1, "#c86a5a");
+  // bare chest, towel stripes over both shoulders, the Star of David
+  px(x + 1, y + 7, 7, 6, SK); px(x + 1, y + 12, 7, 1, SKD);
+  for (let k = 0; k < 7; k++) { px(x + 1, y + 7 + k, 1, 1, k % 2 ? "#f2f2f2" : "#ff7a1a"); px(x + 7, y + 7 + k, 1, 1, k % 2 ? "#ff7a1a" : "#f2f2f2"); }
+  px(x + 3, y + 7, 1, 1, GOLD); px(x + 5, y + 7, 1, 1, GOLD);
+  [".#.", "###", ".#."].forEach((r, jj) => [...r].forEach((c, ii) => { if (c === "#") px(x + 3 + ii, y + 8 + jj, 1, 1, GOLD); }));
+  // arm out to the right, holding the crab up
+  px(x, y + 8, 1, 4, SK); px(x + 8, y + 8, 3, 1, SK); px(x + 10, y + 7, 2, 2, SK);
+  // green shorts, legs
+  px(x + 2, y + 13, 5, 3, "#2f9a4a"); px(x + 2, y + 16, 2, 3, SK); px(x + 5, y + 16, 2, 3, SK);
+  // the hermit crab: a big spiral shell, red legs and claws, eyes on stalks
+  const cx = x + 11, cy = y + 1;
+  px(cx, cy, 9, 7, "#e8a070"); px(cx + 1, cy - 1, 7, 1, "#e8a070"); px(cx + 1, cy + 7, 7, 1, "#c87a4a");
+  for (const [dx, dy, c] of [[2, 1, "#a85a2a"], [3, 1, "#a85a2a"], [4, 1, "#a85a2a"], [5, 2, "#a85a2a"], [5, 3, "#a85a2a"], [4, 4, "#a85a2a"], [3, 4, "#a85a2a"], [2, 3, "#a85a2a"], [3, 3, "#f8d8b0"], [6, 1, "#f8d8b0"], [1, 5, "#f8d8b0"]] as const) px(cx + dx, cy + dy, 1, 1, c);
+  live.push({ k: "fn", fn: (f, t) => {
+    const talk = Math.floor(t * 5) % 2, bob = Math.floor(t * 2) % 2;
+    f(cx - 1, cy + 5, 3, 3, "#d8402a");                                                  // body poking out of the shell
+    f(cx - 2, cy + 1 - bob, 1, 4 + bob, "#d8402a"); f(cx, cy + 1 - bob, 1, 4 + bob, "#d8402a");   // eye stalks
+    f(cx - 2, cy - bob, 1, 1, "#111"); f(cx, cy - bob, 1, 1, "#111");
+    f(cx - 4, cy + 5 - talk, 3, 2, "#e8604a"); f(cx - 4, cy + 4 - talk * 2, 1, 1, "#e8604a");          // the big claw, waving
+    f(cx - 2, cy + 8, 1, 2, "#d8402a"); f(cx, cy + 8, 1, 2, "#d8402a"); f(cx + 2, cy + 8, 1, 1, "#d8402a");
+    if (talk) { f(cx - 7, cy + 1, 1, 3, "#ffffff"); f(cx - 7, cy + 5, 1, 1, "#ffffff"); }          // !
+  } });
+}
+
+// "Champion!": long blond hair, sunglasses, Hawaiian shirt, green gloves, on his bike with a big flag, screaming
+function champion(px: Px, live: Live[], x: number, y: number) {
+  const SK = "#d89a70";
+  px(x - 1, y - 12, 31, 38, "#e8c98a");
+  // the bike, side on
+  ring(px, x + 3, y + 22, 3, "#1a1a1a", 20); ring(px, x + 15, y + 22, 3, "#1a1a1a", 20);
+  px(x + 3, y + 19, 12, 1, "#e0302f"); px(x + 8, y + 16, 1, 6, "#e0302f"); px(x + 14, y + 14, 1, 6, "#9a9a9a"); px(x + 13, y + 14, 3, 1, "#1a1a1a");
+  // him: legs on the pedals, the shirt, gloves on the bars
+  px(x + 6, y + 14, 2, 6, "#3a4a6a"); px(x + 9, y + 14, 2, 4, "#3a4a6a");
+  px(x + 5, y + 6, 7, 8, "#1a1a2a");
+  for (const [dx, dy, c] of [[6, 7, "#ff5ad1"], [9, 8, "#ffd23f"], [7, 10, "#5af0ff"], [10, 11, "#ff8a1f"], [6, 12, "#2faa4a"], [9, 6, "#e0302f"]] as const) px(x + dx, y + dy, 1, 1, c);
+  px(x + 11, y + 9, 3, 1, SK); px(x + 13, y + 10, 2, 2, "#4ac83a");                         // arm to the bars, green glove
+  // head: long blond hair down the shoulders, sunglasses, the mouth wide open
+  px(x + 4, y - 2, 8, 9, "#f0d070"); px(x + 3, y + 1, 1, 7, "#f0d070"); px(x + 12, y + 1, 1, 7, "#e8c060");
+  px(x + 5, y, 6, 6, SK); px(x + 5, y + 1, 6, 1, "#1a1a1a"); px(x + 6, y + 2, 1, 1, "#1a1a1a"); px(x + 9, y + 2, 1, 1, "#1a1a1a");
+  px(x + 5, y - 1, 6, 1, "#f8e090");
+  live.push({ k: "fn", fn: (f, t) => {
+    const scream = Math.floor(t * 3) % 3 !== 0;
+    f(x + 7, y + 3, 2, scream ? 3 : 1, scream ? "#5a1010" : "#a85a4a");
+    // the other arm up high, green glove on the pole, the flag waving off it
+    const px0 = x + 16, top = y - 12;
+    f(x + 12, y + 5, 2, 2, SK); f(x + 14, y + 2, 2, 3, SK); f(px0, y, 2, 2, "#4ac83a");
+    f(px0, top, 1, 14, "#d8d8d8"); f(px0, top - 1, 1, 1, "#ffd23f");
+    for (let xx = 0; xx < 14; xx++) {
+      const wv = Math.round(Math.sin(t * 6 - xx * 0.6) * 1.2 * (xx / 14));
+      for (let yy = 0; yy < 9; yy++) {
+        const c = yy < 5 && xx < 6 ? ((xx + yy) % 2 ? "#2a3a8a" : "#f2f2f2") : yy % 2 ? "#f2f2f2" : "#c8202a";
+        f(px0 + 1 + xx, top + yy + wv, 1, 1, c);
+      }
+    }
+    if (scream) for (let k = 0; k < 3; k++) f(x + 2 - k * 2, y + 1 - k, 1, 2, "#ffffff");      // the yell
+  } });
+}
+
+// the e-bike guy: "I like Bobby Kennedy!", then he scoots off, slowly, down the street
+function ebike(px: Px, live: Live[], x: number, y0: number, y1: number) {
+  live.push({ k: "fn", fn: (f, t) => {
+    const y = y0 + ((t * 2.2) % (y1 - y0));
+    f(x, y + 8, 3, 1, "#111"); f(x, y + 10, 3, 1, "#111"); f(x - 1, y + 9, 1, 1, "#111"); f(x + 3, y + 9, 1, 1, "#111");
+    f(x + 8, y + 8, 3, 1, "#111"); f(x + 8, y + 10, 3, 1, "#111"); f(x + 7, y + 9, 1, 1, "#111"); f(x + 11, y + 9, 1, 1, "#111");
+    f(x + 2, y + 8, 8, 1, "#e0302f"); f(x + 4, y + 7, 3, 2, "#2a2a2e"); f(x + 5, y + 7, 1, 1, "#5af05a");   // the battery, lit
+    f(x + 9, y + 5, 1, 4, "#9a9a9a");
+    f(x + 4, y, 3, 1, "#f2f2f2"); f(x + 4, y + 1, 3, 2, "#e0b090"); f(x + 4, y + 3, 3, 3, "#2fa8a0"); f(x + 4, y + 6, 1, 2, "#2a3a5a"); f(x + 6, y + 6, 1, 2, "#2a3a5a");
+    f(x + 7, y + 4, 2, 1, "#e0b090");
+  } });
+}
+
+// LA from above: a grid of intersections, crosswalks, lights, cars waiting
+function laGrid(px: Px, live: Live[], y0: number, h: number) {
+  const XS: number[] = [], YS: number[] = [];
+  for (let x = 4; x < W; x += 18) XS.push(x);
+  for (let y = y0 + 6; y < y0 + h - 4; y += 16) YS.push(y);
+  // blocks: low flat roofs
+  for (let bi = 0; bi < XS.length; bi++) for (let bj = 0; bj < YS.length; bj++) {
+    const bx = XS[bi] + 5, by = YS[bj] + 5;
+    for (let k = 0; k < 4; k++) {
+      const c = ["#d8c8a8", "#c8b898", "#e8d8c0", "#b8a888", "#d0c0a8"][(bi * 3 + bj * 5 + k) % 5];
+      px(bx + (k % 2) * 6, by + Math.floor(k / 2) * 5, 5, 4, c); px(bx + (k % 2) * 6, by + Math.floor(k / 2) * 5 + 3, 5, 1, shadeOf(c, 30));
+    }
+  }
+  for (const x of XS) { px(x - 1, y0, 1, h, "#c8c8c8"); px(x, y0, 4, h, "#5a5a60"); px(x + 4, y0, 1, h, "#c8c8c8"); for (let y = y0; y < y0 + h; y += 4) px(x + 2, y, 1, 2, "#e8e8e8"); }
+  for (const y of YS) { px(0, y - 1, W, 1, "#c8c8c8"); px(0, y, W, 4, "#5a5a60"); px(0, y + 4, W, 1, "#c8c8c8"); for (let x = 0; x < W; x += 4) px(x, y + 2, 2, 1, "#e8e8e8"); }
+  for (const x of XS) for (const y of YS) {
+    px(x, y, 4, 4, "#5a5a60");
+    for (let k = 0; k < 4; k++) { px(x + k, y - 2, 1, 1, k % 2 ? "#5a5a60" : "#f2f2f2"); px(x + k, y + 5, 1, 1, k % 2 ? "#5a5a60" : "#f2f2f2"); px(x - 2, y + k, 1, 1, k % 2 ? "#5a5a60" : "#f2f2f2"); px(x + 5, y + k, 1, 1, k % 2 ? "#5a5a60" : "#f2f2f2"); }
+    px(x - 1, y - 1, 1, 1, "#1a1a1a"); px(x + 4, y + 4, 1, 1, "#1a1a1a");
+  }
+  live.push({ k: "fn", fn: (f, t) => {
+    const phase = Math.floor(t / 3) % 2;                                                  // the lights switch every 3s
+    for (const x of XS) for (const y of YS) { f(x - 1, y - 1, 1, 1, phase ? "#3af05a" : "#ff3b3b"); f(x + 4, y + 4, 1, 1, phase ? "#ff3b3b" : "#3af05a"); }
+    // cars: going when it's their green, waiting at the line when it's red
+    for (let k = 0; k < 10; k++) {
+      const C = ["#f2f2f2", "#1a1a1a", "#e0302f", "#3a6fd8", "#ffd23f", "#c8ccd2"][k % 6];
+      if (k % 2 === 0) {
+        const y = YS[(k / 2) % YS.length], go = phase === 1, span = W, p = go ? (t * 9 + k * 31) % span : XS[k % XS.length] - 4;
+        f(p, y + 1, 3, 2, C);
+      } else {
+        const x = XS[(k * 3) % XS.length], go = phase === 0, span = h, p = go ? (t * 9 + k * 23) % span : YS[k % YS.length] - y0 - 4;
+        f(x + 1, y0 + p, 2, 3, C);
+      }
+    }
+  } });
+}
+
+// Caesars Palace: white columns, the gold trim, Caesar on his pedestal, fountains going
+function caesars(px: Px, live: Live[], x: number, y: number) {
+  px(x - 1, y - 1, 36, 24, "#8a9a5a");
+  px(x, y + 6, 34, 10, "#efe8d8"); px(x, y + 5, 34, 1, "#d8b040"); px(x + 2, y + 3, 30, 2, "#e8e0cc"); px(x + 6, y + 1, 22, 2, "#f2ecdc");
+  for (let k = 0; k < 9; k++) { px(x + 1 + k * 4, y + 7, 2, 9, "#f8f4ea"); px(x + 1 + k * 4, y + 7, 2, 1, "#d8b040"); px(x + 3 + k * 4, y + 8, 1, 7, "#c8c0b0"); }
+  px(x + 5, y - 6, 25, 7, "#1a1a2a"); px(x + 5, y - 6, 25, 1, "#d8b040"); px(x + 5, y, 25, 1, "#d8b040");
+  word(px, x + 4 + 2, y - 5, "CAESARS", "#ffd23f", null);
+  // the pool and fountains out front, Caesar on a column in the middle
+  px(x + 2, y + 17, 30, 5, "#3a8fd6"); px(x + 3, y + 18, 28, 1, "#7fc0f0");
+  px(x + 16, y + 13, 2, 6, "#e8e8e8"); px(x + 16, y + 10, 2, 3, "#f8f8f8"); px(x + 15, y + 12, 1, 2, "#f8f8f8");
+  live.push({ k: "fn", fn: (f, t) => { for (const fx of [x + 6, x + 26]) for (let k = 0; k < 6; k++) { const u = (t * 1.4 + k / 6) % 1, h = Math.sin(u * Math.PI) * 6; f(fx + (k - 3) * u * 1.2, y + 19 - h, 1, 1, "#e8f8ff"); } } });
 }
 
 export const SC_WEST: Partial<Record<string, SceneMod>> = {
@@ -214,12 +315,12 @@ export const SC_WEST: Partial<Record<string, SceneMod>> = {
         px(x + 6, y + 1, 3, 1, "#f2f2f2"); px(x + 6, y + 18, 3, 1, "#f2f2f2");
         live.push({ k: "fn", fn: (f, t) => { for (let k = 0; k < 4; k++) { const yy = y + 3 + ((t * (3 + k) + k * 5) % 14), xx = x + 2 + ((k * 3 + Math.floor(t)) % 9); f(xx, yy, 2, 2, ["#1a1a1a", "#f2f2f2", "#e0302f", "#3a6fd8"][k]); } f(x + 7 + 3 * Math.sin(t * 3), y + 10 + 5 * Math.cos(t * 2), 1, 1, "#ff8a1f"); } }); }
       // Venice canals: houses, little white bridges, ducks
-      { const xa = 92, ya = y0 + 6, yb = y0 + 88;
-        for (const cy of [ya + 14, ya + 44, ya + 72]) { px(xa, cy, W - xa, 4, "#3a8fc0"); px(xa, cy + 1, W - xa, 1, "#6ab0e0"); }
+      { const xa = 92, ya = y0 + 6, yb = y0 + 60;
+        for (const cy of [ya + 14, ya + 44]) { px(xa, cy, W - xa, 4, "#3a8fc0"); px(xa, cy + 1, W - xa, 1, "#6ab0e0"); }
         px(108, ya + 14, 4, yb - ya - 14, "#3a8fc0"); px(109, ya + 14, 1, yb - ya - 14, "#6ab0e0");
-        for (const [bx, by] of [[98, ya + 13], [118, ya + 43], [100, ya + 71]]) { px(bx, by, 5, 6, "#f2f2f2"); px(bx + 1, by + 1, 3, 4, "#d8d8d8"); }
+        for (const [bx, by] of [[98, ya + 13], [118, ya + 43]]) { px(bx, by, 5, 6, "#f2f2f2"); px(bx + 1, by + 1, 3, 4, "#d8d8d8"); }
         for (let y = ya; y < yb; y += 10) for (const x of [94, 101, 114, 121]) {
-          if ([ya + 14, ya + 44, ya + 72].some((c) => y + 7 > c && y < c + 5)) continue;
+          if ([ya + 14, ya + 44].some((c) => y + 7 > c && y < c + 5)) continue;
           const c = ["#f2e8d8", "#ff8ab8", "#8ad8c8", "#ffd88a", "#c8a8e8"][Math.floor(rnd() * 5)];
           px(x, y, 6, 6, c); px(x, y, 6, 1, shadeOf(c, 40)); px(x + 1, y + 2, 2, 2, "#5a8ac8");
           if (rnd() < 0.3) usFlag(px, x + 1, y - 3, 4, 3);
@@ -236,18 +337,22 @@ export const SC_WEST: Partial<Record<string, SceneMod>> = {
       // vendors on the boardwalk: tents, a t-shirt rack, a guy on a red bike
       for (const [yy, c] of [[y0 + 40, "#e0302f"], [y0 + 92, "#3a6fd8"], [y0 + 120, "#ffd23f"]] as const) { px(35, yy, 6, 5, c); px(35, yy, 6, 1, "#f2f2f2"); px(36, yy + 5, 4, 1, "#5a5a5a"); }
       crabMan(px, live, 38, y0 + 24);
-      says.push({ a: 0, b: 44, who: "them", text: "“Drive back!”" });
-      { const y = y0 + 132, x = Math.max(free(y, 12, 16, "r"), 62);
-        person(px, x + 4, y, "#2fa8a0", "#f2f2f2", "#2a3a5a");
-        for (const wx of [x, x + 8]) { px(wx, y + 8, 3, 1, "#111"); px(wx, y + 10, 3, 1, "#111"); px(wx - 1, y + 9, 1, 1, "#111"); px(wx + 3, y + 9, 1, 1, "#111"); }
-        px(x + 2, y + 8, 8, 1, "#e0302f"); px(x + 4, y + 7, 3, 2, "#111"); px(x + 9, y + 5, 1, 4, "#9a9a9a");
-        palm2(px, x + 20, y - 4, 13); flag(px, live, x + 26, y - 4, 12, 9, 6); }
+      says.push({ a: 0, b: 44, who: "them", text: "The hermit crab: “Drive back!”" });
+      // the e-bike guy, "I like Bobby Kennedy!", scooting off down the street, slowly; we don't wait
+      { const y = y0 + 126, x = Math.max(free(y, 12, 16, "r"), 64);
+        ebike(px, live, x, y, y0 + h - 4);
+        says.push({ a: y - 24, b: y + 10, who: "them", text: "“I like Bobby Kennedy!”" }); }
+      // the Champion: on his bike, flag up, screaming it
+      { const y = y0 + 72, x = 96;
+        champion(px, live, x, y);
+        says.push({ a: y - 6, b: y + 24, who: "them", text: "“CHAMPION!”" }); }
     },
   },
   la: {
     ground: ["#8a9a5a", "#7a8a4f"],
-    edge: pick(ePalm),
+    under: ({ px, y0, h, live }) => laGrid(px, live, y0, h),
     draw: ({ px, y0, rnd, live }) => {
+
       // the downtown skyline, standing up off the street
       { const base = y0 + 60, x0 = 62;
         px(x0 - 2, base, W - x0 + 2, 3, "#6a6a70"); px(x0 - 2, base + 1, W - x0 + 2, 1, "#ffd23f");
@@ -314,6 +419,7 @@ export const SC_WEST: Partial<Record<string, SceneMod>> = {
         palm2(px, x + 13, y - 2, 9, -2); palm2(px, x + 15, y - 2, 9, 2);
         for (let k = 0; k < 4; k++) car(px, x + 2 + k * 5, y + 19, ["#f2f2f2", "#1a1a1a", "#e0302f", "#3a6fd8"][k]);
         px(x - 1, y + 25, 33, 7, "#f8f8f4"); T(px, x + 1, y + 26, "IN N OUT", "#e0302f"); }
+      caesars(px, live, 2, y0 + 109);
     },
   },
   oc: {
