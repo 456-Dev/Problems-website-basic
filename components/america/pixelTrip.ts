@@ -64,6 +64,55 @@ const SKY = {
 const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
 const tod = (sc: Scene) => (NIGHT.has(sc) ? SKY.night : EVE.has(sc) ? SKY.eve : SKY.day);
 
+// the far ridgeline behind a stop: height and colour at strip column t
+const RF = 20;
+function ridge(sc: Scene, t: number): [number, string] {
+  const night = NIGHT.has(sc), ev = EVE.has(sc);
+  if (sc === "smoky") return [18 + 4 * Math.sin(t / 7), "#47527c"];
+  if (PEAKS.has(sc)) return [14 + 9 * Math.abs(Math.sin(t / 11)) + 3 * Math.sin(t / 4.1), "#7d8cab"];
+  if (MESAS.has(sc)) return [Math.sin(t / 13) > 0.2 ? 12 : 4, night ? "#3a2a4a" : ev ? "#a8584a" : "#c98a62"];
+  if (FLAT.has(sc)) return [2, ev ? "#8a6a7a" : "#9ab8a0"];
+  return [3 + 2 * Math.sin(t / 9) + 1.5 * Math.sin(t / 3.7), night ? "#2a2348" : ev ? "#6a4a6e" : "#8fb08a"];
+}
+
+// what a stop's bare ground looks like on row y (grass, water, verge)
+const hex = (c: string) => [1, 3, 5].map((k) => parseInt(c.slice(k, k + 2), 16));
+const lerpHex = (a: string, b: string, t: number) => {
+  const A = hex(a), B = hex(b);
+  return "#" + A.map((v, k) => Math.round(v + (B[k] - v) * t).toString(16).padStart(2, "0")).join("");
+};
+function baseRow(sc: Scene, y: number): number[] {
+  const [g1, g2] = GROUND[sc], wet = WET.has(sc);
+  if (y > ROAD_Y + 10) return hex(wet ? "#2f6fb0" : g2);
+  if (wet && y === GY + 3) return hex("#5f9fe0");
+  if (wet && y >= GY + 2) return hex("#2f6fb0");
+  return hex(g1);
+}
+
+// Dither each stop's bare ground and water into the next stop's across the seam,
+// so grass turns to sand turns to river gradually. Signs, trees and landmarks stay put.
+function blendGround(ctx: CanvasRenderingContext2D) {
+  const F = 16, img = ctx.getImageData(0, GY, WW, HH - GY), d = img.data;
+  const same = (at: number, c: number[]) => Math.abs(d[at] - c[0]) + Math.abs(d[at + 1] - c[1]) + Math.abs(d[at + 2] - c[2]) < 6;
+  for (let i = 1; i < SCENES.length; i++) {
+    const a = SCENES[i - 1], b = SCENES[i];
+    for (let u = -F; u < F; u++) {
+      const x = i * CW + u, own = u < 0 ? a : b, other = u < 0 ? b : a;
+      const w = 0.5 * (1 - (Math.abs(u + 0.5) - 0.5) / F);   // ~0.5 at the seam, 0 at the band's edge
+      for (let y = GY; y < HH; y++) {
+        if (y >= ROAD_Y && y <= ROAD_Y + 10) continue;          // leave the highway alone
+        const at = ((y - GY) * WW + x) * 4, mine = baseRow(own, y);
+        const fleck = hex(GROUND[own][1]);
+        if (!same(at, mine) && !same(at, fleck)) continue;      // something's drawn here
+        if (BAYER[(y & 3) * 4 + (x & 3)] / 16 >= w) continue;
+        const c = baseRow(other, y);
+        d[at] = c[0]; d[at + 1] = c[1]; d[at + 2] = c[2];
+      }
+    }
+  }
+  ctx.putImageData(img, 0, GY);
+}
+
 // One continuous sky for the whole strip: each stop has its own time of day, and
 // neighbours fade into each other over a wide band, dithered like an old console.
 function paintSky(ctx: CanvasRenderingContext2D) {
@@ -94,6 +143,7 @@ export function drawStrip(ctx: CanvasRenderingContext2D) {
   const px: Px = (x, y, w, h, c) => { ctx.fillStyle = c; ctx.fillRect(Math.round(x), Math.round(y), w, h); };
 
   paintSky(ctx);
+  SCENES.forEach((sc, i) => { if (sc === "smoky") smokies(ctx, px, i * CW); });   // first, so the neighbours draw over its spill
   SCENES.forEach((sc, i) => {
     const x0 = i * CW, night = NIGHT.has(sc), [g1, g2] = GROUND[sc];
     eve = EVE.has(sc);
@@ -106,15 +156,16 @@ export function drawStrip(ctx: CanvasRenderingContext2D) {
     }
     if (sc === "venice") { px(x0 + 46, 6, 7, 7, "#ffe27a"); px(x0 + 47, 5, 5, 9, "#ffe27a"); px(x0 + 45, 7, 9, 5, "#ffe27a"); }
     if (sc === "vegas") { px(x0 + 50, 5, 5, 5, "#f4f0d0"); px(x0 + 52, 5, 3, 3, "#0b0a24"); }
-    if (sc === "smoky") smokies(ctx, px, x0);
-    // far-off ridgeline
-    else for (let x = 0; x < CW; x++) {
-      const t = x0 + x;
-      let h = 3 + 2 * Math.sin(t / 9) + 1.5 * Math.sin(t / 3.7);
-      let c = night ? "#2a2348" : eve ? "#6a4a6e" : "#8fb08a";
-      if (PEAKS.has(sc)) { h = 14 + 9 * Math.abs(Math.sin(t / 11)) + 3 * Math.sin(t / 4.1); c = "#7d8cab"; }
-      else if (MESAS.has(sc)) { h = Math.sin(t / 13) > 0.2 ? 12 : 4; c = night ? "#3a2a4a" : eve ? "#a8584a" : "#c98a62"; }
-      else if (FLAT.has(sc)) { h = 2; c = eve ? "#8a6a7a" : "#9ab8a0"; }
+    // far-off ridgeline, eased into the neighbours' ridgelines near the edges
+    if (sc !== "smoky") for (let x = 0; x < CW; x++) {
+      const t = x0 + x, nb = x < RF && i > 0 ? i - 1 : x >= CW - RF && i < SCENES.length - 1 ? i + 1 : -1;
+      let [h, c] = ridge(sc, t);
+      if (nb >= 0) {
+        const e = x < RF ? x : CW - 1 - x, w = 0.5 + 0.5 * (e / RF), k = 1 - w * w * (3 - 2 * w);
+        const [h2, c2] = ridge(SCENES[nb], t);
+        h += (h2 - h) * k;
+        c = lerpHex(c, c2, k);
+      }
       px(t, GY - Math.round(h), 1, Math.round(h), c);
       if (PEAKS.has(sc) && h > 19) px(t, GY - Math.round(h), 1, 2, "#f2f2f2");
     }
@@ -144,6 +195,7 @@ export function drawStrip(ctx: CanvasRenderingContext2D) {
     };
     drawScene(sc, x0 + LX, sceneY0(sc), clip, rnd);
   });
+  blendGround(ctx);
   // sundown light: warm the evening stops, feathered into their neighbours
   ctx.globalCompositeOperation = "multiply";
   SCENES.forEach((sc, i) => {
@@ -208,18 +260,23 @@ function smokies(ctx: CanvasRenderingContext2D, px: Px, x0: number) {
     px(sx - w, sy + dy, 2 * w + 1, 1, dy < -3 ? "#ffe08a" : dy < 2 ? "#ffb85a" : "#ff8a4a");
   }
   const LAYERS = ["#c8a0bc", "#9c86b0", "#6e6a98", "#47527c", "#2a3a58"];
+  const SPILL = 22;                                 // ridges run on into the next stops, thinning out
   LAYERS.forEach((c, k) => {
     const base = GY - 30 + k * 6, amp = 4 + k;
-    for (let x = 0; x < CW; x++) {
+    for (let x = -SPILL; x < CW + SPILL; x++) {
       const t = x0 + x, h = amp * (0.6 * Math.sin(t / (7 + k * 2) + k * 1.7) + 0.4 * Math.sin(t / (3.1 + k) + k));
-      const top = Math.round(base - h);
-      px(t, top, 1, GY - top, c);
+      const top = Math.round(base - h), out = x < 0 ? -x : x >= CW ? x - CW + 1 : 0;
+      if (!out) { px(t, top, 1, GY - top, c); continue; }
+      const keep = 1 - out / SPILL;
+      for (let y = top + Math.round((1 - keep) * 10); y < GY; y++)
+        if (BAYER[(y & 3) * 4 + (t & 3)] / 16 < keep) px(t, y, 1, 1, c);
     }
     if (k < LAYERS.length - 1) {                    // fog lying in the valley in front of this ridge
-      ctx.globalAlpha = 0.65 - k * 0.08;
-      px(x0, base + 2, CW, 3, "#f4dce4");
-      ctx.globalAlpha = 0.25;
-      px(x0, base + 1, CW, 1, "#f4dce4"); px(x0, base + 5, CW, 1, "#f4dce4");
+      const fog = ctx.createLinearGradient(x0 - SPILL, 0, x0 + CW + SPILL, 0);
+      fog.addColorStop(0, "rgba(244,220,228,0)"); fog.addColorStop(0.3, "#f4dce4"); fog.addColorStop(0.7, "#f4dce4"); fog.addColorStop(1, "rgba(244,220,228,0)");
+      ctx.fillStyle = fog;
+      ctx.globalAlpha = 0.65 - k * 0.08; ctx.fillRect(x0 - SPILL, base + 2, CW + 2 * SPILL, 3);
+      ctx.globalAlpha = 0.25; ctx.fillRect(x0 - SPILL, base + 1, CW + 2 * SPILL, 1); ctx.fillRect(x0 - SPILL, base + 5, CW + 2 * SPILL, 1);
       ctx.globalAlpha = 1;
     }
   });
