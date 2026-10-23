@@ -141,9 +141,9 @@
   .oqa-trip-grid { grid-template-columns: 1fr; }
 }
 @media (max-width: 900px) {
-  .oqa { --rail: 46px; }
-  .oqa-strip { width: 40px; border-width: 1px; }
-  .oqa-rail-here { width: 44px; font-size: 5px; }
+  .oqa { --rail: 56px; }
+  .oqa-strip { width: 48px; border-width: 1px; }
+  .oqa-rail-here { width: 54px; font-size: 5px; }
   .oqa-rail-end { font-size: 7px; }
         .oqa-top, .oqa-hero, .oqa-trip, .oqa-three, .oqa-film, .oqa-credits { padding-left: 14px; padding-right: 14px; }
   .oqa-hero { grid-template-columns: 1fr; gap: 26px; }

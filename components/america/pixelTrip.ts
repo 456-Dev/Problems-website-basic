@@ -1,5 +1,5 @@
 // Draws the 8-bit road trip strip: one little landscape per stop, top (LA) to
-// bottom (NYC), with a dirt road winding through all of them. Pure canvas, no assets.
+// bottom (NYC), with a highway winding through all of them. Pure canvas, no assets.
 
 export const W = 40;      // strip width in "pixels"
 export const SH = 64;     // height of one stop's landscape
@@ -31,6 +31,12 @@ const GROUND: Record<Scene, [string, string]> = {
   dc: ["#6aa04a", "#5d9041"], jersey: ["#4f7a3a", "#456b33"], liberty: ["#2f5f8a", "#28527a"],
 };
 
+// where the Rockies fire burns, in strip pixels (RoadRail animates flames there)
+export function fireSpot(): [number, number] {
+  const i = SCENES.indexOf("lake"), y0 = i * SH, L = roadX(y0 + SH / 2) > 20 ? 1 : 23;
+  return [L + 10, y0 + 52 - 21];
+}
+
 export const roadX = (y: number) => 20 + 9 * Math.sin(y / 23) + 3 * Math.sin(y / 7.3);
 
 type Px = (x: number, y: number, w: number, h: number, c: string) => void;
@@ -48,13 +54,13 @@ export function drawStrip(ctx: CanvasRenderingContext2D) {
     for (let k = 0; k < 70; k++) px(Math.floor(rnd() * W), y0 + Math.floor(rnd() * SH), 1, 1, g2);
   });
 
-  // the dirt road
+  // the highway: asphalt, white edge lines, dashed yellow center
   for (let y = 0; y < n * SH; y++) {
     const x = roadX(y);
-    px(x - 3, y, 7, 1, "#8b5a2b");
-    px(x - 4, y, 1, 1, "#6b4220");
-    px(x + 4, y, 1, 1, "#6b4220");
-    if (y % 5 === 0) px(x - 1 + ((y / 5) % 3), y, 1, 1, "#a8743e");
+    px(x - 4, y, 9, 1, "#3a3a3e");
+    px(x - 5, y, 1, 1, "#5a5a5e"); px(x + 5, y, 1, 1, "#5a5a5e");
+    px(x - 4, y, 1, 1, "#e8e8e8"); px(x + 4, y, 1, 1, "#e8e8e8");
+    if (y % 6 < 3) px(x, y, 1, 1, "#ffd23f");
   }
 
   // landmarks last, on whichever side the road isn't (L = left edge of a ~16px area)
@@ -90,7 +96,7 @@ function water(px: Px, y: number, h: number) {
   px(0, y, W, h, "#2f6fb0"); px(0, y + 1, W, 1, "#5f9fe0");
 }
 function bridge(px: Px, y: number, h: number) {
-  for (let yy = y - 1; yy < y + h + 1; yy++) px(roadX(yy) - 4, yy, 9, 1, yy % 2 ? "#9a6a3a" : "#7a4a22");
+  for (let yy = y - 1; yy < y + h + 1; yy++) { px(roadX(yy) - 6, yy, 13, 1, "#8a8a92"); px(roadX(yy) - 4, yy, 9, 1, "#3a3a3e"); if (yy % 6 < 3) px(roadX(yy), yy, 1, 1, "#ffd23f"); }
 }
 
 /* ---------- one scene per stop ---------- */
@@ -135,8 +141,10 @@ function drawScene(sc: Scene, L: number, y0: number, px: Px, rnd: () => number) 
       px(L + 5, b - 18, 1, 2, "#e0302f"); px(L + 10, b - 13, 1, 2, "#3a6fd8");
       pine(px, L + 2, b); pine(px, L + 13, b + 2);
       break;
-    case "lake":
+    case "lake": // the Rockies, with the wildfire from the film
+      for (let k = 0; k < 60; k++) { const r = rnd(); px(L + 8 + Math.floor(r * 8 + k / 10), y0 + 2 + Math.floor(k / 3), 2, 1, k % 3 ? "#9a9a9a" : "#c8c8c8"); }
       peak(px, L + 7, b - 32, 14); peak(px, L + 13, b - 26, 8, "#575c66");
+      px(L + 10, b - 20, 6, 3, "#3a2a22");
       px(L - 1, b - 14, 17, 8, "#2f6fb0"); px(L + 2, b - 12, 5, 1, "#7fb6e8"); px(L + 9, b - 10, 3, 1, "#7fb6e8");
       pine(px, L + 1, b - 3); pine(px, L + 13, b - 1);
       break;
