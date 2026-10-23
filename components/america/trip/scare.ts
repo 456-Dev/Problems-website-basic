@@ -2,12 +2,13 @@
 // the turbines' red dots), the van parks in the Tulsa hold, and while you keep scrolling RoadRail shows drawSeq full-frame:
 //   BLACK   nothing. Two red turbine dots blinking, then even those go out
 //   SMASH   the jump scare: full-bright red, the pool table, a break shot, the BEER neon. The Trade Winds
-//   LADY    the bartender, weathered but sweet, behind her bar. We ask her the three questions
-//   FOX     the TV over the bar: BREAKING, "DEMENTED PRESIDENT BIDEN"
-//   CRAZY   the regulars, rambling and screaming: a guy up on a chair
-//   FOX     again, closer: split screen, the podium
-//   CRAZY   again, outside by the motel doors, a woman in a bathrobe screaming at the night
-//   LAUGH   Jason, close up, laughing it all off
+//   LADY    the bartender (cap, glasses, flannel, her cat on the bar) with us filming her: Jason on camera, Michael on
+//           the mic. What makes her happy, and is she. Her real answers, as subtitles
+//   FOX     the TV over the bar: BREAKING, "DEMENTED PRESIDENT BIDEN", Parkinson's?
+//   CRAZY   the Trade Winds Inn lobby: the long-grey-haired guy in the TULSA tee ranting under MEETING ROOM & RESTROOMS
+//   FOX     again, closer: split screen, Biden and Harris walking through a crowd
+//   CRAZY   outside by the motel doors, a woman in a bathrobe screaming at the night
+//   LAUGH   Jason in the lobby under the TV, hands on his head, cracking up
 //   CALM    and then it's quiet. Sunrise over Tulsa
 // Chunky 96x96 pixels on a 384 canvas. Each cut remounts the canvas in RoadRail (white flash + shake), which is what
 // makes BLACK -> SMASH land as a scare.
@@ -15,7 +16,7 @@
 import { GLYPH } from "./kit";
 
 const N = 96;
-const CUTS = [0, 0.05, 0.1, 0.4, 0.48, 0.56, 0.64, 0.72, 0.86];   // where each panel starts, as a fraction of the hold
+const CUTS = [0, 0.05, 0.1, 0.46, 0.53, 0.6, 0.67, 0.74, 0.87];   // where each panel starts, as a fraction of the hold
 export const PANELS = CUTS.length;
 export const panelAt = (u: number) => { let k = 0; while (k < PANELS - 1 && u >= CUTS[k + 1]) k++; return k; };
 
@@ -23,7 +24,8 @@ const h1 = (n: number) => { n = Math.imul(n ^ (n >>> 16), 0x45d9f3b); n = Math.i
 const MORE: Record<string, string> = {
   J: "011001001101010", Z: "111001010100111", "!": "010010010000010", "?": "111001011000010", ".": "000000000000010",
   "0": "111101101101111", "1": "010110010010111", "2": "111001111100111", "3": "111001111001111", "4": "101101111001001",
-  "/": "001001010100100", ":": "000010000010000", "-": "000000111000000",
+  "/": "001001010100100", ":": "000010000010000", "-": "000000111000000", "'": "010010000000000", ",": "000000000010100",
+  "&": "010101010101011",
 };
 
 let last = -1, t0 = 0;                           // when the current panel came up (for the timed beats)
@@ -93,55 +95,89 @@ function smash(P: Pf, A: Af, txt: Tf, tw: Wf, t: number, tau: number) {
   A(Math.max(0, 0.8 - tau * 2), () => P(0, 0, N, N, "#ffffff"));                                // the flash
 }
 
-/* ---------- LADY: the bartender, and our three questions ---------- */
-const QS = ["WHAT IS ONE QUESTION YOU WOULD ASK EVERYONE IN AMERICA?", "ANSWER YOUR OWN QUESTION.", "ARE YOU HAPPY?"];
+/* ---------- LADY: the bartender. We ask, she answers (her real words, from the film) ---------- */
+// each beat: who's talking, the line, and her face while it's said
+const TALK: [0 | 1, string, "listen" | "smile" | "sad" | "wry"][] = [
+  [0, "WHAT MAKES YOU HAPPY?", "listen"],
+  [1, "CRITTERS.", "smile"],
+  [1, "WITH MY KIDS HAVING MENTAL HEALTH ISSUES,", "sad"],
+  [1, "I FEEL LIKE A FAILURE AS A PARENT.", "sad"],
+  [1, "SO I'VE GOT ALL THE DOGS, CATS...", "smile"],
+  [1, "I ALSO BREED EXOTICS.", "smile"],
+  [0, "WOULD YOU SAY THAT YOU'RE HAPPY?", "listen"],
+  [1, "AM I? FAKING IT.", "wry"],
+  [1, "IT'S JUST BEEN HARD.", "sad"],
+];
 function lady(P: Pf, A: Af, txt: Tf, tw: Wf, t: number, tau: number, v: number) {
-  const qn = Math.min(2, Math.floor(v * 3)), sub = v * 3 - qn;                                   // which question, and how far into it
-  // dark wood wall in red light, a shelf of bottles, the BEER neon
-  P(0, 0, N, N, "#2a0c08");
-  for (let y = 28; y < 62; y++) P(0, y, N, 1, y % 5 === 0 ? "#3a120a" : "#4a180c");
-  P(64, 40, 30, 2, "#1a0604"); for (let x = 65; x < 93; x += 3) P(x, 33 + (x % 2), 2, 7 - (x % 2), ["#3aa84a", "#e8a02a", "#e8e8e8", "#3a6ad8"][x % 4]);
-  { const on = Math.floor(t * 2) % 9 !== 0; A(on ? 0.3 : 0, () => P(2, 32, 22, 12, "#ff3a2a")); txt(5, 35, "BEER", on ? "#ffe0d0" : "#5a1a10"); }
-  // her: shoulder-length brown hair gone grey at the front, crow's feet, a sweet smile, a worn blue cardigan
-  const nod = sub > 0.5 ? Math.round(Math.sin(t * 5)) : 0, cx = 44, cy = 30 + nod, HR = "#5a3a24", GR = "#c8c8c8", SK = "#e8b494", LN = "#b47a5c";
-  P(cx - 11, cy, 22, 6, HR); P(cx - 8, cy - 2, 16, 2, HR); P(cx - 12, cy + 4, 4, 18, HR); P(cx + 8, cy + 4, 4, 18, HR);     // the hair
-  P(cx - 6, cy - 2, 4, 6, GR); P(cx - 9, cy + 1, 2, 4, GR); P(cx - 12, cy + 6, 1, 14, GR); P(cx + 3, cy - 1, 2, 3, GR); P(cx + 10, cy + 6, 1, 12, GR);   // the grey
-  P(cx - 8, cy + 4, 16, 16, SK); P(cx - 7, cy + 20, 14, 1, SK); P(cx - 5, cy + 21, 10, 1, SK);              // the face
-  P(cx - 8, cy + 4, 7, 2, HR); P(cx - 6, cy + 4, 3, 1, GR);                                             // a swoop of fringe
-  P(cx - 6, cy + 7, 4, 1, "#7a5a44"); P(cx + 2, cy + 7, 4, 1, "#7a5a44");                                // brows
-  for (const ex of [cx - 6, cx + 2]) { P(ex, cy + 10, 1, 1, "#2a1a14"); P(ex + 1, cy + 9, 2, 1, "#2a1a14"); P(ex + 3, cy + 10, 1, 1, "#2a1a14"); }   // eyes, smiling shut
-  P(cx - 8, cy + 9, 1, 1, LN); P(cx - 8, cy + 11, 1, 1, LN); P(cx + 7, cy + 9, 1, 1, LN); P(cx + 7, cy + 11, 1, 1, LN);   // crow's feet
-  P(cx - 1, cy + 11, 2, 3, "#d49a7a");                                                                  // nose
-  P(cx - 6, cy + 13, 1, 3, LN); P(cx + 5, cy + 13, 1, 3, LN);                                           // smile lines
-  P(cx - 7, cy + 12, 2, 2, "#e8a088"); P(cx + 5, cy + 12, 2, 2, "#e8a088");                            // cheeks, soft
-  const talk = sub > 0.55 && Math.floor(t * 6) % 2 === 0;
-  if (talk) { P(cx - 3, cy + 15, 6, 3, "#5a1a10"); P(cx - 3, cy + 15, 6, 1, "#f2f2f2"); }
-  else { P(cx - 3, cy + 16, 6, 1, "#8a2a1a"); P(cx - 4, cy + 15, 1, 1, "#8a2a1a"); P(cx + 3, cy + 15, 1, 1, "#8a2a1a"); }   // that smile
-  P(cx - 3, cy + 22, 6, 2, "#d8a284");                                                                  // neck
-  for (let y = cy + 24; y < 62; y++) { const ww = Math.min(17, 8 + (y - cy - 24) * 1.8); P(cx - ww, y, ww * 2, 1, (y % 3) ? "#3a5a8a" : "#33507a"); }   // the cardigan
-  P(cx - 4, cy + 24, 8, 38 - cy, "#5a8a5a"); P(cx - 3, cy + 24, 6, 1, "#d8a284");                       // a worn green tee under it
-  for (let y = cy + 27; y < 60; y += 4) P(cx - 6, y, 1, 1, "#e8e8e8");                                  // buttons
-  // the bar top, the TIP jar, a rag
-  P(0, 60, N, 6, "#6a2a14"); P(0, 60, N, 1, "#c8683a"); P(0, 66, N, 10, "#3a1408");
-  P(66, 50, 12, 10, "#c8e0e8"); P(67, 50, 10, 1, "#ffffff"); txt(67, 53, "TIP", "#1a1a1a"); P(69, 57, 3, 2, "#3a9a3a"); P(73, 56, 2, 3, "#3a9a3a");
-  { const wv = Math.sin(t * 3) * 1; P(24 + wv, 57, 10, 3, "#e8e8e8"); P(25 + wv, 58, 8, 1, "#c8c8c8"); }
-  // down front, the pool table's corner and the dog asleep under it
-  P(0, 76, N, 20, "#1a0806");
-  P(0, 78, 44, 5, "#14883a"); P(0, 77, 44, 1, "#7a3a1a"); P(0, 83, 44, 2, "#4a1a0a"); P(40, 85, 3, 11, "#3a1208");
-  P(10, 79, 3, 3, "#ffd23f"); P(26, 80, 3, 2, "#ffffff"); P(34, 79, 3, 3, "#2a5ad8");
-  { const br = Math.floor(t * 1.2) % 2; P(12, 89 - br, 16, 5 + br, "#c88a4a"); P(26, 87, 7, 6, "#c88a4a"); P(31, 89, 3, 2, "#1a1a1a"); P(26, 87, 2, 5, "#7a4a22"); P(29, 89, 2, 1, "#3a1a0a"); P(10, 92, 3, 1, "#c88a4a");
-    if (Math.floor(t * 0.7) % 3 === 0) { txt(34, 82, "Z", "#ffffff"); } }
-  // the question box up top, typed out as you scroll
-  const rows = wrap(QS[qn], 22), shown = Math.ceil(Math.min(1, sub * 2.2) * QS[qn].length);
-  P(0, 0, N, 8 + rows.length * 6 + 3, "#0a0a14"); P(0, 8 + rows.length * 6 + 3, N, 1, "#ffd23f");
-  P(2, 2, 11, 7, "#ffd23f"); txt(3, 3, "Q" + (qn + 1), "#111"); txt(16, 3, (qn + 1) + "/3", "#8a8aa8");
-  let used = 0; rows.forEach((r, i) => { const n = Math.max(0, Math.min(r.length, shown - used)); used += r.length + 1; txt(3, 11 + i * 6, r.slice(0, n), "#ffffff"); });
-  // her answer: a speech bubble, the dots going (her words are hers)
-  if (sub > 0.5) {
-    const bx = 60, by = 14 + rows.length * 6 + 1;
-    P(bx, by, 22, 9, "#ffffff"); P(bx - 2, by + 6, 3, 3, "#ffffff"); P(bx - 3, by + 8, 2, 2, "#ffffff");
-    for (let d = 0; d < 3; d++) if (Math.floor(t * 4) % 4 > d) P(bx + 4 + d * 5, by + 4, 3, 2, "#2a2a2a");
-  }
+  const bn = Math.min(TALK.length - 1, Math.floor(v * TALK.length)), sub = v * TALK.length - bn, [who, line, mood] = TALK[bn];
+  // dark wood wall, a red glow, the back shelf of liquor, the little signs
+  P(0, 0, N, N, "#2a100a");
+  for (let x = 0; x < N; x += 8) P(x, 0, 1, 58, "#1e0a06");
+  A(0.18, () => P(0, 0, N, 58, "#ff3a2a"));
+  for (const sy of [12, 26]) { P(60, sy + 7, 36, 2, "#120604"); for (let x = 61; x < 95; x += 3) P(x, sy + (x % 2), 2, 7 - (x % 2), ["#3aa84a", "#e8a02a", "#e8e8e8", "#7a3a1a", "#3a6ad8"][x % 5]); }
+  P(2, 4, 30, 9, "#f2f2f2"); txt(5, 6, "WE I.D.", "#c80a0a");
+  P(1, 16, 38, 15, "#ffd23f"); txt(3, 18, "WE ACCEPT", "#111"); txt(3, 24, "CASH", "#111"); P(20, 24, 6, 5, "#3a9a3a");
+  // her: around 50, glasses, a faded red cap, a red-and-grey flannel
+  const cx = 50, cy = 18 + (who === 1 && sub > 0.3 ? Math.round(Math.sin(t * 4)) : 0), SK = "#e8b494", LN = "#b47a5c", HR = "#6a4a30";
+  P(cx - 12, cy + 6, 4, 20, HR); P(cx + 8, cy + 6, 4, 20, HR);                                        // hair down past the cap
+  P(cx - 8, cy + 6, 16, 18, SK); P(cx - 7, cy + 24, 14, 1, SK); P(cx - 5, cy + 25, 10, 1, SK);          // the face
+  P(cx - 10, cy - 1, 20, 8, "#a8453c"); P(cx - 8, cy - 3, 16, 2, "#a8453c"); P(cx - 4, cy - 2, 6, 3, "#b85a4a");   // the cap, sun-faded
+  P(cx - 12, cy + 6, 24, 2, "#7a2e26");                                                              // the brim
+  const sad = mood === "sad";
+  P(cx - 7, cy + 9 + (sad ? 1 : 0), 5, 1, "#6a4a32"); P(cx + 2, cy + 9 + (sad ? 1 : 0), 5, 1, "#6a4a32");   // brows
+  if (sad) { P(cx - 3, cy + 9, 1, 1, "#6a4a32"); P(cx + 2, cy + 9, 1, 1, "#6a4a32"); }                 // knit up in the middle
+  for (const gx of [cx - 8, cx + 1]) { P(gx, cy + 11, 7, 1, "#2a2a2a"); P(gx, cy + 15, 7, 1, "#2a2a2a"); P(gx, cy + 11, 1, 5, "#2a2a2a"); P(gx + 6, cy + 11, 1, 5, "#2a2a2a"); }   // glasses
+  P(cx - 1, cy + 12, 2, 1, "#2a2a2a");
+  const look = mood === "wry" ? 1 : 0;                                                                // she looks down and away on "faking it"
+  if (mood === "smile") { for (const ex of [cx - 6, cx + 3]) { P(ex, cy + 14, 1, 1, "#2a1a14"); P(ex + 1, cy + 13, 1, 1, "#2a1a14"); P(ex + 2, cy + 14, 1, 1, "#2a1a14"); } }
+  else { P(cx - 5, cy + 13 + look, 2, 2, "#2a1a14"); P(cx + 4, cy + 13 + look, 2, 2, "#2a1a14"); }
+  P(cx - 9, cy + 13, 1, 1, LN); P(cx - 9, cy + 15, 1, 1, LN); P(cx + 8, cy + 13, 1, 1, LN); P(cx + 8, cy + 15, 1, 1, LN);   // crow's feet
+  P(cx - 1, cy + 16, 2, 3, "#d49a7a");                                                               // nose
+  P(cx - 6, cy + 18, 1, 3, LN); P(cx + 5, cy + 18, 1, 3, LN);                                        // lines
+  if (mood === "sad" && bn === TALK.length - 1) { const d = (t * 0.6) % 1; P(cx + 4, cy + 16 + d * 5, 1, 2, "#7ac8f8"); }   // just one tear
+  const talking = who === 1 && sub > 0.2 && Math.floor(t * 6) % 2 === 0, my = cy + 21;
+  if (talking) { P(cx - 3, my - 1, 6, 3, "#5a1a10"); P(cx - 3, my - 1, 6, 1, "#f2f2f2"); }
+  else if (mood === "smile") { P(cx - 3, my, 6, 1, "#8a2a1a"); P(cx - 4, my - 1, 1, 1, "#8a2a1a"); P(cx + 3, my - 1, 1, 1, "#8a2a1a"); }
+  else if (mood === "sad") { P(cx - 3, my, 6, 1, "#8a2a1a"); P(cx - 4, my + 1, 1, 1, "#8a2a1a"); P(cx + 3, my + 1, 1, 1, "#8a2a1a"); }
+  else if (mood === "wry") { P(cx - 3, my, 6, 1, "#8a2a1a"); P(cx + 3, my - 1, 1, 1, "#8a2a1a"); }
+  else P(cx - 3, my, 6, 1, "#8a2a1a");
+  P(cx - 3, cy + 26, 6, 2, "#d8a284");                                                               // neck
+  for (let y = cy + 27; y < 60; y++) { const ww = Math.min(18, 8 + (y - cy - 27) * 2);               // the flannel: red, grey checks
+    for (let x = -ww; x < ww; x++) P(cx + x, y, 1, 1, (x + 40) % 6 < 2 && y % 6 < 2 ? "#4a1a16" : (x + 40) % 6 < 2 || y % 6 < 2 ? "#8a8a8e" : "#b83a30"); }
+  P(cx - 2, cy + 27, 4, 4, "#d8a284"); P(cx - 5, cy + 27, 3, 3, "#c8c8cc"); P(cx + 2, cy + 27, 3, 3, "#c8c8cc");   // open collar
+  // the bar: TIP jar, a beer, a plastic cup, and the critters
+  P(0, 58, N, 5, "#4a2414"); P(0, 58, N, 1, "#8a4a26"); P(0, 63, N, 33, "#1e0c06");
+  P(20, 42, 13, 16, "#c8e0e8"); P(21, 41, 11, 2, "#f2f2f2"); txt(21, 46, "TIP", "#1a1a1a"); P(22, 53, 4, 3, "#3a9a3a"); P(27, 52, 3, 4, "#3a9a3a"); P(25, 50, 3, 2, "#3a9a3a");
+  P(37, 48, 3, 10, "#6a3a10"); P(38, 45, 1, 3, "#6a3a10"); P(37, 51, 3, 3, "#e8d070");             // a beer
+  P(42, 51, 5, 7, "#d8e8f0"); P(42, 51, 5, 1, "#ffffff");                                            // a plastic cup
+  { const tail = Math.round(Math.sin(t * 2) * 1.5), bl = Math.floor(t * 0.5) % 5 === 0;              // the cat, curled on the bar
+    P(64, 52, 14, 6, "#8a8a8a"); P(74, 48, 7, 6, "#8a8a8a"); P(74, 46, 2, 2, "#8a8a8a"); P(79, 46, 2, 2, "#8a8a8a");
+    for (let x = 65; x < 75; x += 3) P(x, 52, 1, 6, "#5a5a5a"); P(75, 50, 1, bl ? 1 : 2, "#3a8a3a"); P(78, 50, 1, bl ? 1 : 2, "#3a8a3a"); P(76, 52, 2, 1, "#e8a088");
+    P(60, 55 + tail, 5, 2, "#8a8a8a"); }
+  if (bn >= 4) { const sx = 20 + Math.round(Math.sin(t * 1.5) * 1);                                  // and one of her exotics, a little lizard, up on the TIP jar
+    P(sx, 38, 10, 2, "#6aaa3a"); P(sx + 10, 37, 4, 3, "#6aaa3a"); P(sx + 12, 37, 1, 1, "#111"); P(sx - 4, 39, 4, 1, "#5a9a2a");
+    P(sx + 1, 40, 1, 1, "#5a9a2a"); P(sx + 8, 40, 1, 1, "#5a9a2a"); for (let x = sx; x < sx + 10; x += 2) P(x, 37, 1, 1, "#ffd23f"); }
+  // us, in the foreground: Jason with the camera on his shoulder (left), Michael in the grey suit with the mic (right)
+  { const b = Math.round(Math.sin(t * 2) * 0.6);
+    for (let y = 76; y < N; y++) { const ww = Math.min(22, 12 + (y - 76) * 2); P(10 - ww, y + b, ww * 2 + 6, 1, "#2a8a3a"); }   // Jason's shoulders, green tee
+    P(-2, 52 + b, 22, 26, "#2a1a10"); P(1, 49 + b, 16, 4, "#2a1a10"); P(3, 48 + b, 10, 1, "#8a6a4a"); P(1, 49 + b, 2, 1, "#8a6a4a"); P(15, 49 + b, 2, 1, "#8a6a4a"); P(19, 52 + b, 1, 8, "#8a6a4a");   // the back of his head, lit from the bar
+    P(17, 62 + b, 3, 7, "#e8b898"); P(13, 74 + b, 8, 4, "#e0aa88");                                    // ear, neck
+    P(16, 56 + b, 26, 13, "#3a3a44"); P(16, 56 + b, 26, 1, "#7a7a86"); P(20, 52 + b, 14, 4, "#1a1a1e"); P(24, 60 + b, 10, 5, "#26262c");   // the camera on his shoulder
+    P(42, 57 + b, 8, 10, "#1a1a1e"); P(49, 58 + b, 2, 8, "#3a6ad8"); P(13, 59 + b, 4, 5, "#1a1a1e");       // lens, eyepiece
+    if (Math.floor(t * 2) % 2) P(36, 58 + b, 2, 2, "#ff2a1a");                                         // REC
+    P(40, 67 + b, 6, 4, "#e8b898"); }                                                                  // his hand on the lens
+  { const b = Math.round(Math.sin(t * 2 + 1) * 0.6);
+    P(66, 80 + b, 30, 16, "#8a8a92"); P(70, 78 + b, 26, 3, "#8a8a92"); P(78, 78 + b, 6, 6, "#f2f2f2"); P(77, 80 + b, 1, 16, "#6a6a72");   // grey suit, white shirt
+    P(78, 50 + b, 18, 10, "#2e1e12"); P(86, 56 + b, 10, 22, "#2e1e12"); P(78, 50 + b, 14, 1, "#8a6a4a");   // Michael, three-quarter from behind: hair
+    P(74, 56 + b, 13, 18, "#e0b090"); P(72, 62 + b, 2, 4, "#e0b090"); P(87, 61 + b, 3, 5, "#d49a7a");     // face, nose, ear
+    P(74, 68 + b, 14, 11, "#4a2e1c"); P(76, 66 + b, 8, 2, "#4a2e1c"); P(77, 61 + b, 2, 2, "#2a1a14"); P(75, 59 + b, 5, 1, "#3a2414");   // the beard, an eye, a brow
+    for (let k = 0; k < 9; k++) P(68 - k * 1.3, 82 - k * 1.8 + b, 5, 5, "#8a8a92");                       // his arm, out toward her
+    P(55, 63 + b, 5, 4, "#e0b090"); P(54, 58 + b, 3, 6, "#1a1a1a"); P(52, 54 + b, 6, 5, "#9a9aa0"); P(53, 55 + b, 3, 2, "#c8c8d0"); }   // hand, the mic
+  // the subtitles, burned in at the bottom: us in yellow, her in white, typed out as you scroll
+  const rows = wrap(line, 23), shown = Math.ceil(Math.min(1, sub * 3) * line.length), top = N - rows.length * 6 - 5;
+  A(0.85, () => P(0, top, N, N - top, "#000"));
+  let used = 0; rows.forEach((r, i) => { const n = Math.max(0, Math.min(r.length, shown - used)); used += r.length + 1;
+    txt(48 - tw(r) / 2, top + 3 + i * 6, r.slice(0, n), who === 0 ? "#ffd23f" : "#ffffff"); });
 }
 
 /* ---------- FOX: the bar TV. Shared pieces ---------- */
@@ -177,7 +213,7 @@ function fox1(P: Pf, A: Af, txt: Tf, tw: Wf, t: number) {
   for (let k = 0; k < 10; k++) P(X + 4 + k * 8, Y + 4 + (k % 3) * 3, 1, 1, "#8ab0ff");
   anchor(P, t, X + 36, Y + 6, "#f0d060", "#c80a0a");                                            // blonde, red dress
   P(X, Y + 32, SW, 6, "#0a0a2a"); P(X, Y + 32, SW, 1, "#3a6ad8");                               // the desk
-  lowerThird(P, txt, tw, t, X, Y + 34, SW, ["DEMENTED", "PRESIDENT BIDEN"], "DEMENTED PRESIDENT BIDEN   WHO IS RUNNING THE COUNTRY?   STAY WITH US   ");
+  lowerThird(P, txt, tw, t, X, Y + 34, SW, ["DEMENTED", "PRESIDENT BIDEN"], "DEMENTED PRESIDENT BIDEN   TESTED FOR PARKINSON'S?   WHO IS RUNNING THE COUNTRY?   ");
   foxBug(P, txt, X + SW - 21, Y + 2);
   P(0, 4, 6, 70, "#0a0a0a"); P(90, 4, 6, 70, "#0a0a0a"); P(0, 72, N, 2, "#0a0a0a");                                         // the bezel over the ticker's ends
   // its blue glow on the bar, the backs of heads watching
@@ -185,7 +221,7 @@ function fox1(P: Pf, A: Af, txt: Tf, tw: Wf, t: number) {
   for (let k = 0; k < 4; k++) { const x = 6 + k * 24; P(x, 85, 14, 11, "#060608"); P(x + 3, 78, 8, 8, "#060608"); A(0.5, () => P(x + 3, 78, 8, 2, "#5a7aff")); }
 }
 
-/* ---------- FOX 2: closer, split screen, the podium ---------- */
+/* ---------- FOX 2: closer, split screen, Biden and Harris walking through a crowd ---------- */
 function fox2(P: Pf, A: Af, txt: Tf, tw: Wf, t: number) {
   for (let y = 0; y < N; y++) P(0, y, N, 1, y < 48 ? "#0a1a5a" : "#14287a");
   // left box: the anchor, a guy, close and furious
@@ -195,14 +231,17 @@ function fox2(P: Pf, A: Af, txt: Tf, tw: Wf, t: number) {
     P(x + 4, y + 10, 5, 4, "#ffffff"); P(x + 16, y + 10, 5, 4, "#ffffff"); P(x + 6, y + 11, 2, 2, "#111"); P(x + 17, y + 11, 2, 2, "#111");
     const m = Math.floor(t * 9) % 3; P(x + 8, y + 18, 10, 2 + m, "#6a1020"); P(x + 8, y + 18, 10, 1, "#ffffff");
     P(x - 4, y + 25, 34, 18, "#1a1a2a"); P(x + 9, y + 25, 8, 8, "#f0f0f0"); P(x + 12, y + 26, 2, 12, "#2a5ad8"); }
-  // right box: LIVE, the podium, the seal
-  P(50, 4, 44, 52, "#3a3a4a"); P(51, 5, 42, 50, "#5a6a8a");
-  for (let y = 5; y < 55; y += 4) P(51, y, 42, 1, "#4a5a7a");
-  P(64, 18, 16, 14, "#f0c8a8"); P(63, 14, 18, 6, "#e8e8e8"); P(67, 23, 3, 1, "#3a2a2a"); P(74, 23, 3, 1, "#3a2a2a"); P(69, 28, 6, 1, "#8a4a4a");
-  P(58, 32, 28, 23, "#1a1a2a"); P(70, 32, 4, 6, "#f0f0f0");
-  P(60, 40, 24, 15, "#6a3a1a"); P(66, 43, 12, 9, "#0a2a6a"); P(68, 45, 8, 5, "#c8a040");          // the podium, the seal
+  // right box: the footage, the two of them walking through a crowd, cameras up
+  P(50, 4, 44, 52, "#3a3a4a"); P(51, 5, 42, 50, "#6a8aa8");
+  for (let k = 0; k < 9; k++) { const x = 52 + h1(k * 5) * 36, y = 34 + h1(k * 3) * 8; P(x, y, 5, 26, "#2a2a3a"); P(x + 1, y - 4, 4, 4, ["#c89a7a", "#6a4028", "#f0c8a0"][k % 3]); }   // the crowd
+  const st = Math.floor(t * 3) % 2;
+  P(60, 22, 8, 8, "#f0c8a8"); P(59, 20, 10, 3, "#f2f2f2"); P(61, 25, 2, 1, "#3a2a2a"); P(65, 25, 2, 1, "#3a2a2a");   // him: white hair
+  P(58, 30, 12, 22, "#1a2a4a"); P(62, 30, 4, 4, "#f2f2f2"); P(59, 52, 4, 7, "#1a1a2a"); P(65, 52 - st, 4, 7, "#1a1a2a");
+  P(76, 24, 8, 8, "#c89a7a"); P(75, 22, 10, 3, "#1a1a1a"); P(75, 24, 2, 8, "#1a1a1a"); P(77, 27, 2, 1, "#2a1a1a"); P(81, 27, 2, 1, "#2a1a1a");   // her: dark hair
+  P(74, 32, 12, 20, "#3a3a4a"); P(78, 32, 4, 3, "#f2f2f2"); P(75, 52, 4, 7, "#1a1a2a"); P(81, 52 - (1 - st), 4, 7, "#1a1a2a");
+  if (Math.floor(t * 4) % 5 === 0) A(0.6, () => P(52 + h1(Math.floor(t * 4)) * 36, 10, 4, 4, "#ffffff"));   // a camera flash
   P(53, 7, 15, 7, "#c80a0a"); txt(54, 8, "LIVE", "#ffffff");
-  const end = lowerThird(P, txt, tw, t, 0, 58, N, ["IS DEMENTED BIDEN", "FIT TO SERVE?"], "DEMENTED PRESIDENT BIDEN   CONFUSED AGAIN   MORE AT 11   ");
+  const end = lowerThird(P, txt, tw, t, 0, 58, N, ["BIDEN: PARKINSON'S?", "TESTED OR TREATED?"], "DEMENTED PRESIDENT BIDEN   PARKINSON'S DISEASE?   MORE AT 11   ");
   P(0, end, N, N - end, "#06061a");
   foxBug(P, txt, 74, 6);
   A(0.12, () => P(0, 0, N, N, "#2a3aff"));                                                       // the TV glare
@@ -225,29 +264,36 @@ function shout(txt: Tf, tw: Wf, t: number, x: number, y: number, s: string, c: s
   txt(x + jx + 1, y + jy + 1, s, "#000", sc); txt(x + jx, y + jy, s, c, sc);
 }
 
-/* ---------- CRAZY 1: the bar goes off, a guy up on a chair ---------- */
+/* ---------- CRAZY 1: the Trade Winds Inn lobby, the guy with the lanyard, ranting ---------- */
 function crazy1(P: Pf, A: Af, txt: Tf, tw: Wf, t: number, tau: number, v: number) {
-  P(0, 0, N, N, "#3a0806");
-  for (let y = 0; y < 50; y++) P(0, y, N, 1, y % 6 === 0 ? "#4a0e08" : "#5a120a");
-  { const on = Math.floor(t * 3) % 5 !== 0; if (on) { A(0.25, () => P(70, 22, 22, 12, "#ff3a2a")); txt(73, 25, "BEER", "#ffe0d0"); } }
-  P(0, 50, N, 46, "#2a0806");
-  // the guy on the chair, arms thrown up, screaming at the ceiling
-  const bob = Math.round(Math.abs(Math.sin(t * 7)) * -2);
-  P(38, 84, 22, 3, "#6a3a1a"); P(39, 87, 2, 9, "#4a2210"); P(57, 87, 2, 9, "#4a2210");          // the chair
-  P(42, 66 + bob, 5, 18, "#2a3a6a"); P(51, 66 + bob, 5, 18, "#2a3a6a");                           // jeans
-  P(40, 42 + bob, 18, 25, "#e8e8e8"); P(40, 42 + bob, 18, 2, "#c8c8c8");                          // undershirt
-  const fl = Math.round(Math.sin(t * 11) * 3);
-  P(33, 26 + bob + fl, 5, 18, "#e8b090"); P(60, 26 + bob - fl, 5, 18, "#e8b090");               // arms up
-  P(32, 22 + bob + fl, 7, 5, "#e8b090"); P(59, 22 + bob - fl, 7, 5, "#e8b090");
-  scream(P, t, 49, 32 + bob, 10, "#e8b090", "#6a6a6a", 0);
-  // a woman down left yelling at him, a bald guy right yelling at the TV
-  scream(P, t, 14, 62, 9, "#c88a6a", "#2a1a10", 2.1); P(4, 71, 20, 25, "#2a8a8a");
-  scream(P, t, 82, 58, 9, "#f0c0a0", "#f0c0a0", 4.3); P(72, 67, 20, 29, "#3a5a2a"); P(90, 50, 6, 3, "#f0c0a0");
-  // what they're yelling, changing as you scroll
-  const said = [["WAKE UP!", "THE WINDS!!"], ["THEY KNOW!", "AAAAH!"], ["LISTEN!!", "NO NO NO!"]][Math.min(2, Math.floor(v * 3))];
-  shout(txt, tw, t, 48 - tw(said[0], 2) / 2, 3, said[0], "#ffd23f", 2, 0);
-  shout(txt, tw, t, 2, 46, said[1], "#ffffff", 1, 1.4);
-  shout(txt, tw, t, 66, 42, "HEY!!", "#5af0ff", 1, 2.7);
+  lobby(P);
+  P(2, 4, 54, 17, "#3a2414"); P(3, 5, 52, 15, "#5a3a20"); txt(6, 7, "MEETING ROOM", "#f2f2f2"); txt(6, 13, "& RESTROOMS", "#f2f2f2");   // the sign
+  P(50, 13, 3, 1, "#f2f2f2"); P(52, 12, 1, 3, "#f2f2f2");                                          // and its arrow
+  P(68, 56, 28, 26, "#5a3a20"); P(66, 54, 30, 3, "#7a4a26"); P(84, 50, 5, 3, "#c8a040"); P(86, 49, 1, 1, "#e8e8e8");   // the front desk, a bell
+  // him: long grey hair, a grey beard, a black TULSA tee, a lanyard, going on and on
+  const cx = 38, bob = Math.round(Math.sin(t * 6) * 1), cy = 38 + bob;
+  P(cx - 13, cy - 4, 26, 30, "#b8b8bc");                                                            // the long grey hair behind
+  for (let y = 54 + bob; y < 84; y++) { const ww = Math.min(19, 13 + (y - 54 - bob) * 0.8); P(cx - ww, y, ww * 2, 1, "#1a1a1e"); }   // the tee
+  P(cx - 5, 54 + bob, 2, 8, "#2a5ad8"); P(cx + 3, 54 + bob, 2, 8, "#2a5ad8"); P(cx - 3, 61 + bob, 6, 2, "#2a5ad8"); P(cx - 4, 63 + bob, 8, 6, "#f2f2f2"); P(cx - 3, 64 + bob, 6, 1, "#2a5ad8");   // lanyard, badge
+  txt(cx - tw("TULSA") / 2, 72 + bob, "TULSA", "#ffd23f"); P(cx - 9, 78 + bob, 18, 1, "#ffd23f"); P(cx + 9, 77 + bob, 2, 1, "#ffd23f");   // the script, underlined
+  scream(P, t, cx, cy, 10, "#e8b494", "#b8b8bc", 0.7);
+  P(cx - 7, cy + 4, 14, 10, "#c8c8cc"); { const mo = 2 + Math.floor(t * 9) % 3; P(cx - 3, cy + 4, 6, mo, "#3a0606"); }   // beard, mouth going in it
+  // arms: one jabbing a finger at us, one waving at the sign
+  const jab = Math.round(Math.sin(t * 10) * 2), wv = Math.round(Math.sin(t * 7) * 3);
+  P(cx + 16, 58 + bob, 14 + jab, 5, "#e8b494"); P(cx + 30 + jab, 57 + bob, 5, 2, "#e8b494");
+  P(cx - 22, 40 + wv, 5, 18, "#e8b494"); P(cx - 23, 36 + wv, 7, 5, "#e8b494");
+  for (let k = 0; k < 3; k++) { const u = (t * 1.5 + k / 3) % 1; A(1 - u, () => P(cx + 12 + u * 10, cy - 2 - u * 6, 1, 1, "#ffffff")); }   // spit flying
+  // the rant, scrolling on
+  const said = [["LISTEN!", "AND ANOTHER THING"], ["NO NO NO!", "YOU KNOW WHAT?"], ["WAIT!!", "LET ME TELL YOU"]][Math.min(2, Math.floor(v * 3))];
+  P(0, 84, N, 12, "#000");
+  shout(txt, tw, t, 4, 86, said[0], "#ffd23f", 2, 0);
+  shout(txt, tw, t, 94 - tw(said[1]), 26, said[1], "#ffffff", 1, 1.4);
+}
+// the Trade Winds Inn lobby: grey-blue walls, wood wainscot, worn red carpet
+function lobby(P: Pf) {
+  P(0, 0, N, N, "#4a6474"); for (let x = 0; x < N; x += 12) P(x, 0, 1, 50, "#42596a");
+  P(0, 50, N, 30, "#4a2c18"); P(0, 50, N, 2, "#6a4026"); for (let x = 4; x < N; x += 10) P(x, 54, 1, 26, "#3a2212");
+  P(0, 80, N, 16, "#5a1a1e"); for (let x = 0; x < N; x += 6) P(x + (x % 12 ? 2 : 0), 84, 2, 1, "#6a2a2a");
 }
 
 /* ---------- CRAZY 2: out by the motel doors, a bathrobe screaming at the night ---------- */
@@ -278,38 +324,40 @@ function crazy2(P: Pf, A: Af, txt: Tf, tw: Wf, t: number, tau: number, v: number
   shout(txt, tw, t, 94 - tw(said[1]), 24, said[1], "#ffffff", 1, 2.2);
 }
 
-/* ---------- LAUGH: Jason, close up, laughing it all off ---------- */
+/* ---------- LAUGH: Jason under the lobby TV, hands on his head, cracking up ---------- */
 function laugh(P: Pf, A: Af, txt: Tf, tw: Wf, t: number, tau: number, v: number) {
-  // morning in the window behind him: blue sky, the sun coming up gold
-  for (let y = 0; y < N; y++) P(0, y, N, 1, ["#2a6ad8", "#3a7ae8", "#4a8af0", "#6aa8f8", "#ffc83a", "#ffb02a"][Math.min(5, Math.floor(y / 14))]);
-  for (let k = 0; k < 10; k++) { const th = (k / 10) * Math.PI * 2 + t * 0.3; for (let r = 40; r < 70; r += 3) P(84 + Math.cos(th) * r, 70 + Math.sin(th) * r, 1, 1, "#ffe25a"); }
-  P(0, 0, 4, N, "#1a1a1a"); P(92, 0, 4, N, "#1a1a1a"); P(0, 0, N, 3, "#1a1a1a");                  // the van window frame
-  const sx = Math.round(Math.sin(t * 19) * 1.5), sy = Math.round(Math.abs(Math.sin(t * 9)) * -2);   // shaking with it
-  const cx = 48 + sx, cy = 44 + sy;
+  lobby(P);
+  // the TV up on the wall, still going about Biden
+  P(22, 1, 52, 30, "#0a0a0a"); P(24, 3, 48, 26, "#0a1a5a"); P(44, 6, 10, 9, "#f0c0a0"); P(43, 5, 12, 3, "#5a3a1a"); P(41, 14, 16, 8, "#1a1a2a");
+  P(24, 17, 48, 6, Math.floor(t * 2) % 2 ? "#e01a1a" : "#c80a0a"); txt(26, 18, "BREAKING", "#ffffff"); P(24, 23, 48, 6, "#ffffff"); txt(26, 24, "BIDEN", "#0a1a4a");
+  P(58, 5, 12, 7, "#0a2a7a"); txt(59, 6, "FOX", "#ffffff");
+  A(0.15, () => P(10, 31, 76, 30, "#5a7aff"));                                                     // its glow on him
+  const sx = Math.round(Math.sin(t * 19) * 1.5), sy = Math.round(Math.abs(Math.sin(t * 9)) * -2), cx = 48 + sx, cy = 58 + sy;   // shaking with it
   // the green CUMMINS tee, the red C
-  for (let y = 70; y < N; y++) { const ww = 30 + (y - 70) * 0.8; P(48 - ww + sx, y + sy, ww * 2, 1, "#2a8a3a"); }
-  P(40 + sx, 68 + sy, 16, 5, "#e8b898"); P(38 + sx, 70 + sy, 20, 2, "#1e6a2c");
-  P(40 + sx, 77 + sy, 16, 13, "#d81a1a"); P(44 + sx, 81 + sy, 12, 5, "#2a8a3a");   // the C
+  for (let y = 76; y < N; y++) { const ww = 26 + (y - 76) * 1.2; P(48 - ww + sx, y + sy, ww * 2, 1, "#2a8a3a"); }
+  P(42 + sx, 74 + sy, 12, 4, "#e8b898"); P(40 + sx, 76 + sy, 16, 2, "#1e6a2c");
+  P(41 + sx, 80 + sy, 14, 10, "#d81a1a"); P(45 + sx, 83 + sy, 10, 4, "#2a8a3a");                  // the C
   txt(48 - tw("CUMMINS") / 2 + sx, 91 + sy, "CUMMINS", "#ffffff");
-  // his head, thrown back a little
-  for (let y = -24; y <= 24; y++) { const ww = Math.sqrt(576 - y * y) * 0.82; P(cx - ww, cy + y, ww * 2, 1, "#f0c4a0"); }
-  P(cx - 22, cy - 2, 3, 8, "#e0aa88"); P(cx + 19, cy - 2, 3, 8, "#e0aa88");                      // ears
-  P(cx - 20, cy - 26, 40, 12, "#6a3e1e"); P(cx - 21, cy - 18, 5, 12, "#6a3e1e"); P(cx + 16, cy - 18, 5, 12, "#6a3e1e");   // brown hair
-  for (let k = 0; k < 6; k++) P(cx - 16 + k * 6, cy - 15 + (k % 2), 4, 3, "#6a3e1e"); P(cx - 12, cy - 25, 14, 2, "#8a5a2e");
-  P(cx - 14, cy - 8, 9, 2, "#5a341a"); P(cx + 5, cy - 8, 9, 2, "#5a341a");                       // brows up
-  // eyes squeezed shut: two upside-down Vs, tears
-  for (const ex of [cx - 10, cx + 9]) { P(ex - 4, cy - 2, 2, 1, "#2a1a14"); P(ex - 2, cy - 3, 2, 1, "#2a1a14"); P(ex, cy - 3, 2, 1, "#2a1a14"); P(ex + 2, cy - 2, 2, 1, "#2a1a14"); P(ex - 4, cy + 1, 8, 1, "#e0a888"); }
-  const tear = (t * 1.4) % 1; P(cx - 15, cy + tear * 10, 2, 2, "#7ac8f8"); P(cx + 13, cy + ((tear + 0.5) % 1) * 10, 2, 2, "#7ac8f8");
-  P(cx - 16, cy + 4, 5, 3, "#f0a080"); P(cx + 11, cy + 4, 5, 3, "#f0a080");                      // cheeks up
-  P(cx - 2, cy + 1, 4, 5, "#e0aa88");                                                           // nose
-  // the big open laugh
-  const open = 8 + Math.round(Math.abs(Math.sin(t * 12)) * 4);
-  P(cx - 10, cy + 8, 20, open, "#5a1010"); P(cx - 9, cy + 8, 18, 3, "#f8f8f8"); P(cx - 5, cy + 8 + open - 3, 10, 3, "#e05a5a");
-  P(cx - 11, cy + 8, 1, 3, "#b86a5a"); P(cx + 10, cy + 8, 1, 3, "#b86a5a");
+  // arms up, elbows out, hands clamped on top of his head
+  P(14 + sx, 60 + sy, 10, 20, "#2a8a3a"); P(72 + sx, 60 + sy, 10, 20, "#2a8a3a");                  // sleeves
+  for (let k = 0; k < 10; k++) { P(16 + k * 1.6 + sx, 58 - k * 2.2 + sy, 6, 5, "#f0c4a0"); P(76 - k * 1.6 + sx, 58 - k * 2.2 + sy, 6, 5, "#f0c4a0"); }   // forearms
+  // his head
+  for (let y = -17; y <= 17; y++) { const ww = Math.sqrt(289 - y * y) * 0.88; P(cx - ww, cy + y, ww * 2, 1, "#f0c4a0"); }
+  P(cx - 17, cy - 1, 3, 6, "#e0aa88"); P(cx + 14, cy - 1, 3, 6, "#e0aa88");                        // ears
+  for (let k = 0; k < 14; k++) { const a = Math.PI * (1.02 + k * 0.074); P(cx + Math.cos(a) * 15 - 3, cy - 6 + Math.sin(a) * 13 - 3, 7, 7, k % 2 ? "#3a2414" : "#2a1a0e"); }   // dark curls
+  for (let k = 0; k < 5; k++) P(cx - 10 + k * 5, cy - 14 + (k % 2) * 2, 4, 4, "#3a2414");
+  P(cx - 23, cy - 18, 10, 6, "#f0c4a0"); P(cx + 13, cy - 18, 10, 6, "#f0c4a0");                     // hands on his head
+  P(cx - 12, cy - 6, 8, 2, "#2a1a0e"); P(cx + 4, cy - 6, 8, 2, "#2a1a0e");                          // brows up
+  for (const ex of [cx - 8, cx + 7]) { P(ex - 3, cy - 1, 2, 1, "#2a1a14"); P(ex - 1, cy - 2, 2, 1, "#2a1a14"); P(ex + 1, cy - 1, 2, 1, "#2a1a14"); }   // eyes squeezed
+  const tear = (t * 1.4) % 1; P(cx - 12, cy + tear * 8, 2, 2, "#7ac8f8"); P(cx + 10, cy + ((tear + 0.5) % 1) * 8, 2, 2, "#7ac8f8");
+  P(cx - 13, cy + 3, 4, 3, "#f0a080"); P(cx + 9, cy + 3, 4, 3, "#f0a080");                          // cheeks up
+  P(cx - 1, cy + 1, 3, 4, "#e0aa88");                                                              // nose
+  const open = 6 + Math.round(Math.abs(Math.sin(t * 12)) * 3);                                      // the big open laugh
+  P(cx - 8, cy + 7, 16, open, "#5a1010"); P(cx - 7, cy + 7, 14, 2, "#f8f8f8"); P(cx - 4, cy + 7 + open - 2, 8, 2, "#e05a5a");
   // HA HA, fading in as you scroll
-  const msg = "HA HA HA", sz = 2, wv = Math.round(Math.sin(t * 9) * 2);
-  if (v > 0.15) A(Math.min(1, (v - 0.15) * 4), () => { txt(48 - tw(msg, sz) / 2 + 1, 6 + wv, msg, "#111", sz); txt(48 - tw(msg, sz) / 2, 5 + wv, msg, "#ffd23f", sz); });
-  for (let k = 0; k < 4; k++) { const x = k % 2 ? 72 : 6, y = 26 + k * 11 - Math.abs(Math.sin(t * 7 + k)) * 3; txt(x, y, "HA", "#ffffff"); }
+  const n = 2 + Math.floor(v * 5);
+  for (let k = 0; k < n; k++) { const x = k % 2 ? 78 : 3, y = 4 + Math.floor(k / 2) * 14 - Math.abs(Math.sin(t * 7 + k)) * 3, c = k % 3 ? "#ffd23f" : "#ffffff";
+    txt(x + 1, y + 1, "HA", "#111", 2); txt(x, y, "HA", c, 2); }
 }
 
 /* ---------- CALM: and then it's quiet. Sunrise over Tulsa, the van on an empty road, birds settling ---------- */
