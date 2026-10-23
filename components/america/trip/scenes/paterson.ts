@@ -185,10 +185,10 @@ export const SC_PATERSON: Partial<Record<string, SceneMod>> = {
         live.push({ k: "fn", fn: (f, t, c) => { const p2 = (t * 0.7) % 1; if (p2 < 0.08) { c.globalAlpha = 1 - p2 / 0.08; f(cx - 3, cy - 1, 5, 5, "#ffffff"); f(qx - 3, qy - 2, 12, 16, "rgba(255,255,255,0.35)"); c.globalAlpha = 1; } } });
       }
       for (const [dx, dy] of [[9, 4], [30, 28], [9, 28]]) { px(FX + dx, opY + dy, 7, 3, "#8a5a32"); px(FX + dx, opY + dy - 1, 7, 1, "#a06a3a"); px(FX + dx + 1, opY + dy + 3, 1, 1, "#5a3a1a"); px(FX + dx + 5, opY + dy + 3, 1, 1, "#5a3a1a"); }
-      walkers.push(folk(FX + 53, opY + 9, FX + 55, opY + 24), folk(FX + 40, opY + 2, FX + 40, opY + 14, true), folk(FX + 31, opY + 2, FX + 46, opY + 2));
+      walkers.push(folk(FX + 46, opY + 9, FX + 46, opY + 22), folk(FX + 40, opY + 2, FX + 40, opY + 14, true), folk(FX + 31, opY + 2, FX + 46, opY + 2));
       // a family on a blanket
-      px(FX + 43, opY + 24, 8, 5, "#e0302f"); px(FX + 43, opY + 26, 8, 1, "#f2f2f2");
-      person(px, FX + 44, opY + 20, "#ffd23f", "#1a1a1a", "#2a2a3a", "#c08a5a"); person(px, FX + 48, opY + 21, "#3a6fd8", "#3a2a1a", "#2a2a3a", "#8a5a3a");
+      px(FX + 37, opY + 24, 8, 5, "#e0302f"); px(FX + 37, opY + 26, 8, 1, "#f2f2f2");
+      person(px, FX + 38, opY + 20, "#ffd23f", "#1a1a1a", "#2a2a3a", "#c08a5a"); person(px, FX + 42, opY + 21, "#3a6fd8", "#3a2a1a", "#2a2a3a", "#8a5a3a");
 
       /* ===== a block party on the street across from the falls ===== */
       { const sx = Rt(4, 60), sw = Math.min(40, W - 2 - sx), sy = y0 + 6;

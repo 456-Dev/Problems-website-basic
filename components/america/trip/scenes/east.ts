@@ -289,6 +289,27 @@ function rivian(px: Px, live: Live[], x: number, y: number) {
 
 /* ---------- scenes ---------- */
 
+// Gatlinburg, between the fudge and the pancakes: a hunter dressing a deer hung from a tree by his pickup
+function deerCamp(px: Px, live: Live[], x: number, y: number) {
+  // the pickup
+  px(x, y + 10, 15, 5, "#8a2a1a"); px(x + 1, y + 7, 7, 4, "#8a2a1a"); px(x + 2, y + 8, 5, 2, "#9ad0e8"); px(x + 9, y + 9, 6, 1, "#5a1a10");
+  px(x, y + 12, 15, 1, "#a83a24"); px(x + 2, y + 15, 3, 2, "#111"); px(x + 11, y + 15, 3, 2, "#111"); px(x + 14, y + 11, 1, 1, "#fff6a0");
+  // the tree, a rope, a gambrel, the deer hanging head-down
+  px(x + 31, y - 4, 2, 22, "#5a3a1a"); px(x + 22, y - 2, 10, 1, "#5a3a1a");
+  px(x + 26, y - 9, 11, 6, "#2f6a32"); px(x + 28, y - 10, 7, 1, "#3f7a40"); px(x + 33, y - 6, 4, 4, "#2a5a2c");
+  px(x + 24, y - 1, 1, 3, "#c8b890"); px(x + 21, y + 2, 7, 1, "#8a8a8a");
+  px(x + 22, y + 3, 1, 4, "#8a5a32"); px(x + 26, y + 3, 1, 4, "#8a5a32");
+  px(x + 21, y + 7, 7, 8, "#a8703a"); px(x + 23, y + 8, 3, 6, "#e8d6b4"); px(x + 21, y + 7, 1, 8, "#8a5a32");
+  px(x + 22, y + 15, 4, 3, "#8a5a32"); px(x + 23, y + 17, 2, 1, "#2a1a10");
+  px(x + 21, y + 18, 1, 2, "#d8c8a0"); px(x + 26, y + 18, 1, 2, "#d8c8a0"); px(x + 20, y + 19, 1, 1, "#d8c8a0"); px(x + 27, y + 19, 1, 1, "#d8c8a0");
+  // the hunter: blaze-orange cap and vest over camo
+  px(x + 15, y + 5, 4, 1, "#ff7a1a"); px(x + 16, y + 4, 2, 1, "#ff7a1a"); px(x + 16, y + 6, 3, 2, "#e0b090");
+  px(x + 15, y + 8, 4, 5, "#5a6a32"); px(x + 16, y + 8, 2, 5, "#ff7a1a"); px(x + 15, y + 10, 1, 1, "#3a4a22");
+  px(x + 15, y + 13, 1, 3, "#4a5a2a"); px(x + 18, y + 13, 1, 3, "#4a5a2a");
+  px(x + 17, y + 18, 3, 1, "#7a5a3a");                                                  // a bucket at his feet
+  live.push({ k: "fn", fn: (f, t) => { const d = Math.floor(t * 3) % 2; f(x + 19, y + 9 + d, 1, 1, "#e0b090"); f(x + 20, y + 9 + d, 1, 1, "#d8d8d8"); } });
+}
+
 export const SC_EAST: Partial<Record<string, SceneMod>> = {
   gatlinburg: {
     ground: ["#8a847a", "#7e786e"],
@@ -333,6 +354,8 @@ export const SC_EAST: Partial<Record<string, SceneMod>> = {
       { const y = y0 + 2, r = room(y, 46), x = r.lo > W - r.hi ? 2 : W - 13; needle(px, x, y); }
       // the bear, raiding a trash can on the sidewalk
       { const y = y0 + h - 18, r = room(y, 14), x = Math.ceil(r.hi + 10); bear(px, Math.min(W - 15, x), y); }
+      // and right there on the strip, a guy dressing a deer off his tailgate
+      { const y = y0 + h - 28, r = room(y, 22), x = Math.max(W - 38, Math.ceil(r.hi + 10)); deerCamp(px, live, x, y); }
       // a big PANCAKES billboard at the end of town
       { const y = y0 + h - 20, r = room(y, 18), x = Math.max(1, Math.floor(r.lo - 10 - 46));
         px(x + 10, y + 12, 2, 8, "#5a3a1a"); px(x + 34, y + 12, 2, 8, "#5a3a1a");

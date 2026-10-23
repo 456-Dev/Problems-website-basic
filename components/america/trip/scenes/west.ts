@@ -112,6 +112,39 @@ function suburb(px: Px, rnd: () => number, ya: number, yb: number, xa: number, x
 
 /* ---------- the scenes ---------- */
 
+// The very first person on the trip: the hermit crab man at the Venice jetty (film, July 4th).
+// Shirtless, beard, glasses, orange-and-white striped towel, a gold Star of David, green shorts,
+// a sick little hermit crab in his cupped hands.
+function crabMan(px: Px, live: Live[], x: number, y: number) {
+  const SK = "#d8a07a", SKD = "#c08a64", GOLD = "#ffd23f";
+  px(x - 2, y - 2, 30, 36, "#e8c98a");                                                   // clear sand round him
+  // the rock jetty behind him, running out to the water
+  for (let k = 0; k < 9; k++) { const rx = x + 15 + (k % 3) * 4, ry = y + 4 + Math.floor(k / 3) * 7 + (k % 2); px(rx, ry, 5, 4, "#7a7670"); px(rx + 1, ry, 3, 1, "#a8a49c"); px(rx, ry + 3, 5, 1, "#5a5650"); }
+  // hair, face, glasses, beard
+  px(x + 4, y, 7, 2, "#6a4a2a"); px(x + 3, y + 1, 1, 4, "#6a4a2a"); px(x + 11, y + 1, 1, 4, "#6a4a2a");
+  px(x + 4, y + 2, 7, 6, SK);
+  px(x + 4, y + 4, 3, 2, "#1a1a1a"); px(x + 8, y + 4, 3, 2, "#1a1a1a"); px(x + 7, y + 4, 1, 1, "#1a1a1a");
+  px(x + 5, y + 4, 1, 1, "#cfe8ff"); px(x + 9, y + 4, 1, 1, "#cfe8ff");
+  px(x + 4, y + 7, 7, 3, "#7a5a3a"); px(x + 5, y + 10, 5, 1, "#7a5a3a"); px(x + 6, y + 8, 1, 1, "#b8a898"); px(x + 9, y + 9, 1, 1, "#b8a898");
+  px(x + 6, y + 7, 3, 1, "#c86a5a");
+  // bare chest, the towel stripes over both shoulders
+  px(x + 2, y + 11, 11, 10, SK); px(x + 2, y + 18, 11, 1, SKD);
+  for (let k = 0; k < 12; k++) { const c = k % 3 === 2 ? "#f2f2f2" : "#ff7a1a"; px(x + 2, y + 11 + k, 2, 1, k % 2 ? c : "#f2f2f2"); px(x + 11, y + 11 + k, 2, 1, k % 2 ? "#f2f2f2" : c); }
+  // the gold chain and Star of David
+  px(x + 5, y + 11, 1, 1, GOLD); px(x + 9, y + 11, 1, 1, GOLD); px(x + 6, y + 12, 1, 1, GOLD); px(x + 8, y + 12, 1, 1, GOLD);
+  ["..#..", "#####", ".#.#.", "#####", "..#.."].forEach((r, j) => [...r].forEach((c, i) => { if (c === "#") px(x + 5 + i, y + 13 + j, 1, 1, GOLD); }));
+  px(x + 7, y + 15, 1, 1, SK);
+  // arms in to the cupped hands, the crab in them
+  px(x + 1, y + 12, 1, 7, SK); px(x + 13, y + 12, 1, 7, SK); px(x + 2, y + 19, 3, 1, SK); px(x + 10, y + 19, 3, 1, SK);
+  px(x + 4, y + 19, 7, 2, SK); px(x + 4, y + 21, 7, 1, SKD);
+  px(x + 6, y + 18, 3, 2, "#a86a3a"); px(x + 7, y + 18, 1, 1, "#e8c89a");
+  // green shorts, drawstring, legs, bare feet
+  px(x + 3, y + 22, 9, 5, "#2f9a4a"); px(x + 3, y + 22, 9, 1, "#1f7a3a"); px(x + 7, y + 22, 1, 3, "#f2f2f2"); px(x + 7, y + 25, 1, 2, "#e8c98a");
+  px(x + 4, y + 27, 2, 5, SK); px(x + 9, y + 27, 2, 5, SK); px(x + 3, y + 32, 3, 1, SKD); px(x + 9, y + 32, 3, 1, SKD);
+  // the crab poking its legs out now and then
+  live.push({ k: "fn", fn: (f, t) => { if (Math.floor(t * 2) % 3) { f(x + 5, y + 19, 1, 1, "#d8402a"); f(x + 9, y + 19, 1, 1, "#d8402a"); f(x + 9, y + 18, 1, 1, "#e8604a"); } } });
+}
+
 export const SC_WEST: Partial<Record<string, SceneMod>> = {
   venice: {
     ground: ["#e8c98a", "#dcb874"],
@@ -120,7 +153,7 @@ export const SC_WEST: Partial<Record<string, SceneMod>> = {
       for (let y = y0; y < y0 + h; y++) px(30, y, 4, 1, (y % 4) ? "#d8d0c4" : "#c8c0b4");          // the boardwalk
       for (let k = 0; k < 40; k++) px(16 + Math.floor(rnd() * 12), y0 + Math.floor(rnd() * h), 1, 1, "#f4dca0");
     },
-    draw: ({ px, y0, h, rnd, live }) => {
+    draw: ({ px, y0, h, rnd, live, says }) => {
       ocean(px, live, y0, h);
       // Santa Monica Pier: the deck out over the water, Pacific Park's wheel and coaster on it
       px(0, y0 + 17, 32, 6, "#8a6a4a"); for (let x = 1; x < 32; x += 2) px(x, y0 + 18, 1, 4, "#9a7a58");
@@ -145,7 +178,7 @@ export const SC_WEST: Partial<Record<string, SceneMod>> = {
       // umbrellas, towels, sunbathers all over the sand
       for (let k = 0; k < 16; k++) {
         const y = y0 + 28 + Math.floor(hash(k * 13) * (h - 40)), lim = Math.floor(room(y, 8).lo - 9), x = 36 + Math.floor(hash(k * 7 + 1) * Math.max(1, lim - 40));
-        if (x + 8 > lim || (y > y0 + 56 && y < y0 + 96 && x < 68) || (y > y0 + 94 && x < 52)) continue;
+        if (x + 8 > lim || (y < y0 + 58 && x < 66) || (y > y0 + 56 && y < y0 + 96 && x < 68) || (y > y0 + 94 && x < 52)) continue;
         const c = ["#e0302f", "#3a6fd8", "#ffd23f", "#ff5ad1", "#2faa4a", "#ff8a1f"][k % 6];
         px(x + 4, y + 1, 3, 5, ["#f2f2f2", "#5af0ff", "#ff8ab8"][k % 3]); px(x + 5, y + 2, 1, 2, SKIN[k % 4]);
         disc(px, x + 2, y + 2, 3, c); px(x + 1, y + 1, 2, 2, "#f2f2f2"); px(x + 2, y + 2, 1, 1, "#5a5a5a");
@@ -202,6 +235,8 @@ export const SC_WEST: Partial<Record<string, SceneMod>> = {
         flag(px, live, x + 34, y + 2, 14, 9, 6); }
       // vendors on the boardwalk: tents, a t-shirt rack, a guy on a red bike
       for (const [yy, c] of [[y0 + 40, "#e0302f"], [y0 + 92, "#3a6fd8"], [y0 + 120, "#ffd23f"]] as const) { px(35, yy, 6, 5, c); px(35, yy, 6, 1, "#f2f2f2"); px(36, yy + 5, 4, 1, "#5a5a5a"); }
+      crabMan(px, live, 38, y0 + 24);
+      says.push({ a: 0, b: 44, who: "them", text: "“Drive back!”" });
       { const y = y0 + 132, x = Math.max(free(y, 12, 16, "r"), 62);
         person(px, x + 4, y, "#2fa8a0", "#f2f2f2", "#2a3a5a");
         for (const wx of [x, x + 8]) { px(wx, y + 8, 3, 1, "#111"); px(wx, y + 10, 3, 1, "#111"); px(wx - 1, y + 9, 1, 1, "#111"); px(wx + 3, y + 9, 1, 1, "#111"); }

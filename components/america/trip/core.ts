@@ -56,9 +56,13 @@ const pathX = (y: number) => {             // Catmull-Rom through the waypoints
 
 const SUN = at("sunset"), KS0 = top("truckstop"), KS1 = bottom("plains"), CL = top("clouds"), HB0 = PATH[0][1];
 export const KX = MID - 16;                 // across Kansas the road goes dead straight
-const wander = (y: number) => {
+// (Kansas got 260 rows longer in v8; east of its dead-straight middle the curves keep their old phase,
+// so every scene after it still sits where it was drawn)
+const KANSAS_EXTRA = 260, KMID = (top("truckstop") + bottom("plains")) / 2;
+const wander = (y0: number) => {
+  const y = y0 > KMID ? y0 - KANSAS_EXTRA : y0;
   let x = MID + 20 * Math.sin(y / 37) + 6 * Math.sin(y / 11.3);
-  const u = (y - Y0[SUN]) / SCENES[SUN].h;
+  const u = (y0 - Y0[SUN]) / SCENES[SUN].h;
   if (u > 0 && u < 1) x += 14 * Math.sin(Math.PI * u) * Math.sin(y / 9);   // Appalachia at sundown: it wanders a lot more
   return x;
 };

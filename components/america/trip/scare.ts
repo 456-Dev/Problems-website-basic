@@ -74,48 +74,63 @@ function crash(P: Pf, A: Af, txt: Tf, tw: Wf, t: number, tau: number) {
   A(Math.max(0, 0.9 - tau * 2.5), () => P(0, 0, N, N, "#ffffff"));                                                          // the impact
 }
 
-/* ---------- BAR: the regulars ---------- */
+/* ---------- BAR: the regulars (a warm, normal Tulsa dive bar) ---------- */
 function bar(P: Pf, A: Af, txt: Tf, tw: Wf, t: number, tau: number) {
-  const fl = Math.floor(t * 11) % 13 === 0 ? 0.55 : 1;                                       // the light keeps dropping out
-  P(0, 0, N, N, "#241010");
-  for (let y = 0; y < 44; y++) P(0, y, N, 1, y % 8 === 0 ? "#3a1a16" : "#341814");
-  for (const sy of [8, 20]) { P(4, sy + 8, 88, 2, "#4a2a1a"); for (let x = 6; x < 90; x += 3) P(x, sy + 2 + (x % 5 === 0 ? 1 : 0), 2, 6 - (x % 5 === 0 ? 1 : 0), ["#3a7a3a", "#8a4a1a", "#c8c8a0", "#5a2a5a", "#d8a040"][x % 5]); }
-  if (Math.floor(t * 3) % 4) txt(70, 2, "OPEN", "#ff3b3b");
-  // the bartender: cap, glasses, plaid shirt, staring. Her eyes catch red.
-  P(40, 26, 12, 4, "#3a3a4a"); P(39, 29, 14, 1, "#2a2a3a"); P(41, 30, 10, 9, "#c89a7a"); P(42, 33, 3, 2, "#111"); P(47, 33, 3, 2, "#111");
-  P(42, 33, 8, 1, "#3a3a3a"); const red = Math.floor(t * 2) % 5 ? "#ff3b3b" : "#111"; P(43, 34, 1, 1, red); P(48, 34, 1, 1, red);
-  P(44, 37, 4, 1, "#5a2a2a");
-  for (let y = 39; y < 50; y++) for (let x = 37; x < 55; x++) P(x, y, 1, 1, (x % 4 === 0 || y % 4 === 0) ? "#2a3a6a" : "#8a2a2a");
-  // the bar top, the TIP jar, a pit viper sliding along it
-  P(0, 48, N, 6, "#5a3018"); P(0, 48, N, 1, "#8a5a32"); P(0, 54, N, 18, "#3a1e10");
-  P(60, 38, 12, 10, "#d8e8e0"); P(61, 38, 10, 1, "#f2f2f2"); txt(61, 41, "TIP", "#2a2a2a"); P(63, 45, 3, 2, "#3a8a3a");
-  { const sx = (t * 9) % 120 - 20;
-    for (let k = 0; k < 16; k++) P(sx - k, 46 + Math.round(Math.sin(t * 6 - k * 0.6) * 1.2), 2, 2, k % 3 === 0 ? "#2a3a1a" : "#6a7a2a");
-    P(sx + 1, 45, 3, 3, "#5a6a22"); P(sx + 3, 46, 1, 1, "#ff3b3b"); if (Math.floor(t * 6) % 3 === 0) P(sx + 4, 47, 3, 1, "#e0302f"); }
-  // the rattlesnake tank, the rattle going
-  P(4, 34, 24, 14, "#1a2a1a"); P(4, 34, 24, 1, "#8a9a8a"); P(4, 47, 24, 1, "#8a9a8a"); P(4, 34, 1, 14, "#8a9a8a"); P(27, 34, 1, 14, "#8a9a8a");
-  for (let a = 0; a < 40; a++) { const r = 2 + a * 0.13, th = a * 0.55; P(16 + Math.cos(th) * r * 1.4, 42 + Math.sin(th) * r * 0.7, 2, 1, a % 4 < 2 ? "#a8884a" : "#4a3a1a"); }
-  P(14, 37, 3, 2, "#a8884a"); P(15, 37, 1, 1, "#ff3b3b"); if (Math.floor(t * 4) % 2) P(13, 38, 2, 1, "#e0302f");
-  { const sh = Math.floor(t * 14) % 2; P(24, 39 - sh, 2, 4, "#d8c890"); }
-  // the regulars on their stools, backs to you. Then one by one they turn round.
-  for (let k = 0; k < 4; k++) {
-    const x = 6 + k * 24, turn = tau > 0.4 + k * 0.3;
-    P(x + 2, 62, 12, 16, "#0a0606"); P(x + 4, 56, 8, 7, "#0a0606"); P(x + 6, 78, 4, 18, "#0a0606"); P(x + 2, 77, 12, 2, "#2a2020");
-    if (turn) { A(0.4, () => { P(x + 4, 58, 4, 3, "#ff2a2a"); P(x + 8, 58, 4, 3, "#ff2a2a"); }); P(x + 5, 59, 2, 1, "#ff2a2a"); P(x + 9, 59, 2, 1, "#ff2a2a"); }
+  // wood-panel wall in warm light, a shelf of bottles, neon in the window
+  P(0, 0, N, N, "#4a2a18");
+  for (let y = 0; y < 48; y++) P(0, y, N, 1, y % 6 === 0 ? "#5a341c" : "#6a3e20");
+  for (let x = 0; x < N; x += 12) P(x, 0, 1, 48, "#4a2a16");
+  for (const sy of [10, 22]) { P(4, sy + 8, 52, 2, "#3a2010"); for (let x = 6; x < 54; x += 3) P(x, sy + 2 + (x % 5 === 0 ? 1 : 0), 2, 6 - (x % 5 === 0 ? 1 : 0), ["#4aa84a", "#c87a2a", "#e8e8c0", "#8a4a8a", "#ffc84a"][x % 5]); }
+  // neon: COLD BEER, buzzing gently
+  { const on = Math.floor(t * 2) % 7 !== 0; P(60, 4, 32, 12, "#2a1410"); txt(62, 5, "COLD", on ? "#5af0ff" : "#2a6a7a"); txt(62, 10, "BEER", on ? "#ff7ad8" : "#7a3a6a");
+    A(on ? 0.18 : 0, () => P(56, 0, 40, 20, "#ff9ae8")); }
+  // the jukebox in the corner, lights cycling
+  P(76, 22, 14, 24, "#c8302a"); P(77, 22, 12, 6, "#ffd23f"); P(78, 30, 10, 8, "#2a1a10");
+  for (let k = 0; k < 5; k++) P(78 + k * 2, 40, 1, 4, ["#ff5ad1", "#5af0ff", "#ffd23f", "#5aff7a", "#ff8a3a"][(k + Math.floor(t * 4)) % 5]);
+  for (let k = 0; k < 2; k++) { const u = (t * 0.7 + k / 2) % 1; A(1 - u, () => { P(84 + u * 8, 20 - u * 14, 1, 3, "#ffd23f"); P(85 + u * 8, 20 - u * 14, 2, 1, "#ffd23f"); }); }
+  // the bartender: cap, glasses, plaid, a big smile, drying a glass
+  P(40, 26, 12, 4, "#3a3a4a"); P(39, 29, 14, 1, "#2a2a3a"); P(41, 30, 10, 9, "#e0b090"); P(42, 33, 3, 2, "#3a2a2a"); P(47, 33, 3, 2, "#3a2a2a"); P(42, 33, 8, 1, "#5a4a4a");
+  P(43, 34, 1, 1, "#ffffff"); P(48, 34, 1, 1, "#ffffff"); P(43, 36, 6, 1, "#7a2a2a"); P(44, 37, 4, 1, "#f2f2f2"); P(41, 35, 1, 1, "#f0a090"); P(50, 35, 1, 1, "#f0a090");
+  for (let y = 39; y < 50; y++) for (let x = 37; x < 55; x++) P(x, y, 1, 1, (x % 4 === 0 || y % 4 === 0) ? "#2a3a6a" : "#c83a2a");
+  { const w = Math.sin(t * 5) * 1.5; P(54 + w, 40, 4, 5, "#d8f0f8"); P(53 + w, 39, 6, 1, "#f2f2f2"); P(55 + w, 42, 3, 1, "#a8d8e8"); }
+  // the bar top, the TIP jar with a few bucks in it, a basket of fries
+  P(0, 48, N, 6, "#7a4422"); P(0, 48, N, 1, "#b8783e"); P(0, 54, N, 18, "#4a2814");
+  P(60, 38, 12, 10, "#d8e8e0"); P(61, 38, 10, 1, "#f2f2f2"); txt(61, 41, "TIP", "#2a2a2a"); P(63, 45, 3, 2, "#3a8a3a"); P(67, 44, 2, 3, "#3a8a3a");
+  P(24, 44, 10, 4, "#c8302a"); for (let k = 0; k < 6; k++) P(25 + k, 42 - (k % 3), 1, 3, "#ffd23f");
+  // the regulars on their stools, turned round to us, grinning, raising their beers
+  const look = [["#c89a7a", "#8a5a2a", "#3a6a9a"], ["#8a5a3a", "#1a1a1a", "#c8302a"], ["#f0c8a0", "#c8c8c8", "#4a8a4a"], ["#6a4028", "#3a2a1a", "#d8a040"]];
+  for (let k = 0; k < 3; k++) {
+    const x = 2 + k * 16, [skin, hair, shirt] = look[k], cheer = Math.floor(t * 1.6 + k * 0.7) % 3 === 0;
+    P(x + 2, 64, 12, 14, shirt); P(x + 4, 56, 8, 8, skin); P(x + 4, 55, 8, 2, hair); if (k === 2) { P(x + 3, 54, 10, 2, "#1a3a6a"); P(x + 2, 56, 3, 1, "#1a3a6a"); }
+    P(x + 5, 59, 1, 1, "#111"); P(x + 10, 59, 1, 1, "#111"); P(x + 6, 61, 4, 1, "#7a2a2a"); if (cheer) P(x + 6, 62, 4, 1, "#f2f2f2");
+    P(x + 6, 78, 4, 16, "#3a2010"); P(x + 2, 77, 12, 2, "#8a5a32");
+    const ay = cheer ? 50 : 58; P(x + 13, ay, 3, 6, "#ffc84a"); P(x + 13, ay - 1, 3, 1, "#fff6e0"); P(x + 12, ay + 3, 2, 3, skin);
   }
-  // the dogs, tearing back and forth under the pool table
-  [["#d8c8a8", 0, 1.3], ["#5a3a22", 1.7, 1.6], ["#1a1a1a", 3.1, 1.1]].forEach(([c, ph, sp], k) => {
-    const q = Math.sin(t * (sp as number) + (ph as number)), dir = Math.cos(t * (sp as number) + (ph as number)) >= 0 ? 1 : -1;
-    const dx = 66 + (q + 1) * 10 + k * 2, dy = 88 + k * 2, col = c as string, leg = Math.floor(t * 14 + k) % 2;
-    P(dx, dy, 8, 3, col); P(dir > 0 ? dx + 7 : dx - 3, dy - 2, 4, 3, col); P(dir > 0 ? dx + 9 : dx - 2, dy - 1, 1, 1, "#ffd23f");
-    P(dir > 0 ? dx - 2 : dx + 8, dy - 1 - leg, 2, 1, col);                                  // tail going
-    P(dx + leg, dy + 3, 1, 3 - leg, col); P(dx + 3 - leg, dy + 3, 1, 2 + leg, col); P(dx + 5 + leg, dy + 3, 1, 3 - leg, col); P(dx + 7 - leg, dy + 3, 1, 2 + leg, col);
+  if (tau > 0.6 && Math.floor(t * 2) % 2) { txt(8, 2, "CHEERS!", "#fff6c0"); }
+  // the pool table, and the dogs playing under it: floppy ears, waggy tails, a puppy tripping over itself
+  P(60, 66, 36, 8, "#1f7a3a"); P(60, 65, 36, 1, "#a8683a"); P(60, 74, 36, 2, "#7a4a22"); P(62, 76, 2, 18, "#5a3018"); P(92, 76, 2, 18, "#5a3018");
+  P(66, 68, 2, 2, "#f2f2f2"); P(78, 70, 2, 2, "#e0302f"); P(86, 67, 2, 2, "#ffd23f"); P(72, 69, 2, 2, "#3a6fd8"); P(56, 60, 1, 14, "#c8a070");   // balls, a cue
+  // the 4th regular is shooting pool
+  P(52, 60, 8, 12, "#d8a040"); P(53, 53, 6, 7, "#6a4028"); P(53, 52, 6, 2, "#3a2a1a"); P(54, 56, 1, 1, "#111"); P(57, 56, 1, 1, "#111"); P(55, 58, 3, 1, "#7a2a2a"); P(53, 72, 2, 20, "#2a3a5a"); P(57, 72, 2, 20, "#2a3a5a");
+  [["#e8c890", 0, 1.2, 0], ["#7a4a2a", 1.9, 1.5, 0], ["#f2f2f2", 3.4, 1.9, 1]].forEach(([c, ph, sp, pup], k) => {
+    const a = t * (sp as number) + (ph as number), q = Math.sin(a), dir = Math.cos(a) >= 0 ? 1 : -1, small = pup === 1;
+    const col = c as string, ear = k === 1 ? "#4a2a14" : k === 2 ? "#c8a070" : "#b8905a", s = small ? 0.7 : 1;
+    const dx = 62 + (q + 1) * 11 + k * 2, dy = small ? 87 : 84, bw = Math.round(9 * s), hop = small && Math.floor(t * 6) % 4 === 0 ? -1 : 0;
+    P(dx, dy + hop, bw, 4, col); if (k === 2) P(dx + 2, dy + 1 + hop, 3, 2, "#e8a050");                                // a spot
+    const hx = dir > 0 ? dx + bw - 1 : dx - 4, hy = dy - 3 + hop;
+    P(hx, hy, 5, 4, col); P(dir > 0 ? hx + 4 : hx - 1, hy + 2, 2, 2, col); P(dir > 0 ? hx + 5 : hx - 1, hy + 2, 1, 1, "#1a1a1a");    // head, snout, nose
+    P(dir > 0 ? hx + 2 : hx + 2, hy + 1, 1, 1, "#1a1a1a");                                                        // eye
+    P(dir > 0 ? hx : hx + 4, hy + 1, 1, 4, ear);                                                                  // floppy ear
+    if (Math.floor(t * 3 + k) % 4 === 0) P(dir > 0 ? hx + 4 : hx, hy + 4, 1, 2, "#ff7a8a");                      // tongue out
+    const wag = Math.floor(t * 12 + k) % 2;
+    P(dir > 0 ? dx - 2 : dx + bw, dy - 1 - wag + hop, 2, 1, col); P(dir > 0 ? dx - 3 : dx + bw + 1, dy - 2 - wag + hop, 1, 1, col);   // tail wagging
+    const leg = Math.floor(t * 10 + k) % 2;
+    P(dx + leg, dy + 4 + hop, 1, 2, col); P(dx + 2 - leg, dy + 4 + hop, 1, 2, col); P(dx + bw - 3 + leg, dy + 4 + hop, 1, 2, col); P(dx + bw - 1 - leg, dy + 4 + hop, 1, 2, col);
   });
-  P(64, 80, 30, 6, "#1a4a2a"); P(64, 79, 30, 1, "#5a3a1a"); P(66, 86, 2, 10, "#3a2010"); P(90, 86, 2, 10, "#3a2010");
-  // the lamp swinging over it all
-  { const sw = Math.sin(t * 2.2) * 10; P(48 + sw * 0.5, 0, 1, 8, "#3a3a3a"); P(45 + sw, 8, 7, 3, "#2a2a2a");
-    A(0.3 * fl, () => { for (let y = 11; y < 60; y++) { const ww = (y - 11) * 0.7; P(48 + sw - ww, y, ww * 2, 1, "#ffb04a"); } }); }
-  A(1 - fl, () => P(0, 0, N, N, "#000"));
+  { const u = (t * 0.8) % 1; A(1 - u, () => { P(76 + u * 4, 82 - u * 8, 2, 2, "#ff7a9a"); P(78 + u * 4, 82 - u * 8, 2, 2, "#ff7a9a"); P(77 + u * 4, 84 - u * 8, 2, 1, "#ff7a9a"); }); }   // a little heart
+  // a warm lamp over the table
+  P(78, 54, 1, 4, "#3a3a3a"); P(72, 58, 14, 3, "#2a5a2a");
+  A(0.16, () => { for (let y = 61; y < 76; y++) { const ww = 7 + (y - 61) * 0.7; P(79 - ww, y, ww * 2, 1, "#ffd28a"); } });
 }
 
 /* ---------- NEWS: the TV over the bar ---------- */

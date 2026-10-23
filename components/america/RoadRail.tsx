@@ -140,7 +140,7 @@ export default function RoadRail() {
     && (q.hold === undefined || (hold && hold.i === q.hold && hold.u >= (q.u0 ?? 0) && hold.u < (q.u1 ?? 1.01)) || (!hold && vy < q.b - 1)));
   const bend = bendAt(vy);
   // the plane tips the other way (top toward you), then swings to horizontal right before the crash
-  const map = { transform: bend.tilt ? `perspective(900px) rotateX(${(-bend.tilt * 40).toFixed(2)}deg) rotateZ(${(bend.spin * 90).toFixed(2)}deg) scale(${(1 + bend.tilt * 0.3 + bend.spin * 1.1).toFixed(3)})` : undefined };
+  const map = { transform: bend.tilt ? `perspective(900px) rotateX(${(-bend.tilt * 40).toFixed(2)}deg) rotateZ(${(bend.spin * 90).toFixed(2)}deg) scale(${(1 + bend.tilt * 0.45 + bend.spin * 1.6).toFixed(3)})` : undefined };
 
   return (
     <section className="oqa-trek" ref={sec} aria-label="The road trip, LA to NYC" style={{ height: `${Math.round((HT / 128) * 52)}vh` }}>
@@ -170,7 +170,7 @@ export default function RoadRail() {
           <canvas ref={scareEl} key={seq < 0 ? "off" : panelAt(seq)} className={`oqa-seq${seq >= 0 ? " on" : ""}`} width={384} height={384} aria-hidden />
           <div className="oqa-road-here"><b>{day(stop.date)}</b>{def.label ?? stop.place}</div>
           {says.map((q) => (
-            <p key={q.text} className={`oqa-road-say ${q.who}${q.href ? " link" : ""}`} style={{ top: pan.y + (vy - 9) * pan.s }}>
+            <p key={q.text} className={`oqa-road-say ${q.who}${q.href ? " link" : ""}`} style={{ top: Math.max(150, pan.y + (vy - 9) * pan.s) }}>
               {q.href ? <a href={q.href} target="_blank" rel="noopener">{q.text}</a> : q.text}</p>
           ))}
         </div>

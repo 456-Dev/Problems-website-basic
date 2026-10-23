@@ -3,6 +3,7 @@
 import { W, ROAD_END, roadX, hash } from "../core";
 import { HARBOR } from "../../harbor";
 import type { SceneMod, Px } from "../kit";
+import type { Live } from "../fx";
 import { pine, person, flagPole, pick, eTree, eHouse } from "../kit";
 
 /* ---------- the harbor map ---------- */
@@ -102,65 +103,6 @@ function harborGround(px: Px, y0: number) {
 
 type Item = { y: number; draw: (px: Px) => void };
 
-// Lady Liberty on her star fort, torch up, crown, tablet, outlined so she reads against the skyline.
-// Base (x, y) = bottom center of the island.
-const LIB = [
-  ".f................",
-  "fof...............",
-  "fff...............",
-  ".H................",
-  "HHH...............",
-  ".A................",
-  ".A................",
-  ".A.......c........",
-  ".A....c..c..c.....",
-  ".A.....c.c.c......",
-  ".AA...cchhhcc.....",
-  "..A.....hhhh......",
-  "..A.....hssh......",
-  "..AA....hhhh......",
-  "...A.....hh.......",
-  "...AAGGGGGGGGG....",
-  "....AGGgGGGGgGG...",
-  ".....GGgGGGGGgGTT.",
-  ".....GgGGgGGGGGTT.",
-  ".....GgGGgGGGgGTT.",
-  ".....GGgGGgGGgGTd.",
-  ".....GGgGGgGGGgGd.",
-  "....GGgGGgGGGgGGd.",
-  "....GGgGGgGGGgGGd.",
-  "....GgGGgGGGgGGGd.",
-  "....GgGGgGGGgGGGd.",
-  "...GGgGGgGGGgGGGd.",
-  "...GGgGGgGGGgGGGd.",
-  "...GgGGgGGGgGGGGd.",
-  "...GgGGgGGGgGGGdd.",
-  "..GGgGGgGGGgGGGdd.",
-  "..dddddddddddddd..",
-];
-const LCOL: Record<string, string> = { f: "#ffd23f", o: "#ff8a1f", H: "#d8a830", A: "#6fc4a8", c: "#8fe0c4", h: "#7ad0b4", s: "#4f9a84", G: "#5fb89c", g: "#9ae6cc", T: "#3f8a78", d: "#2f6a5a" };
-export const LIB_H = LIB.length + 12 + 4;          // figure + pedestal + fort
-function liberty(px: Px, x: number, y: number) {
-  for (let k = -2; k <= 2; k++) { const w = 23 - Math.abs(k) * 4; px(x - Math.floor(w / 2), y + k - 1, w, 1, k > 0 ? "#3f8a3a" : "#5aa04a"); }   // the island
-  // Fort Wood: an eleven-point star, here a low star of granite
-  px(x - 9, y - 4, 19, 3, "#c8bca8"); px(x - 9, y - 4, 19, 1, "#e0d6c2");
-  for (const d of [-10, 10]) px(x + d, y - 3, 1, 2, "#c8bca8");
-  px(x - 6, y - 5, 13, 1, "#c8bca8"); px(x - 1, y - 6, 3, 1, "#c8bca8");
-  const p = y - 4;                                                          // the pedestal: 10 wide, 12 tall, lit on the left
-  px(x - 5, p - 12, 11, 12, "#d8ccb4"); px(x + 3, p - 12, 3, 12, "#b0a48c"); px(x - 5, p - 12, 11, 1, "#f2ead8");
-  px(x - 6, p - 9, 13, 1, "#e8dcc4"); px(x - 6, p - 3, 13, 1, "#e8dcc4");
-  for (const dx of [-3, 0, 3]) px(x + dx, p - 7, 1, 3, "#8a7e6a");
-  // the statue, outlined in dark green so the silhouette reads in front of the towers
-  const top = p - 12 - LIB.length, x0 = x - 9;
-  const on = (r: number, k: number) => LIB[r]?.[k] !== undefined && LIB[r][k] !== ".";
-  LIB.forEach((row, r) => [...row].forEach((ch, k) => {
-    if (ch !== "." || !(on(r - 1, k) || on(r + 1, k) || on(r, k - 1) || on(r, k + 1))) return;
-    px(x0 + k, top + r, 1, 1, "#173830");
-  }));
-  for (let r = -1; r <= LIB.length; r++) for (const k of [-1, 18]) if (on(r, k + 1) || on(r, k - 1)) px(x0 + k, top + r, 1, 1, "#173830");
-  LIB.forEach((row, r) => [...row].forEach((ch, k) => { if (ch !== ".") px(x0 + k, top + r, 1, 1, LCOL[ch]); }));
-}
-
 function shadeHex(c: string, d: number) {
   return "#" + [1, 3, 5].map((i) => Math.min(255, Math.max(0, parseInt(c.slice(i, i + 2), 16) + d)).toString(16).padStart(2, "0")).join("");
 }
@@ -259,6 +201,47 @@ function verrazzanoWater(px: Px, y0: number, ax: number, ay: number, bx: number,
     const x = Math.round(ax + (bx - ax) * u), y = Math.round(ay + (by - ay) * u);
     for (let d = 5; d < 18; d++) if (M(x, y + d - y0) === "." && d % 3) px(x + (d % 2), y + d, 2, 1, "#9ab4c8");
   }
+}
+
+// Lady Liberty, small and simple: star fort, pedestal, green robe, crown, torch up
+function libertySmall(px: Px, live: Live[], x: number, y: number) {
+  px(x - 4, y - 1, 9, 2, "#8a7e6a"); px(x - 3, y - 2, 7, 1, "#a89c88");
+  px(x - 1, y - 5, 3, 3, "#c8bca8"); px(x - 1, y - 5, 3, 1, "#e0d8c8");
+  px(x - 1, y - 12, 3, 7, "#5fae96"); px(x + 1, y - 12, 1, 7, "#3f8a76"); px(x - 2, y - 7, 1, 2, "#4f9e86");
+  px(x - 1, y - 14, 2, 2, "#5fae96"); px(x - 2, y - 15, 1, 1, "#8ad0bc"); px(x, y - 16, 1, 1, "#8ad0bc"); px(x + 1, y - 15, 1, 1, "#8ad0bc");
+  px(x + 1, y - 17, 1, 5, "#5fae96");
+  live.push({ k: "fn", fn: (f, t) => { f(x + 1, y - 19, 1, 2, Math.floor(t * 6) % 2 ? "#ffd23f" : "#ff8a1f"); } });
+}
+
+// the Bayonne Bridge, rendered: a shaded steel arch rib (two ribs for depth), bracing, hangers down
+// to the deck, a girder along the deck edge and a soft shadow on the water. (bx, by) = the overlay's
+// top-left in map pixels, rows a..b = the span.
+function bayonne3D(g: CanvasRenderingContext2D, w: number, h: number, bx: number, by: number, a: number, b: number) {
+  g.clearRect(0, 0, w, h);
+  const S = w / Math.max(1, Math.round(w / 8));          // canvas px per map px
+  const X = (x: number) => (x - bx) * S, Yc = (y: number) => (y - by) * S;
+  const pts = (off: number, lift: number) => { const out: [number, number][] = []; for (let y = a; y <= b; y += 0.5) { const u = (y - a) / (b - a), r = 13 * 4 * u * (1 - u); out.push([X(roadX(y) + 7 + r * lift + off), Yc(y)]); } return out; };
+  const line = (P: [number, number][], width: number, style: string | CanvasGradient) => { g.beginPath(); P.forEach(([x, y], k) => (k ? g.lineTo(x, y) : g.moveTo(x, y))); g.lineWidth = width; g.strokeStyle = style; g.lineCap = "round"; g.lineJoin = "round"; g.stroke(); };
+  // shadow of the arch on the water
+  g.save(); g.globalAlpha = 0.28; line(pts(3, 0.8), S * 1.6, "#0a1a2a"); g.restore();
+  // the deck girder, a rounded steel box
+  const deck = (off: number) => { const P: [number, number][] = []; for (let y = a; y <= b; y += 0.5) P.push([X(roadX(y) + off), Yc(y)]); return P; };
+  line(deck(6.5), S * 1.2, "#3a424c"); line(deck(6.5), S * 0.7, "#c8d0d8"); line(deck(-6.5), S * 1.2, "#3a424c"); line(deck(-6.5), S * 0.7, "#c8d0d8");
+  // hangers from the near rib down to the deck
+  g.lineWidth = Math.max(1, S * 0.18); g.strokeStyle = "rgba(200,210,220,0.9)";
+  for (let y = a + 1; y < b; y += 1.5) { const u = (y - a) / (b - a), r = 13 * 4 * u * (1 - u); if (r < 1.5) continue; g.beginPath(); g.moveTo(X(roadX(y) + 7), Yc(y)); g.lineTo(X(roadX(y) + 7 + r), Yc(y)); g.stroke(); }
+  // the far rib (darker), cross bracing, the near rib (lit, glossy)
+  line(pts(-1.6, 0.92), S * 1.5, "#3a4450");
+  g.lineWidth = S * 0.35; g.strokeStyle = "#6a7480";
+  for (let y = a + 2; y < b - 1; y += 2.5) { const u = (y - a) / (b - a), r = 13 * 4 * u * (1 - u); g.beginPath(); g.moveTo(X(roadX(y) + 7 + r - 1.6 * 0.92 + (r * 0.92 - r)), Yc(y)); g.lineTo(X(roadX(y + 1.2) + 7 + 13 * 4 * ((y + 1.2 - a) / (b - a)) * (1 - (y + 1.2 - a) / (b - a))), Yc(y + 1.2)); g.stroke(); }
+  line(pts(0, 1), S * 1.9, "#4a5460");
+  line(pts(0, 1), S * 1.3, "#aeb8c4");
+  line(pts(-0.25, 1), S * 0.45, "#f4f8fc");
+  // a glint where the sun catches the crown of the arch
+  const m = (a + b) / 2, gx = X(roadX(m) + 7 + 13), gy = Yc(m);
+  const sp = g.createRadialGradient(gx, gy, 0, gx, gy, S * 3); sp.addColorStop(0, "rgba(255,255,255,0.9)"); sp.addColorStop(1, "rgba(255,255,255,0)");
+  g.fillStyle = sp; g.fillRect(gx - S * 3, gy - S * 3, S * 6, S * 6);
+  void h;
 }
 
 // a steel arch / truss, side on, for the Goethals and the Bayonne Bridge
@@ -499,7 +482,7 @@ export const SC_HARBOR: Partial<Record<string, SceneMod>> = {
   harbor: {
     ground: ["#2a6aac", "#3078b8"],
     under: ({ px, y0 }) => harborGround(px, y0),
-    draw: ({ px, y0, live, canopy, says }) => {
+    draw: ({ px, y0, live, canopy, says, hd }) => {
       const Y = (y: number) => y0 + y;
       // a few flags on Staten Island lawns (July 14th now: no more flags on every pole)
       const flags: [number, number][] = [];
@@ -526,7 +509,7 @@ export const SC_HARBOR: Partial<Record<string, SceneMod>> = {
       const LX = HARBOR.liberty[0] + 8, LY = HARBOR.liberty[1] + 13;            // out in the Upper Bay, in front of downtown, clear of the road
       items.push({ y: GOV[1] + 2, draw: (p) => { p(GOV[0] - 1, Y(GOV[1]) - 2, 3, 3, "#c8a050"); p(GOV[0], Y(GOV[1]) - 1, 1, 1, "#8a6a30"); } });
       // towers on a grid over Manhattan, plus Jersey City's waterfront and downtown Brooklyn
-      const special = (x: number, y: number) => near(x, y, HARBOR.wtc, 3, 3) || near(x, y, HARBOR.esb, 4, 3) || near(x, y, HARBOR.chrysler, 3, 3) || near(x, y, [LX, LY - 24], 11, 26);
+      const special = (x: number, y: number) => near(x, y, HARBOR.wtc, 3, 3) || near(x, y, HARBOR.esb, 4, 3) || near(x, y, HARBOR.chrysler, 3, 3) || near(x, y, [LX, LY - 8], 5, 10);
       const PAL = ["#8a96a8", "#a8b4c4", "#6a7a90", "#c8c0b0", "#b8b0a8", "#7a8aa0", "#d0d4d8", "#9aa8b4", "#b89a80"];
       for (let y = 2; y < HH - 1; y += 2) for (let x = 1 + (y % 4 === 0 ? 0 : 2); x < W - 2; x += 4) {
         const c = M(x, y);
@@ -547,7 +530,7 @@ export const SC_HARBOR: Partial<Record<string, SceneMod>> = {
       { const [ex0, ey0] = HARBOR.esb;                                         // billionaires' row pencils, north of the Empire State
         items.push({ y: ey0 - 9, draw: (p) => { tower(p, ex0 + 1, Y(ey0 - 10), 2, 34, "#c8ccd4", 1); tower(p, ex0 + 6, Y(ey0 - 8), 2, 28, "#2a2e3a", 1); } }); }
       items.push({ y: 998, draw: (p) => brooklynBridge(p, HARBOR.bkbA[0] - 6, HARBOR.bkbB[0] + 8, Y(HARBOR.bkbA[1] + 2)) });    // in front of the skyline, the classic view
-      items.push({ y: 999, draw: (p) => liberty(p, LX, Y(LY)) });              // and Lady Liberty in front of it all
+      items.push({ y: 999, draw: (p) => libertySmall(p, live, LX, Y(LY)) });   // and Lady Liberty in front of it all: small, simple, green
       items.sort((a, b) => a.y - b.y).forEach((it) => it.draw(px));
 
       // at the end of the road, the last interview: a guy in a Yankees cap on the corner
@@ -565,19 +548,15 @@ export const SC_HARBOR: Partial<Record<string, SceneMod>> = {
       const VZ: [number, number, number, number] = [ex + 3, Y(ey) + 1, ex + 38, Y(ey) - 6];    // across the Narrows to Bay Ridge
       verrazzanoWater(px, y0, ...VZ);
       canopy.push((f) => verrazzano(f, ...VZ));
-      canopy.push((f) => {                     // the Bayonne Bridge: the steel arch over the Kill Van Kull, rails on the deck
-        const ys: number[] = [];
+      // the Bayonne Bridge: a smooth 3D steel arch over the Kill Van Kull, bowed out to the east beside the deck
+      { const ys: number[] = [];
         for (let y = y0; y < ROAD_END; y++) if (M(roadX(y), y - y0) === ".") ys.push(y);
-        if (!ys.length) return;
-        const a = ys[0] - 3, b = ys[ys.length - 1] + 3;
-        for (let y = a; y <= b; y++) {
-          const x = roadX(y), u = (y - a) / (b - a), rise = Math.round(11 * 4 * u * (1 - u));
-          f(x - 6, y, 1, 1, "#3a4048"); f(x + 6, y, 1, 1, "#3a4048");
-          f(x + 7 + rise, y, 2, 1, "#2a3038"); f(x + 6 + rise, y, 1, 1, "#e8ecf2");          // the arch, side on, bowed out to the east
-          if (y % 2 === 0 && rise > 1) f(x + 7, y, rise - 1, 1, "#9aa2ac");                   // hangers
-          f(x - 7, y, 1, 1, "#9aa2ac");
-        }
-      });
+        if (ys.length) {
+          const a = ys[0] - 4, b = ys[ys.length - 1] + 4;
+          let lo = 999, hi = -999; for (let y = a; y <= b; y++) { lo = Math.min(lo, roadX(y)); hi = Math.max(hi, roadX(y)); }
+          const bx = Math.floor(lo - 9), bw = Math.ceil(hi + 24) - bx;
+          hd.push({ x: bx, y: a - 2, w: bw, h: b - a + 6, res: 8, draw: (g, w, hh) => bayonne3D(g, w, hh, bx, a - 2, a, b) });
+        } }
 
       // boats: two orange ferries, a container ship in through the Narrows, a tug, sailboats; gulls; sparkle
       // a route through the water: along polyline P at u (0..1)
@@ -618,7 +597,6 @@ export const SC_HARBOR: Partial<Record<string, SceneMod>> = {
           const x = cx + Math.cos(a) * 10, y = cy + Math.sin(a) * 5, up = Math.floor(t * 6 + k) % 2;
           f(x - 1, Y(y) - up, 1, 1, "#ffffff"); f(x, Y(y), 1, 1, "#ffffff"); f(x + 1, Y(y) - up, 1, 1, "#ffffff");
         }
-        if (Math.floor(t * 7) % 3 === 0) f(LX - 8, Y(LY) - 4 - 12 - LIB.length + 1, 1, 1, "#ffffff");    // the torch flickers
       } });
     },
   },

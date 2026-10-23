@@ -198,6 +198,29 @@ function field(side: S, ya: number, yb: number, w = 34) {
   return side === "l" ? { x0: Math.max(1, Math.round(r.lo - 8 - w)), x1: Math.round(r.lo - 8) } : { x0: Math.round(r.hi + 8), x1: Math.min(W - 1, Math.round(r.hi + 8 + w)) };
 }
 
+// a cute dog seen from above: floppy ears, black nose, wagging tail. d = facing (0 down, 1 right, 2 left), s = 0.75 for a puppy
+type F = (x: number, y: number, w: number, h: number, c: string) => void;
+function topDog(f: F, x: number, y: number, col: string, ear: string, t: number, k: number, d: 0 | 1 | 2, pup = false) {
+  const wag = Math.floor(t * 12 + k) % 2 ? 1 : -1, leg = Math.floor(t * 10 + k) % 2;
+  if (d === 0) {
+    const L = pup ? 4 : 5;
+    f(x, y, 3, L, col);                                                                   // body
+    f(x + 1 + wag, y - 2, 1, 2, col);                                                     // tail, wagging
+    f(x - 1, y + 1 + leg, 1, 1, col); f(x + 3, y + 2 - leg, 1, 1, col); f(x - 1, y + L - 2 + leg, 1, 1, col); f(x + 3, y + L - 1 - leg, 1, 1, col);
+    f(x - 0, y + L, 3, 3, col); f(x - 1, y + L, 1, 3, ear); f(x + 3, y + L, 1, 3, ear);   // head, floppy ears
+    f(x + 1, y + L + 3, 1, 1, "#111"); f(x, y + L + 1, 1, 1, "#111"); f(x + 2, y + L + 1, 1, 1, "#111");
+    if (leg) f(x + 1, y + L + 4, 1, 1, "#ff7a8a");                                        // tongue
+  } else {
+    const s = d === 1 ? 1 : -1, L = pup ? 4 : 5, hx = s > 0 ? x + L : x - 3;
+    f(x, y, L, 3, col);
+    f(s > 0 ? x - 2 : x + L, y + 1 + wag, 2, 1, col);
+    f(x + leg, y + 3, 1, 1, col); f(x + L - 1 - leg, y + 3, 1, 1, col);
+    f(hx, y - 1, 3, 3, col); f(hx, y - 2, 1, 2, ear); f(hx + 2, y - 2, 1, 2, ear);
+    f(s > 0 ? hx + 3 : hx - 1, y, 1, 1, "#111"); f(hx + 1, y - 1, 1, 1, "#111");
+    if (leg) f(s > 0 ? hx + 3 : hx - 1, y + 1, 1, 1, "#ff7a8a");
+  }
+}
+
 /* ---------- the scenes ---------- */
 
 export const SC_MID: Partial<Record<string, SceneMod>> = {
@@ -249,7 +272,7 @@ export const SC_MID: Partial<Record<string, SceneMod>> = {
     ground: ["#e8b838", "#d8a42c"],
     under: ({ px, y0, h }) => {
       corn(px, y0, h);
-      for (let x = 0; x < W; x++) { px(x, y0 + 98, 1, 5, "#b89a62"); if (hash(x) > 0.7) px(x, y0 + 99 + (x % 3), 1, 1, "#a0844e"); }  // the county road
+      for (let x = 0; x < W; x++) { px(x, y0 + 138, 1, 5, "#b89a62"); if (hash(x) > 0.7) px(x, y0 + 139 + (x % 3), 1, 1, "#a0844e"); }  // the county road
     },
     draw: ({ px: px0, y0, h, live }) => {
       const rec: R4[] = [], px = recorder(px0, rec);
@@ -264,17 +287,38 @@ export const SC_MID: Partial<Record<string, SceneMod>> = {
       px(x + 32, y + 20, 4, 1, "#8a8f99"); px(x + 35, y + 20, 1, 12, "#8a8f99");                 // the spout
       semi(px, x + 8, y + 31, "#2f8a3a", "#c8a050");
       // the farm by the crossroad, a pickup on the dirt road
-      y = y0 + 80; x = at(y, 16, 30, "l");
+      y = y0 + 120; x = at(y, 16, 30, "l");
       pad(px, x - 1, y - 1, 30, 16, "#7aa84a", "#6a983a");
       px(x, y + 5, 14, 9, "#b8302a"); for (let r = 0; r < 5; r++) px(x + 5 - r, y + r, 4 + 2 * r, 1, "#5a2a1a");
       px(x + 5, y + 8, 4, 6, "#f2f2f2"); px(x + 6, y + 9, 2, 5, "#7a1a14");
       px(x + 17, y + 7, 9, 7, "#ece6d8"); px(x + 16, y + 5, 11, 2, "#5a5a6a"); px(x + 19, y + 9, 2, 2, "#8ab0d8");
-      px(at(y0 + 98, 5, 8, "r") + 20, y0 + 98, 8, 3, "#c8302a"); px(at(y0 + 98, 5, 8, "r") + 21, y0 + 97, 4, 1, "#9ad0e8");
+      px(at(y0 + 138, 5, 8, "r") + 20, y0 + 138, 8, 3, "#c8302a"); px(at(y0 + 138, 5, 8, "r") + 21, y0 + 137, 4, 1, "#9ad0e8");
       // a green road sign at the crossroad
-      x = beside(y0 + 104, 10, 18, "r", 2);
-      px(x + 8, y0 + 110, 1, 6, "#9a9a9a"); px(x, y0 + 104, 21, 7, "#1f6a3a"); px(x + 1, y0 + 105, 19, 5, "#2f8a4a"); word(px, x + 1, y0 + 105, "COLBY", "#f2f2f2", null);
-      rec.push([0, y0 + 97, W, 7]);                                                                            // keep the county road clear
+      x = beside(y0 + 144, 10, 18, "r", 2);
+      px(x + 8, y0 + 150, 1, 6, "#9a9a9a"); px(x, y0 + 144, 21, 7, "#1f6a3a"); px(x + 1, y0 + 145, 19, 5, "#2f8a4a"); word(px, x + 1, y0 + 145, "COLBY", "#f2f2f2", null);
+      rec.push([0, y0 + 137, W, 7]);                                                                            // keep the county road clear
+      // a scarecrow out in the rows, arms out, hat, a crow on his arm
+      y = y0 + 64; x = at(y, 18, 14, "l") + 2;
+      pad(px, x - 2, y + 14, 16, 4, "#b89a62", "#a0844e");
+      px(x + 6, y + 3, 1, 15, "#6a4a2a"); px(x, y + 6, 13, 1, "#6a4a2a");
+      px(x + 4, y, 5, 1, "#3a2a1a"); px(x + 3, y + 1, 7, 1, "#3a2a1a"); px(x + 5, y + 2, 3, 3, "#e8c890"); px(x + 5, y + 3, 1, 1, "#111"); px(x + 7, y + 3, 1, 1, "#111");
+      px(x + 3, y + 5, 7, 6, "#3a6fd8"); px(x + 4, y + 5, 1, 6, "#e0302f"); px(x + 1, y + 6, 2, 2, "#e8c890"); px(x + 10, y + 6, 2, 2, "#e8c890");
+      px(x + 11, y + 4, 2, 2, "#111"); px(x + 13, y + 5, 1, 1, "#e8a020");
+      // a farmstead with grain bins way down the road, a pickup out front
+      y = y0 + 200; x = at(y, 30, 40, "r");
+      pad(px, x - 2, y - 2, 42, 32, "#8aa84a", "#7a983a");
+      for (let k = 0; k < 3; k++) { const bx = x + k * 9; px(bx, y + 4, 8, 14, "#c8ccd2"); px(bx, y + 4, 1, 14, "#e8ecf0"); px(bx + 7, y + 4, 1, 14, "#9aa0a8"); for (let r = 0; r < 4; r++) px(bx + 3 - r, y + r, 2 + 2 * r, 1, "#a8acb2"); }
+      px(x + 28, y + 8, 12, 10, "#ece6d8"); for (let r = 0; r < 4; r++) px(x + 33 - r, y + 4 + r, 2 + 2 * r, 1, "#5a5a6a"); px(x + 31, y + 11, 2, 2, "#ffe9a0"); px(x + 36, y + 12, 2, 6, "#5a3a1a");
+      car(px, x + 4, y + 22, "#c8302a"); car(px, x + 16, y + 22, "#3a6fd8");
       windfarm(px0, live, rec, y0 + 10, y0 + h, 1);
+      // a crop duster sweeping low over the corn, back and forth, spray behind it
+      live.push({ k: "fn", fn: (f, t, ctx) => {
+        const P = 9, u = (t % P) / P, dir = u < 0.5 ? 1 : -1, v = u < 0.5 ? u * 2 : (u - 0.5) * 2;
+        const x = dir > 0 ? -16 + v * (W + 32) : W + 16 - v * (W + 32), y = y0 + (dir > 0 ? 92 : 176);
+        f(x - 4, y, 9, 2, "#ffd23f"); f(x - 1, y - 3, 3, 8, "#ffd23f"); f(x + dir * 5, y, 1, 2, "#e0302f"); f(x - dir * 5, y - 1, 1, 4, "#ffd23f");
+        f(x + dir * 2, y, 1, 1, "#3a6fd8");
+        for (let k = 1; k < 10; k++) { ctx.globalAlpha = 0.35 * (1 - k / 10); f(x - dir * (4 + k * 2), y + 1 + (k % 2), 2, 2, "#f2f2e0"); } ctx.globalAlpha = 1;
+      } });
     },
   },
   plains: { // Hays at sundown: patchy corn on fire with the light, the cross, the cathedral, the billboard, the adult store, bison, and the turbines blinking us to sleep
@@ -295,17 +339,17 @@ export const SC_MID: Partial<Record<string, SceneMod>> = {
       px(x + 12, y + 10, 1, 2, "#9a9a9a");
       px(x + 2, y + 15, 6, 1, "#ff5ad1"); px(x + 18, y + 15, 6, 1, "#ff5ad1"); car(px, x + 2, y + 25 - 4, "#8a8a8a");
       // the big white cross on the rise, and the twin-towered Cathedral of the Plains
-      y = y0 + 44; x = at(y, 36, 30, "r");
+      y = y0 + 84; x = at(y, 36, 30, "r");
       for (let r = 0; r < 8; r++) px(x + 14 - r * 2, y + 28 + r, 4 + r * 4, 1, "#5f9a3a");
       px(x + 14, y, 3, 30, "#f8f8f8"); px(x + 16, y, 1, 30, "#d8d8d8"); px(x + 8, y + 7, 15, 3, "#f8f8f8"); px(x + 8, y + 9, 15, 1, "#d8d8d8");
-      y = y0 + 52; x = at(y, 30, 26, "l");
+      y = y0 + 122; x = at(y, 30, 26, "l");
       pad(px, x - 2, y + 22, 30, 6, "#7aa84a", "#6a983a");
       px(x, y + 10, 24, 14, "#d8c8a0"); for (let r = 0; r < 6; r++) px(x + 8 - r, y + 4 + r, 8 + 2 * r, 1, "#a8402a");
       for (const dx of [0, 19]) { px(x + dx, y - 2, 5, 26, "#e0d0a8"); px(x + dx + 1, y - 6, 3, 4, "#5aa88a"); px(x + dx + 2, y - 8, 1, 2, "#5aa88a"); px(x + dx + 2, y + 2, 1, 3, "#5a4a3a"); }
       px(x + 10, y + 13, 4, 11, "#5a3a1a"); for (const dx of [7, 16]) px(x + dx, y + 13, 2, 5, "#7aa0c8");
       px(x + 11, y + 9, 2, 2, "#e0302f");
       // bison in Frontier Park
-      y = y0 + 88; x = at(y, 20, 34, "r");
+      y = y0 + 168; x = at(y, 20, 34, "r");
       pad(px, x - 1, y - 1, 34, 20, "#8aa84a", "#8a6a42");
       for (const [dx, dy] of [[3, 3], [14, 9], [23, 4]]) {
         px(x + dx, y + dy + 1, 7, 4, "#5a3a22"); px(x + dx - 1, y + dy, 4, 4, "#3a2414"); px(x + dx + 1, y + dy - 1, 2, 1, "#3a2414");
@@ -313,7 +357,7 @@ export const SC_MID: Partial<Record<string, SceneMod>> = {
         px(x + dx - 1, y + dy, 1, 1, "#e8e0c8");
       }
       // windmills, wheels turning
-      for (const [ry, side] of [[92, "l"], [124, "l"], [128, "r"]] as const) {
+      for (const [ry, side] of [[60, "l"], [196, "l"], [226, "r"]] as const) {
         y = y0 + ry; x = at(y - 4, 20, 10, side) + 5;
         for (let r = 0; r < 16; r++) { px(x - Math.floor(r / 4), y + r, 1, 1, "#8a8a8a"); px(x + Math.floor(r / 4), y + r, 1, 1, "#8a8a8a"); }
         for (let r = 4; r < 16; r += 4) px(x - Math.floor(r / 4), y + r, 2 * Math.floor(r / 4) + 1, 1, "#8a8a8a");
@@ -321,7 +365,8 @@ export const SC_MID: Partial<Record<string, SceneMod>> = {
         live.push(wheel(x, y - 1, 2 + ry * 0.01));
         px(x + 3, y + 14, 6, 2, "#6a8a9a");                                  // the stock tank
       }
-      { const b = field("r", y0 + 112, y0 + 140, 36); live.push(herd(5, b.x0, b.x1, y0 + 112, y0 + 140, 3)); rec.push([b.x0, y0 + 112, b.x1 - b.x0, 28]); }
+      { const b = field("r", y0 + 236, y0 + 264, 36); live.push(herd(5, b.x0, b.x1, y0 + 236, y0 + 264, 3)); rec.push([b.x0, y0 + 236, b.x1 - b.x0, 28]); }
+      { const b = field("l", y0 + 150, y0 + 178, 30); live.push(herd(3, b.x0, b.x1, y0 + 150, y0 + 178, 7)); rec.push([b.x0, y0 + 150, b.x1 - b.x0, 28]); }
       windfarm(px0, live, rec, y0, y0 + h, 2);
       // the hypnosis: a red pulse that breathes up from the Oklahoma line, slower and deeper as it goes
       live.push({ k: "fn", fn: (f, t, ctx) => {
@@ -367,17 +412,23 @@ export const SC_MID: Partial<Record<string, SceneMod>> = {
         if (Math.floor(t * 7) % 9 !== 0) { f(x + 2, y + 12, 26, 1, "#f0ff7a"); f(x + 28, y, 5, 3, "#ff8ae8"); }
         if (Math.floor(t * 3) % 5 === 1) f(x + 37, y + 25, 4, 7, "#5a2a5a");
       } }))(x, y);
-      live.push({ k: "dogs", x: x + 4, y: y + 36, w: 26, h: 5 });
+      // the bar dogs playing chase round the lot: a lab, a brown one, a spotted puppy
+      ((x0: number, y0d: number) => live.push({ k: "fn", fn: (f, t) => {
+        const W2 = 34, H2 = 8, per = 2 * (W2 + H2);
+        [["#e8c890", "#b8905a", 0, false], ["#7a4a2a", "#4a2a14", per / 3, false], ["#f2f2f2", "#c8a070", (2 * per) / 3, true]].forEach(([c, e, off, pup], k) => {
+          const p = (t * 11 + (off as number)) % per;
+          let x: number, y: number, d: 0 | 1 | 2;
+          if (p < W2) { x = x0 + p; y = y0d; d = 1; } else if (p < W2 + H2) { x = x0 + W2; y = y0d + p - W2; d = 0; }
+          else if (p < 2 * W2 + H2) { x = x0 + W2 - (p - W2 - H2); y = y0d + H2; d = 2; } else { x = x0; y = y0d + H2 - (p - 2 * W2 - H2); d = 0; }
+          topDog(f, Math.round(x), Math.round(y), c as string, e as string, t, k, d, pup as boolean);
+        });
+      } }))(x + 4, y + 36);
       // the bar dogs got out: as we drive away they run with us down the shoulder, all morning
       live.push({ k: "fn", fn: (f, t) => {
         const ya = hy + 12, yb = y0 + 206, span = yb - ya;
-        [["#d8c8a8", 0, 14], ["#5a3a22", 9, 15.5], ["#f2f2f2", 20, 13], ["#1a1a1a", 31, 16.5]].forEach(([c, off, v], k) => {
-          const y = ya + ((t * (v as number) + (off as number)) % span), x = Math.round(roadX(y) - 11 - (k % 2) * 3);
-          const leg = Math.floor(t * 12 + k) % 2, col = c as string;
-          f(x, y, 2, 5, col); f(x + (leg ? 1 : 0), y - 2, 1, 2, col);                                   // body heading down the map, tail wagging up behind
-          f(x - 1 + leg, y + 1, 1, 1, "#2a1a10"); f(x + 2 - leg, y + 1, 1, 1, "#2a1a10"); f(x - leg, y + 4, 1, 1, "#2a1a10"); f(x + 1 + leg, y + 4, 1, 1, "#2a1a10");
-          f(x, y + 5, 2, 2, col); f(x - 1, y + 5, 1, 1, col); f(x + 2, y + 5, 1, 1, col);               // head, ears flapping
-          if (leg) f(x + 1, y + 7, 1, 1, "#e8708a");                                                    // tongue out
+        [["#e8c890", "#b8905a", 0, 14, false], ["#7a4a2a", "#4a2a14", 9, 15.5, false], ["#f2f2f2", "#c8a070", 20, 13, true], ["#1a1a1a", "#4a4a4a", 31, 16.5, false]].forEach(([c, e, off, v, pup], k) => {
+          const y = ya + ((t * (v as number) + (off as number)) % span), x = Math.round(roadX(y) - 12 - (k % 2) * 4);
+          topDog(f, x, Math.round(y), c as string, e as string, t, k, 0, pup as boolean);
         });
       } });
       // MORNING. Route 66
@@ -610,7 +661,7 @@ export const SC_MID: Partial<Record<string, SceneMod>> = {
           for (let k = 0; k < n; k++) if ((k + row) % 3 === 1) car(px, x0 + k * 11 + 1, hy + 17, "#8a8e96");
         }
       };
-      { const r = room(y0 + 8, 82), x0 = Math.round(r.hi + 8); subdiv(x0, W - 1, y0 + 6, 4);
+      { const r = room(y0 + 8, 82), x0 = Math.round(r.hi + 12); subdiv(x0, W - 1, y0 + 6, 4);
         // him: second row, first house, washing a blue car out front
         const hy = y0 + 30, cx = x0 + 4, gx = x0 - 3;
         px(x0 - 2, hy + 16, 16, 6, "#6a6e74");                                              // the wet, darker concrete
