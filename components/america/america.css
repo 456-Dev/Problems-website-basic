@@ -58,7 +58,17 @@
 /* Kansas → Oklahoma: the ground plane bends away into the sundown */
 .oqa-sky { position: absolute; inset: 0; pointer-events: none;
   background: radial-gradient(circle at 50% 30%, #fff2b0 0 6%, #ffb050 7%, rgba(255,140,60,0) 22%), linear-gradient(#1a0a30 0%, #6a1a48 25%, #c8402a 45%, #ff9a4a 60%, #3a1a10 61%); }
-.oqa-plane { position: absolute; inset: 0; transform-origin: 50% 50%; transition: transform .2s linear; }
+.oqa-plane { position: absolute; inset: 0; transform-origin: 50% 50%; }
+.oqa-strip canvas.oqa-3d { top: 0; left: 0; width: 100%; height: 100%; image-rendering: auto; pointer-events: none; }
+/* the trip's music: a button in the corner, Spotify's player docked at the bottom */
+.oqa .oqa-music { position: absolute; right: 8px; bottom: 8px; z-index: 6; font-family: var(--oqa-pixel), monospace; font-size: 11px; color: #000;
+  background: #ffd23f; border: 2px solid #000; box-shadow: 3px 3px 0 #000; padding: 8px 10px; cursor: pointer; animation: oqa-beat 1.2s ease-in-out infinite; }
+.oqa .oqa-music.on, .oqa .oqa-music.paused { animation: none; bottom: 96px; }
+.oqa .oqa-music.on { background: #fff; }
+@keyframes oqa-beat { 50% { transform: scale(1.08); } }
+.oqa-spot { position: absolute; left: 8px; right: 8px; bottom: 8px; height: 80px; z-index: 5; display: none; }
+.oqa-spot.on { display: block; }
+.oqa-spot iframe { border: 0; border-radius: 12px; }
 .oqa-dusk { position: absolute; inset: 0; pointer-events: none; mix-blend-mode: multiply;
   background: linear-gradient(#5a1a40 0%, #c8502a 45%, #ff9a4a 70%, #ffd8a0 100%); }
 /* the crash sequence through the Trade Winds: full frame, a white flash on every cut */

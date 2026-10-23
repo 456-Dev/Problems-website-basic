@@ -5,6 +5,7 @@ import type { SceneMod, Px } from "../kit";
 import { pine, bldg, stars, river, person, cowboy, pivot, word, wordW, pick, usFlag, flagPole,
   eTree, eDogwood, eHouse, eRock, eCow, eSunflower, eHay } from "../kit";
 import type { Live } from "../fx";
+import { POP } from "../pop3d";
 
 /* ---------- local helpers ---------- */
 
@@ -132,6 +133,7 @@ function windfarm(px: Px, live: Live[], rec: R4[], ya: number, yb: number, seed:
     if (x + 11 > r.lo - 6 && x - 8 < r.hi + 6) continue;
     if (hit(rec, x - 6, y - 4, 13, 25)) continue;
     T.push([x, y]); rec.push([x - 6, y - 4, 13, 25]);
+    if (hash(x * 13 + y * 5 + seed) < 0.3) POP.push({ k: "turbine", x: x + 1, y: y + 17, h: 26 + hash(x + y) * 8 });
   }
   for (const [x, y] of T) {
     const u = sun(y);
@@ -247,6 +249,9 @@ export const SC_MID: Partial<Record<string, SceneMod>> = {
       px(x + 47, y - 12, 1, 30, "#9a9a9a");                                                                     // the tall sign
       px(x + 36, y - 22, 23, 11, "#1f6a3a"); px(x + 37, y - 21, 21, 9, "#2f8a4a"); word(px, x + 38, y - 19, "OASIS", "#ffd23f", null);
       px(x + 37, y - 13, 21, 1, "#ffd23f");
+      POP.push({ k: "sign", x: x + 47, y: y - 12, w: 23, h: 11, lift: 16, bg: "#2f8a4a", lines: [["OASIS", "#ffd23f"]] },
+        { k: "box", x: x + 17, y: y + 3, w: 34, d: 6, h: 7, c: "#e0302f", roof: "#f2f2f2" },
+        { k: "box", x: x + 15, y: y + 25, w: 30, d: 11, h: 6, c: "#e8d8b0", roof: "#7a3a1a" });
       semi(px, x + 34, y + 2); semi(px, x + 34, y + 12, "#3a6fd8", "#e8e8e8"); semi(px, x + 34, y + 22, "#2a2a2a", "#c8302a");
       // Bigfoot, mid-stride on his plinth
       y = y0 + 62; x = at(y, 30, 18, "l");
@@ -299,12 +304,17 @@ export const SC_MID: Partial<Record<string, SceneMod>> = {
       word(px, x + 2, y + 14, "COLBY", "#3a3f4a", null);
       px(x + 32, y + 20, 4, 1, "#8a8f99"); px(x + 35, y + 20, 1, 12, "#8a8f99");                 // the spout
       semi(px, x + 8, y + 31, "#2f8a3a", "#c8a050");
+      for (let k = 0; k < 4; k++) POP.push({ k: "bin", x: x + 3 + k * 6, y: y + 34, r: 3, h: 30, c: "#d8dce0" });
+      POP.push({ k: "tower", x: x + 28, y: y + 34, h: 40, c: "#c8ccd2", cap: "#9aa0a8" },
+        { k: "sign", x: x + 12, y: y + 40, w: 22, h: 6, lift: 24, bg: "#d8dce0", lines: [["COLBY", "#3a3f4a"]] });
       // the farm by the crossroad, a pickup on the dirt road
       y = y0 + 300; x = at(y, 16, 30, "l");
       pad(px, x - 1, y - 1, 30, 16, "#7aa84a", "#6a983a");
       px(x, y + 5, 14, 9, "#b8302a"); for (let r = 0; r < 5; r++) px(x + 5 - r, y + r, 4 + 2 * r, 1, "#5a2a1a");
       px(x + 5, y + 8, 4, 6, "#f2f2f2"); px(x + 6, y + 9, 2, 5, "#7a1a14");
       px(x + 17, y + 7, 9, 7, "#ece6d8"); px(x + 16, y + 5, 11, 2, "#5a5a6a"); px(x + 19, y + 9, 2, 2, "#8ab0d8");
+      POP.push({ k: "box", x: x + 7, y: y + 9, w: 14, d: 9, h: 8, c: "#b8302a", roof: "#5a2a1a", gable: true },
+        { k: "box", x: x + 21.5, y: y + 10, w: 9, d: 7, h: 5, c: "#ece6d8", roof: "#5a5a6a", gable: true });
       px(at(y0 + 318, 5, 8, "r") + 20, y0 + 318, 8, 3, "#c8302a"); px(at(y0 + 318, 5, 8, "r") + 21, y0 + 317, 4, 1, "#9ad0e8");
       // a green road sign at the crossroad
       x = beside(y0 + 324, 10, 18, "r", 2);
@@ -323,6 +333,8 @@ export const SC_MID: Partial<Record<string, SceneMod>> = {
       for (let k = 0; k < 3; k++) { const bx = x + k * 9; px(bx, y + 4, 8, 14, "#c8ccd2"); px(bx, y + 4, 1, 14, "#e8ecf0"); px(bx + 7, y + 4, 1, 14, "#9aa0a8"); for (let r = 0; r < 4; r++) px(bx + 3 - r, y + r, 2 + 2 * r, 1, "#a8acb2"); }
       px(x + 28, y + 8, 12, 10, "#ece6d8"); for (let r = 0; r < 4; r++) px(x + 33 - r, y + 4 + r, 2 + 2 * r, 1, "#5a5a6a"); px(x + 31, y + 11, 2, 2, "#ffe9a0"); px(x + 36, y + 12, 2, 6, "#5a3a1a");
       car(px, x + 4, y + 22, "#c8302a"); car(px, x + 16, y + 22, "#3a6fd8");
+      for (let k = 0; k < 3; k++) POP.push({ k: "bin", x: x + 4 + k * 9, y: y + 12, r: 4, h: 14, c: "#c8ccd2", cone: "#a8acb2" });
+      POP.push({ k: "box", x: x + 34, y: y + 13, w: 12, d: 10, h: 6, c: "#ece6d8", roof: "#5a5a6a", gable: true });
       // cows out in a fenced pasture
       { const b = field("l", y0 + 400, y0 + 432, 34); pad(px, b.x0 - 1, y0 + 399, b.x1 - b.x0 + 2, 34, "#7aa84a", "#6a983a"); live.push(herd(4, b.x0, b.x1, y0 + 400, y0 + 432, 11)); }
       // a lone tractor still working at dusk, headlights on, crawling up and down a strip
@@ -366,22 +378,28 @@ export const SC_MID: Partial<Record<string, SceneMod>> = {
       px(x + 6, y + 14, 1, 10, "#7a5a3a"); px(x + 22, y + 14, 1, 10, "#7a5a3a");
       px(x, y, 30, 15, "#111"); px(x + 1, y + 1, 28, 13, "#f2f2f2");
       word2(px, x + 5, y + 2, "JESUS", "#111"); word(px, x + 2, y + 8, "IS REAL", "#c8202a", null);
+      POP.push({ k: "sign", x: x + 15, y: y + 20, w: 30, h: 15, lift: 9, bg: "#f2f2f2", lines: [["JESUS", "#111"], ["IS REAL", "#c8202a"]] });
       y = y0 + 10; x = at(y, 24, 28, "l");
       pad(px, x - 2, y + 4, 32, 22, "#9a9a9e", "#7a7a7e");
       px(x, y + 12, 26, 12, "#2a2a32"); px(x, y + 11, 26, 1, "#111"); px(x + 11, y + 17, 4, 7, "#111");
       px(x + 3, y, 20, 10, "#ffd23f"); px(x + 3, y + 9, 20, 1, "#c8a020"); word(px, x + 7, y + 2, "XXX", "#e0302f", null);
       px(x + 12, y + 10, 1, 2, "#9a9a9a");
       px(x + 2, y + 15, 6, 1, "#ff5ad1"); px(x + 18, y + 15, 6, 1, "#ff5ad1"); car(px, x + 2, y + 25 - 4, "#8a8a8a");
+      POP.push({ k: "box", x: x + 13, y: y + 18, w: 26, d: 12, h: 6, c: "#2a2a32", roof: "#111" },
+        { k: "sign", x: x + 13, y: y + 11, w: 20, h: 9, lift: 7, bg: "#ffd23f", lines: [["XXX", "#e0302f"]] });
       // the big white cross on the rise, and the twin-towered Cathedral of the Plains
       y = y0 + 190; x = at(y, 36, 30, "r");
       for (let r = 0; r < 8; r++) px(x + 14 - r * 2, y + 28 + r, 4 + r * 4, 1, "#5f9a3a");
       px(x + 14, y, 3, 30, "#f8f8f8"); px(x + 16, y, 1, 30, "#d8d8d8"); px(x + 8, y + 7, 15, 3, "#f8f8f8"); px(x + 8, y + 9, 15, 1, "#d8d8d8");
+      POP.push({ k: "cross", x: x + 15.5, y: y + 30, h: 34 });
       y = y0 + 320; x = at(y, 30, 26, "l");
       pad(px, x - 2, y + 22, 30, 6, "#7aa84a", "#6a983a");
       px(x, y + 10, 24, 14, "#d8c8a0"); for (let r = 0; r < 6; r++) px(x + 8 - r, y + 4 + r, 8 + 2 * r, 1, "#a8402a");
       for (const dx of [0, 19]) { px(x + dx, y - 2, 5, 26, "#e0d0a8"); px(x + dx + 1, y - 6, 3, 4, "#5aa88a"); px(x + dx + 2, y - 8, 1, 2, "#5aa88a"); px(x + dx + 2, y + 2, 1, 3, "#5a4a3a"); }
       px(x + 10, y + 13, 4, 11, "#5a3a1a"); for (const dx of [7, 16]) px(x + dx, y + 13, 2, 5, "#7aa0c8");
       px(x + 11, y + 9, 2, 2, "#e0302f");
+      POP.push({ k: "box", x: x + 12, y: y + 17, w: 14, d: 12, h: 12, c: "#d8c8a0", roof: "#a8402a", gable: true },
+        { k: "tower", x: x + 2.5, y: y + 20, h: 26, c: "#e0d0a8", cap: "#5aa88a" }, { k: "tower", x: x + 21.5, y: y + 20, h: 26, c: "#e0d0a8", cap: "#5aa88a" });
       // bison in Frontier Park
       y = y0 + 480; x = at(y, 20, 34, "r");
       pad(px, x - 1, y - 1, 34, 20, "#8aa84a", "#8a6a42");
@@ -398,6 +416,7 @@ export const SC_MID: Partial<Record<string, SceneMod>> = {
         px(x + 1, y - 1, 5, 1, "#9a9a9a"); px(x + 5, y - 3, 1, 3, "#e0302f");
         live.push(wheel(x, y - 1, 2 + (ry % 97) * 0.02));
         px(x + 3, y + 14, 6, 2, "#6a8a9a");                                  // the stock tank
+        POP.push({ k: "windmill", x, y: y + 14 });
       }
       { const b = field("r", y0 + 680, y0 + 708, 36); live.push(herd(5, b.x0, b.x1, y0 + 680, y0 + 708, 3)); rec.push([b.x0, y0 + 680, b.x1 - b.x0, 28]); }
       { const b = field("l", y0 + 400, y0 + 428, 30); live.push(herd(3, b.x0, b.x1, y0 + 400, y0 + 428, 7)); rec.push([b.x0, y0 + 400, b.x1 - b.x0, 28]); }
@@ -405,10 +424,12 @@ export const SC_MID: Partial<Record<string, SceneMod>> = {
       y = y0 + h - 70; x = beside(y, 16, 44, "r", 3);
       px(x + 6, y + 10, 1, 7, "#7a5a3a"); px(x + 36, y + 10, 1, 7, "#7a5a3a"); px(x, y, 44, 11, "#f2f2f2"); px(x + 1, y + 1, 42, 9, "#1f4a8a");
       word(px, x + 3, y + 2, "OKLAHOMA", "#f2f2f2", null);
+      POP.push({ k: "sign", x: x + 22, y: y + 16, w: 44, h: 11, lift: 6, bg: "#1f4a8a", lines: [["WELCOME TO", "#f2f2f2"], ["OKLAHOMA", "#f2f2f2"]] });
       y = y0 + 930; x = at(y, 16, 22, "l");
       pad(px, x - 2, y - 2, 24, 18, mix("#6a8a3a", "#4a2a3a", 0.9), mix("#5a7a32", "#3a2230", 0.9));
       px(x, y + 6, 12, 8, "#d8c8b0"); for (let r = 0; r < 4; r++) px(x + 5 - r, y + 2 + r, 2 + 2 * r, 1, "#5a3a3a"); px(x + 3, y + 8, 2, 2, "#ffe070");
       px(x + 15, y + 2, 4, 12, "#c8ccd2"); px(x + 15, y + 1, 4, 1, "#a8acb2");
+      POP.push({ k: "box", x: x + 6, y: y + 10, w: 12, d: 8, h: 5, c: "#d8c8b0", roof: "#5a3a3a", gable: true }, { k: "bin", x: x + 17, y: y + 12, r: 2, h: 10, c: "#c8ccd2", cone: "#a8acb2" });
       windfarm(px0, live, rec, y0, y0 + h, 2);
       // the hypnosis: a red pulse that breathes up from the Oklahoma line, slower and deeper as it goes
       live.push({ k: "fn", fn: (f, t, ctx) => {
