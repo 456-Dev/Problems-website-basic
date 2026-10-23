@@ -1,13 +1,13 @@
 /* One Question for America — dressed like the film itself:
-   black letterbox, white subtitles, and a highway down the right edge for a scrollbar. */
+   black letterbox, white subtitles, and a highway along the bottom for a scrollbar. */
 
 .oqa {
-  --rail: 92px;
+  --rail: clamp(150px, 26vh, 280px);
   --grey: #5b5b5b;
   --sub: #f2f2f2;
   --pin: #4fc3f7;            /* the blue of the map pins in the film's intro */
   background: #000; color: #fff; min-height: 100vh;
-  padding-right: var(--rail);
+  padding-bottom: calc(var(--rail) + 12px);
   font-family: var(--oqa-font), "Open Sans", "Segoe UI", Arial, sans-serif;
 }
 .oqa *, .oqa *::before, .oqa *::after { box-sizing: border-box; }
@@ -17,21 +17,28 @@
 .oqa :focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
 .oqa h2 { margin: 0; font-weight: 800; font-size: clamp(28px, 3.6vw, 50px); line-height: 1.05; letter-spacing: -.02em; }
 
-/* ---- the rail ---- */
+/* ---- the rail: a fixed 8-bit road trip along the bottom ---- */
 .oqa-rail {
-  position: fixed; top: 0; right: 0; bottom: 0; width: var(--rail); z-index: 20;
-  background: #000; display: flex; flex-direction: column; justify-content: space-between;
-  align-items: center; padding: 12px 0;
+  position: fixed; left: 0; right: 0; bottom: 0; height: var(--rail); z-index: 20;
+  background: #000; border-top: 2px solid #fff; display: flex; flex-direction: column;
 }
-.oqa-rail-end { font-family: var(--oqa-pixel), monospace; font-size: 9px; color: #cfcfcf; padding: 3px 0; }
-.oqa-strip { position: relative; flex: 1; width: 80px; margin: 4px 0; overflow: hidden; cursor: ns-resize; touch-action: none;
-  border: 2px solid #fff; background: #000; }
-.oqa-strip canvas { position: absolute; left: 0; top: 0; width: 100%; image-rendering: pixelated; }
-.oqa-van { position: absolute; transform: translate(-50%, -50%); image-rendering: pixelated; shape-rendering: crispEdges;
+.oqa-strip { position: relative; flex: 1; overflow: hidden; cursor: ew-resize; touch-action: none; background: #000; }
+.oqa-strip canvas { position: absolute; left: 0; top: 0; image-rendering: pixelated; }
+.oqa-van { position: absolute; transform: translate(-50%, -100%); image-rendering: pixelated; shape-rendering: crispEdges;
   filter: drop-shadow(0 2px 0 rgba(0,0,0,.5)); pointer-events: none; }
-.oqa-rail-here { font-family: var(--oqa-pixel), monospace; font-size: 7px; line-height: 1.5; text-align: center; color: #fff;
-  width: 84px; min-height: 34px; padding: 4px 0 0; word-break: break-word; }
-.oqa-rail-here b { display: block; color: #ffd23f; font-weight: 400; }
+.oqa-rail-end, .oqa-rail-here { position: absolute; top: 10px; font-family: var(--oqa-pixel), monospace; color: #fff;
+  background: #000; border: 2px solid #fff; pointer-events: none; }
+.oqa-rail-end { font-size: 11px; padding: 5px 7px; }
+.oqa-rail-end.west { left: 10px; }
+.oqa-rail-end.east { right: 10px; }
+.oqa-rail-here { left: 50%; transform: translateX(-50%); font-size: 12px; line-height: 1.6; text-align: center;
+  padding: 6px 12px; white-space: nowrap; }
+.oqa-rail-here b { display: block; color: #ffd23f; font-weight: 400; font-size: 10px; }
+/* trip progress: one tick per stop */
+.oqa-rail-trip { position: relative; height: 8px; background: #1a1a1a; border-top: 2px solid #fff; }
+.oqa-rail-trip i { position: absolute; left: 0; top: 0; bottom: 0; background: #ffd23f; }
+.oqa-rail-trip em { position: absolute; top: 1px; width: 2px; height: 4px; margin-left: -1px; background: #555; }
+.oqa-rail-trip em.past { background: #000; }
 
 .oqa-top { display: flex; justify-content: space-between; padding: 18px 28px; font-size: 14px; color: #bdbdbd; }
 .oqa-top a { text-decoration: none; }
@@ -142,11 +149,11 @@
   .oqa-trip-grid { grid-template-columns: 1fr; }
 }
 @media (max-width: 900px) {
-  .oqa { --rail: 56px; }
-  .oqa-strip { width: 48px; border-width: 1px; }
-  .oqa-rail-here { width: 54px; font-size: 5px; }
-  .oqa-rail-end { font-size: 7px; }
-        .oqa-top, .oqa-hero, .oqa-trip, .oqa-three, .oqa-film, .oqa-credits { padding-left: 14px; padding-right: 14px; }
+  .oqa { --rail: clamp(120px, 22vh, 190px); }
+  .oqa-rail-end { font-size: 8px; padding: 3px 5px; top: 6px; }
+  .oqa-rail-here { font-size: 9px; padding: 4px 8px; top: 6px; }
+  .oqa-rail-here b { font-size: 8px; }
+  .oqa-top, .oqa-hero, .oqa-trip, .oqa-three, .oqa-film, .oqa-credits { padding-left: 14px; padding-right: 14px; }
   .oqa-hero { gap: 26px; }
   .oqa-three ol { grid-template-columns: 1fr; gap: 24px; }
   .oqa-map { --cs: 2.4; }
