@@ -30,7 +30,7 @@
 /* ---- the road trip: a phone-wide 8-bit map at the bottom of the page. The frame sticks
    while you scroll its section, and the map pans LA (top) to NYC (bottom) inside it ---- */
 .oqa-trek { position: relative; }
-.oqa-road-col { position: sticky; top: 0; height: 100vh; width: min(100%, 430px); margin: 0 auto;
+.oqa-road-col { position: sticky; top: 0; height: 100vh; width: min(100%, 860px); margin: 0 auto;
   display: flex; flex-direction: column; padding: 12px 0; }
 .oqa-strip { position: relative; flex: 1; overflow: hidden; border: 3px solid #fff; background: #000;
   cursor: ns-resize; }
@@ -45,6 +45,15 @@
 .oqa-road-say.us { right: 22%; left: 4%; text-align: left; }
 .oqa-road-say.note { left: 10%; right: 10%; background: #000; color: #fff; border-color: #fff; box-shadow: none; font-style: italic; text-align: center; }
 .oqa-strip canvas.oqa-hd { width: auto; image-rendering: auto; filter: drop-shadow(0 2px 3px rgba(0,0,0,.35)); }
+.oqa-strip canvas.oqa-hd.top { filter: none; pointer-events: none; }
+/* the Tulsa jump scare: a face snaps up at the glass, shakes, and is gone when you scroll on */
+.oqa-strip canvas.oqa-scare { top: 50%; left: 50%; width: 92%; height: auto; aspect-ratio: 1; opacity: 0; pointer-events: none;
+  transform: translate(-50%, -50%) scale(.1); image-rendering: pixelated; }
+.oqa-strip canvas.oqa-scare.on { opacity: 1; animation: oqa-scare .9s steps(1) both, oqa-shake .12s steps(2) .18s 4; }
+.oqa-strip:has(.oqa-scare.on)::after { content: ""; position: absolute; inset: 0; background: #b00; mix-blend-mode: multiply; animation: oqa-flash .5s steps(3) both; pointer-events: none; }
+@keyframes oqa-scare { 0% { transform: translate(-50%, -50%) scale(.15); } 12% { transform: translate(-50%, -50%) scale(1.2); } 100% { transform: translate(-50%, -50%) scale(1.05); } }
+@keyframes oqa-shake { 0% { margin-left: -6px; } 100% { margin-left: 6px; } }
+@keyframes oqa-flash { from { opacity: .9; } to { opacity: 0; } }
 @keyframes oqa-say { from { opacity: 0; transform: translateY(-80%); } to { opacity: 1; transform: translateY(-100%); } }
 
 .oqa-top { display: flex; justify-content: space-between; padding: 18px 28px; font-size: 14px; color: #bdbdbd; }
