@@ -25,6 +25,8 @@ const panels = [
     blurb: "A road-trip documentary. 3 questions, over 200 strangers, 14 states, Los Angeles to New York." },
   { href: "/book/", img: "/assets/book/cover.jpg", years: "2025", title: "They Said You Can't",
     blurb: "The photography book. 160 full-color pages in 7 sections. Digital, standard, and deluxe." },
+  { href: "/nepal", img: "/assets/nepal/panel.jpg", years: "2026", title: "The Nepal Problem Solver Report",
+    blurb: "A 30-minute report from Nepal, after the Gen Z protests of 2025. Plus the Discord election, from its moderator." },
 ];
 
 const css = `
@@ -35,8 +37,8 @@ const css = `
 }
 .qtd-home > img { width: min(170px, 40vw); height: auto; display: block; }
 .panels {
-  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px;
-  width: 100%; max-width: 1120px;
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px;
+  width: 100%; max-width: 1360px;
 }
 .panel {
   display: flex; flex-direction: column; background: #0d0d0d; border: 1px solid #383838;
@@ -61,7 +63,10 @@ const css = `
   font-family: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 12px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: #ffe500;
 }
-@media (max-width: 860px) {
+@media (max-width: 1180px) {
+  .panels { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 800px; }
+}
+@media (max-width: 640px) {
   .panels { grid-template-columns: 1fr; max-width: 520px; }
 }
 `;
