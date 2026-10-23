@@ -2,10 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import { stops } from "@/lib/america";
-import { W, SH, HT, SCENES, roadX, drawStrip, fireSpot } from "./pixelTrip";
+import { W, HT, SCENES, TRAIL, sceneAt, roadX, vanX, drawStrip, drawLive, drawCanopy, type Live } from "./pixelTrip";
 
 // The 8-bit road trip at the bottom of the page: a phone-wide map seen from above,
-// LA at the top and NYC at the bottom, one little landscape per stop. When you reach
+// LA at the top and NYC at the bottom, a little landscape per stop. When you reach
 // it, the frame holds still on screen and the map scrolls top to bottom as you keep
 // scrolling, our white minivan driving the highway with you. Click or drag to jump.
 
@@ -15,7 +15,7 @@ type Car = { south: boolean; y: number; v: number; c: string };
 
 // our white minivan from above, black outline, heading down the map
 function drawVan(ctx: CanvasRenderingContext2D, vy: number) {
-  const y = Math.round(vy), l = Math.round(roadX(y)) - 3, t = y - 5;
+  const y = Math.round(vy), l = Math.round(vanX(y)) - 3, t = y - 5;
   const f = (a: number, b: number, w: number, h: number, c: string) => { ctx.fillStyle = c; ctx.fillRect(a, b, w, h); };
   f(l, t, 6, 10, "#000"); f(l + 1, t + 1, 4, 8, "#e6e6e6"); f(l + 1, t + 3, 4, 3, "#ffffff");
   f(l + 1, t + 6, 4, 2, "#1a2a3a"); f(l + 1, t + 1, 1, 1, "#e0302f"); f(l + 4, t + 1, 1, 1, "#e0302f");
@@ -30,15 +30,19 @@ export default function RoadRail() {
   const drag = useRef(false);
   const canvas = useRef<HTMLCanvasElement>(null);
   const fx = useRef<HTMLCanvasElement>(null);
+  const over = useRef<HTMLCanvasElement>(null);
+  const live = useRef<Live[]>([]);
   const box = useRef<HTMLDivElement>(null);
 
   // the landscape, drawn once
   useEffect(() => {
     const ctx = canvas.current?.getContext("2d");
-    if (ctx) drawStrip(ctx);
+    if (ctx) live.current = drawStrip(ctx);
+    const o = over.current?.getContext("2d");
+    if (o) drawCanopy(o);
   }, []);
 
-  // traffic + the Rockies fire, animated
+  // traffic, the van, and everything else that moves (fire, fireworks, dogs, the club)
   useEffect(() => {
     const ctx = fx.current?.getContext("2d");
     if (!ctx) return;
@@ -47,7 +51,6 @@ export default function RoadRail() {
     const cars: Car[] = Array.from({ length: 34 }, (_, i) => ({
       south: i % 2 === 1, y: rnd() * HT, v: 12 + rnd() * 14, c: CAR_COLORS[Math.floor(rnd() * CAR_COLORS.length)],
     }));
-    const [fxX, fxY] = fireSpot();
     const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
     let raf = 0, last = performance.now();
     const frame = (now: number) => {
@@ -61,11 +64,7 @@ export default function RoadRail() {
         ctx.fillStyle = "#1a2a3a"; ctx.fillRect(x, car.south ? y + 2 : y + 1, 2, 1);       // windshield faces forward
         ctx.fillStyle = car.south ? "#ff3b3b" : "#fff6a0"; ctx.fillRect(x, y, 2, 1);
       }
-      const flick = still ? 0 : Math.floor(now / 120);
-      for (let k = 0; k < 12; k++) {
-        ctx.fillStyle = ["#ff3b1f", "#ff8a1f", "#ffd23f"][(k + flick) % 3];
-        ctx.fillRect(fxX + (k % 6), fxY + 2 - ((k * 7 + flick) % 5), 1, 2);
-      }
+      drawLive(ctx, now, still, live.current);
       drawVan(ctx, van.current);
       raf = requestAnimationFrame(frame);
     };
@@ -102,11 +101,12 @@ export default function RoadRail() {
     scrollTo({ top: sc.offsetTop + p * (sc.offsetHeight - innerHeight) });
   };
 
-  const at = Math.min(SCENES.length - 1, Math.floor(vy / SH));
-  const stop = stops[Math.min(stops.length - 1, at)];
+  const def = SCENES[sceneAt(vy)];
+  const stop = stops[def.stop];
+  const lost = vy > TRAIL.a - 14 && vy < TRAIL.b + 4;    // the Smokies detour
 
   return (
-    <section className="oqa-trek" ref={sec} aria-label="The road trip, LA to NYC" style={{ height: `${SCENES.length * 45}vh` }}>
+    <section className="oqa-trek" ref={sec} aria-label="The road trip, LA to NYC" style={{ height: `${Math.round((HT / 64) * 45)}vh` }}>
       <div className="oqa-road-col">
         <p className="oqa-road-end">LA</p>
         <div className="oqa-strip" ref={box}
@@ -114,11 +114,12 @@ export default function RoadRail() {
           onPointerMove={(e) => { if (drag.current) jump(e.clientY); }}
           onPointerUp={() => { drag.current = false; }}
           onPointerCancel={() => { drag.current = false; }}>
-          {[canvas, fx].map((ref, k) => (
+          {[canvas, fx, over].map((ref, k) => (
             <canvas key={k} ref={ref} width={W} height={HT}
               style={{ height: HT * pan.s, transform: `translateY(${pan.y}px)` }} />
           ))}
-          <div className="oqa-road-here"><b>Day {stop.day}</b>{stop.place}</div>
+          <div className="oqa-road-here"><b>Day {stop.day}</b>{def.label ?? stop.place}</div>
+          {lost && <p className="oqa-road-say" style={{ top: pan.y + (TRAIL.a - 4) * pan.s }}>&ldquo;hey Jason, turn right onto this trail&rdquo;</p>}
         </div>
         <p className="oqa-road-end">NYC</p>
       </div>

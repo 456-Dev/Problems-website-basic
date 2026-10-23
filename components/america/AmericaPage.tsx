@@ -182,7 +182,9 @@ export default function AmericaPage({ map }: { map: MapData }) {
           <p><small>Directed by</small> Michael Linares</p>
           <p><small>Created &amp; produced by</small> Michael Linares <small>and</small> Jason Zilberkweit</p>
           <p><small>Interviews and data by</small> Michael Linares <small>and</small> Jason Zilberkweit</p>
-          <p><small>Edited by</small> Michael Linares <small>· Editing consultant</small> Luciano Cecchi</p>
+          <p><small>Edited by</small> Michael Linares</p>
+          <p className="oqa-oneline"><small>Editing consultant</small> Luciano Cecchi</p>
+          <p><small>First screening</small> Hoboken Public Library, NJ <small>· June 14th</small></p>
           <p><small>Screened at</small> The Frida Cinema, Santa Ana, CA</p>
         </div>
         <div className="oqa-rating">
