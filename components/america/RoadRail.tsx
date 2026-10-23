@@ -5,8 +5,9 @@ import { stops } from "@/lib/america";
 import { W, SH, HT, SCENES, roadX, drawStrip, fireSpot } from "./pixelTrip";
 
 // The 8-bit road trip at the bottom of the page: a phone-wide map seen from above,
-// LA at the top and NYC at the bottom, one little landscape per stop. Scroll down it
-// and our white minivan drives the highway with you; traffic runs both ways.
+// LA at the top and NYC at the bottom, one little landscape per stop. When you reach
+// it, the frame holds still on screen and the map scrolls top to bottom as you keep
+// scrolling, our white minivan driving the highway with you. Click or drag to jump.
 
 const CAR_COLORS = ["#e0302f", "#3a6fd8", "#ffd23f", "#2faa4a", "#ff8a1f", "#b04ad8", "#8a8a8a", "#e8e8e8"];
 
@@ -32,6 +33,9 @@ function drawVan(ctx: CanvasRenderingContext2D, vy: number) {
 export default function RoadRail() {
   const [vy, setVy] = useState(12);              // the van's row on the strip
   const van = useRef(12);
+  const [pan, setPan] = useState({ y: 0, s: 4 });   // map offset (css px) and pixel scale
+  const sec = useRef<HTMLElement>(null);
+  const drag = useRef(false);
   const canvas = useRef<HTMLCanvasElement>(null);
   const fx = useRef<HTMLCanvasElement>(null);
   const box = useRef<HTMLDivElement>(null);
@@ -78,16 +82,18 @@ export default function RoadRail() {
     return () => cancelAnimationFrame(raf);
   }, []);
 
-  // the van sits wherever the middle of the screen is on the map
+  // how far through the section you've scrolled drives the van; the map pans to keep it in view
   useEffect(() => {
     let raf = 0;
     const read = () => {
       raf = 0;
-      const b = box.current;
-      if (!b) return;
-      const r = b.getBoundingClientRect(), s = r.width / W;
-      van.current = Math.min(HT - 10, Math.max(12, (innerHeight * 0.55 - r.top) / s));
+      const b = box.current, sc = sec.current;
+      if (!b || !sc) return;
+      const r = sc.getBoundingClientRect(), s = b.clientWidth / W;
+      const p = Math.min(1, Math.max(0, -r.top / Math.max(1, r.height - innerHeight)));
+      van.current = 12 + p * (HT - 22);
       setVy(van.current);
+      setPan({ s, y: Math.min(0, Math.max(b.clientHeight - HT * s, b.clientHeight * 0.5 - van.current * s)) });
     };
     const on = () => { if (!raf) raf = requestAnimationFrame(read); };
     read();
@@ -96,17 +102,32 @@ export default function RoadRail() {
     return () => { removeEventListener("scroll", on); removeEventListener("resize", on); cancelAnimationFrame(raf); };
   }, []);
 
+  // click or drag on the map: scroll the page to put the van there
+  const jump = (clientY: number) => {
+    const b = box.current, sc = sec.current;
+    if (!b || !sc) return;
+    const y = (clientY - b.getBoundingClientRect().top - pan.y) / pan.s;
+    const p = Math.min(1, Math.max(0, (y - 12) / (HT - 22)));
+    scrollTo({ top: sc.offsetTop + p * (sc.offsetHeight - innerHeight) });
+  };
+
   const at = Math.min(SCENES.length - 1, Math.floor(vy / SH));
   const stop = stops[Math.min(stops.length - 1, at)];
 
   return (
-    <section className="oqa-road" aria-label="The road trip, LA to NYC">
+    <section className="oqa-trek" ref={sec} aria-label="The road trip, LA to NYC" style={{ height: `${SCENES.length * 45}vh` }}>
       <div className="oqa-road-col">
         <p className="oqa-road-end">LA</p>
-        <div className="oqa-road-here"><b>Day {stop.day}</b>{stop.place}</div>
-        <div className="oqa-strip" ref={box} style={{ aspectRatio: `${W} / ${HT}` }}>
-          <canvas ref={canvas} width={W} height={HT} />
-          <canvas ref={fx} width={W} height={HT} />
+        <div className="oqa-strip" ref={box}
+          onPointerDown={(e) => { if (e.pointerType !== "mouse") return; drag.current = true; e.currentTarget.setPointerCapture(e.pointerId); jump(e.clientY); }}
+          onPointerMove={(e) => { if (drag.current) jump(e.clientY); }}
+          onPointerUp={() => { drag.current = false; }}
+          onPointerCancel={() => { drag.current = false; }}>
+          {[canvas, fx].map((ref, k) => (
+            <canvas key={k} ref={ref} width={W} height={HT}
+              style={{ height: HT * pan.s, transform: `translateY(${pan.y}px)` }} />
+          ))}
+          <div className="oqa-road-here"><b>Day {stop.day}</b>{stop.place}</div>
         </div>
         <p className="oqa-road-end">NYC</p>
       </div>
