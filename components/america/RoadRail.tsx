@@ -64,8 +64,9 @@ export default function RoadRail() {
           {/* 8-bit minivan from above, nose down */}
           <rect x="0" y="1" width="1" height="2" fill="#111" /><rect x="5" y="1" width="1" height="2" fill="#111" />
           <rect x="0" y="6" width="1" height="2" fill="#111" /><rect x="5" y="6" width="1" height="2" fill="#111" />
-          <rect x="1" y="0" width="4" height="10" fill="#e0302f" />
-          <rect x="1" y="2" width="4" height="4" fill="#ff6a5a" />
+          <rect x="1" y="0" width="4" height="10" fill="#e4e4e4" />
+          <rect x="1" y="2" width="4" height="4" fill="#ffffff" />
+          <rect x="1" y="0" width="1" height="1" fill="#e0302f" /><rect x="4" y="0" width="1" height="1" fill="#e0302f" />
           <rect x="2" y="1" width="2" height="1" fill="#1a2a3a" />
           <rect x="1" y="7" width="4" height="1" fill="#1a2a3a" />
           <rect x="1" y="9" width="1" height="1" fill="#fff6a0" /><rect x="4" y="9" width="1" height="1" fill="#fff6a0" />

@@ -30,6 +30,7 @@ export const stops: Stop[] = [
   { place: "Hays", where: "Kansas", date: "July 8th 2024", day: 5, t: 3007, img: "s3030", ll: [-99.33, 38.88] },
   { place: "Tulsa", where: "Oklahoma", date: "July 8th 2024", day: 5, t: 2782, img: "s2850", ll: [-95.99, 36.15] },
   { place: "Muskogee", where: "Oklahoma", date: "July 9th 2024", day: 6, t: 2632, img: "2700", ask: "Who taught you the things that you believe?", ll: [-95.37, 35.75] },
+  { place: "Bill Clinton Library", where: "Little Rock, Arkansas", date: "July 9th 2024", day: 6, t: 2484, img: "s2510", ask: "What do I need to do to make sure that I listen to…", ll: [-92.26, 34.75] },
   { place: "Little Rock", where: "Arkansas", date: "July 9th 2024", day: 6, t: 2362, img: "s2430", ll: [-92.29, 34.75] },
   { place: "Horseshoe Casino", where: "Mississippi", date: "July 10th 2024", day: 7, t: 2197, img: "2207", ask: "Why is there so much division in our world?", ll: [-90.29, 34.85] },
   { place: "Hernando", where: "Mississippi", date: "July 10th 2024", day: 7, t: 2002, img: "2126", ask: "You got a sister?", ll: [-89.99, 34.82] },
