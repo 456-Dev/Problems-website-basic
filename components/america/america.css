@@ -51,7 +51,7 @@
 .oqa-dusk { position: absolute; inset: 0; pointer-events: none; mix-blend-mode: multiply;
   background: linear-gradient(#2a1040 0%, #b8402a 45%, #ff9a4a 70%, #ffd8a0 100%); }
 /* the crash sequence through the Trade Winds: full frame, a white flash on every cut */
-.oqa-strip canvas.oqa-seq { top: 0; left: 0; width: 100%; height: 100%; opacity: 0; pointer-events: none; image-rendering: pixelated; object-fit: cover; }
+.oqa-strip canvas.oqa-seq { top: 0; left: 0; width: 100%; height: 100%; opacity: 0; pointer-events: none; image-rendering: pixelated; object-fit: contain; background: #000; }
 .oqa-strip canvas.oqa-seq.on { opacity: 1; animation: oqa-cut .35s steps(4) both, oqa-shake .1s steps(2) 3; }
 @keyframes oqa-cut { 0% { filter: brightness(6); transform: scale(1.12); } 100% { filter: none; transform: none; } }
 @keyframes oqa-shake { 0% { margin-left: -5px; } 100% { margin-left: 5px; } }

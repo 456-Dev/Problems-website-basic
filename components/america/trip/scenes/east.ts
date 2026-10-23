@@ -1,11 +1,44 @@
 // east scenes: Gatlinburg, the Smokies, Cherokee, up into the mountains, West Virginia
-// (the fair, Green Bank), Appalachia at sundown, then night: the McDonald's drive-thru and D.C.
+// (the fair, Green Bank), Appalachia at sundown, then night: the McDonald's drive-thru and the Mall.
+// It's past the 4th by now: flags only where they'd really fly.
 import { W, MID, TRAIL, DRIVE, roadX, vanX, room, free, roomiest, hash } from "../core";
 import type { SceneMod, Px } from "../kit";
+import type { Say } from "../core";
 import { pine, person, smokies, word, wordW, GLYPH, pick, flagPole, usFlag, ePine, eTree, eOwl, eCow } from "../kit";
 import type { Live } from "../fx";
 
 /* ---------- local helpers ---------- */
+
+// the antique store's flags, 15 x 9
+const HORSE = ["...........", "......x....", ".....xxx...", "....xx.x...", "...xxxx....", "..x.xxx....", "....x.x....", "....x..x...", "..........."];
+const LEAF = ["...........", ".....x.....", "..x..x..x..", "...x.x.x...", ".x..xxx..x.", "..xxxxxxx..", "....xxx....", ".....x.....", "..........."];
+const SNAKE = ["...........", "...xxxx....", "..x....x...", "..x.xx..x..", "..x.x.x.x..", "...x..x.x..", "....xx..x..", ".xxxxxxx...", "..........."];
+function flagC(kind: string, c: number, r: number, w: number, h: number) {
+  const bmp = (B: string[], fg: string, bg: string) => { const bx = c - 2, by = r; return B[by]?.[bx] === "x" ? fg : bg; };
+  if (kind === "us") { if (r < 5 && c < 6) return (r + c) % 2 === 0 ? "#f2f2f2" : "#2a3a8a"; return r % 2 ? "#f2f2f2" : "#c8202a"; }
+  if (kind === "dixie") {
+    const d1 = Math.abs(r - (c * (h - 1)) / (w - 1)), d2 = Math.abs(r - ((w - 1 - c) * (h - 1)) / (w - 1));
+    const d = Math.min(d1, d2); if (d < 0.7) return (c % 3 === 1) ? "#f2f2f2" : "#2a3a8a"; return d < 1.3 ? "#f2f2f2" : "#c8202a";
+  }
+  if (kind === "ferrari") { if (r === 0) return ["#2faa4a", "#f2f2f2", "#e0302f"][Math.floor((c * 3) / w)]; return bmp(HORSE, "#111", "#ffd23f"); }
+  if (kind === "weed") return bmp(LEAF, "#3ac83a", "#111");
+  return bmp(SNAKE, "#2a5a2a", "#f0c020");                                                      // Gadsden
+}
+
+// smooth value noise, 0..1, cell size sz
+function vnoise(x: number, y: number, sz: number, seed: number) {
+  const gx = Math.floor(x / sz), gy = Math.floor(y / sz), u0 = x / sz - gx, v0 = y / sz - gy;
+  const u = u0 * u0 * (3 - 2 * u0), v = v0 * v0 * (3 - 2 * v0), g = (a: number, b: number) => hash((a + 512) * 7919 + (b + 512) * 104729 + seed * 31);
+  return (g(gx, gy) * (1 - u) + g(gx + 1, gy) * u) * (1 - v) + (g(gx, gy + 1) * (1 - u) + g(gx + 1, gy + 1) * u) * v;
+}
+// blend two #rrggbb colors
+function mix(a: string, b: string, k: number) {
+  return "#" + [1, 3, 5].map((i) => Math.round(parseInt(a.slice(i, i + 2), 16) * (1 - k) + parseInt(b.slice(i, i + 2), 16) * k).toString(16).padStart(2, "0")).join("");
+}
+// a back-and-forth: one bubble after another, each shown for `step` rows of road from row a
+function script(a: number, lines: [Say["who"], string][], step: number): Say[] {
+  return lines.map(([who, text], k) => ({ a: a + k * step, b: a + (k + 1) * step, who, text }));
+}
 
 // GLYPH letters at any pixel size
 function bigWord(px: Px, x: number, y: number, s: string, fg: string, bg: string | null, k = 2) {
@@ -226,6 +259,40 @@ function drawAlien(ctx: CanvasRenderingContext2D, w: number, h: number, t: numbe
   }
 }
 
+// the Rivian Adventure Network stop: 40 x 34. Four white chargers with the yellow compass mark,
+// a green R1T and a white R1S plugged in, cables live, the RIVIAN sign out front
+function rivian(px: Px, live: Live[], x: number, y: number) {
+  const Y = "#f5c518";
+  px(x, y + 8, 40, 26, "#4a4a4e"); px(x, y + 8, 40, 1, "#6a6a6e");                                   // the lot
+  for (let k = 0; k < 5; k++) px(x + 2 + k * 9, y + 20, 1, 13, "#d8d8d8");                            // stall lines
+  // the sign: dark panel, RIVIAN in white, the yellow compass (two chevrons) beside it
+  px(x + 3, y + 6, 1, 3, "#5a5a5a"); px(x + 30, y + 6, 1, 3, "#5a5a5a");
+  px(x, y - 2, 34, 9, "#16201e"); px(x, y - 2, 34, 1, "#2a3a36");
+  word(px, x + 2, y, "RIVIAN", "#f2f2f2", null);
+  px(x + 27, y, 1, 1, Y); px(x + 26, y + 1, 1, 1, Y); px(x + 28, y + 1, 1, 1, Y); px(x + 27, y + 2, 1, 1, Y);
+  px(x + 30, y, 1, 1, Y); px(x + 29, y + 1, 1, 1, Y); px(x + 31, y + 1, 1, 1, Y); px(x + 30, y + 2, 1, 1, Y); px(x + 27, y + 4, 4, 1, Y);
+  // the chargers: white posts, yellow cap, a little screen
+  for (let k = 0; k < 4; k++) { const cx = x + 6 + k * 9; px(cx, y + 11, 3, 6, "#f2f2f2"); px(cx, y + 11, 3, 1, Y); px(cx + 1, y + 13, 1, 2, "#1a2a3a"); px(cx, y + 17, 3, 1, "#9a9a9a"); }
+  // R1T (Launch Green pickup) and R1S (white), nose to the chargers: full-width light bar, oval lamps
+  const car = (cx: number, body: string, truck: boolean) => {
+    px(cx, y + 20, 6, 12, "#111"); px(cx + 1, y + 21, 4, 10, body);
+    px(cx + 1, y + 21, 4, 1, "#fff6d0"); px(cx + 1, y + 21, 1, 2, "#fff6d0"); px(cx + 4, y + 21, 1, 2, "#fff6d0");   // the light bar + "eyes"
+    px(cx + 1, y + 23, 4, 2, "#1a2a3a");                                                                  // windshield
+    if (truck) { px(cx + 1, y + 27, 4, 4, shadeOf(body, 25)); px(cx + 1, y + 27, 4, 1, "#111"); }          // the bed
+    else { px(cx + 1, y + 26, 4, 3, "#2a3a4a"); px(cx + 1, y + 29, 4, 1, shadeOf(body, 30)); }             // glass roof
+    px(cx + 1, y + 31, 4, 1, "#e0302f");
+  };
+  car(x + 6, "#3f5a3a", true); car(x + 24, "#e8e8e4", false);
+  px(x + 3, y + 26, 2, 4, "#7a7a7a");                                                                       // a driver waiting
+  live.push({ k: "fn", fn: (f, t) => {                                                                      // charging: dots walk the cables
+    for (const [sx, ex] of [[x + 7, x + 8], [x + 25, x + 26]] as const) {
+      f(sx, y + 17, 1, 3, "#2a2a2a"); f(ex, y + 19, 1, 1, "#2a2a2a");
+      const k = Math.floor(t * 4) % 3; f(sx, y + 17 + k, 1, 1, "#7aff7a");
+    }
+    for (let k = 0; k < 4; k++) if (Math.floor(t * 2 + k) % 3 === 0) f(x + 7 + k * 9, y + 13, 1, 1, "#7aff7a");
+  } });
+}
+
 /* ---------- scenes ---------- */
 
 export const SC_EAST: Partial<Record<string, SceneMod>> = {
@@ -235,14 +302,20 @@ export const SC_EAST: Partial<Record<string, SceneMod>> = {
       for (let x = 0; x < W; x++) { const t = Math.round(8 + 5 * Math.sin(x / 9) + 3 * Math.sin(x / 3.7)); px(x, y0, 1, t, "#2f6b3a"); px(x, y0, 1, Math.max(0, t - 6), "#3f7a48"); }
       for (let y = y0 + 12; y < y0 + h; y++) { const r = roadX(y); px(r - 8, y, 2, 1, "#c8c0b0"); px(r + 7, y, 2, 1, "#c8c0b0"); if (y % 7 === 0) { px(r - 8, y, 2, 1, "#a8a090"); px(r + 7, y, 2, 1, "#a8a090"); } }
     },
-    draw: ({ ctx, px, y0, h, live, canopy }) => {
+    draw: ({ ctx, px, y0, h, live, canopy, says }) => {
+      // the Detroit crew on the sidewalk (film, Gatlinburg)
+      says.push(...script(y0 + 120, [
+        ["us", "If you could ask everyone in America one question, what would it be?"],
+        ["them", "“Why are you the way you are?”"],
+        ["us", "So why do you think you are the way you are?"],
+        ["them", "“My mom. Our moms are scary.”"],
+      ], 22));
       for (let k = 0; k < 40; k++) { const xx = Math.floor(hash(k * 3) * W), yy = y0 + Math.floor(hash(k * 5) * 10); if (Math.abs(xx - roadX(yy)) > 12 && Math.abs(xx - roadX(yy + 6)) > 12) pine(px, xx, yy, "#1f5a2a"); }
       // THE pancake house goes where there's the most room; the other shops fill both sides around it
       const py = roomiest(y0 + 40, y0 + 110, 60), pr = room(py, 60), pSide: "l" | "r" = pr.left >= pr.right ? "l" : "r";
       const pw = Math.min(58, pSide === "l" ? Math.floor(pr.lo - 10) : Math.floor(W - 1 - (pr.hi + 10)));
       const pxx = pSide === "l" ? Math.floor(pr.lo - 10 - pw) : Math.ceil(pr.hi + 10);
       SHOPS.pancakes.draw(px, pxx, py, pw, 58, pSide);
-      flagPole(px, pSide === "l" ? pxx + pw - 1 : pxx, py - 6, 8, 5, 3);
       const place = (list: string[], side: "l" | "r", start: number) => {
         let yy = y0 + start, n = 0, guard = 0;
         while (yy < y0 + h - 30 && guard++ < 40) {
@@ -257,7 +330,6 @@ export const SC_EAST: Partial<Record<string, SceneMod>> = {
           if (w >= s.min) {
             const x = side === "l" ? Math.floor(r.lo - 10 - w) : Math.ceil(r.hi + 10);
             s.draw(px, x, yy, w, s.h, side);
-            if (n % 2 === 0) flagPole(px, side === "l" ? x + w - 1 : x, yy - 6, 8, 5, 3);
           }
           yy += s.h + 3; n++;
         }
@@ -324,8 +396,9 @@ export const SC_EAST: Partial<Record<string, SceneMod>> = {
   waffle: {
     ground: ["#4f8a3c", "#457a35"],
     edge: pick(ePine, eTree),
-    // Cherokee: the Waffle House, its yellow sign up high, the river and the painted bears
-    draw: ({ ctx, px, y0, h }) => {
+    // Cherokee: the Waffle House, its yellow sign up high, the Rivian chargers across the road,
+    // the river and the painted bears
+    draw: ({ ctx, px, y0, h, live, says }) => {
       let y = roomiest(y0 + 4, y0 + 12, 34), x = free(y - 1, 36, 52);
       px(x + 25, y + 30, 2, 8, "#7a7a7a");
       px(x, y, 52, 30, "#111");
@@ -336,7 +409,14 @@ export const SC_EAST: Partial<Record<string, SceneMod>> = {
       for (let k = 3; k < 30; k += 6) px(x + k, y + 7, 4, 4, "#ffe9a0");
       px(x + 26, y + 10, 3, 8, "#5a3a1a");
       person(px, x + 10, y + 19, "#3a3a3a", "#1a1a1a"); person(px, x + 18, y + 19, "#e8e8e8", "#1a1a1a");
-      flagPole(px, x - 3, y - 8, 14, 7, 4);
+      // across the road: the Rivian Adventure Network chargers, two Rivians plugged in
+      { const ry = y0 + 40, wSide: "l" | "r" = x < roadX(y + 10) ? "r" : "l";
+        rivian(px, live, free(ry, 34, 40, wSide), ry); }
+      says.push(...script(y0 + 30, [
+        ["them", "“Why are you so angry?”"],
+        ["us", "Why do you think people are so angry?"],
+        ["them", "“Well, most people don't smile.”"],
+      ], 24));
       // the Oconaluftee: a river under the road
       { const ry = y0 + 82, raw: Px = (x, y, w, hh, c) => { ctx.fillStyle = c; ctx.fillRect(Math.round(x), Math.round(y), w, hh); };
         for (let x2 = 0; x2 < W; x2++) { const yy = ry + Math.round(3 * Math.sin(x2 / 11)); raw(x2, yy, 1, 6, "#3a7ac0"); raw(x2, yy + 1, 1, 1, "#7ab8e8"); if ((x2 * 7) % 13 === 0) raw(x2, yy + 3, 2, 1, "#e8f8ff"); }
@@ -356,23 +436,69 @@ export const SC_EAST: Partial<Record<string, SceneMod>> = {
       for (let x = 0; x < W; x += 3) pine(px, x, y0 + 2 + (x % 5), "#1f5a2a");
       for (let x = 0; x < W; x += 4) pine(px, x + 1, y0 + 36 + (x % 3), "#2a6a30");
     },
-    // through the mountain, then out on a cliff over the lakes
-    draw: ({ px, y0, h, live, canopy }) => {
-      const y = y0 + 52;
-      const LAKES = [[20, 18, 18, 9], [104, 26, 20, 11], [30, 50, 24, 9], [100, 60, 16, 7], [18, 80, 14, 6], [110, 88, 14, 6]];
-      for (let x2 = 0; x2 < W; x2++) if (Math.abs(x2 - roadX(y)) > 6) { px(x2, y, 1, 2, "#8a8278"); if (x2 % 3 === 0) px(x2, y - 2, 1, 2, "#5a5048"); }
-      for (let yy = y + 2; yy < y0 + h; yy++) for (let x2 = 0; x2 < W; x2++) {
-        const r = roadX(yy); if (Math.abs(x2 - r) < 7) continue;
-        const v = Math.max(...LAKES.map(([cx, cy, rx, ry]) => 1 - ((x2 - cx) / rx) ** 2 - ((yy - y - cy) / ry) ** 2));
-        px(x2, yy, 1, 1, v > 0.25 ? (v > 0.8 && (x2 + yy) % 3 === 0 ? "#4ab8e0" : "#2f9ac8") : v > 0 ? "#d8e8c8" : (yy - y < 4 ? "#7a7068" : (x2 * 3 + yy) % 7 === 0 ? "#2f7a32" : "#3f8a3a"));
+    // through the mountain, then out on a ledge: sheer cliffs drop away into a deep valley of lakes
+    draw: ({ ctx, px, y0, h, live, canopy }) => {
+      const ya = y0 + 46, rows = y0 + h - ya;
+      // the elevation: the road rides a high shelf; past its rim the walls fall sheer to the valley
+      // floor, where the lakes pool; spires and far canyon walls rise back up out of it
+      const E: number[][] = [];
+      for (let j = -1; j <= rows; j++) {
+        const yy = ya + j, r = roadX(yy), row: number[] = [];
+        for (let x2 = -1; x2 <= W; x2++) {
+          const d = Math.abs(x2 - r), rim = 10 + 5 * vnoise(x2, yy, 9, 3) + 3 * vnoise(x2, yy, 3, 5);
+          let e = d < rim ? 1 : Math.max(0.3, 1 - (d - rim) / 3.2);                               // sheer drop
+          if (d >= rim) {
+            const floor = 0.32 - 0.3 * vnoise(x2, yy, 18, 11) - 0.06 * vnoise(x2, yy, 5, 13);         // basins
+            e = Math.min(e, Math.max(floor, 0.02));
+            const sp = vnoise(x2, yy, 7, 17); if (sp > 0.74) e = Math.max(e, 0.35 + (sp - 0.74) * 2.6);   // spires
+            const wall = Math.min(x2, W - 1 - x2); if (wall < 10) e = Math.max(e, 0.95 - wall * 0.06);    // the far canyon walls
+          }
+          row.push(e);
+        }
+        E.push(row);
       }
-      for (const [cx, cy] of [[20, 18], [104, 26], [30, 50]]) { const iy = y + cy; px(cx - 3, iy, 7, 2, "#3f8a3a"); pine(px, cx, iy - 5, "#1f5a2a"); pine(px, cx + 3, iy - 4, "#1f5a2a"); }
-      // a little boat with a wake
-      live.push({ k: "fn", fn: (f, t) => { const u = (t * 0.04) % 1, bx = 104 - 14 + u * 28, by = y + 26 + Math.sin(u * 6) * 3; f(bx, by, 3, 1, "#f2f2f2"); f(bx - 3, by, 3, 1, "#8ad0f0"); } });
-      live.push({ k: "glint", x: 0, y: y + 4, w: W, h: h - 58 });
-      // overlook railing + a scenic sign, two people taking it in
-      { const ox = free(y - 8, 8, 30); px(ox, y - 3, 30, 1, "#5a3a22"); for (let k = 0; k < 30; k += 4) px(ox + k, y - 3, 1, 3, "#5a3a22");
-        person(px, ox + 8, y - 11, "#e0302f", "#3a2a1a"); person(px, ox + 13, y - 11, "#3a6fd8", "#ffd23f"); }
+      const at2 = (x2: number, j: number) => E[Math.max(0, Math.min(rows + 1, j + 1))][Math.max(0, Math.min(W + 1, x2 + 1))];
+      // seen at a slant from the south: low ground sits K rows lower on screen, and wherever the ground
+      // drops away toward us, the gap fills with the cliff face. Painted back to front.
+      const K = 24, LAKE = 0.1, lake: [number, number][] = [], bot = y0 + h;
+      const last: number[] = Array(W).fill(ya - 1);
+      for (let j = 0; j < rows; j++) for (let x2 = 0; x2 < W; x2++) {
+        const yy = ya + j; if (Math.abs(x2 - roadX(yy)) < 7) { last[x2] = Math.max(last[x2], yy); continue; }
+        const fade = Math.min(1, j / 6, (rows - 1 - j) / 22);                                            // level out at both ends
+        const e = 1 - (1 - at2(x2, j)) * Math.max(0, fade), sy = yy + Math.round((1 - e) * K);
+        if (sy >= bot) continue;
+        if (sy > last[x2] + 1) for (let fy = last[x2] + 1; fy < sy; fy++) {                              // the cliff face
+          const u = (fy - last[x2]) / (sy - last[x2]), st = (x2 * 7 + Math.floor(fy / 3) * 3) % 9;
+          let c = mix("#b8a890", "#3a3028", Math.min(1, u * 0.9 + (st === 0 ? 0.25 : 0)));
+          if (st === 4) c = mix(c, "#e8dcc8", 0.25);
+          if (u > 0.85 && (x2 + fy) % 4 === 0) c = "#2a4a2a";
+          if (Math.abs(x2 - roadX(fy)) >= 7) px(x2, fy, 1, 1, c);
+        }
+        const sh = (at2(x2 - 1, j - 1) - at2(x2 + 1, j + 1)) * 2.2;
+        let c: string;
+        if (e < LAKE) { const dp = (LAKE - e) / LAKE; c = mix("#4aa8d8", "#123a74", Math.min(1, dp * 1.5)); lake.push([x2, sy]); if ((x2 * 7 + yy * 3) % 17 === 0) c = mix(c, "#ffffff", 0.3); }
+        else if (e < LAKE + 0.025) c = "#7a9a6a";
+        else if (e > 0.85) c = mix((x2 * 5 + yy) % 6 === 0 ? "#2f6a32" : "#3f7a3a", sh > 0 ? "#8ab870" : "#1a3a20", Math.min(0.6, Math.abs(sh)));
+        else { const v = vnoise(x2, yy, 3, 21); c = v > 0.62 ? "#1a4426" : v > 0.45 ? "#24522c" : "#2f6234"; c = mix(c, sh > 0 ? "#6a9a5a" : "#0a1a12", Math.min(0.5, Math.abs(sh) * 0.8)); }
+        if (sy >= last[x2]) { if (Math.abs(x2 - roadX(sy)) >= 7) px(x2, sy, 1, 1, c); last[x2] = sy; }
+      }
+      // the shelf's edge: a guardrail on the drop side, the overlook with two people looking down
+      for (let yy = ya; yy < y0 + h; yy += 2) { const r = roadX(yy); px(r - 8, yy, 1, 1, "#c8c8c8"); px(r + 8, yy, 1, 1, "#c8c8c8"); }
+      { const oy = ya + 6, r = roadX(oy), side = r > MID ? -1 : 1, ox = side < 0 ? Math.floor(r - 12 - 16) : Math.ceil(r + 12);
+        px(ox, oy, 16, 6, "#8a8278"); px(ox, side < 0 ? oy : oy, 16, 1, "#5a3a22"); for (let k = 0; k < 16; k += 3) px(ox + k, oy - 2, 1, 2, "#5a3a22");
+        person(px, ox + 4, oy - 7, "#e0302f", "#3a2a1a"); person(px, ox + 9, oy - 7, "#3a6fd8", "#ffd23f"); }
+      // mist hanging in the valley
+      ctx.globalAlpha = 0.1; for (let k = 0; k < 4; k++) { const my = ya + 18 + k * 26; for (let x2 = 0; x2 < W; x2++) if (Math.abs(x2 - roadX(my)) > 12) px(x2, my + Math.round(2 * Math.sin(x2 / 7 + k)), 1, 3, "#eef4f6"); } ctx.globalAlpha = 1;
+      // a boat on the biggest lake, sparkle on the water
+      if (lake.length) {
+        const side = lake.filter(([lx]) => lx < MID).length > lake.length / 2 ? -1 : 1, mine = lake.filter(([lx]) => (lx < MID ? -1 : 1) === side);
+        const [bx0, by0] = mine[Math.floor(mine.length / 2)];
+        live.push({ k: "fn", fn: (f, t) => {
+          for (let k = 0; k < 14; k++) if ((t * 1.1 + hash(k * 9)) % 1 < 0.25) { const [lx, ly] = lake[Math.floor(hash(k * 31 + Math.floor(t * 1.1 + hash(k * 9))) * lake.length)]; f(lx, ly, 1, 1, "#f2fbff"); }
+          const u = (t * 0.05) % 1, bx = bx0 + Math.sin(u * Math.PI * 2) * 3, by = by0 + Math.cos(u * Math.PI * 2) * 2;
+          f(bx, by, 3, 1, "#f2f2f2"); f(bx + 1, by - 1, 1, 1, "#e0302f"); f(bx - 2, by, 2, 1, "#8ad0f0");
+        } });
+      }
       canopy.push((f) => {                 // the mountain the tunnel goes through
         const a = y0 + 12, b = y0 + 40;
         for (let yy = a; yy < b; yy++) { const x = roadX(yy); f(x - 7, yy, 15, 1, (yy * 7 + Math.floor(x)) % 5 === 0 ? "#5a5048" : "#6a6058"); }
@@ -389,7 +515,11 @@ export const SC_EAST: Partial<Record<string, SceneMod>> = {
     ground: ["#7a9a45", "#6b893c"],
     edge: pick(eTree, eCow),
     // the dam, then the farm antique store flying its flags
-    draw: ({ px, y0, live }) => {
+    draw: ({ px, y0, live, says }) => {
+      says.push(...script(y0 + 40, [
+        ["us", "So would you say the Confederate flag is sort of a pride thing for you?"],
+        ["them", "“It's not that it's a pride. I respect it.”"],
+      ], 34));
       let y = y0 + 4, x = free(y, 32, 44);
       px(x, y, 44, 13, "#2f6fb0"); px(x + 3, y + 3, 12, 1, "#5f9fe0"); px(x + 22, y + 8, 12, 1, "#5f9fe0");
       px(x - 1, y + 13, 46, 5, "#c8c4b8"); px(x - 1, y + 13, 46, 1, "#e8e4d8");
@@ -405,20 +535,29 @@ export const SC_EAST: Partial<Record<string, SceneMod>> = {
       px(x + 1, y + 28, 4, 4, "#8a6a42"); px(x + 2, y + 29, 2, 2, "#3a2a1a");                     // a wagon wheel, an old tractor, a rusty sign
       px(x + 8, y + 28, 8, 4, "#c84a2a"); px(x + 8, y + 32, 3, 3, "#1a1a1a"); px(x + 14, y + 31, 4, 4, "#1a1a1a"); px(x + 12, y + 26, 1, 2, "#5a5a5a");
       px(x + 20, y + 28, 6, 4, "#c8a030"); px(x + 21, y + 29, 4, 1, "#8a3a1a");
-      for (let k = 0; k < 5; k++) {
-        const fx = x + k * 9, fy = y + 38;
-        px(fx, fy, 1, 13, "#cfcfcf");
-        live.push({ k: "flag", x: fx + 1, y: fy, w: 7, h: 5, kind: (["us", "dixie", "ferrari", "weed", "us"] as const)[k] });
-      }
+      // the flag rack out front: big, crisp, each one unmistakable
+      const KINDS = ["us", "dixie", "ferrari", "weed", "gadsden"] as const, FW = 15, FH = 9;
+      const fy0 = y + 40, fx0 = free(fy0, 44, 52, x < roadX(y) ? "l" : "r");
+      const pos = KINDS.map((_, k) => [fx0 + (k % 3) * 18 + (k >= 3 ? 9 : 0), fy0 + Math.floor(k / 3) * 22] as const);
+      for (const [fx, fy] of pos) { px(fx, fy, 1, 18, "#cfcfcf"); px(fx, fy - 1, 1, 1, "#ffd23f"); px(fx - 1, fy + 18, 3, 1, "#7a7a7a"); }
+      live.push({ k: "fn", fn: (f, t) => {
+        pos.forEach(([fx, fy], k) => { for (let c = 0; c < FW; c++) {
+          const wv = Math.round(Math.sin(t * 4.5 - c * 0.55 + k) * 1.1 * (c / FW));
+          for (let r = 0; r < FH; r++) f(fx + 1 + c, fy + r + wv, 1, 1, flagC(KINDS[k], c, r, FW, FH));
+        } });
+      } });
     },
   },
   fair: {
-    ground: ["#3f6a42", "#38603a"],
-    night: true,
+    ground: ["#5a9a45", "#4f8a3c"],
     edge: pick(eOwl, ePine),
-    // the county fair after dark: a mountain string band, a Ferris wheel, the animals watching —
-    // and the Mothman looming over all of it
-    draw: ({ ctx, px, y0, h, live, glow }) => {
+    // the county fair on a summer afternoon in Marion: a mountain string band, a Ferris wheel —
+    // and in the treeline, the animals watching and the Mothman looming over all of it
+    draw: ({ ctx, px, y0, h, live, glow, says }) => {
+      says.push(...script(y0 + 60, [
+        ["us", "Dogs or cats?"],
+        ["them", "“Dogs. We have a lot of dogs and we have far too many cats.”"],
+      ], 30));
       let y = roomiest(y0 + 5, y0 + 12, 24), x = free(y - 3, 24, 40);
       px(x, y + 14, 40, 5, "#d8b048"); px(x, y + 14, 40, 1, "#e8c858"); px(x, y + 19, 40, 2, "#a8803a");    // hay-bale stage
       px(x, y - 3, 40, 1, "#3a3a3a");
@@ -431,7 +570,6 @@ export const SC_EAST: Partial<Record<string, SceneMod>> = {
       px(x + 14, y + 3, 2, 1, "#8a4a1a"); px(x + 15, y + 2, 1, 1, "#d8d8d8");
       px(x + 23, y + 8, 5, 5, "#9aa0a8"); px(x + 24, y + 1, 1, 7, "#8a6a42");
       px(x + 34, y + 5, 3, 5, "#c8ccd2");
-      usFlag(px, x + 1, y + 15, 7, 4); usFlag(px, x + 32, y + 15, 7, 4);
       const lights: [number, number][] = []; for (let k = 0; k < 13; k++) lights.push([x + 1 + k * 3, y - 2]);
       // a Ferris wheel and a corn dog stand
       const wy = y0 + 58, wr = 14, wx = free(wy - wr, wr * 2 + 6, wr * 2 + 2) + wr + 1;
@@ -462,6 +600,8 @@ export const SC_EAST: Partial<Record<string, SceneMod>> = {
         } }
       // the Mothman, Point Pleasant's own, on a ridge above the fair
       const my = y0 + 104, mx = free(my - 4, 40, 44, room(y0 + 116, 30).left >= room(y0 + 116, 30).right ? "l" : "r") + 1;
+      for (let k = 0; k < 26; k++) { const tx = mx - 6 + Math.floor(hash(k * 13) * 56), ty = my - 10 + Math.floor(hash(k * 17) * 44);   // his woods
+        if (Math.abs(tx - roadX(ty + 4)) > 12 && tx > 0 && tx < W - 4) pine(px, tx, ty, k % 2 ? "#163a22" : "#1f4a2a"); }
       mothman(px, mx, my);
       live.push({ k: "fn", fn: (f, t, ctx) => {
         const on = (t * 0.5) % 1 > 0.08;
@@ -618,97 +758,101 @@ export const SC_EAST: Partial<Record<string, SceneMod>> = {
     under: ({ px, y0, h, rnd }) => {
       // the road comes in through the forest...
       for (let k = 0; k < 160; k++) { const x = Math.floor(rnd() * W), y = y0 + Math.floor(rnd() * 36); px(x - 2, y, 5, 4, ["#1f5a2a", "#2a6a32", "#174a24"][k % 3]); px(x - 1, y - 1, 3, 1, "#3a7a3a"); }
-      // ...into town: brick sidewalks along the rowhouse blocks
-      for (let y = y0 + 40; y < y0 + 124; y++) { const r = roadX(y); px(0, y, Math.max(0, Math.floor(r - 6)), 1, "#8a7468"); px(Math.ceil(r + 6), y, W, 1, "#8a7468"); if (y % 5 === 0) { px(r - 9, y, 3, 1, "#6a5448"); px(r + 7, y, 3, 1, "#6a5448"); } }
-      // the Mall: lawn, paths
-      for (let y = y0 + 128; y < y0 + h; y++) { const r = roadX(y); for (let x = 0; x < W; x++) if (Math.abs(x - r) > 6) px(x, y, 1, 1, (x * 5 + y * 3) % 11 === 0 ? "#3a7a3a" : "#2f6e34"); }
+      // ...onto the Mall: clipped lawn both sides
+      for (let y = y0 + 38; y < y0 + h; y++) { const r = roadX(y); for (let x = 0; x < W; x++) if (Math.abs(x - r) > 6) px(x, y, 1, 1, (x * 5 + y * 3) % 11 === 0 ? "#3a7a3a" : "#2f6e34"); }
     },
-    // out of the forest into D.C. at night: rowhouses at street level, then the Mall: the Capitol,
-    // the Monument, the White House, and the motorcade on its own avenue
+    // out of the forest onto the National Mall at night, west to east: the Lincoln Memorial, the
+    // Reflecting Pool, the WWII Memorial, the Monument, the Smithsonian, the Capitol. Lime scooters
+    // on the gravel paths; across the road the motorcade takes its own avenue to the White House
     draw: ({ ctx, px, y0, h, live, glow }) => {
-      const wins: [number, number][] = [];
-      // rowhouses facing the road, both sides
-      const ROW = ["#8a3a2a", "#a84a32", "#6a5a7a", "#c8b898", "#4a6a8a", "#9a5a3a", "#e8d8b8", "#5a7a5a"];
-      for (const side of ["l", "r"] as const) {
-        let yy = y0 + 42 + (side === "r" ? 6 : 0), n = side === "r" ? 3 : 0;
-        while (yy < y0 + 112) {
-          const hh = 14, r = room(yy, hh), avail = side === "l" ? Math.floor(r.lo - 10) : Math.floor(W - 1 - (r.hi + 10)), w = Math.min(avail, 46);
-          if (w > 12) {
-            const x = side === "l" ? Math.floor(r.lo - 10 - w) : Math.ceil(r.hi + 10);
-            for (let hx = 0; hx < w; hx += 12) {
-              const hw = Math.min(12, w - hx), c = ROW[(n + hx / 12) % ROW.length];
-              px(x + hx, yy, hw, hh, c); px(x + hx, yy, hw, 2, shadeOf(c, 40)); px(x + hx, yy + 2, hw, 1, "#e8e0d0");
-              for (let wx = 2; wx < hw - 2; wx += 4) { px(x + hx + wx, yy + 4, 2, 3, "#2a3040"); wins.push([x + hx + wx, yy + 4]); }
-              if (hw >= 8) { const dx = side === "l" ? hw - 4 : 1; px(x + hx + dx, yy + 9, 3, 5, "#2a1810"); px(x + hx + dx - 1, yy + hh - 1, 5, 1, "#b8b0a8"); wins.push([x + hx + dx + 1, yy + 10]); }
-              if ((n + hx) % 3 === 0 && hw >= 8) usFlag(px, x + hx + 3, yy + 8, 5, 3);
-            }
-            if (n % 2 === 0) { const tx = side === "l" ? x + w + 1 : x - 3; px(tx, yy + 6, 2, 3, "#1f5a2a"); px(tx, yy + 9, 1, 3, "#3a2a1a"); }
-          }
-          yy += hh + 4; n++;
+      const A = y0 + 40, B = y0 + h - 4;
+      let lsum = 0, rsum = 0; for (let yy = A; yy < B; yy += 4) { const r = room(yy, 1); lsum += r.left; rsum += r.right; }
+      const M: "l" | "r" = lsum >= rsum ? "l" : "r";                     // the Mall's side; the avenue + White House on the other
+      // the Mall band, row by row: its two gravel paths, elms between
+      const band = (yy: number) => { const r = room(yy, 1); if (M === "l") { const R = Math.floor(r.lo - 9), L = Math.max(1, R - 44); return [L, R]; } const L = Math.ceil(r.hi + 9); return [L, Math.min(W - 2, L + 44)]; };
+      const pathX = (yy: number, k: number) => { const [L, R] = band(yy); return k ? R - 4 : L + 4; };
+      for (let yy = A; yy < B; yy++) { const [L, R] = band(yy); px(L, yy, R - L, 1, "#2a6a30"); for (const k of [0, 1]) px(pathX(yy, k) - 1, yy, 3, 1, "#8a8a7c"); if (yy % 6 === 0) for (const k of [0, 1]) { const ex = pathX(yy, k) + (k ? 3 : -3); px(ex - 1, yy, 3, 3, "#1f5a2a"); px(ex, yy - 1, 1, 1, "#2a6a32"); } }
+      const mid = (yy: number, w: number) => { const [L, R] = band(yy); return Math.round((L + R) / 2 - w / 2); };
+      const lit: [number, number, number, number][] = [];                    // floodlit rects: x, y, w, h
+      // the Lincoln Memorial
+      { const yy = A + 2, x = mid(yy + 6, 24);
+        px(x - 1, yy + 12, 26, 3, "#b8b8b0"); px(x, yy, 24, 12, "#e8e6de"); px(x, yy, 24, 2, "#f8f8f2");
+        for (let k = 1; k < 24; k += 2) px(x + k, yy + 3, 1, 8, "#bcbab0");
+        px(x + 10, yy + 5, 4, 5, "#d8c8a0"); lit.push([x, yy, 24, 12]); }
+      // the Reflecting Pool, the Monument's long reflection in it
+      { const p0 = A + 18, p1 = A + 58;
+        for (let yy = p0; yy < p1; yy++) { const x = mid(yy, 10); px(x, yy, 10, 1, "#1a3a6a"); px(x, yy, 1, 1, "#c8c8c0"); px(x + 9, yy, 1, 1, "#c8c8c0"); if (yy > p0 + 4 && yy < p1 - 8) px(x + 4, yy, 2, 1, "#4a6a9a"); }
+        live.push({ k: "fn", fn: (f, t) => { for (let k = 0; k < 6; k++) { const yy = p0 + 2 + Math.floor(hash(k * 7 + Math.floor(t * 1.5)) * (p1 - p0 - 4)); f(mid(yy, 10) + 2 + (k % 6), yy, 1, 1, "#9ab8e8"); } } }); }
+      // the WWII Memorial: its oval of pillars around the fountains
+      { const yy = A + 62, cx = mid(yy, 0);
+        for (let a = 0; a < 24; a++) { const th = a / 24 * Math.PI * 2; px(cx + Math.round(11 * Math.cos(th)), yy + 5 + Math.round(5 * Math.sin(th)), 1, 1, "#d8d6cc"); }
+        px(cx - 7, yy + 3, 15, 5, "#2a5a9a"); px(cx - 2, yy + 4, 5, 3, "#5a9ad8");
+        live.push({ k: "fn", fn: (f, t) => { for (let k = 0; k < 5; k++) if (Math.floor(t * 6 + k) % 2) f(cx - 5 + k * 3, yy + 4 + (k % 2), 1, 1, "#e8f8ff"); } }); }
+      // the Washington Monument, its ring of flags
+      const my = A + 76, mx = mid(my + 20, 4);
+      px(mx - 2, my + 40, 8, 2, "#c8c8c8"); px(mx, my + 2, 4, 38, "#f2f2f2"); px(mx, my + 2, 1, 38, "#d8d8dc"); px(mx + 1, my, 2, 2, "#f2f2f2"); px(mx + 1, my - 1, 1, 1, "#f2f2f2");
+      for (let k = 0; k < 10; k++) { const fx = mx + 2 + Math.round(10 * Math.cos(k / 10 * Math.PI * 2)), fy = my + 41 + Math.round(3 * Math.sin(k / 10 * Math.PI * 2)); px(fx, fy - 4, 1, 4, "#9a9a9a"); px(fx + 1, fy - 4, 2, 1, "#c8202a"); px(fx + 1, fy - 3, 2, 1, "#f2f2f2"); }
+      lit.push([mx, my + 2, 4, 38]);
+      // the Smithsonian Castle and a museum across the lawn
+      { const sy = A + 124, sx = mid(sy + 4, 34);
+        px(sx, sy + 6, 22, 10, "#8a3a2a"); for (const tx of [1, 9, 17]) { px(sx + tx, sy, 4, 8, "#7a3020"); px(sx + tx + 1, sy - 2, 2, 2, "#6a2818"); }
+        for (let k = 2; k < 20; k += 3) px(sx + k, sy + 9, 1, 3, "#ffd88a");
+        px(sx + 25, sy + 4, 10, 12, "#c8c4b8"); for (let k = 26; k < 34; k += 2) px(sx + k, sy + 6, 1, 8, "#9a968a"); }
+      // the Capitol at the east end
+      const cy = A + 144, cx = mid(cy + 12, 40);
+      px(cx, cy + 14, 40, 10, "#e8e8ec"); px(cx, cy + 14, 40, 1, "#ffffff"); for (let k = 2; k < 40; k += 3) px(cx + k, cy + 17, 1, 6, "#b8b8c0");
+      px(cx + 13, cy + 9, 14, 6, "#f2f2f2"); for (let r = 0; r < 4; r++) px(cx + 15 - r, cy + 5 + r, 10 + 2 * r, 1, "#f2f2f2");
+      px(cx + 18, cy + 2, 4, 3, "#f2f2f2"); px(cx + 19, cy, 2, 2, "#e8e8e8"); px(cx + 20, cy - 2, 1, 2, "#c8c8c8");
+      for (let k = 14; k < 27; k += 2) px(cx + k, cy + 10, 1, 4, "#c8c8d0");
+      px(cx + 16, cy + 25, 8, 3, "#c8c8d0"); flagPole(px, cx + 37, cy + 2, 12, 6, 4);
+      lit.push([cx + 13, cy + 2, 14, 13], [cx, cy + 14, 40, 3]);
+      // Lime scooters: riders gliding the gravel paths, headlights on
+      live.push({ k: "fn", fn: (f, t, c2) => {
+        for (let k = 0; k < 8; k++) {
+          const dir = k % 2 ? 1 : -1, span = B - A - 10, p = (t * (7 + (k % 4) * 1.6) + k * 37) % span, yy = dir > 0 ? A + 4 + p : B - 6 - p;
+          const x = Math.round(pathX(yy, k % 3 === 0 ? 0 : 1) + (k % 2 ? 1 : -1));
+          const front = dir > 0 ? yy + 6 : yy - 1;
+          c2.globalAlpha = 0.25; f(x - 2, dir > 0 ? front + 1 : front - 3, 5, 3, "#fff6c0"); c2.globalAlpha = 1;   // headlight pool
+          f(x, yy - 1, 2, 9, "#5aff1a"); f(x - 1, dir > 0 ? yy + 7 : yy - 1, 4, 1, "#2a2a2a");                        // the lime deck + bars
+          f(x, front + (dir > 0 ? 2 : -2), 2, 1, "#ffffff");
+          f(x - 1, yy + 2, 4, 4, ["#e0302f", "#f2f2f2", "#3a6fd8", "#ffd23f", "#ff5ad1"][k % 5]);                      // the rider
+          f(x, yy + (dir > 0 ? 0 : 5), 2, 2, ["#e8c0a0", "#8a5a3a", "#c08a5a"][k % 3]);
         }
-      }
-      // people and scooters on the sidewalks
-      sidewalkers(live, y0 + 40, y0 + 120, [-8, 7], ["#e0302f", "#f2f2f2", "#3a6fd8", "#ffd23f"], 10);
-      live.push({ k: "fn", fn: (f, t) => {
-        for (let k = 0; k < 6; k++) {
-          const dir = k % 2 ? 1 : -1, span = 80, p = (t * (9 + k * 1.3) + k * 19) % span, y = dir > 0 ? y0 + 40 + p : y0 + 120 - p;
-          const x = Math.round(roadX(y) + (k % 3 === 0 ? -9 : 8));
-          f(x, y, 1, 4, "#4ad62a"); f(x - 1, y + (dir > 0 ? 3 : 0), 3, 1, "#4ad62a"); f(x, y + 1, 1, 2, ["#e8c0a0", "#8a5a3a", "#c08a5a"][k % 3]);
-          f(x, y + (dir > 0 ? 4 : -1), 1, 1, "#fff6a0");
-        }
+        if ((t * 0.8) % 1 < 0.5) f(mx + 1, my - 1, 1, 1, "#ff3b3b");                                                  // the Monument's warning lights
+        if ((t * 0.8 + 0.5) % 1 < 0.5) f(mx + 2, my + 6, 1, 1, "#ff3b3b");
       } });
-      // the Mall, and the avenue the motorcade takes, running beside the highway
-      const A = y0 + 128, B = y0 + h - 4, side = roadX((A + B) / 2) > MID ? -1 : 1, avX = (yy: number) => roadX(yy) + side * 17;
+      // tourists on the paths
+      for (let k = 0; k < 4; k++) { const yy = A + 70 + k * 18, x = pathX(yy, k % 2) - 1; person(px, x, yy, ["#e0302f", "#3a6fd8", "#ffd23f", "#f2f2f2"][k], "#3a2a1a"); }
+      // across the road: the avenue the motorcade takes, ending at the White House
+      const P = M === "l" ? 1 : -1, avX = (yy: number) => roadX(yy) + P * 17;
       for (let yy = A; yy < B; yy++) { const ax = avX(yy); px(ax - 3, yy, 7, 1, "#3a3a40"); px(ax - 4, yy, 1, 1, "#6a6a70"); px(ax + 4, yy, 1, 1, "#6a6a70"); if (yy % 6 < 3) px(ax, yy, 1, 1, "#d8d8d8"); }
-      const far = (yy: number, w: number) => side > 0 ? Math.ceil(avX(yy) + 7) : Math.floor(avX(yy) - 7 - w);
-      const near = (yy: number, w: number) => side > 0 ? Math.floor(roadX(yy) - 8 - w) : Math.ceil(roadX(yy) + 8);
-      // the Capitol
-      let cy = A + 4, cx = far(cy, 36);
-      px(cx, cy + 14, 36, 10, "#e8e8ec"); px(cx, cy + 14, 36, 1, "#ffffff"); for (let k = 2; k < 36; k += 3) px(cx + k, cy + 17, 1, 6, "#b8b8c0");
-      px(cx + 11, cy + 9, 14, 6, "#f2f2f2"); for (let r = 0; r < 4; r++) px(cx + 13 - r + 2, cy + 5 + r, 6 + 2 * r, 1, "#f2f2f2");
-      px(cx + 16, cy + 2, 4, 3, "#f2f2f2"); px(cx + 17, cy, 2, 2, "#e8e8e8"); px(cx + 18, cy - 2, 1, 2, "#c8c8c8");
-      for (let k = 12; k < 25; k += 2) px(cx + k, cy + 10, 1, 4, "#c8c8d0");
-      px(cx + 15, cy + 25, 6, 3, "#c8c8d0"); flagPole(px, cx + 33, cy + 2, 12, 6, 4);
-      // the reflecting pool and the Monument
-      const my = A + 8, mr = room(my, 46), mx = side > 0 ? Math.floor(mr.lo - 22) : Math.ceil(mr.hi + 9);
-      px(mx + 2, my + 44, 8, 22, "#2f5a8a"); px(mx + 3, my + 45, 2, 20, "#5a8ab8");
-      px(mx + 4, my + 2, 4, 40, "#f2f2f2"); px(mx + 4, my + 2, 1, 40, "#d8d8dc"); px(mx + 5, my, 2, 2, "#f2f2f2"); px(mx + 5, my - 1, 1, 1, "#f2f2f2"); px(mx + 2, my + 42, 8, 2, "#c8c8c8");
-      for (let k = 0; k < 10; k++) { const fx = mx + 6 + Math.round(9 * Math.cos(k / 10 * Math.PI * 2)), fy = my + 42 + Math.round(3 * Math.sin(k / 10 * Math.PI * 2)); px(fx, fy - 4, 1, 4, "#9a9a9a"); px(fx + 1, fy - 4, 2, 1, "#c8202a"); px(fx + 1, fy - 3, 2, 1, "#f2f2f2"); }
-      // the Smithsonian Castle, rows of elms along the Mall
-      { const sy = A + 46, sx = far(sy, 30);
-        px(sx, sy + 6, 30, 10, "#8a3a2a"); for (const tx of [2, 13, 24]) { px(sx + tx, sy, 4, 8, "#7a3020"); px(sx + tx + 1, sy - 2, 2, 2, "#6a2818"); }
-        for (let k = 2; k < 28; k += 3) px(sx + k, sy + 9, 1, 3, "#2a1810"); wins.push([sx + 4, sy + 9], [sx + 22, sy + 9]); }
-      for (let yy = A + 4; yy < B - 6; yy += 7) for (const off of [-1, 1]) { const ex = Math.round(avX(yy) + side * 8 * off + (off < 0 ? side * -2 : 0)); if (off < 0) continue; px(ex - 1, yy, 3, 3, "#1f5a2a"); px(ex, yy - 1, 1, 1, "#2a6a32"); }
-      // the White House, where the avenue ends
-      const wy = B - 24, wx = far(wy, 28);
+      const far = (yy: number, w: number) => P > 0 ? Math.ceil(avX(yy) + 7) : Math.floor(avX(yy) - 7 - w);
+      let wy = A + 30, best = -1e9;                                                                // the White House where there's room for it
+      for (let yy = A + 30; yy < B - 40; yy += 2) { const fx = far(yy, 28), sp = P > 0 ? W - 1 - (fx + 28) : fx; if (sp > best) { best = sp; wy = yy; } }
+      const wx = Math.max(1, Math.min(W - 29, far(wy, 28)));
+      px(wx - 2, wy + 17, 32, 6, "#3f8a3a"); px(wx + 11, wy + 16, 4, 7, "#c8c0b0");
       px(wx, wy + 6, 26, 10, "#f2f2f2"); px(wx + 9, wy + 3, 8, 3, "#f2f2f2"); for (let k = 10; k < 17; k += 2) px(wx + k, wy + 6, 1, 6, "#d0d0d8");
-      for (let k = 2; k < 25; k += 4) px(wx + k, wy + 9, 2, 3, "#2a3040"); px(wx + 12, wy + 12, 2, 4, "#2a2018"); flagPole(px, wx + 12, wy - 6, 9, 5, 3);
-      px(wx - 2, wy + 17, 30, 3, "#3f8a3a"); px(wx + 11, wy + 16, 4, 6, "#c8c0b0");
-      // the motorcade: lights flashing, the Beast in the middle, on its avenue
+      for (let k = 2; k < 25; k += 4) px(wx + k, wy + 9, 2, 3, "#ffd88a"); px(wx + 12, wy + 12, 2, 4, "#2a2018"); flagPole(px, wx + 12, wy - 6, 9, 5, 3);
+      lit.push([wx, wy + 6, 26, 3]);
+      const Bw = wy + 14;                                                                            // the avenue's end
       live.push({ k: "fn", fn: (f, t) => {
-        const span = B - A, head = B - ((t * 9) % (span + 40)), blink = Math.floor(t * 6) % 2;
-        const car = (yy: number, c: string, w = 3, hh = 5) => { if (yy > A && yy < B - hh) { const x = Math.round(avX(yy)) - 1; f(x, yy, w, hh, c); return x; } return -999; };
+        const span = Bw - A, head = Bw - ((t * 9) % (span + 40)), blink = Math.floor(t * 6) % 2;
+        const car = (yy: number, c: string, w = 3, hh = 5) => { if (yy > A && yy < Bw - hh) { const x = Math.round(avX(yy)) - 1; f(x, yy, w, hh, c); return x; } return -999; };
         const m1 = car(head, "#1a1a1a", 2, 3); if (m1 > -999) { f(m1, head, 1, 1, blink ? "#3a6fff" : "#ff3b3b"); f(m1 + 1, head, 1, 1, blink ? "#ff3b3b" : "#3a6fff"); }
         const s1 = car(head + 6, "#111"); if (s1 > -999) f(s1, head + 5, 3, 1, "#fff6a0");
         const b = car(head + 13, "#0a0a0a", 3, 8);
         if (b > -999) { f(b, head + 13, 1, 1, "#e0302f"); f(b + 2, head + 13, 1, 1, "#3a6fd8"); f(b + 1, head + 16, 1, 1, "#f2f2f2"); f(b + 1, head + 15, 1, 1, "#f0c8a0"); f(b, head + 12, 3, 1, "#fff6a0"); }
         car(head + 24, "#111"); const m2 = car(head + 31, "#1a1a1a", 2, 3); if (m2 > -999) f(m2 + 1, head + 31, 1, 1, blink ? "#ff3b3b" : "#3a6fff");
-        if ((t * 0.8) % 1 < 0.5) f(mx + 5, my - 1, 1, 1, "#ff3b3b");                                    // the Monument's warning lights
-        if ((t * 0.8 + 0.5) % 1 < 0.5) f(mx + 6, my + 6, 1, 1, "#ff3b3b");
       } });
-      // streetlights on the Mall
+      // lamps along the Mall paths and the avenue
       const lamps: [number, number][] = [];
-      for (let yy = A + 2; yy < B - 4; yy += 16) { const lx = Math.round(avX(yy) + side * 5); px(lx, yy, 1, 4, "#5a5a5a"); lamps.push([lx, yy]); }
+      for (let yy = A + 4; yy < B - 4; yy += 14) { for (const k of [0, 1]) { const lx = pathX(yy, k) + (k ? -3 : 3); px(lx, yy, 1, 3, "#5a5a5a"); lamps.push([lx, yy]); } }
+      for (let yy = A + 2; yy < Bw - 4; yy += 16) { const lx = Math.round(avX(yy) + P * 5); px(lx, yy, 1, 4, "#5a5a5a"); lamps.push([lx, yy]); }
       glow.push((f) => {
-        for (const [a, b] of wins) if (hash(a * 31 + b) > 0.3) { f(a, b, 2, 3, hash(a + b * 7) > 0.5 ? "#ffd88a" : "#fff0c0"); halo(ctx, f, a, b + 1, 2, "#ffd88a", 0.18); }
-        // the Capitol and the Monument, floodlit
-        halo(ctx, f, cx + 18, cy + 10, 16, "#e8f0ff", 0.22);
-        f(cx + 11, cy + 9, 14, 6, "#ffffff"); for (let r = 0; r < 4; r++) f(cx + 13 - r + 2, cy + 5 + r, 6 + 2 * r, 1, "#ffffff"); f(cx + 16, cy + 2, 4, 3, "#ffffff");
-        f(cx, cy + 14, 36, 2, "#f8f8ff");
-        halo(ctx, f, mx + 6, my + 20, 12, "#e8f0ff", 0.18); f(mx + 4, my + 2, 4, 40, "#ffffff"); f(mx + 4, my + 2, 1, 40, "#e0e0e8");
-        halo(ctx, f, wx + 13, wy + 10, 12, "#e8f0ff", 0.18); f(wx, wy + 6, 26, 3, "#ffffff");
-        for (const [a, b] of lamps) { halo(ctx, f, a, b + 1, 6, "#ffd88a", 0.28); f(a, b, 1, 1, "#fff6d0"); }
-        for (let yy = y0 + 44; yy < y0 + 122; yy += 14) for (const s of [-8, 7]) { const lx = Math.round(roadX(yy) + s); halo(ctx, f, lx, yy, 5, "#ffd88a", 0.2); f(lx, yy, 1, 1, "#fff6d0"); }
+        for (const [x, y, w, hh] of lit) { halo(ctx, f, x + w / 2, y + hh / 2, Math.max(w, hh) / 2 + 6, "#e8f0ff", 0.2); ctx.globalAlpha = 0.55; f(x, y, w, hh, "#ffffff"); ctx.globalAlpha = 1; }
+        f(mx, my + 2, 1, 38, "#e0e0e8");
+        for (const [a, b] of lamps) { halo(ctx, f, a, b + 1, 6, "#ffd88a", 0.26); f(a, b, 1, 1, "#fff6d0"); }
+        for (let k = 2; k < 25; k += 4) f(wx + k, wy + 9, 2, 3, "#ffe0a0");
       });
     },
   },

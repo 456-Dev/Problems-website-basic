@@ -3,7 +3,7 @@
 import { W, ROAD_END, roadX, hash } from "../core";
 import { HARBOR } from "../../harbor";
 import type { SceneMod, Px } from "../kit";
-import { pine, usFlag, flagPole, pick, eTree, eHouse } from "../kit";
+import { pine, person, flagPole, pick, eTree, eHouse } from "../kit";
 
 /* ---------- the harbor map ---------- */
 
@@ -27,9 +27,9 @@ function depth() {
 const WATER = ["#5aa8dc", "#4796d0", "#3a86c4", "#3078b8", "#2a6aac", "#25609f"];
 
 // zones on Staten Island (rows/cols in harbor space)
-const FRESHKILLS: [number, number] = [49, 50], GREENBELT: [number, number] = [48, 72];
+const FRESHKILLS = HARBOR.freshkills, GREENBELT = HARBOR.greenbelt;
 const GOV = HARBOR.gov;
-const isGov = (x: number, y: number) => M(x, y) === "m" && y <= 136 && near(x, y, GOV, 5, 6);
+const isGov = (x: number, y: number) => M(x, y) === "m" && near(x, y, GOV, 3, 3);
 const roadAt = (x: number, yy: number, pad = 7) => yy < ROAD_END + 3 && Math.abs(x - roadX(yy)) < pad;
 
 const ROOF = ["#b8503a", "#8a8f99", "#a8683a", "#6a6a72", "#c8c4bc", "#7a4a3a"];
@@ -196,29 +196,43 @@ function brooklynBridge(px: Px, x0: number, x1: number, y: number) {
   px(x0, y, x1 - x0 + 1, 2, "#6a5a4a"); px(x0, y, x1 - x0 + 1, 1, "#9a8a6a");
 }
 
-// the Verrazzano-Narrows: deck from (ax, ay) to (bx, by), side on, two great towers, the cables between
+// the Verrazzano-Narrows, seen at an angle like the skyline: the deck from (ax, ay) to (bx, by) across the
+// Narrows, two great towers standing up off it, the main cables swooping between, and its reflection below
 function verrazzano(px: Px, ax: number, ay: number, bx: number, by: number) {
   const n = Math.max(Math.abs(bx - ax), Math.abs(by - ay));
   const P = (u: number) => [ax + (bx - ax) * u, ay + (by - ay) * u] as [number, number];
-  const TH = 24, ut = [0.17, 0.83];
-  for (let k = 0; k <= n; k++) { const [x, y] = P(k / n); px(x, y + 3, 1, 2, "#1f5a90"); }       // shadow on the water
-  const cab = (u0: number, u1: number, h0: number, h1: number, sag: number) => {        // cables and suspenders
+  const TH = 21, ut = [0.18, 0.82];
+  const cab = (u0: number, u1: number, h0: number, h1: number, sag: number, c: string, sus: boolean) => {
     const m = Math.ceil(n * (u1 - u0));
     for (let k = 0; k <= m; k++) {
       const v = k / m, u = u0 + (u1 - u0) * v, [x, y] = P(u);
       const hgt = Math.round(h0 + (h1 - h0) * v - sag * 4 * v * (1 - v));
-      px(x, y - hgt, 1, 1, "#e8eef2");
-      if (k % 2 === 0 && hgt > 2) px(x, y - hgt + 1, 1, hgt - 1, "#9aa8b0");
+      px(x, y - hgt, 1, 1, c);
+      if (sus && k % 2 === 0 && hgt > 2) px(x, y - hgt + 1, 1, hgt - 1, "#c0ccd4");
     }
   };
-  cab(0, ut[0], 2, TH, 0); cab(ut[0], ut[1], TH, TH, TH - 3); cab(ut[1], 1, TH, 2, 0);
-  for (let k = 0; k <= n; k++) { const [x, y] = P(k / n); px(x, y, 1, 3, "#5a6068"); px(x, y, 1, 1, "#c8ccd0"); px(x, y + 1, 1, 1, "#3a3a3e"); }
-  for (const u of ut) {                                                                // the towers: two legs, struts, a flag
+  for (const [c, off] of [["#b8c4ca", 1], ["#ffffff", 0]] as const) {                  // two main cables, near and far
+    cab(0, ut[0], 1, TH - off, -3, c, !off); cab(ut[0], ut[1], TH - off, TH - off, TH - 7, c, !off); cab(ut[1], 1, TH - off, 1, -3, c, !off);
+  }
+  for (let k = 0; k <= n; k++) { const [x, y] = P(k / n); px(x, y, 1, 3, "#5a6068"); px(x, y, 1, 1, "#d8dce0"); px(x, y + 1, 1, 1, "#3a3a3e"); if (k % 5 < 2) px(x, y + 1, 1, 1, "#ffd23f"); }
+  for (const u of ut) {                                                                // the towers: two legs, three struts, a red beacon
     const [tx, ty] = P(u), x = Math.round(tx), y = Math.round(ty) - TH;
-    px(x - 1, y, 1, TH + 3, "#a8b4b8"); px(x + 1, y, 1, TH + 3, "#7a8a90");
-    for (const r of [0, 8, 16]) px(x - 1, y + r, 3, 1, "#a8b4b8");
-    px(x - 1, y + TH + 3, 3, 2, "#c8c0b0");
-    px(x, y - 4, 1, 4, "#cfcfcf"); usFlag(px, x + 1, y - 4, 4, 3);
+    px(x - 1, y, 1, TH + 3, "#e8eef0"); px(x + 1, y, 1, TH + 3, "#8a989e");
+    for (const r of [0, 7, 14]) px(x - 1, y + r, 3, 1, "#c8d2d8");
+    px(x, y - 2, 1, 2, "#e0302f");
+    px(x - 2, y + TH + 3, 5, 2, "#c8c0b0");
+  }
+}
+// its shadow / reflection on the water under the deck: a dark band and the towers' wobble
+function verrazzanoWater(px: Px, y0: number, ax: number, ay: number, bx: number, by: number) {
+  const n = Math.max(Math.abs(bx - ax), Math.abs(by - ay));
+  for (let k = 0; k <= n; k++) {
+    const u = k / n, x = Math.round(ax + (bx - ax) * u), y = Math.round(ay + (by - ay) * u);
+    for (let d = 3; d < 6; d++) if (M(x, y + d - y0) === ".") px(x, y + d, 1, 1, d < 5 ? "#1d4a7c" : "#2a5a90");
+  }
+  for (const u of [0.18, 0.82]) {
+    const x = Math.round(ax + (bx - ax) * u), y = Math.round(ay + (by - ay) * u);
+    for (let d = 5; d < 18; d++) if (M(x, y + d - y0) === "." && d % 3) px(x + (d % 2), y + d, 2, 1, "#9ab4c8");
   }
 }
 
@@ -232,16 +246,22 @@ function arch(px: Px, ax: number, ay: number, bx: number, by: number, rise: numb
   }
 }
 
-/* ---------- the clouds ---------- */
+/* ---------- the storm ---------- */
 
-// cumulus clusters over New Jersey: map coords relative to the clouds scene, drifting slowly.
-// Each puff is [dx, dy, r, layer]: 0 = the broad shaded base, 1 = the body, 2 = the sunlit cauliflower tops
-type Puff = [number, number, number, number];
-type Cloud = { x: number; y: number; puffs: Puff[]; s: number; v: number };
+// The last stretch of New Jersey is a storm you drive through: it darkens as you go in (anvil clouds,
+// wind), the middle is a downpour with lightning, and at the far side it breaks up into sunlit cumulus
+// with god rays slanting through the gaps, out onto Staten Island. Rows are relative to the clouds scene.
+const sm = (a: number, b: number, v: number) => { const u = Math.min(1, Math.max(0, (v - a) / (b - a))); return u * u * (3 - 2 * u); };
+const storm = (yy: number) => sm(8, 46, yy) * (1 - sm(92, 124, yy));   // 0 = fair, 1 = the worst of it
+
+type Puff = [number, number, number, number];       // dx, dy, r, layer: 0 = shaded base, 1 = body, 2 = lit tops
+type Cloud = { x: number; y: number; puffs: Puff[]; s: number; v: number; d: number };
 const CLOUDS: Cloud[] = (() => {
-  const spots: [number, number, number][] = [   // (x, y, size)
-    [16, 14, 1.0], [94, 6, 0.85], [60, 32, 1.2], [120, 38, 0.75], [6, 58, 0.85], [42, 70, 1.25], [104, 74, 1.1],
-    [76, 104, 1.0], [14, 110, 1.15], [120, 122, 0.8], [54, 136, 1.2], [98, 154, 0.95], [8, 156, 0.75], [70, 172, 0.7],
+  const spots: [number, number, number][] = [         // (x, y, size): a few fair-weather ones, the storm shelf, then the clearing
+    [16, 4, 0.8], [96, 2, 0.7], [58, 18, 1.0], [118, 26, 1.0],
+    [18, 34, 1.4], [108, 38, 1.5], [60, 42, 0.8], [38, 54, 1.25], [122, 60, 1.3], [6, 74, 1.4], [92, 76, 1.35], [66, 90, 0.75],
+    [28, 96, 1.3], [118, 98, 1.2], [100, 114, 1.05], [20, 116, 1.0],
+    [76, 132, 0.9], [14, 138, 0.8], [118, 146, 0.75], [52, 154, 0.85], [96, 166, 0.65], [26, 172, 0.6],
   ];
   return spots.map(([cx, cy, s], k): Cloud => {
     const puffs: Puff[] = [];
@@ -249,84 +269,148 @@ const CLOUDS: Cloud[] = (() => {
     for (let i = 0; i < 7; i++) puffs.push([(H(i, 1) - 0.5) * 26 * s, (H(i, 2) - 0.3) * 9 * s, (5 + H(i, 3) * 4) * s, 0]);
     for (let i = 0; i < 6; i++) puffs.push([(H(i, 4) - 0.55) * 18 * s, (H(i, 5) - 0.65) * 9 * s, (4.5 + H(i, 6) * 3.5) * s, 1]);
     for (let i = 0; i < 5; i++) puffs.push([(H(i, 7) - 0.65) * 13 * s, (H(i, 8) - 0.8) * 8 * s, (2.5 + H(i, 9) * 3) * s, 2]);
-    for (let i = 0; i < 9; i++) {                     // little curls round the rim
-      const a = H(i, 10) * Math.PI * 2;
-      puffs.push([Math.cos(a) * 11 * s, Math.sin(a) * 5 * s - 1.5 * s, (2.5 + H(i, 11) * 2) * s, Math.sin(a) < 0 ? 1 : 0]);
-    }
-    return { x: cx, y: cy, puffs, s, v: 0.25 + hash(k * 5) * 0.35 };
+    for (let i = 0; i < 9; i++) { const a = H(i, 10) * Math.PI * 2; puffs.push([Math.cos(a) * 11 * s, Math.sin(a) * 5 * s - 1.5 * s, (2.5 + H(i, 11) * 2) * s, Math.sin(a) < 0 ? 1 : 0]); }
+    return { x: cx, y: cy, puffs, s, v: 0.25 + hash(k * 5) * 0.35, d: storm(cy) };
   });
 })();
-const cloudX = (c: Cloud, t: number) => c.x + Math.sin(t * 0.05 * c.v + c.x) * 4;
+// storm clouds get pushed along by the wind; fair ones just bob
+const cloudX = (c: Cloud, t: number) => c.x + Math.sin(t * 0.05 * c.v + c.x) * 4 + c.d * Math.sin(t * 0.4 * c.v + c.y) * 5;
 
-const BODY: [string, string, string, string][] = [   // highlight, mid, shade, edge per layer
+const FAIR: [string, string, string, string][] = [   // highlight, mid, shade, edge per layer
   ["#eef1f7", "#c9d0e0", "#9aa5c2", "rgba(140,150,182,0)"],
   ["#fbfcfe", "#dde2ec", "#b0bad0", "rgba(170,180,204,0)"],
   ["#ffffff", "#f1f4f9", "#cdd5e4", "rgba(205,213,228,0)"],
 ];
-function drawClouds(g: CanvasRenderingContext2D, w: number, h: number, t: number, oy: number) {
-  const s = w / W;                                    // canvas px per map px
+const FOUL: [string, string, string, string][] = [
+  ["#4a525a", "#2e353d", "#1c2228", "rgba(24,30,36,0)"],
+  ["#68727a", "#454e57", "#2a3138", "rgba(40,46,54,0)"],
+  ["#8a949c", "#5f6a72", "#3c454e", "rgba(60,68,78,0)"],
+];
+const rgb = (c: string) => c.startsWith("#") ? [1, 3, 5].map((i) => parseInt(c.slice(i, i + 2), 16)) : (c.match(/[\d.]+/g) ?? []).slice(0, 3).map(Number);
+const mix = (a: string, b: string, u: number, alpha = 1) => { const A = rgb(a), B = rgb(b); return `rgba(${A.map((v, i) => Math.round(v + (B[i] - v) * u)).join(",")},${alpha})`; };
+
+// each cloud is painted once onto its own little canvas (they only drift after that)
+const SPRITES = new Map<string, HTMLCanvasElement>();
+function cloudSprite(c: Cloud, k: number, s: number) {
+  const key = `${k}:${s}`;
+  let cv = SPRITES.get(key);
+  if (cv) return cv;
+  const R = Math.ceil(30 * c.s * s);
+  cv = document.createElement("canvas"); cv.width = cv.height = 2 * R;
+  const g = cv.getContext("2d")!, cx = R, cy = R, d = c.d;
+  for (let layer = 0; layer < 3; layer++) {
+    const ps = c.puffs.filter((p) => p[3] === layer).sort((a, b) => b[1] - a[1]);
+    for (const [dx, dy, r] of ps) {                                   // the shaded side of each puff
+      const x = cx + dx * s + r * 0.22 * s, y = cy + dy * s + r * 0.3 * s, Rr = r * s;
+      const gr = g.createRadialGradient(x, y, Rr * 0.3, x, y, Rr);
+      gr.addColorStop(0, mix(layer ? "#8c96ba" : "#68749c", "#141a20", d, 0.88)); gr.addColorStop(1, mix("#7882aa", "#141a20", d, 0));
+      g.fillStyle = gr; g.beginPath(); g.arc(x, y, Rr, 0, Math.PI * 2); g.fill();
+    }
+    const F = FAIR[layer], Q = FOUL[layer];
+    for (const [dx, dy, r] of ps) {                                   // then the body over it
+      const x = cx + dx * s, y = cy + dy * s, Rr = r * s;
+      const gr = g.createRadialGradient(x - Rr * 0.38, y - Rr * 0.42, Rr * 0.05, x + Rr * 0.1, y + Rr * 0.1, Rr * 1.02);
+      gr.addColorStop(0, mix(F[0], Q[0], d)); gr.addColorStop(0.42, mix(F[1], Q[1], d)); gr.addColorStop(0.82, mix(F[2], Q[2], d)); gr.addColorStop(1, mix(F[2], Q[2], d, 0));
+      g.fillStyle = gr; g.beginPath(); g.arc(x, y, Rr, 0, Math.PI * 2); g.fill();
+    }
+  }
+  g.save(); g.globalCompositeOperation = "lighter";                   // sun on the very tops (fair ones only)
+  for (const [dx, dy, r, layer] of c.puffs) {
+    if (layer < 2 || d > 0.6) continue;
+    const x = cx + (dx - r * 0.45) * s, y = cy + (dy - r * 0.5) * s, Rr = r * s * 0.8;
+    const gr = g.createRadialGradient(x, y, 0, x, y, Rr);
+    gr.addColorStop(0, `rgba(255,232,180,${0.4 * (1 - d)})`); gr.addColorStop(1, "rgba(255,232,180,0)");
+    g.fillStyle = gr; g.beginPath(); g.arc(x, y, Rr, 0, Math.PI * 2); g.fill();
+  }
+  g.restore();
+  SPRITES.set(key, cv);
+  return cv;
+}
+
+// a jagged bolt from (x, y0) down to (x1, y1), with a branch or two
+function bolt(g: CanvasRenderingContext2D, s: number, x: number, ya: number, x1: number, yb: number, seed: number) {
+  const pts: [number, number][] = [[x, ya]];
+  const n = 9;
+  for (let i = 1; i < n; i++) { const u = i / n; pts.push([x + (x1 - x) * u + (hash(seed * 31 + i) - 0.5) * 7, ya + (yb - ya) * u]); }
+  pts.push([x1, yb]);
+  const line = (p: [number, number][], wdt: number, c: string) => { g.strokeStyle = c; g.lineWidth = wdt * s; g.lineJoin = "miter"; g.beginPath(); p.forEach(([a, b], k) => (k ? g.lineTo(a * s, b * s) : g.moveTo(a * s, b * s))); g.stroke(); };
+  const br = [pts[3], [pts[3][0] + 6 + hash(seed) * 6, pts[3][1] + 7], [pts[3][0] + 9 + hash(seed + 1) * 6, pts[3][1] + 13]] as [number, number][];
+  const br2 = [pts[5], [pts[5][0] - 5 - hash(seed + 2) * 5, pts[5][1] + 6]] as [number, number][];
+  for (const p of [pts, br, br2]) { line(p, 3.2, "rgba(170,190,255,0.35)"); line(p, 1.4, "rgba(220,230,255,0.8)"); line(p, 0.6, "#ffffff"); }
+}
+
+// one frame of the storm over the clouds scene. oy = rows of harbor-side padding above the scene;
+// vy = the van's row relative to the scene top (the storm gets meaner while you're in it)
+function drawStorm(g: CanvasRenderingContext2D, w: number, h: number, t: number, oy: number, vy: number) {
+  const s = w / W, rows = h / s, inside = storm(vy);
   g.clearRect(0, 0, w, h);
-  // warm haze from the sun, up and to the left
-  const hz = g.createLinearGradient(0, 0, w * 0.8, h * 0.6);
-  hz.addColorStop(0, "rgba(255,236,190,0.16)"); hz.addColorStop(1, "rgba(255,236,190,0)");
-  g.fillStyle = hz; g.fillRect(0, 0, w, h);
-  // god rays: shafts of sun slanting down-right through the gaps, soft-edged, breathing slowly
+  // the light: green-grey murk down the middle of the storm
+  const lg = g.createLinearGradient(0, 0, 0, h);
+  for (let k = 0; k <= 12; k++) { const yy = (k / 12) * rows - oy, a = storm(yy); lg.addColorStop(k / 12, `rgba(${Math.round(22 + 10 * (1 - a))},${Math.round(34 + 6 * (1 - a))},${30},${(0.62 * a).toFixed(3)})`); }
+  g.fillStyle = lg; g.fillRect(0, 0, w, h);
+  // the clearing: god rays slanting down-right through the breaking clouds
   g.save(); g.globalCompositeOperation = "lighter";
-  const ang = 0.55;                                   // dx per dy
-  for (let k = 0; k < 9; k++) {
-    const x0 = (hash(k * 19 + 3) * 170 - 60) * s, wid = (2.5 + hash(k * 7) * 7) * s, len = h * (0.75 + hash(k * 3) * 0.5);
-    const a = 0.09 + 0.06 * Math.sin(t * 0.5 + k * 1.7), y0 = hash(k * 23) * 50 * s;
+  for (let k = 0; k < 11; k++) {
+    const ang = 0.42 + hash(k * 13) * 0.35;                          // every shaft at its own angle
+    const x0 = (hash(k * 19 + 3) * 150 - 40) * s, wid = (2 + hash(k * 7) * 7) * s, y0 = (oy + 100 + hash(k * 23) * 30) * s, len = h - y0;
+    const a = (0.16 + 0.08 * Math.sin(t * 0.5 + k * 1.7)) * (1 - inside * 0.5);
     for (const [f, aa] of [[1, 0.35], [0.6, 0.35], [0.28, 0.4]]) {
       const ww = wid * f, off = (wid - ww) / 2;
       const gr = g.createLinearGradient(x0, y0, x0 + len * ang, y0 + len);
-      gr.addColorStop(0, `rgba(255,244,205,${a * aa * 2.4})`); gr.addColorStop(0.55, `rgba(255,238,195,${a * aa * 1.6})`); gr.addColorStop(1, "rgba(255,238,195,0)");
+      gr.addColorStop(0, "rgba(255,240,200,0)"); gr.addColorStop(0.18, `rgba(255,244,205,${a * aa * 2.4})`); gr.addColorStop(0.7, `rgba(255,238,195,${a * aa * 1.4})`); gr.addColorStop(1, "rgba(255,238,195,0)");
       g.fillStyle = gr;
       g.beginPath(); g.moveTo(x0 + off, y0); g.lineTo(x0 + off + ww, y0); g.lineTo(x0 + off + ww * 1.8 + len * ang, y0 + len); g.lineTo(x0 + off + len * ang, y0 + len); g.closePath(); g.fill();
     }
   }
   g.restore();
-  for (const c of CLOUDS) {
-    const cx = cloudX(c, t) * s, cy = (c.y + oy) * s;
-    // a soft blue shadow under the whole cluster, thrown down-right
-    const R0 = 22 * c.s * s, sh = g.createRadialGradient(cx + 4 * s, cy + 6 * s, R0 * 0.2, cx + 4 * s, cy + 6 * s, R0);
-    sh.addColorStop(0, "rgba(70,84,120,0.32)"); sh.addColorStop(1, "rgba(70,84,120,0)");
-    g.save(); g.translate(cx + 4 * s, cy + 6 * s); g.scale(1.5, 0.8); g.translate(-cx - 4 * s, -cy - 6 * s);
-    g.fillStyle = sh; g.beginPath(); g.arc(cx + 4 * s, cy + 6 * s, R0, 0, Math.PI * 2); g.fill(); g.restore();
-    for (let layer = 0; layer < 3; layer++) {
-      const ps = c.puffs.filter((p) => p[3] === layer).sort((a, b) => b[1] - a[1]);
-      // the shaded side of each puff, then the lit body over it
-      for (const [dx, dy, r] of ps) {
-        const x = cx + dx * s + r * 0.22 * s, y = cy + dy * s + r * 0.3 * s, R = r * s;
-        const gr = g.createRadialGradient(x, y, R * 0.3, x, y, R);
-        gr.addColorStop(0, layer ? "rgba(140,150,186,0.85)" : "rgba(104,116,156,0.9)"); gr.addColorStop(1, "rgba(120,130,170,0)");
-        g.fillStyle = gr; g.beginPath(); g.arc(x, y, R, 0, Math.PI * 2); g.fill();
-      }
-      const [c0, c1, c2, c3] = BODY[layer];
-      for (const [dx, dy, r] of ps) {
-        const x = cx + dx * s, y = cy + dy * s, R = r * s;
-        const gr = g.createRadialGradient(x - R * 0.38, y - R * 0.42, R * 0.05, x + R * 0.1, y + R * 0.1, R * 1.02);
-        gr.addColorStop(0, c0); gr.addColorStop(0.42, c1); gr.addColorStop(0.82, c2); gr.addColorStop(1, c3);
-        g.fillStyle = gr; g.beginPath(); g.arc(x, y, R, 0, Math.PI * 2); g.fill();
-      }
+  // the clouds: drifting sprites, storm ones shoved around by the wind
+  CLOUDS.forEach((c, k) => {
+    const cv = cloudSprite(c, k, s), R = cv.width / 2, cx = cloudX(c, t) * s, cy = (c.y + oy) * s;
+    const sh = g.createRadialGradient(cx + 4 * s, cy + 6 * s, 2, cx + 4 * s, cy + 6 * s, 22 * c.s * s);
+    sh.addColorStop(0, `rgba(30,40,60,${0.28 + 0.2 * c.d})`); sh.addColorStop(1, "rgba(30,40,60,0)");
+    g.fillStyle = sh; g.fillRect(cx - R, cy - R, 2 * R + 8 * s, 2 * R + 8 * s);
+    g.globalAlpha = 1 - 0.18 * c.d;                                   // storm clouds are ragged: you glimpse the road through them
+    for (const dx of [0, W * s, -W * s]) if (cx + dx > -R && cx + dx - R < w) g.drawImage(cv, cx + dx - R, cy - R);
+    g.globalAlpha = 1;
+  });
+  // rain, slanting with the wind, heaviest in the middle
+  const wind = 0.38 + 0.12 * Math.sin(t * 0.7);
+  for (const [n, len, sp, c] of [[260, 5, 70, "rgba(170,190,205,0.32)"], [140, 8, 95, "rgba(205,220,232,0.5)"]] as const) {
+    g.strokeStyle = c; g.lineWidth = 0.45 * s; g.beginPath();
+    for (let k = 0; k < n; k++) {
+      const yy = ((hash(k * 3 + len) * 170 + t * sp) % 170) - 8, a = storm(yy) * (0.7 + 0.6 * inside);
+      if (hash(k * 7 + len) > a) continue;
+      const x = ((hash(k * 5 + len) * 160 + yy * wind) % 150) - 10;
+      g.moveTo(x * s, (yy + oy) * s); g.lineTo((x + len * wind) * s, (yy + oy + len) * s);
     }
-    // warm sun on the very tops
-    g.save(); g.globalCompositeOperation = "lighter";
-    for (const [dx, dy, r, layer] of c.puffs) {
-      if (layer < 2) continue;
-      const x = cx + (dx - r * 0.45) * s, y = cy + (dy - r * 0.5) * s, R = r * s * 0.8;
-      const gr = g.createRadialGradient(x, y, 0, x, y, R);
-      gr.addColorStop(0, "rgba(255,232,180,0.4)"); gr.addColorStop(1, "rgba(255,232,180,0)");
-      g.fillStyle = gr; g.beginPath(); g.arc(x, y, R, 0, Math.PI * 2); g.fill();
-    }
-    g.restore();
+    g.stroke();
   }
-  // thin wisps drifting through
-  for (let k = 0; k < 9; k++) {
-    const x = ((hash(k * 9) * 160 + t * (0.6 + hash(k) * 0.8)) % 170 - 20) * s, y = (hash(k * 41) * 160 + oy) * s;
-    const gr = g.createRadialGradient(x, y, 0, x, y, 16 * s);
-    gr.addColorStop(0, "rgba(255,255,255,0.3)"); gr.addColorStop(1, "rgba(255,255,255,0)");
-    g.save(); g.translate(x, y); g.scale(2.6, 0.45); g.translate(-x, -y);
-    g.fillStyle = gr; g.beginPath(); g.arc(x, y, 16 * s, 0, Math.PI * 2); g.fill(); g.restore();
+  // lightning: more often, and closer, when the van is in it
+  const P = 1.9 - 0.9 * inside, n = Math.floor(t / P), ph = t - n * P;
+  if (ph < 0.26 && hash(n * 17) < 0.35 + 0.6 * inside) {
+    const near = inside > 0.4 && hash(n * 5) < 0.6;
+    const yb = near ? Math.min(118, Math.max(40, vy + 6 + hash(n * 3) * 14)) : 44 + hash(n * 3) * 60;
+    const xb = near ? (hash(n * 11) < 0.5 ? 18 : 108) + (hash(n * 13) - 0.5) * 20 : 8 + hash(n * 11) * 112;
+    const flick = ph < 0.05 || (ph > 0.1 && ph < 0.14) ? 1 : 0.35;
+    const fl = g.createLinearGradient(0, 0, 0, h);
+    for (let k = 0; k <= 8; k++) { const yy = (k / 8) * rows - oy; fl.addColorStop(k / 8, `rgba(225,235,255,${(0.42 * flick * (0.25 + storm(yy)) * (1 - ph / 0.26)).toFixed(3)})`); }
+    g.fillStyle = fl; g.fillRect(0, 0, w, h);
+    if (flick === 1 || ph < 0.18) {
+      bolt(g, s, xb + (hash(n) - 0.5) * 14, yb - 34 + oy, xb, yb + oy, n);
+      const gl = g.createRadialGradient(xb * s, (yb + oy) * s, 0, xb * s, (yb + oy) * s, 14 * s);
+      gl.addColorStop(0, "rgba(255,255,255,0.7)"); gl.addColorStop(1, "rgba(200,220,255,0)");
+      g.fillStyle = gl; g.beginPath(); g.arc(xb * s, (yb + oy) * s, 14 * s, 0, Math.PI * 2); g.fill();
+    }
+  }
+  // ragged scud racing under the cloud base
+  for (let k = 0; k < 12; k++) {
+    const yy = 30 + hash(k * 41) * 80, a = storm(yy);
+    if (a < 0.2) continue;
+    const x = ((hash(k * 9) * 160 + t * (6 + hash(k) * 8)) % 170 - 20) * s, y = (yy + oy) * s;
+    const gr = g.createRadialGradient(x, y, 0, x, y, 14 * s);
+    gr.addColorStop(0, `rgba(70,80,88,${0.45 * a})`); gr.addColorStop(1, "rgba(70,80,88,0)");
+    g.save(); g.translate(x, y); g.scale(2.8, 0.4); g.translate(-x, -y);
+    g.fillStyle = gr; g.beginPath(); g.arc(x, y, 14 * s, 0, Math.PI * 2); g.fill(); g.restore();
   }
 }
 
@@ -350,18 +434,26 @@ export const SC_HARBOR: Partial<Record<string, SceneMod>> = {
       }
     },
     draw: ({ px, y0, h, live, hd }) => {
-      // a refinery tank farm down by the Kill, flags out on the lawns
+      // a refinery tank farm down by the Kill
       { const ty = y0 + h - 30, tx = roadX(ty) > W / 2 ? 6 : W - 34;
         for (let r = 0; r < 3; r++) for (let k = 0; k < 5; k++) {
           const x = tx + k * 6 + (r % 2) * 3, y = ty + r * 6;
           px(x, y + 1, 5, 3, "#c8c8c4"); px(x + 1, y, 3, 5, "#c8c8c4"); px(x + 1, y + 1, 3, 3, "#ececea"); px(x + 1, y + 1, 1, 1, "#ffffff"); px(x + 3, y + 3, 1, 1, "#9a9a96");
         }
         px(tx - 2, ty - 4, 1, 22, "#9a9a96"); px(tx - 3, ty - 6, 3, 2, "#e0302f"); }
-      for (let k = 0; k < 10; k++) {
-        const y = y0 + 8 + Math.floor(hr(k, 7) * (h - 50)), x = 2 + Math.floor(hr(k, 8) * (W - 10));
-        if (roadAt(x, y, 10) || roadAt(x + 5, y + 10, 10)) continue;
-        flagPole(px, x, y, 9, 5, 3);
-      }
+      // the downpour hitting the ground and the road: splashes, and sheets of spray off the asphalt
+      live.push({ k: "fn", fn: (f, t, ctx) => {
+        for (let k = 0; k < 160; k++) {
+          const yy = 6 + Math.floor(hash(k * 3 + 1) * (h - 20)), a = storm(yy);
+          if (hash(k * 5 + 2) > a) continue;
+          const onRoad = k % 3 === 0, x = onRoad ? roadX(y0 + yy) - 4 + Math.floor(hash(k * 7) * 9) : Math.floor(hash(k * 7) * W);
+          const ph = (t * 2.2 + hash(k * 11)) % 1;
+          if (ph < 0.35) { ctx.globalAlpha = 0.7 * (1 - ph / 0.35); f(x - 1, y0 + yy, 3, 1, "#c8dcec"); f(x, y0 + yy - 1, 1, 1, "#e8f2fa"); ctx.globalAlpha = 1; }
+        }
+        ctx.globalAlpha = 0.18;                                            // the road shines wet in the middle of it
+        for (let yy = 30; yy < h - 30; yy += 2) { const a = storm(yy); if (a > 0.5 && (yy + Math.floor(t * 3)) % 6 < 2) f(roadX(y0 + yy) - 3, y0 + yy, 7, 1, "#dfe8f0"); }
+        ctx.globalAlpha = 1;
+      } });
       // cloud shadows on the ground (under the van), sliding with the clouds
       live.push({ k: "fn", fn: (f, t, ctx) => {
         ctx.globalAlpha = 0.2;
@@ -374,52 +466,49 @@ export const SC_HARBOR: Partial<Record<string, SceneMod>> = {
         }
         ctx.globalAlpha = 1;
       } });
-      // the bank of clouds, above the van: we drive under them and come out over Staten Island
+      // the storm, above the van: we drive in under it, through the worst of it, and come out over Staten Island
       const oy = 12;
-      hd.push({ x: 0, y: y0 - oy, w: W, h: h + oy + 26, res: 3, top: true, anim: true, draw: (g, w, hh, t) => drawClouds(g, w, hh, t, oy) });
+      hd.push({ x: 0, y: y0 - oy, w: W, h: h + oy + 26, res: 3, top: true, anim: true, draw: (g, w, hh, t, vy) => drawStorm(g, w, hh, t, oy, vy - y0) });
     },
   },
   harbor: {
     ground: ["#2a6aac", "#3078b8"],
     under: ({ px, y0 }) => harborGround(px, y0),
-    draw: ({ px, y0, live, canopy }) => {
+    draw: ({ px, y0, live, canopy, says }) => {
       const Y = (y: number) => y0 + y;
-      // flags all over Staten Island and Brooklyn
+      // a few flags on Staten Island lawns (July 14th now: no more flags on every pole)
       const flags: [number, number][] = [];
-      for (let k = 0; k < 600 && flags.length < 22; k++) {
+      for (let k = 0; k < 600 && flags.length < 2; k++) {
         const x = 2 + Math.floor(hr(k, 11) * (W - 8)), y = 6 + Math.floor(hr(k, 12) * (HH - 20));
         const c = M(x, y + 9);
-        if ((c !== "s" && c !== "b") || M(x + 5, y) === "." || M(x, y) === "." || roadAt(x, Y(y), 9) || roadAt(x + 5, Y(y + 9), 9)) continue;
-        if (near(x, y, FRESHKILLS, 11, 12) || near(x, y, GREENBELT, 10, 11) || near(x, y, [57, 118], 10, 26)) continue;
-        if (y > 70 && y < 112 && x < 52 && x > 14) continue;              // keep the Verrazzano clear
-        if (flags.some(([a, b]) => Math.abs(a - x) < 12 && Math.abs(b - y) < 12)) continue;
-        if (c === "b" && flags.filter(([a, b]) => M(a, b + 9) === "b").length >= 6) continue;
+        if (c !== "s" || M(x + 5, y) === "." || M(x, y) === "." || [0, 3, 6, 9].some((d) => roadAt(x, Y(y + d), 9) || roadAt(x + 6, Y(y + d), 9))) continue;
+        if (near(x, y, FRESHKILLS, 11, 12) || near(x, y, GREENBELT, 10, 11) || near(x, y, HARBOR.vzS, 14, 14)) continue;
+        if (flags.some(([a, b]) => Math.abs(a - x) < 20 && Math.abs(b - y) < 20)) continue;
         flagPole(px, x, Y(y), 9, 5, 3); flags.push([x, y]);
       }
       // Greenbelt pines
-      for (let k = 0; k < 14; k++) { const x = GREENBELT[0] - 7 + Math.floor(hr(k, 21) * 14), y = GREENBELT[1] - 8 + Math.floor(hr(k, 22) * 14); if (!roadAt(x, Y(y), 8)) pine(px, x, Y(y), k % 2 ? "#1f5a2a" : "#174a24"); }
+      for (let k = 0; k < 14; k++) { const x = GREENBELT[0] - 7 + Math.floor(hr(k, 21) * 14), y = GREENBELT[1] - 8 + Math.floor(hr(k, 22) * 14); if (![0, 2, 4, 6, 8].some((d) => roadAt(x, Y(y + d), 9))) pine(px, x, Y(y), k % 2 ? "#1f5a2a" : "#174a24"); }
       // the Goethals and the Bayonne arch, side on
       { const [gx, gy] = HARBOR.goethals; arch(px, gx - 7, Y(gy + 2), gx + 7, Y(gy - 2), 4, "#4a7a8a"); }
       { const [bx, by] = HARBOR.bayonne; arch(px, bx - 4, Y(by + 2), bx + 9, Y(by - 2), 7, "#9aa0a8"); }
       // Fort Wadsworth by the bridge
       { const [fx, fy] = HARBOR.wadsworth; px(fx - 6, Y(fy) + 2, 5, 3, "#a89c88"); px(fx - 5, Y(fy) + 3, 3, 1, "#7a6e5a"); }
       // the St. George ferry terminal
-      { const [sx, sy] = HARBOR.stgeorge; px(sx - 3, Y(sy) - 3, 7, 4, "#d8dce0"); px(sx - 3, Y(sy) - 3, 7, 1, "#ffffff"); px(sx - 2, Y(sy) - 1, 5, 1, "#3a5a8a"); flagPole(px, sx + 4, Y(sy) - 12, 10, 6, 4); }
+      { const [sx, sy] = HARBOR.stgeorge; px(sx - 3, Y(sy) - 3, 7, 4, "#d8dce0"); px(sx - 3, Y(sy) - 3, 7, 1, "#ffffff"); px(sx - 2, Y(sy) - 1, 5, 1, "#3a5a8a"); }
 
       // back to front: Liberty, Ellis, Governors, the towers, the Brooklyn Bridge
       const items: Item[] = [];
-      const LX = 57, LY = 133;                                                  // out in the water, clear of the ferry lane
-      items.push({ y: LY, draw: (p) => liberty(p, LX, Y(LY)) });
-      items.push({ y: GOV[1] + 2, draw: (p) => { p(GOV[0] - 1, Y(GOV[1]) - 2, 3, 3, "#c8a050"); p(GOV[0], Y(GOV[1]) - 1, 1, 1, "#8a6a30"); flagPole(p, GOV[0] + 2, Y(GOV[1]) - 9, 8, 4, 3); } });
+      const LX = HARBOR.liberty[0] + 8, LY = HARBOR.liberty[1] - 6;             // out in the water, right across from the Verrazzano
+      items.push({ y: GOV[1] + 2, draw: (p) => { p(GOV[0] - 1, Y(GOV[1]) - 2, 3, 3, "#c8a050"); p(GOV[0], Y(GOV[1]) - 1, 1, 1, "#8a6a30"); } });
       // towers on a grid over Manhattan, plus Jersey City's waterfront and downtown Brooklyn
-      const special = (x: number, y: number) => near(x, y, HARBOR.wtc, 3, 3) || near(x, y, HARBOR.esb, 4, 3) || near(x, y, [84, 165], 3, 3);
+      const special = (x: number, y: number) => near(x, y, HARBOR.wtc, 3, 3) || near(x, y, HARBOR.esb, 4, 3) || near(x, y, HARBOR.chrysler, 3, 3) || near(x, y, [LX, LY - 20], 5, 22);
       const PAL = ["#8a96a8", "#a8b4c4", "#6a7a90", "#c8c0b0", "#b8b0a8", "#7a8aa0", "#d0d4d8", "#9aa8b4", "#b89a80"];
-      for (let y = 110; y < HH - 1; y += 2) for (let x = 50 + (y % 4 === 0 ? 0 : 2); x < 104; x += 4) {
+      for (let y = 112; y < HH - 1; y += 2) for (let x = 28 + (y % 4 === 0 ? 0 : 2); x < 80; x += 4) {
         const c = M(x, y);
-        const jc = c === "j" && y > 108 && y < 135 && near(x, y, [82, 120], 6, 12);
+        const jc = c === "j" && near(x, y, HARBOR.jc, 5, 9);
         const db = false;
         if (c !== "m" && !jc && !db) continue;
-        if (c === "m" && (isGov(x, y) || M(x + 3, y) === "." || M(x, y + 1) === "." || special(x, y))) continue;
+        if ((c === "m" && (isGov(x, y) || M(x + 3, y) === "." || M(x, y + 1) === ".")) || special(x, y)) continue;
         const dW = Math.hypot(x - HARBOR.wtc[0], (y - HARBOR.wtc[1]) * 1.3), dE = Math.hypot(x - HARBOR.esb[0], (y - HARBOR.esb[1]) * 1.2);
         let h = 5 + 20 * Math.exp(-((dW / 8) ** 2)) + 22 * Math.exp(-((dE / 10) ** 2)) + hr(x, y, 9) * 7;
         if (jc) h = 10 + hr(x, y, 4) * 12;
@@ -429,16 +518,26 @@ export const SC_HARBOR: Partial<Record<string, SceneMod>> = {
       }
       items.push({ y: HARBOR.wtc[1], draw: (p) => oneWTC(p, HARBOR.wtc[0] - 2, Y(HARBOR.wtc[1])) });
       items.push({ y: HARBOR.esb[1], draw: (p) => empire(p, HARBOR.esb[0] - 3, Y(HARBOR.esb[1])) });
-      items.push({ y: 165, draw: (p) => chrysler(p, 82, Y(165)) });
-      items.push({ y: 172, draw: (p) => { tower(p, 77, Y(172), 2, 36, "#c8ccd4", 1); tower(p, 87, Y(174), 2, 30, "#2a2e3a", 1); } });   // billionaires' row pencils
-      items.push({ y: 999, draw: (p) => brooklynBridge(p, 57, 72, Y(146)) });    // in front of the skyline, the classic view
+      items.push({ y: HARBOR.chrysler[1], draw: (p) => chrysler(p, HARBOR.chrysler[0] - 2, Y(HARBOR.chrysler[1])) });
+      items.push({ y: 162, draw: (p) => { tower(p, 41, Y(161), 2, 36, "#c8ccd4", 1); tower(p, 46, Y(164), 2, 30, "#2a2e3a", 1); } });   // billionaires' row pencils
+      items.push({ y: 998, draw: (p) => brooklynBridge(p, HARBOR.bkbA[0] - 6, HARBOR.bkbB[0] + 8, Y(HARBOR.bkbA[1] + 2)) });    // in front of the skyline, the classic view
+      items.push({ y: 999, draw: (p) => liberty(p, LX, Y(LY)) });              // and Lady Liberty in front of it all
       items.sort((a, b) => a.y - b.y).forEach((it) => it.draw(px));
       px(HARBOR.battery[0] - 7, Y(HARBOR.battery[1]) - 10, 1, 12, "#cfcfcf");
       live.push({ k: "flag", x: HARBOR.battery[0] - 6, y: Y(HARBOR.battery[1]) - 10, w: 7, h: 5, kind: "us" });
 
+      // at the end of the road, the last interview: a guy in a Yankees cap on the corner
+      { const [ex2, ey2] = HARBOR.vzS, gx = Math.round(roadX(Y(ey2 - 8))) - 12, gy = Y(ey2 - 10);
+        person(px, gx, gy, "#2a3a8a", "#1a2a5a", "#3a3a4a", "#c8946a"); px(gx + 1, gy, 1, 1, "#f2f2f2");
+        void ex2;
+        says.push({ a: ROAD_END - 44, b: ROAD_END - 22, who: "us", text: "“Why don't you think we can get along?”" });
+        says.push({ a: ROAD_END - 22, b: ROAD_END + 1, who: "them", text: "“Because Jason's here.”" });
+      }
       // the Verrazzano and the Outerbridge truss sit above the van and the boats
       const [ex, ey] = HARBOR.vzS;
-      canopy.push((f) => verrazzano(f, ex + 2, Y(ey) + 2, 20, Y(ey) + 15));
+      const VZ: [number, number, number, number] = [ex + 1, Y(ey) + 1, ex + 29, Y(ey) + 12];   // across the Narrows to Bay Ridge
+      verrazzanoWater(px, y0, ...VZ);
+      canopy.push((f) => verrazzano(f, ...VZ));
       canopy.push((f) => {
         for (let y = y0; y < y0 + 30; y++) {
           const x = roadX(y);
@@ -449,34 +548,41 @@ export const SC_HARBOR: Partial<Record<string, SceneMod>> = {
       });
 
       // boats: two orange ferries, a container ship in through the Narrows, a tug, sailboats; gulls; sparkle
-      const [gx, gy] = HARBOR.stgeorge, [btx, bty] = HARBOR.battery;
+      // a route through the water: along polyline P at u (0..1)
+      const along = (P: [number, number][], u: number): [number, number] => {
+        const L = P.slice(1).map((q, k) => Math.hypot(q[0] - P[k][0], q[1] - P[k][1])), tot = L.reduce((a, b) => a + b, 0);
+        let d = u * tot, k = 0; while (k < L.length - 1 && d > L[k]) { d -= L[k]; k++; }
+        const v = Math.min(1, d / L[k]); return [P[k][0] + (P[k + 1][0] - P[k][0]) * v, P[k][1] + (P[k + 1][1] - P[k][1]) * v];
+      };
+      const FERRY: [number, number][] = [[HARBOR.stgeorge[0] + 3, HARBOR.stgeorge[1] + 2], [LX + 7, LY - 8], [HARBOR.battery[0] + 3, HARBOR.battery[1] - 1]];
+      const SHIP: [number, number][] = [[HARBOR.lowerbay[0] + 10, HARBOR.lowerbay[1] - 6], [HARBOR.lowerbay[0], HARBOR.lowerbay[1]], [(HARBOR.vzS[0] + HARBOR.vzB[0]) / 2 + 1, (HARBOR.vzS[1] + HARBOR.vzB[1]) / 2], [HARBOR.shipB[0] + 4, HARBOR.shipB[1]]];
+      const [kx, ky] = HARBOR.kvk;
       live.push({ k: "fn", fn: (f, t, ctx) => {
         const D = depth();
         for (let k = 0; k < 40; k++) {
           const x = Math.floor(hash(k * 7 + 1) * W), y = Math.floor(hash(k * 7 + 2) * HH);
           if (M(x, y) === "." && D[y][x] > 1 && (t * 0.9 + hash(k * 3)) % 1 < 0.25) f(x, Y(y), 1, 1, "#f2fbff");
         }
-        for (const ph of [0, 0.5]) {
-          const a = t * 0.12 + ph * Math.PI * 2, u = (Math.sin(a) + 1) / 2;
-          const x = gx + 3 + (btx - 6 - gx) * u, y = gy + 4 + (bty - 6 - gy) * u, dir = Math.cos(a) > 0 ? 1 : -1;
-          ctx.globalAlpha = 0.6; f(x - dir * 2, Y(y) - dir * 4, 2, 3, "#e8f4ff"); ctx.globalAlpha = 1;
+        for (const ph of [0, 0.5]) {                                            // the orange Staten Island ferries
+          const a = t * 0.1 + ph * Math.PI * 2, u = (Math.sin(a) + 1) / 2, [x, y] = along(FERRY, u), dir = Math.cos(a) > 0 ? 1 : -1;
+          ctx.globalAlpha = 0.6; f(x + dir, Y(y) - dir * 4, 2, 3, "#e8f4ff"); ctx.globalAlpha = 1;
           f(x - 2, Y(y) - 1, 5, 4, "#ff7a1a"); f(x - 1, Y(y), 3, 2, "#f2f2f2"); f(x - 1, Y(y) + 1, 3, 1, "#1a2a3a");
         }
-        { const u = (t * 0.008) % 1, x = 6 + u * 40, y = 70 + u * 52;
-          if (M(x, y) === "." && M(x + 4, y + 4) === ".") {
+        { const [x, y] = along(SHIP, (t * 0.01) % 1);                            // a container ship in through the Narrows
+          if (M(x, y) === "." && M(x + 2, y + 3) === ".") {
             f(x - 1, Y(y) - 4, 4, 9, "#2a2a3a"); f(x, Y(y) - 3, 2, 3, "#c8402f"); f(x, Y(y), 2, 2, "#2f6fb0"); f(x, Y(y) + 2, 2, 1, "#e8b830");
             f(x, Y(y) + 4, 2, 1, "#f2f2f2");
-            ctx.globalAlpha = 0.5; f(x, Y(y) - 7, 2, 3, "#e8f4ff"); ctx.globalAlpha = 1;
+            ctx.globalAlpha = 0.5; f(x + 1, Y(y) - 7, 2, 3, "#e8f4ff"); ctx.globalAlpha = 1;
           } }
-        { const u = (t * 0.015 + 0.3) % 1, x = 76 + u * 22, y = 86 + u * 24;
-          if (M(x, y) === ".") { f(x, Y(y), 3, 2, "#8a5a3a"); f(x + 3, Y(y) + 2, 2, 2, "#e0302f"); f(x + 3, Y(y) + 2, 1, 1, "#f2f2f2"); } }
-        for (let k = 0; k < 6; k++) {
-          const x = 4 + hash(k * 5) * 30 + Math.sin(t * 0.1 + k) * 6, y = 25 + hash(k * 9) * 60;
+        { const u = (Math.sin(t * 0.15) + 1) / 2, x = kx - 4 + u * 9, y = ky + Math.round(u * 2);   // a tug in the Kill Van Kull
+          if (M(x, y) === ".") { f(x, Y(y), 3, 2, "#8a5a3a"); f(x + 3, Y(y), 2, 2, "#e0302f"); f(x + 3, Y(y), 1, 1, "#f2f2f2"); } }
+        for (let k = 0; k < 7; k++) {                                            // sailboats out in the Lower Bay
+          const [bx, by] = k < 4 ? HARBOR.lowerbay : HARBOR.raritan, x = bx - 10 + hash(k * 5) * 22 + Math.sin(t * 0.1 + k) * 4, y = by - 10 + hash(k * 9) * 22;
           if (M(x, y) !== "." || M(x + 2, y + 3) !== ".") continue;
           f(x, Y(y) + 3, 3, 1, "#f2f2f2"); f(x + 1, Y(y), 1, 3, "#ffffff"); f(x + 2, Y(y) + 1, 1, 2, k % 2 ? "#e0302f" : "#f2f2f2");
         }
-        for (let k = 0; k < 9; k++) {
-          const a = t * (0.3 + hash(k) * 0.3) + k * 2, cx = 20 + hash(k * 3) * 80, cy = 40 + hash(k * 11) * 110;
+        for (let k = 0; k < 9; k++) {                                            // gulls
+          const a = t * (0.3 + hash(k) * 0.3) + k * 2, cx = 64 + hash(k * 3) * 56, cy = 30 + hash(k * 11) * 90;
           const x = cx + Math.cos(a) * 10, y = cy + Math.sin(a) * 5, up = Math.floor(t * 6 + k) % 2;
           f(x - 1, Y(y) - up, 1, 1, "#ffffff"); f(x, Y(y), 1, 1, "#ffffff"); f(x + 1, Y(y) - up, 1, 1, "#ffffff");
         }

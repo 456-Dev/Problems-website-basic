@@ -329,6 +329,24 @@ export const SC_WEST: Partial<Record<string, SceneMod>> = {
         px(x, y + 16, 30, 8, "#4a4a4e"); for (let k = 0; k < 8; k++) px(x + 1 + k * 4, y + 17, 1, 6, "#e8e8e8");
         car(px, x + 3, y + 18, "#e0302f"); car(px, x + 11, y + 19, "#f2f2f2"); car(px, x + 23, y + 18, "#3a6fd8");
         flag(px, live, x + 29, y - 22, 14, 9, 6); }
+      // a man pressure-washing his car in a cookie-cutter driveway, the spray hissing off the hood
+      { const y = y0 + 142, x = Math.max(2, Math.min(free(y, 18, 34, "l"), 20));
+        plot(px, x - 2, y - 2, 36, 22, "#7fae4a");
+        px(x, y, 12, 9, "#c87a4a"); px(x, y + 3, 12, 1, "#a85a3a"); px(x + 11, y, 1, 9, "#a8603a"); px(x + 2, y + 9, 10, 8, "#e8e2d0"); px(x + 4, y + 11, 3, 3, "#9ad0e8"); px(x + 8, y + 12, 3, 5, "#6a4a2a");
+        px(x + 13, y + 6, 20, 13, "#c8c8c8"); for (let k = 0; k < 20; k += 5) px(x + 13 + k, y + 6, 1, 13, "#b0b0b0");
+        // the car, side on, wet and shining
+        const cx = x + 15, cy = y + 9;
+        px(cx + 3, cy, 9, 3, "#1a2a6a"); px(cx, cy + 3, 15, 3, "#2a3a8a"); px(cx + 4, cy + 1, 3, 2, "#9ad0e8"); px(cx + 8, cy + 1, 3, 2, "#9ad0e8");
+        px(cx + 2, cy + 6, 3, 2, "#111"); px(cx + 10, cy + 6, 3, 2, "#111"); px(cx + 14, cy + 3, 1, 1, "#fff6c0");
+        // him, with the wand
+        const mx = cx + 17, my = cy - 2;
+        px(mx, my, 3, 1, "#1a1a1a"); px(mx, my + 1, 3, 2, "#6a4028"); px(mx, my + 3, 3, 4, "#f2f2f2"); px(mx, my + 7, 1, 3, "#3a4a6a"); px(mx + 2, my + 7, 1, 3, "#3a4a6a");
+        px(mx - 2, my + 4, 2, 1, "#6a4028"); px(mx - 4, my + 4, 2, 1, "#ffd23f"); px(mx + 3, my + 8, 3, 3, "#e8c030");
+        live.push({ k: "fn", fn: (f, t, c) => {
+          for (let k = 0; k < 10; k++) { const u = (t * 2.4 + hash(k * 7)) % 1, sx = mx - 5 - u * 7, sy = my + 4 + u * (hash(k) * 4 - 1) + Math.sin(t * 20 + k) * 0.6;
+            c.globalAlpha = 1 - u * 0.7; f(sx, sy, 1, 1, u < 0.5 ? "#ffffff" : "#bfe8ff"); c.globalAlpha = 1; }
+          for (let k = 0; k < 4; k++) if ((t * 3 + k) % 1 < 0.5) f(cx + 2 + k * 3, cy + 8 + (k % 2), 2, 1, "#9ad0e8");
+        } }); }
       // more flags out front for the 4th
       for (let k = 0; k < 5; k++) { const yy = y0 + 70 + k * 18, r = room(yy, 8), xx = k % 2 ? Math.ceil(r.hi + 8) : Math.floor(r.lo - 9); flag(px, live, xx, yy, 9, 6, 4); }
     },
@@ -336,8 +354,14 @@ export const SC_WEST: Partial<Record<string, SceneMod>> = {
   vegas: {
     ground: ["#221832", "#2e2244"],
     edge: pick(eCactus, eRock),
+    under: ({ px, y0, h, rnd }) => {
+      // the night ends after the preacher: dawn, then a hot desert morning for Walmart
+      const D = ["#3a2440", "#5a3048", "#8a4a4a", "#b8664a", "#d07c48", "#d98c4a"], a = y0 + 156;
+      for (let y = a; y < y0 + h; y++) px(0, y, W, 1, D[Math.min(5, Math.floor((y - a) / 2.5))]);
+      for (let k = 0; k < 160; k++) px(Math.floor(rnd() * W), a + 14 + Math.floor(rnd() * (y0 + h - a - 14)), 1, 1, "#c4763a");
+    },
     draw: ({ px, y0, h, rnd, live, glow }) => {
-      for (let k = 0; k < 70; k++) { const x = Math.floor(rnd() * W), y = y0 + Math.floor(rnd() * h); if (Math.abs(x - roadX(y)) > 8) px(x, y, 1, 1, "#ffffff"); }
+      for (let k = 0; k < 70; k++) { const x = Math.floor(rnd() * W), y = y0 + Math.floor(rnd() * 150); if (Math.abs(x - roadX(y)) > 8) px(x, y, 1, 1, "#ffffff"); }
       // Welcome to Fabulous Las Vegas: the diamond sign, bulbs chasing round it
       { const y = y0 + 3, x = Math.max(free(y, 28, 40, "r"), 70), cx = x + 19;
         for (let r = 0; r < 13; r++) { const ww = 8 + Math.round(r * 0.9); px(cx - ww, y + 2 + r, 2 * ww + 1, 1, "#f4f0e0"); px(cx - ww, y + 26 - r, 2 * ww + 1, 1, "#f4f0e0"); }
@@ -400,7 +424,7 @@ export const SC_WEST: Partial<Record<string, SceneMod>> = {
         const e = x + 22;
         px(e, y + 4, 3, 2, "#111"); px(e + 2, y + 3, 1, 1, "#111"); px(e, y + 6, 3, 2, "#f0c8a0"); px(e - 1, y + 8, 5, 6, "#ffffff"); px(e - 1, y + 10, 5, 1, "#ffd23f");
         px(e - 2, y + 9, 1, 3, "#ffffff"); px(e + 4, y + 9, 1, 3, "#ffffff"); px(e - 1, y + 14, 2, 3, "#ffffff"); px(e + 2, y + 14, 2, 3, "#ffffff"); }
-      // Walmart, open all night
+      // Walmart, the morning after
       { const y = y0 + 168, x = Math.max(1, Math.min(free(y, 22, 32, "l"), 30));
         px(x, y + 9, 32, 2, "#0a4a8a"); px(x, y + 11, 32, 9, "#0071ce"); px(x + 14, y + 14, 4, 6, "#cfe8ff");
         px(x, y + 1, 32, 7, "#0071ce"); T(px, x + 2, y + 2, "WALMART", "#ffffff"); px(x + 29, y + 3, 2, 2, "#ffc220");
@@ -409,30 +433,34 @@ export const SC_WEST: Partial<Record<string, SceneMod>> = {
     },
   },
   desert: {
-    ground: ["#1a1a34", "#22223e"],
+    ground: ["#d98c4a", "#c4763a"],
     edge: pick(eCactus, eRock),
     under: ({ px, y0, h, rnd }) => {
-      // the Milky Way across Bicknell's sky
-      for (let k = 0; k < 900; k++) {
-        const u = rnd(), x = u * W, cy = y0 + 20 + u * (h - 40), off = (rnd() + rnd() + rnd() - 1.5) * 16;
-        const y = cy + off;
-        px(x, y, 1, 1, Math.abs(off) < 5 ? (rnd() < 0.5 ? "#c8c0e8" : "#8a82b8") : rnd() < 0.5 ? "#4a4878" : "#3a3a66");
+      // daylight for Guy Fieri, then the sun goes and the Milky Way comes out over Bicknell
+      const N0 = y0 + 62, N1 = y0 + 80, DUSK = ["#c87a48", "#a85a4a", "#7a3e50", "#4e2c50", "#2e2244", "#1e1c3a"];
+      for (let y = N0; y < y0 + h; y++) px(0, y, W, 1, y < N1 ? DUSK[Math.min(5, Math.floor((y - N0) / 3))] : "#1a1a34");
+      for (let k = 0; k < 700; k++) {
+        const u = rnd(), x = u * W, cy = N1 + 6 + u * (y0 + h - N1 - 12), off = (rnd() + rnd() + rnd() - 1.5) * 12;
+        const y = cy + off; if (y < N1 + 1) continue;
+        px(x, y, 1, 1, Math.abs(off) < 4 ? (rnd() < 0.5 ? "#c8c0e8" : "#8a82b8") : rnd() < 0.5 ? "#4a4878" : "#3a3a66");
       }
-      for (let k = 0; k < 160; k++) px(Math.floor(rnd() * W), y0 + Math.floor(rnd() * h), 1, 1, rnd() < 0.3 ? "#ffffff" : "#b8b8d8");
-      // dark mesas along the edges
-      for (const [x0, y, w] of [[0, y0 + 96, 30], [W - 34, y0 + 4, 34], [W - 26, y0 + 110, 26]] as const) {
+      for (let k = 0; k < 120; k++) px(Math.floor(rnd() * W), N1 + Math.floor(rnd() * (y0 + h - N1)), 1, 1, rnd() < 0.3 ? "#ffffff" : "#b8b8d8");
+      // red mesas by day, dark ones by night
+      px(W - 34, y0 + 4, 34, 26, "#a8432a"); px(W - 32, y0 + 2, 30, 2, "#c45a38"); px(W - 34, y0 + 29, 34, 2, "#8a3420");
+      for (const [x0, y, w] of [[0, y0 + 96, 30], [W - 26, y0 + 110, 26]] as const) {
         px(x0, y, w, 26, "#2a1a24"); px(x0 + 2, y - 2, w - 4, 2, "#341f2a"); px(x0, y, w, 1, "#4a2a30");
       }
     },
     draw: ({ px, y0, h, rnd, live }) => {
-      // the moon
-      { const x = Math.min(free(y0 + 4, 10, 10, "l"), 30), y = y0 + 6; disc(px, x + 5, y + 5, 5, "#f8f4d8"); disc(px, x + 7, y + 4, 4, "#1a1a34"); }
+      // the sun going down at the top, the moon coming up below
+      { const x = Math.min(free(y0 + 4, 10, 10, "l"), 30), y = y0 + 6; disc(px, x + 5, y + 5, 5, "#fff2a0"); disc(px, x + 5, y + 5, 3, "#ffffff"); }
+      { const x = Math.min(free(y0 + 84, 10, 10, "l"), 30), y = y0 + 84; disc(px, x + 5, y + 5, 5, "#f8f4d8"); disc(px, x + 7, y + 4, 4, "#1a1a34"); }
       // twinkling + a shooting star now and then
       live.push({ k: "fn", fn: (f, t) => {
-        for (let k = 0; k < 40; k++) { const x = Math.floor(hash(k * 7 + 1) * W), y = y0 + 2 + Math.floor(hash(k * 7 + 2) * (h - 4)); if (Math.abs(x - roadX(y)) < 7) continue; const p = (t * (0.6 + hash(k) * 1.4) + hash(k * 3)) % 1; if (p < 0.25) { f(x, y, 1, 1, "#ffffff"); f(x - 1, y, 3, 1, "#8a8ad8"); f(x, y - 1, 1, 3, "#8a8ad8"); f(x, y, 1, 1, "#ffffff"); } }
-        const u = (t % 7) / 7; if (u < 0.12) { const s = u / 0.12; for (let k = 0; k < 8; k++) { const ww = s * 60 - k * 2; f(20 + ww, y0 + 14 + ww * 0.35, 1, 1, k === 0 ? "#ffffff" : "#9a9ae0"); } }
+        for (let k = 0; k < 40; k++) { const x = Math.floor(hash(k * 7 + 1) * W), y = y0 + 82 + Math.floor(hash(k * 7 + 2) * (h - 84)); if (Math.abs(x - roadX(y)) < 7) continue; const p = (t * (0.6 + hash(k) * 1.4) + hash(k * 3)) % 1; if (p < 0.25) { f(x, y, 1, 1, "#ffffff"); f(x - 1, y, 3, 1, "#8a8ad8"); f(x, y - 1, 1, 3, "#8a8ad8"); f(x, y, 1, 1, "#ffffff"); } }
+        const u = (t % 7) / 7; if (u < 0.12) { const s = u / 0.12; for (let k = 0; k < 8; k++) { const ww = s * 60 - k * 2; f(20 + ww, y0 + 92 + ww * 0.35, 1, 1, k === 0 ? "#ffffff" : "#9a9ae0"); } }
       } });
-      // the fire guy: white cap, shades, flame-print shirt, a campfire going beside him
+      // Guy Fieri, in broad daylight: white cap, shades, flame-print shirt, a grill going beside him
       { const y = y0 + 30, x = Math.max(free(y, 24, 26, "r"), 62);
         px(x + 3, y, 7, 2, "#f2f2f2"); px(x + 2, y + 2, 9, 3, "#e8e8e8"); px(x + 4, y + 1, 3, 1, "#ff8a1f"); px(x + 6, y + 2, 1, 1, "#e0302f");
         px(x + 3, y + 5, 7, 4, "#f0b890"); px(x + 3, y + 6, 7, 1, "#111"); px(x + 5, y + 8, 3, 2, "#e8e0c0"); px(x + 6, y + 10, 1, 1, "#e8e0c0");
@@ -444,10 +472,9 @@ export const SC_WEST: Partial<Record<string, SceneMod>> = {
         live.push({ k: "fire", x: fx, y: fy - 2, w: 7, h: 6 });
         live.push({ k: "fn", fn: (f, t) => { for (let k = 0; k < 5; k++) { const u = (t * 0.7 + k / 5) % 1; f(fx + 3 + Math.sin(u * 9 + k) * 2, fy - 3 - u * 10, 1, 1, u < 0.5 ? "#ffd23f" : "#ff8a1f"); } } }); }
       // Bicknell: a handful of houses, windows lit, one gas station sign
-      for (let k = 0; k < 6; k++) {
-        const y = y0 + 70 + k * 11, x = k % 2 ? Math.max(free(y, 8, 9, "r"), 0) + (k % 3) * 4 : Math.max(1, free(y, 8, 9, "l") - (k % 3) * 5);
+      for (let k = 0; k < 5; k++) {
+        const y = y0 + 84 + k * 10, x = k % 2 ? Math.max(free(y, 8, 9, "r"), 0) + (k % 3) * 4 : Math.max(1, free(y, 8, 9, "l") - (k % 3) * 5);
         px(x, y + 2, 9, 6, "#3a3448"); px(x, y, 9, 2, "#2a2438"); px(x + 2, y + 4, 2, 2, "#ffd27a"); px(x + 6, y + 4, 2, 2, "#ffd27a");
-        if (k === 2) usFlag(px, x + 1, y - 4, 5, 3);
       }
       { const y = y0 + 110, x = Math.max(free(y, 14, 12, "l"), 2); px(x + 5, y + 4, 1, 10, "#8a8a8a"); word(px, x + 1, y, "GAS", "#f2f2f2", "#e0302f"); }
     },
@@ -458,7 +485,7 @@ export const SC_WEST: Partial<Record<string, SceneMod>> = {
     under: ({ px, y0, h, rnd }) => {
       for (let k = 0; k < 26; k++) { const x = Math.floor(rnd() * W), y = y0 + Math.floor(rnd() * h); px(x, y, 8, 3, "#c4683a"); px(x + 1, y - 1, 6, 1, "#d8804a"); px(x + 1, y + 3, 7, 1, "#a8502a"); }
     },
-    draw: ({ px, y0, h, rnd, live }) => {
+    draw: ({ px, y0, h, rnd, live, says }) => {
       // Delicate Arch, big, standing alone on the slickrock bowl
       { const y = y0 + 4, x = Math.max(2, Math.min(free(y, 40, 30, "l"), 26)), cx = x + 14, cy = y + 22;
         disc(px, cx, y + 37, 15, "#c06030", 0.3); disc(px, cx, y + 37, 11, "#d07040", 0.25);
@@ -481,7 +508,7 @@ export const SC_WEST: Partial<Record<string, SceneMod>> = {
       { const y = y0 + 22, x = Math.max(free(y, 36, 50, "r"), 64);
         px(x, y, 34, 14, "#5a3a2a"); px(x, y, 34, 2, "#3a2418"); for (let k = 0; k < 34; k += 3) px(x + k, y + 3, 1, 11, "#4a2e20");
         px(x + 3, y + 4, 28, 6, "#1a1a1a"); T(px, x + 4, y + 4, "BIKERS", "#ff8a1f"); px(x + 14, y + 10, 5, 4, "#2a1a0a");
-        for (let k = 0; k < 6; k++) {                                                         // the Harleys, chrome and black, angled in
+        for (let k = 0; k < 3; k++) {                                                         // the Harleys already parked, chrome and black
           const bx = x + 1 + k * 6, by = y + 17;
           px(bx + 1, by, 2, 9, "#1a1a1a"); px(bx + 1, by + 1, 2, 1, "#d8d8d8"); px(bx, by + 2, 4, 1, "#c8c8c8"); px(bx + 1, by + 4, 2, 3, ["#e0302f", "#1a1a1a", "#ff8a1f", "#3a3a3a", "#c8c8c8", "#1a1a1a"][k]);
           px(bx + 3, by + 6, 1, 3, "#b8b8b8");
@@ -496,18 +523,30 @@ export const SC_WEST: Partial<Record<string, SceneMod>> = {
             px(fx + xx, fy + yy, 1, 1, yy < ridge ? "#1a2a5a" : yy < 6 ? "#f2f2f2" : "#c8402a");
           }
           px(fx + 5, fy + 2, 3, 5, "#1a2a5a"); px(fx + 4, fy + 3, 5, 3, "#1a2a5a"); px(fx + 5, fy + 3, 3, 3, "#ffd23f"); px(fx + 6, fy + 3, 1, 3, "#c8902a"); px(fx + 6, fy + 2, 1, 1, "#ffd23f"); }
-        if (x + 60 < W) flag(px, live, x + 51, y + 2, 14, 8, 5); }
-      // the pack riding through: one rainbow flag in the whole pack, the rest carry the stars and stripes
-      live.push({ k: "fn", fn: (f, t) => {
-        const a = y0 + 6, b = y0 + h - 4;
-        for (let k = 0; k < 6; k++) {
-          const y = b - ((t * 8 + k * 7) % (b - a)), x = Math.round(roadX(y)) + 1 + (k % 2);
-          f(x, y, 2, 4, "#1a1a1a"); f(x, y + 1, 2, 1, "#c8c8c8"); f(x + 2, y + 1, 1, 1, "#e8c0a0"); f(x, y - 1, 2, 1, "#3a3a3a");
-          f(x + 2, y - 4, 1, 6, "#cfcfcf");
-          for (let s = 0; s < 5; s++) { const wv = Math.round(Math.sin(t * 8 + s * 0.9 + k) * 0.7);
-            for (let c = 0; c < 4; c++) f(x + 3 + s, y - 4 + wv + c, 1, 1, k === 2 ? PRIDE[Math.min(5, Math.floor(c * 1.5))] : c < 2 && s < 2 ? "#2a3a8a" : c % 2 ? "#f2f2f2" : "#c8202a"); }
-        }
-      } });
+        // the pack rides down the highway, swings into the lot, parks in the empty spots, and they walk in.
+        // one rainbow flag in the whole pack, on the second bike
+        const by = y + 17, P = 11;
+        live.push({ k: "fn", fn: (f, t) => {
+          const u = (t % P) / P;
+          for (let k = 0; k < 3; k++) {
+            const sx = x + 1 + (k + 3) * 6 + 1, lag = k * 0.035, v = u - lag;
+            let bx: number, byy: number, parked = false;
+            if (v < 0 || v > 0.94) continue;
+            if (v < 0.42) { byy = y0 - 12 + (v / 0.42) * (by - y0 + 12); bx = Math.round(roadX(byy)) + 2; }
+            else if (v < 0.56) { const s2 = (v - 0.42) / 0.14; byy = by; bx = Math.round(roadX(by) + 2 + (sx - roadX(by) - 2) * s2); }
+            else { bx = sx; byy = by; parked = true; }
+            f(bx, byy, 2, 9, "#1a1a1a"); f(bx, byy + 1, 2, 1, "#d8d8d8"); f(bx - 1, byy + 2, 4, 1, "#c8c8c8"); f(bx, byy + 4, 2, 3, ["#c8202a", "#1a1a1a", "#3a3a3a"][k]); f(bx + 2, byy + 6, 1, 3, "#b8b8b8");
+            if (!parked || v < 0.62) {                                                      // the rider still on it
+              f(bx, byy + 3, 2, 3, "#1a1a1a"); f(bx, byy + 2, 2, 1, "#e8c0a0"); f(bx, byy + 1, 2, 1, "#3a3a3a");
+              if (!parked) for (let k2 = 0; k2 < 3; k2++) f(bx + (k2 % 2), byy + 10 + k2 * 2, 1, 1, "#9a7a5a");   // dust
+            } else if (v < 0.8) {                                                            // walking up to the door
+              const s3 = (v - 0.62) / 0.18, wx = bx + (x + 15 - bx) * s3, wy = byy - s3 * 4;
+              f(wx, wy, 2, 1, "#3a3a3a"); f(wx, wy + 1, 2, 1, "#e8c0a0"); f(wx, wy + 2, 2, 3, "#1a1a1a"); f(wx + (Math.floor(t * 6) % 2), wy + 5, 1, 2, "#1a2a4a");
+            }
+            if (k === 1) { f(bx + 2, byy - 5, 1, 7, "#cfcfcf");
+              for (let s2 = 0; s2 < 5; s2++) { const wv = parked ? 0 : Math.round(Math.sin(t * 8 + s2 * 0.9) * 0.7); for (let c = 0; c < 6; c++) f(bx + 3 + s2, byy - 5 + wv + c, 1, 1, PRIDE[c]); } }
+          }
+        } }); }
       // cliff jumping: a run, a leap, a splash, the friends on the rocks
       { const y = y0 + 64, x = Math.max(free(y, 46, 46, "r"), 58), lip = x + 14;
         for (let yy = 0; yy < 40; yy++) { const ww = 14 + Math.round(Math.sin(yy / 4) + hash(yy) * 2); px(x, y + yy, ww, 1, yy % 5 ? "#9a3a22" : "#b04a2a"); px(x + ww - 2, y + yy, 2, 1, "#6a2414"); }
@@ -517,6 +556,7 @@ export const SC_WEST: Partial<Record<string, SceneMod>> = {
         px(wx + 4, wy + 6, 6, 1, "#6ab8e0"); px(wx + 14, wy + 12, 8, 1, "#6ab8e0");
         for (const [dx, dy] of [[24, -4], [27, -2]]) { px(wx + dx - 1, wy + dy, 5, 3, "#a8432a"); }
         person(px, wx + 23, wy - 12, "#ffd23f", "#3a2a1a", "#3a6fd8"); person(px, wx + 26, wy - 11, "#2faa4a", "#c87a3a", "#1a1a1a");
+        says.push({ a: y - 10, b: y + 34, who: "them", text: "“Here for a good time, not for a long time.”" });
         live.push({ k: "fn", fn: (f, t) => {
           const P = 4.2, u = (t % P) / P, sk = "#f0c8a0";
           let jx: number, jy: number;
@@ -559,9 +599,16 @@ export const SC_WEST: Partial<Record<string, SceneMod>> = {
     },
   },
   vail: {
-    ground: ["#4f8a42", "#457a3a"],
-    edge: pick(ePine),
-    draw: ({ px, y0, rnd, live }) => {
+    ground: ["#3f7a3a", "#36703a"],
+    under: ({ px, y0, h }) => {
+      // forest on every slope: the money hides in it
+      for (let y = y0 + 2; y < y0 + h - 4; y += 3) for (let x = (y % 2) * 2; x < W; x += 4) {
+        const xx = x + Math.floor(hash(x * 13 + y * 7) * 3), r = roadX(y + 4);
+        if (Math.abs(xx - r) < 10) continue;
+        pine(px, xx, y, ["#1f5a2a", "#1a4e26", "#24603a", "#174422"][Math.floor(hash(xx * 3 + y) * 4)]);
+      }
+    },
+    draw: ({ px, y0, rnd, live, says }) => {
       // Vail Mountain in July: green runs, the gondola climbing, wildflowers
       { const y = y0 + 1, cx = 24, H = 48;
         const lim = (r: number) => Math.floor(room(y + r, 0).lo - 8);
@@ -577,19 +624,52 @@ export const SC_WEST: Partial<Record<string, SceneMod>> = {
         for (let k = 0; k <= 40; k++) px(g0x + (g1x - g0x) * (k / 40), g0y + (g1y - g0y) * (k / 40), 1, 1, "#2a2a2a");
         px(g1x - 2, g1y, 5, 4, "#8a5a32"); px(g0x - 2, g0y - 2, 5, 3, "#8a5a32");
         live.push({ k: "fn", fn: (f, t) => { for (let k = 0; k < 5; k++) { const u = (t * 0.05 + k / 5) % 1; f(g0x + (g1x - g0x) * u - 1, g0y + (g1y - g0y) * u + 1, 3, 2, "#e0302f"); f(g0x + (g1x - g0x) * u - 1, g0y + (g1y - g0y) * u + 1, 3, 1, "#ff8a7a"); } } }); }
-      // the alpine village: chalets, flower boxes, Gore Creek, flags down the street
-      { const y = y0 + 34, x = Math.max(free(y, 40, 50, "r"), 66);
-        for (let yy = 0; yy < 44; yy++) px(x + 18 + Math.round(Math.sin(yy / 5) * 2), y + yy, 3, 1, "#3a8fc0");
-        px(x + 15, y + 22, 9, 3, "#7a4a2a"); px(x + 15, y + 22, 9, 1, "#9a6a3a");
-        for (const [dx, dy, c] of [[0, 0, "#f2ead8"], [26, 2, "#f8f0e0"], [2, 26, "#efe4cc"], [28, 28, "#f2ead8"], [40, 12, "#efe4cc"]] as const) {
-          const cx = x + dx, cy = y + dy; if (cx + 11 > W) continue;
-          for (let r = 0; r < 5; r++) px(cx + 5 - r, cy + r, 2 * r + 1, 1, "#6a3a1a"); px(cx, cy + 5, 11, 9, c); px(cx, cy + 7, 11, 1, "#8a5a2a");
-          px(cx + 1, cy + 9, 2, 2, "#5a8ac8"); px(cx + 8, cy + 9, 2, 2, "#5a8ac8"); px(cx + 1, cy + 11, 2, 1, "#e0302f"); px(cx + 8, cy + 11, 2, 1, "#ff5ad1"); px(cx + 4, cy + 10, 3, 4, "#6a3a1a");
-          usFlag(px, cx + 3, cy + 6, 5, 3);
-        }
-        for (let k = 0; k < 4; k++) flag(px, live, x + 12 + (k % 2) * 13, y + 16 + k * 8, 6, 5, 3); }
-      // a retired army man and his wife, still sweet on each other
+      // gentrified Vail, hidden in the trees: glass-and-timber houses tucked into clearings up the slopes,
+      // private drives snaking down to the road, Range Rovers, a hot tub steaming, a gate with a guard
+      const clear = (x: number, y: number, w: number, hh: number) => {
+        for (let yy = 0; yy < hh; yy++) { const inset = Math.max(0, 3 - yy, yy - hh + 4); px(x + inset, y + yy, w - inset * 2, 1, (yy + x) % 5 ? "#4f8a42" : "#467e3c"); }
+      };
+      const drive = (fx: number, fy: number) => {                       // a paved private drive down to the road
+        const tx = roadX(fy + 6), dir = tx > fx ? 1 : -1;
+        for (let k = 0; k <= Math.abs(tx - fx); k++) { const xx = fx + dir * k, yy = fy + Math.round(Math.sin(k / 4) * 2 + k * 0.12); if (Math.abs(xx - roadX(yy)) < 7 || Math.abs(xx - roadX(yy + 1)) < 7) break; px(xx, yy, 1, 2, "#7a7a82"); }
+      };
+      const rover = (x: number, y: number, c: string) => {               // a Range Rover, side on
+        px(x + 1, y, 6, 2, c); px(x, y + 2, 9, 2, c); px(x + 2, y + 1, 4, 1, "#2a3440"); px(x + 7, y + 2, 1, 1, "#fff6c0");
+        px(x + 1, y + 4, 2, 1, "#111"); px(x + 6, y + 4, 2, 1, "#111");
+      };
+      const house = (x: number, y: number, w: number, tub: boolean) => {  // glass, cedar, stone, a low dark roof
+        clear(x - 4, y - 5, w + 8, 26);
+        px(x - 1, y, w + 2, 2, "#2a2c30"); px(x, y + 2, w, 1, "#3a3c42");
+        px(x, y + 3, w, 8, "#6a4426"); for (let k = 1; k < w; k += 2) px(x + k, y + 3, 1, 8, "#5a3820");
+        const gw = Math.floor(w * 0.6); px(x + 1, y + 4, gw, 6, "#9ad0e8"); px(x + 2, y + 6, gw - 2, 4, "#ffd890"); for (let k = 3; k < gw; k += 4) px(x + 1 + k, y + 4, 1, 6, "#2a2c30");
+        px(x - 1, y + 11, w + 2, 3, "#8a8580"); for (let k = 0; k < w + 2; k += 3) px(x - 1 + k, y + 12, 1, 1, "#6a6560");
+        px(x + gw + 2, y + 6, 3, 5, "#3a2414");
+        px(x - 2, y + 14, w + 4, 1, "#9a7a50");                                                   // the deck
+        if (tub) { px(x + w + 2, y + 9, 5, 4, "#c8c0b0"); px(x + w + 3, y + 10, 3, 2, "#5ad0e8");
+          live.push({ k: "fn", fn: (f, t, c2) => { c2.globalAlpha = 0.5; for (let k = 0; k < 4; k++) { const u2 = (t * 0.4 + k / 4) % 1; f(x + w + 3 + Math.sin(u2 * 6 + k) * 1.5, y + 9 - u2 * 8, 2, 1, "#ffffff"); } c2.globalAlpha = 1; } }); }
+        drive(x + Math.floor(w / 2), y + 15);
+      };
+      { const r = (y: number) => Math.max(free(y, 22, 26, "r"), Math.ceil(room(y, 22).hi + 14));
+        house(r(y0 + 8), y0 + 8, 18, false); rover(r(y0 + 8) + 4, y0 + 24, "#1a1a1e");
+        house(r(y0 + 46), y0 + 46, 20, true); rover(r(y0 + 46) - 2, y0 + 62, "#e8e8ea");
+        house(r(y0 + 112) + 4, y0 + 112, 16, true);
+        const lx = (y: number) => Math.max(2, Math.min(free(y, 22, 26, "l"), Math.floor(room(y, 22).lo - 40)));
+        house(lx(y0 + 102) + 6, y0 + 102, 18, false); rover(lx(y0 + 102) + 1, y0 + 120, "#3a4a3a");
+      }
+      // the gate: stone pillars, a gatehouse, the arm down, a Rover waiting to be let in
+      { const y = y0 + 82, x = Math.max(free(y, 22, 44, "r"), Math.ceil(room(y, 22).hi + 7));
+        clear(x - 3, y - 4, 46, 24);
+        px(x, y + 8, 40, 4, "#7a7a82"); px(x, y + 9, 40, 1, "#8a8a92");
+        for (const dx of [8, 20]) { px(x + dx, y + 2, 4, 10, "#8a8580"); px(x + dx - 1, y + 1, 6, 2, "#a8a39c"); px(x + dx + 1, y + 4, 2, 1, "#ffd890"); }
+        px(x + 12, y + 9, 8, 1, "#e0302f"); for (let k = 0; k < 8; k += 2) px(x + 12 + k, y + 9, 1, 1, "#f2f2f2");      // the arm
+        px(x + 26, y, 12, 8, "#6a4426"); px(x + 25, y - 2, 14, 2, "#2a2c30"); px(x + 28, y + 2, 5, 3, "#ffd890");
+        person(px, x + 34, y + 6, "#1a2a4a", "#1a2a4a", "#1a1a2a");                                   // the guard
+        word(px, x + 2, y - 8, "VAIL", "#f2ead8", "#3a2a1a");
+        rover(x + 1, y + 7, "#1a1a1e"); }
+      // a retired army man and his wife, still sweet on each other. He just turned 80.
       { const y = y0 + 64, x = Math.max(2, free(y, 26, 30, "l"));
+        for (let yy = 0; yy < 26; yy++) px(x - 3, y - 8 + yy, 32, 1, (yy + x) % 5 ? "#6aa04a" : "#5f9442");
+        says.push({ a: y - 34, b: y - 8, who: "them", text: "“He just turned 80.”" }, { a: y - 8, b: y + 14, who: "us", text: "“Happy birthday!”" });
         flag(px, live, x + 24, y - 6, 22, 11, 7);
         px(x + 2, y, 7, 2, "#4a5a2a"); px(x + 2, y + 2, 1, 2, "#c8c8c8"); px(x + 8, y + 2, 1, 2, "#c8c8c8");
         px(x + 3, y + 2, 5, 5, "#f0c8a0"); px(x + 4, y + 3, 1, 1, "#111"); px(x + 6, y + 3, 1, 1, "#111"); px(x + 4, y + 5, 3, 1, "#1a1a1a");
@@ -601,21 +681,6 @@ export const SC_WEST: Partial<Record<string, SceneMod>> = {
         px(x + 9, y + 10, 2, 1, "#f0c8a0");
         live.push({ k: "fn", fn: (f, t) => { const u = (t * 0.5) % 1, hy = y - 3 - u * 8; f(x + 9, hy, 1, 1, "#e0302f"); f(x + 11, hy, 1, 1, "#e0302f"); f(x + 9, hy + 1, 3, 1, "#e0302f"); f(x + 10, hy + 2, 1, 1, "#e0302f"); } });
         px(x - 1, y + 18, 22, 2, "#7a5a3a"); }
-      // Vail's Fourth of July parade, a few days late for us but the bunting's still up
-      { const y = y0 + 98, x = Math.max(free(y, 30, 50, "r"), 60), w = W - 1 - x;
-        px(x, y + 8, w, 8, "#8a8a90"); px(x, y + 7, w, 1, "#c8c8c8"); px(x, y + 16, w, 1, "#c8c8c8");
-        for (let k = 0; k < w; k += 2) { px(x + k, y + 4 + (k % 4 ? 0 : 1), 1, 1, ["#e0302f", "#f2f2f2", "#3a6fd8"][(k / 2) % 3]); }
-        for (let k = 2; k < w; k += 10) { px(x + k, y + 2, 1, 6, "#8a6a42"); }
-        live.push({ k: "walk", x0: x + 1, x1: x + w - 14, y: y + 8, shirt: "#e0302f", hat: "#f2f2f2", ph: 0 });
-        live.push({ k: "walk", x0: x + 1, x1: x + w - 14, y: y + 8, shirt: "#3a6fd8", hat: "#e0302f", ph: 4 });
-        live.push({ k: "walk", x0: x + 1, x1: x + w - 14, y: y + 8, shirt: "#f2f2f2", hat: "#3a6fd8", ph: 8 });
-        live.push({ k: "fn", fn: (f, t) => {
-          const span = w - 20, p = (t * 3) % (2 * span), fx = x + 2 + (p < span ? p : 2 * span - p);
-          f(fx, y + 9, 14, 6, "#5a5a5a"); for (let r = 0; r < 5; r++) f(fx + 1, y + 9 + r, 12, 1, r % 2 ? "#f2f2f2" : "#c8202a"); f(fx + 1, y + 9, 5, 3, "#2a3a8a");
-          f(fx + 1, y + 15, 2, 1, "#111"); f(fx + 11, y + 15, 2, 1, "#111");
-        } });
-        for (let k = 0; k < Math.floor((w - 4) / 5); k++) { person(px, x + 2 + k * 5, y + 19, ["#e0302f", "#f2f2f2", "#3a6fd8", "#ffd23f"][k % 4], ["#3a2a1a", "#c8a060", "#1a1a1a"][k % 3], "#2a3a5a", SKIN[k % 4]); if (k % 3 === 0) usFlag(px, x + 4 + k * 5, y + 17, 3, 2); }
-        word(px, x + 2, y + 31, "VAIL", "#f2ead8", "#6a3a1a"); }
     },
   },
   lake: {
@@ -657,7 +722,7 @@ export const SC_WEST: Partial<Record<string, SceneMod>> = {
       });
       for (let y = y0 + 254; y < y0 + h; y++) for (let x = 0; x < W; x++) if (hash(x * 31 + y * 7) < 0.06) px(x, y, 1, 1, "#4f8a42");
     },
-    draw: ({ px, y0, h, rnd, live }) => {
+    draw: ({ px, y0, h, rnd, live, says }) => {
       // the wildfire on the far range, right side only: a thick, narrow plume leaning off to the east
       { const y = y0 + 52, x = Math.max(free(y, 20, 24, "r"), 92), w = Math.min(22, W - x - 2);
         for (let k = 0; k < w; k++) px(x + k, y + 12 + Math.round(Math.sin(k / 3) * 2), 1, 3, "#3a2a2a");
@@ -670,24 +735,61 @@ export const SC_WEST: Partial<Record<string, SceneMod>> = {
             c.globalAlpha = 0.85 * (1 - life * 0.8); f(px2, py, s, s, k % 3 ? "#5a5458" : life < 0.25 ? "#7a6058" : "#8a8488"); c.globalAlpha = 1;
           }
         } }); }
-      // me getting my head shaved on a summit, in a lightning storm
-      { const y = y0 + 136, x = Math.max(2, Math.min(free(y, 28, 26, "l"), 40));
-        px(x, y + 12, 24, 4, "#6a6f7a"); px(x + 3, y + 10, 18, 2, "#7a808a"); px(x + 2, y + 16, 20, 8, "#575c66"); px(x + 1, y + 24, 22, 3, "#4a4f58");
-        px(x + 4, y + 2, 4, 3, "#f0c8a0"); px(x + 4, y + 1, 2, 1, "#3a2a1a"); px(x + 4, y + 2, 1, 1, "#3a2a1a");
-        px(x + 3, y + 5, 6, 5, "#8a8f99"); px(x + 5, y + 5, 2, 2, "#f2f2f2"); px(x + 5, y + 6, 1, 2, "#e0302f");
-        px(x + 3, y + 10, 7, 2, "#8a8f99"); px(x + 9, y + 10, 1, 3, "#6a6f7a");
-        px(x + 2, y + 12, 1, 1, "#3a2a1a"); px(x + 7, y + 12, 1, 1, "#3a2a1a"); px(x + 11, y + 11, 1, 1, "#3a2a1a");
-        px(x + 12, y - 2, 4, 2, "#5a3a1a"); px(x + 12, y, 4, 3, "#f0c8a0"); px(x + 13, y + 1, 1, 1, "#111");
-        px(x + 11, y + 3, 6, 6, "#2f8a3a"); px(x + 13, y + 4, 2, 2, "#e0302f"); px(x + 13, y + 4, 1, 1, "#f2f2f2");
-        px(x + 9, y + 3, 2, 1, "#f0c8a0"); px(x + 8, y + 2, 2, 1, "#3a3a3a");
-        px(x + 12, y + 9, 2, 3, "#3a4a6a"); px(x + 15, y + 9, 2, 3, "#3a4a6a");
-        live.push({ k: "bolt", x: x + 8, y: y0 + 100, y1: y - 2 });
-        live.push({ k: "fn", fn: (f, t, c) => { c.globalAlpha = 0.5; for (let k = 0; k < 20; k++) { const rx = x - 6 + hash(k) * 36, ry = y0 + 104 + ((t * 40 + hash(k * 3) * 50) % 50); f(rx, ry, 1, 2, "#b8c8e8"); } c.globalAlpha = 1; } }); }
+      // me getting my head shaved on a summit, in a lightning storm: big rock, wind, hair flying off into the valley
+      { const y = y0 + 124, x = Math.max(2, Math.min(free(y, 44, 50, "l"), 30, Math.floor(room(y - 8, 56).lo - 6 - 52)));
+        // the summit block: jagged granite, lit from the left, cracks, a little snow in the seams
+        for (let yy = 0; yy < 26; yy++) {
+          const l = Math.round(4 - Math.sin(yy / 3) * 2 + Math.max(0, 6 - yy) * 1.2), r = Math.round(46 - Math.max(0, 8 - yy) * 1.4 + Math.sin(yy / 4) * 2);
+          const rr = Math.min(r, Math.floor(room(y + 22 + yy, 0).lo - 6) - x);
+          for (let xx = l; xx < rr; xx++) px(x + xx, y + 22 + yy, 1, 1, xx < l + 3 ? "#a8aeb8" : xx > r - 6 ? "#4a4f58" : (xx * 3 + yy * 5) % 13 === 0 ? "#5a5f68" : yy < 3 ? "#9aa0aa" : "#757a84");
+        }
+        for (const [cx2, cy2, len] of [[14, 26, 9], [30, 28, 12], [22, 36, 7]]) for (let k = 0; k < len; k++) px(x + cx2 + Math.round(Math.sin(k) * 1), y + cy2 + k, 1, 1, "#3a3e46");
+        px(x + 9, y + 31, 3, 1, "#e8eef4"); px(x + 36, y + 27, 2, 1, "#e8eef4");
+        // the camp chair
+        px(x + 9, y + 15, 12, 2, "#2a5a9a"); px(x + 9, y + 17, 1, 5, "#5a5a5a"); px(x + 20, y + 17, 1, 5, "#5a5a5a"); px(x + 8, y + 7, 2, 9, "#2a5a9a");
+        // me: grey suit, white shirt, red tie, half the hair gone, a cape of hair on my shoulders
+        const SK = "#f0c8a0";
+        px(x + 11, y + 1, 7, 7, SK); px(x + 11, y, 3, 2, "#c8a888"); px(x + 14, y - 1, 4, 3, "#4a2e1a"); px(x + 16, y + 1, 2, 4, "#4a2e1a"); px(x + 17, y, 1, 2, "#5a3a22");
+        px(x + 12, y + 3, 1, 1, "#111"); px(x + 15, y + 3, 1, 1, "#111"); px(x + 13, y + 5, 2, 1, "#c87a6a"); px(x + 18, y + 3, 1, 2, SK);
+        px(x + 9, y + 8, 11, 8, "#8a8f99"); px(x + 13, y + 8, 3, 6, "#f2f2f2"); px(x + 14, y + 9, 1, 5, "#c8202a"); px(x + 9, y + 8, 2, 7, "#7a7f89"); px(x + 18, y + 8, 2, 7, "#7a7f89");
+        px(x + 10, y + 8, 9, 1, "#4a2e1a"); px(x + 11, y + 9, 1, 1, "#4a2e1a"); px(x + 17, y + 9, 1, 1, "#4a2e1a");
+        px(x + 7, y + 11, 3, 2, SK); px(x + 19, y + 11, 3, 2, SK);
+        px(x + 10, y + 16, 9, 3, "#7a7f89"); px(x + 10, y + 19, 3, 4, "#6a6f79"); px(x + 16, y + 19, 3, 4, "#6a6f79"); px(x + 9, y + 23, 4, 1, "#111"); px(x + 16, y + 23, 4, 1, "#111");
+        // Jason behind me: green Cummins tee, jeans, the clippers at my head
+        const jx = x + 24;
+        px(jx + 1, y - 8, 6, 2, "#5a3a1a"); px(jx, y - 6, 8, 6, SK); px(jx, y - 6, 1, 3, "#5a3a1a"); px(jx + 2, y - 4, 1, 1, "#111"); px(jx + 5, y - 4, 1, 1, "#111"); px(jx + 3, y - 2, 2, 1, "#a86a5a");
+        px(jx - 1, y, 10, 11, "#2f8a3a"); px(jx + 3, y + 3, 3, 3, "#e0302f"); px(jx + 4, y + 4, 1, 1, "#f2f2f2");
+        px(jx - 6, y + 2, 6, 2, SK); px(jx - 8, y + 1, 3, 3, "#c8c8d0"); px(jx - 8, y + 1, 3, 1, "#9a9aa8");
+        px(jx + 9, y + 2, 2, 7, SK);
+        px(jx, y + 11, 3, 11, "#3a4a6a"); px(jx + 5, y + 11, 3, 11, "#3a4a6a"); px(jx - 1, y + 22, 4, 1, "#3a2a1a"); px(jx + 5, y + 22, 4, 1, "#3a2a1a");
+        // the storm: three strikes, hard rain on the slant, wind, my hair tearing off the summit
+        live.push({ k: "bolt", x: x + 6, y: y0 + 96, y1: y + 18 });
+        live.push({ k: "fn", fn: (f, t, c) => {
+          for (const [bx2, off, y1] of [[x + 40, 1.3, y - 4], [x + 52, 2.4, y + 10]] as const) {
+            const u2 = ((t + off) % 3.9) / 3.9;
+            if (u2 < 0.07) { let lx = bx2; for (let yy = y0 + 92; yy < y1; yy++) { if (yy % 3 === 0) lx += hash(yy * 17 + Math.floor((t + off) / 3.9)) > 0.5 ? 1 : -1; f(lx, yy, 1, 1, "#ffffff"); f(lx + 1, yy, 1, 1, "#c8d8ff"); }
+              c.globalAlpha = 0.18; f(0, y0 + 90, W, 80, "#e8f0ff"); c.globalAlpha = 1; }
+          }
+          c.globalAlpha = 0.55;
+          for (let k = 0; k < 46; k++) { const p2 = (t * 46 + hash(k * 3) * 60) % 60, rx = x - 10 + hash(k) * 70 + p2 * 0.5, ry = y0 + 96 + p2; f(rx, ry, 1, 2, "#b8c8e8"); }
+          c.globalAlpha = 1;
+          for (let k = 0; k < 5; k++) { const p2 = (t * 0.9 + k / 5) % 1; c.globalAlpha = 0.5 * (1 - p2); f(x - 6 + p2 * 70, y - 6 + k * 6, 6, 1, "#e8eef8"); c.globalAlpha = 1; }
+          for (let k = 0; k < 12; k++) { const p2 = (t * 0.55 + hash(k * 5)) % 1, hx = x + 15 + p2 * 44 + Math.sin(t * 9 + k) * 1.5, hy = y + 1 + Math.sin(p2 * 7 + k) * 4 - p2 * 6;
+            f(hx, hy, 1 + (k % 2), 1, k % 3 ? "#4a2e1a" : "#6a4a2a"); }
+          const buzz = Math.floor(t * 30) % 2; f(x + 16 + buzz, y + 1, 1, 1, "#e8e8f0");
+        } }); }
       // an alpine lake at the bottom, glinting, and elk in the meadow across the road
-      { const y = y0 + 258, x = 3, w = Math.min(50, Math.floor(room(y, 30).lo - 9) - x);
+      { const y = y0 + 258, x = 3, w = Math.min(44, Math.floor(room(y, 30).lo - 9) - x - 14);
         for (let r = 0; r < 28; r++) { const ww = Math.round(Math.sqrt(1 - ((r - 14) / 14) ** 2) * w / 2); px(x + w / 2 - ww, y + r, 2 * ww, 1, r < 3 ? "#5f9fe0" : "#2f6fb0"); }
         for (const k of [0.2, 0.5, 0.8]) pine(px, x + w * k, y - 6, "#1f5a2a");
-        live.push({ k: "glint", x: x + 4, y: y + 4, w: w - 8, h: 20 }); }
+        live.push({ k: "glint", x: x + 4, y: y + 4, w: w - 8, h: 20 });
+        // at the water's edge: Glacier hoodie, a glass ball held up with the whole lake upside down in it
+        const gx = x + w + 2, gy = y + 4;
+        px(gx + 1, gy, 4, 2, "#8a6a3a"); px(gx, gy + 1, 1, 4, "#8a6a3a"); px(gx + 1, gy + 2, 4, 4, "#f0c8a0"); px(gx + 2, gy + 3, 1, 1, "#111"); px(gx + 4, gy + 3, 1, 1, "#111");
+        px(gx, gy + 6, 6, 8, "#3a6a5a"); px(gx + 1, gy + 8, 4, 1, "#e8f2ee"); px(gx, gy + 14, 2, 5, "#2a2a3a"); px(gx + 4, gy + 14, 2, 5, "#2a2a3a");
+        px(gx + 6, gy + 8, 2, 2, "#f0c8a0");
+        disc(px, gx + 9, gy + 7, 2, "#d8ecf8"); px(gx + 8, gy + 8, 3, 1, "#3a6a8a"); px(gx + 8, gy + 6, 3, 1, "#3f7a3a"); px(gx + 8, gy + 6, 1, 1, "#ffffff");
+        says.push({ a: gy - 70, b: gy - 30, who: "them", text: "“I always say Toto by Africa.”" }, { a: gy - 30, b: gy + 14, who: "them", text: "“It's a glass ball, I got it on Amazon.”" }); }
       { const y = y0 + 230, x = Math.max(free(y, 20, 40, "r"), 70);
         for (let k = 0; k < 5; k++) { const ex = x + k * 8, ey = y + (k % 2) * 6 + (k > 2 ? 8 : 0); if (ex + 7 > W) break;
           px(ex + 1, ey + 2, 5, 3, "#8a5a32"); px(ex + 5, ey + 1, 2, 2, "#6a4022"); px(ex + 1, ey + 2, 1, 2, "#e8d8b8");
@@ -704,7 +806,7 @@ export const SC_WEST: Partial<Record<string, SceneMod>> = {
         if (y % 9 === 0) { px(x + 1, y - 1, 3, 3, "#2f7a2a"); px(x + 12, y + 3, 2, 2, "#2f7a2a"); }
       }
     },
-    draw: ({ px, y0, h, rnd, live }) => {
+    draw: ({ px, y0, h, rnd, live, says }) => {
       const gx = (y: number) => Math.round(roadX(y)) + 8;
       // downtown blocks on both sides, kept off the road and the greenway
       for (let yy = y0 + 2; yy < y0 + h - 4; yy += 14) {
@@ -718,7 +820,7 @@ export const SC_WEST: Partial<Record<string, SceneMod>> = {
         px(x, y + 8, 40, 14, "#d8b890"); px(x, y + 8, 40, 1, "#a88a68"); for (let k = 2; k < 40; k += 5) { px(x + k, y + 12, 3, 6, "#5a7a9a"); px(x + k + 1, y + 11, 1, 1, "#5a7a9a"); }
         px(x + 16, y + 4, 8, 4, "#d8b890"); px(x + 18, y + 5, 4, 2, "#f2f2f2");
         px(x + 6, y, 28, 11, "#1a1a1a"); T(px, x + 10, y, "UNION", "#ff3b3b"); T(px, x + 7, y + 6, "STATION", "#ff3b3b"); px(x + 7, y + 12, 1, 1, "#d8b890");
-        flag(px, live, x + 2, y - 8, 14, 8, 5); }
+      }
       // the big blue bear, nose to the convention center glass
       { const y = y0 + 98, x = Math.max(2, Math.min(free(y, 30, 30, "l"), 30));
         px(x - 1, y - 1, 32, 30, "#5a5e66"); px(x + 14, y, 16, 28, "#9ac0d8"); for (let k = 0; k < 28; k += 3) px(x + 14, y + k, 16, 1, "#7aa0c0");
@@ -744,7 +846,9 @@ export const SC_WEST: Partial<Record<string, SceneMod>> = {
           else { f(x, y, 1, 1, "#3a2a1a"); f(x, y + 1, 1, 2, ["#ff5ad1", "#3a6fd8", "#f2f2f2", "#ff8a1f"][k - 3]); }
         }
       } });
-      for (let k = 0; k < 4; k++) { const yy = y0 + 30 + k * 34; flag(px, live, gx(yy) + 13, yy, 9, 6, 4); }
+      // a guy on the greenway with the question for all of America
+      { const yy = y0 + 66; person(px, gx(yy) + 13, yy, "#c8302a", "#1a1a1a", "#2a2a3a", "#8a5a3a");
+        says.push({ a: yy - 40, b: yy - 6, who: "them", text: "“Why ain't we free anymore?”" }, { a: yy - 6, b: yy + 26, who: "them", text: "“Because of Trump.”" }); }
     },
   },
 };

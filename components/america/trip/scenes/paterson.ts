@@ -1,8 +1,8 @@
-// Paterson, NJ: the love of the trip. Top to bottom: the Great Falls of the Passaic (Hamilton
-// watching from Overlook Park, the footbridge over the chasm, Hinchliffe Stadium across the way),
-// the river under the road, the silk mills on the raceways (the old Rogers locomotive shop, now
-// the museum), Lou Costello with his bat, Main Street with every flag in town, City Hall,
-// Lambert Castle up on Garret Mountain, St. John's spires, and the market.
+// Paterson, NJ: the love of the trip. Top to bottom: the Great Falls of the Passaic (a quinceañera
+// shoot at the overlook, the footbridge over the chasm, a block party across the way), the river under
+// the road, the raceways (pickup ball on the old mill lot, the water wheel, the Rogers locomotive shop),
+// Lou Costello with his bat, the food trucks, Main Street with every flag in town, Lambert Castle up on
+// Garret Mountain, St. John's spires, and the market.
 
 import { W, roadX, room, hash } from "../core";
 import type { SceneMod, Px } from "../kit";
@@ -49,7 +49,7 @@ const FLAGS: Record<string, FlagFn> = {
   mexico: (x, y, w) => (x < w / 3 ? "#0a7a3a" : x < (2 * w) / 3 ? (x === Math.floor(w / 2) ? "#8a6a2a" : "#f2f2f2") : "#d8202a"),
   jamaica: (x, y, w, h) => { const a = Math.abs(y - (x * (h - 1)) / (w - 1)) < 0.8, b = Math.abs(y - ((w - 1 - x) * (h - 1)) / (w - 1)) < 0.8; return a || b ? "#ffd21f" : (x < w / 2) === (y < h / 2) && Math.abs(x - w / 2) > Math.abs(y - h / 2) * (w / h) ? "#111" : Math.abs(x - (w - 1) / 2) * (h / w) > Math.abs(y - (h - 1) / 2) ? "#111" : "#0a8a3a"; },
 };
-const FLAG_ORDER = ["us", "dominican", "peru", "palestine", "bangladesh", "puertorico", "colombia", "turkey", "mexico", "jamaica"];
+const FLAG_ORDER = ["dominican", "peru", "palestine", "bangladesh", "puertorico", "colombia", "turkey", "mexico", "jamaica"];
 
 // a waving flag (live)
 function waving(f: F, t: number, x: number, y: number, w: number, h: number, kind: string, ph = 0) {
@@ -82,7 +82,7 @@ export const SC_PATERSON: Partial<Record<string, SceneMod>> = {
   jersey: {
     ground: ["#4f7a3a", "#466f34"],
     edge: pick(eTree),
-    draw: ({ ctx, px, y0, h, live, hd, canopy }) => {
+    draw: ({ ctx, px, y0, h, live, hd, canopy, says }) => {
       const raw: Px = (x, y, w, hh, c) => { ctx.fillStyle = c; ctx.fillRect(Math.round(x), Math.round(y), w, hh); };
       const R = (y: number) => roadX(y0 + y);
       const L = (a: number, b: number) => Math.floor(room(y0 + a, b - a).lo - 7);        // last free column left of the road
@@ -164,54 +164,69 @@ export const SC_PATERSON: Partial<Record<string, SceneMod>> = {
       for (let k = 0; k < 6; k++) { const c = 4 + k * 5; pine(px, xl(c) - 9 + (k % 2) * 2, lipY + c - 3, "#1f4a26"); if (xr(c) + 6 < X1) pine(px, xr(c) + 5, lipY + c - 2, "#1f4a26"); }
       // the river finds its way out of the pool, down the west side to the bridge
       for (let y = poolY + 9; y < y0 + 100; y++) { const x = FX + 1 + Math.round(Math.sin(y / 5)); px(x, y, 5, 1, "#2f6fb0"); px(x + 1, y, 1, 1, "#5f9fe0"); }
-      // Overlook Park above the falls: Hamilton on his pedestal, looking at the falls; picnic tables, a flag
+      // Overlook Park above the falls: a quinceañera photo shoot with the falls behind her; picnic tables
       const opY = poolY + 12;
       px(FX + 7, opY, FW - 7, y0 + 97 - opY, "#5a9a45");
       for (let k = 0; k < 60; k++) px(FX + 7 + Math.floor(hash(k * 5) * (FW - 7)), opY + Math.floor(hash(k * 9) * 30), 1, 1, "#4f8a3c");
       px(FX + 7, opY, FW - 7, 1, "#8a8278");                                              // stone rail along the overlook
       for (let x = FX + 7; x < FX + FW; x += 4) px(x, opY - 1, 1, 2, "#a8a096");
-      { const hx = FX + 20, hy = opY + 4;                                         // Alexander Hamilton
-        px(hx - 2, hy + 10, 9, 5, "#a8a8a0"); px(hx - 1, hy + 9, 7, 1, "#c8c8c0"); px(hx - 2, hy + 14, 9, 1, "#7a7a72");
-        px(hx + 1, hy, 3, 2, "#4a6a5a"); px(hx + 1, hy + 2, 3, 1, "#5a7a6a");      // bronze gone green
-        px(hx, hy + 3, 5, 4, "#3a5a4a"); px(hx - 1, hy + 4, 1, 3, "#3a5a4a"); px(hx + 5, hy + 3, 1, 2, "#3a5a4a"); px(hx + 6, hy + 2, 1, 1, "#3a5a4a");   // pointing at the falls
-        px(hx + 1, hy + 7, 1, 2, "#2f4a3a"); px(hx + 3, hy + 7, 1, 2, "#2f4a3a");
-        sign(px, hx - 13, hy + 16, 33, "HAMILTON", "#f2f2f2", "#2a3a2a"); }
+      { const qx = FX + 20, qy = opY + 6;                                          // the quinceañera: a huge turquoise ball gown, a tiara
+        for (let r = 0; r < 9; r++) { const ww = 3 + Math.round(r * 1.3); px(qx + 2 - Math.floor(ww / 2), qy + 5 + r, ww, 1, r % 3 === 2 ? "#5ae0d8" : "#2ac8c0"); }
+        px(qx - 4, qy + 13, 13, 1, "#1aa8a0");
+        px(qx + 1, qy + 2, 3, 3, "#c08a5a"); px(qx + 1, qy + 1, 3, 1, "#1a1a1a"); px(qx, qy + 2, 1, 4, "#1a1a1a"); px(qx + 4, qy + 2, 1, 4, "#1a1a1a");
+        px(qx + 1, qy, 3, 1, "#ffd23f"); px(qx + 2, qy - 1, 1, 1, "#fff6c0");
+        px(qx + 1, qy + 5, 3, 2, "#2ac8c0"); px(qx - 1, qy + 5, 1, 2, "#c08a5a"); px(qx + 5, qy + 5, 1, 2, "#c08a5a"); px(qx + 6, qy + 4, 2, 2, "#ff5ad1");   // a bouquet
+        // her court in matching ties, her mom fixing the train
+        for (let k = 0; k < 3; k++) person(px, [qx - 11, qx - 7, qx + 11][k], qy + 3, "#1a1a1a", "#1a1a1a", "#1a1a1a", ["#c08a5a", "#8a5a3a", "#e0b090"][k]);
+        person(px, qx + 7, qy + 9, "#ff5ad1", "#1a1a1a", "#2a2a3a", "#c08a5a");
+        // the photographer crouched in front with the flash going off
+        const cx = qx + 3, cy = qy + 18;
+        person(px, cx, cy, "#2a2a2a", "#3a2a1a", "#2a2a3a", "#8a5a3a"); px(cx - 1, cy + 2, 2, 2, "#1a1a1a");
+        live.push({ k: "fn", fn: (f, t, c) => { const p2 = (t * 0.7) % 1; if (p2 < 0.08) { c.globalAlpha = 1 - p2 / 0.08; f(cx - 3, cy - 1, 5, 5, "#ffffff"); f(qx - 3, qy - 2, 12, 16, "rgba(255,255,255,0.35)"); c.globalAlpha = 1; } } });
+      }
       for (const [dx, dy] of [[9, 4], [30, 28], [9, 28]]) { px(FX + dx, opY + dy, 7, 3, "#8a5a32"); px(FX + dx, opY + dy - 1, 7, 1, "#a06a3a"); px(FX + dx + 1, opY + dy + 3, 1, 1, "#5a3a1a"); px(FX + dx + 5, opY + dy + 3, 1, 1, "#5a3a1a"); }
-      px(FX + 50, opY + 2, 1, 14, "#cfcfcf");
-      live.push({ k: "fn", fn: (f, t) => waving(f, t, FX + 51, opY + 2, 8, 5, "us") });
       walkers.push(folk(FX + 53, opY + 9, FX + 55, opY + 24), folk(FX + 40, opY + 2, FX + 40, opY + 14, true), folk(FX + 31, opY + 2, FX + 46, opY + 2));
       // a family on a blanket
       px(FX + 43, opY + 24, 8, 5, "#e0302f"); px(FX + 43, opY + 26, 8, 1, "#f2f2f2");
       person(px, FX + 44, opY + 20, "#ffd23f", "#1a1a1a", "#2a2a3a", "#c08a5a"); person(px, FX + 48, opY + 21, "#3a6fd8", "#3a2a1a", "#2a2a3a", "#8a5a3a");
 
-      /* ===== Hinchliffe Stadium, right of the road across from the falls ===== */
-      { const sx = Rt(4, 60), sw = Math.min(36, W - 2 - sx), sy = y0 + 6;
+      /* ===== a block party on the street across from the falls ===== */
+      { const sx = Rt(4, 60), sw = Math.min(40, W - 2 - sx), sy = y0 + 6;
         if (sw > 24) {
-          px(sx, sy, sw, 44, "#c87a4a");                                          // art-deco walls
-          px(sx + 1, sy + 1, sw - 2, 42, "#e8a878");
-          for (let x = sx + 2; x < sx + sw - 2; x += 4) { px(x, sy + 1, 2, 1, "#2a8a8a"); px(x + 2, sy + 1, 2, 1, "#ff8a1f"); }   // tile band
-          px(sx + 3, sy + 4, sw - 6, 37, "#9aa0a8");                              // the stands
-          for (let y = sy + 5; y < sy + 40; y += 2) px(sx + 3, y, sw - 6, 1, "#8a9098");
-          px(sx + 7, sy + 8, sw - 14, 33, "#b8603a");                              // the track
-          px(sx + 9, sy + 10, sw - 18, 29, "#3aa83a");                             // the field
-          for (let y = sy + 12; y < sy + 38; y += 4) px(sx + 9, y, sw - 18, 1, "#4ab84a");
-          px(sx + 9 + Math.floor((sw - 18) / 2), sy + 10, 1, 29, "#f2f2f2");
-          px(sx + 3, sy + 41, sw - 6, 3, "#e8a878");                               // open end of the horseshoe
-          sign(px, sx + 1, sy + 45, sw - 2, "HINCH-", "#5af0e0", "#1a2a2a"); sign(px, sx + 1, sy + 52, sw - 2, "LIFFE", "#5af0e0", "#1a2a2a");
-          // a soccer game: two teams running about
+          // a row of three-family houses with stoops
+          for (let k = 0; k * 10 + 9 <= sw; k++) {
+            const hx = sx + k * 10, c = ["#e8d8b8", "#5a7aa8", "#c8a040", "#a8503a"][k % 4];
+            px(hx, sy, 9, 18, c); px(hx, sy, 9, 2, "#4a3a2a"); px(hx + 1, sy + 2, 7, 1, shadeC(c));
+            for (let r = sy + 4; r < sy + 14; r += 5) { px(hx + 1, r, 2, 3, "#cfe8ff"); px(hx + 6, r, 2, 3, "#cfe8ff"); }
+            px(hx + 3, sy + 13, 3, 5, "#4a2a1a"); px(hx + 2, sy + 18, 5, 2, "#9a9a92");      // door, stoop
+          }
+          // the street, closed off with sawhorses, music going
+          const ry = sy + 22;
+          px(sx, ry, sw, 30, "#5a5a5e"); px(sx, ry, sw, 1, "#a8a8a8"); px(sx, ry + 29, sw, 1, "#a8a8a8");
+          for (const bx2 of [sx + 1, sx + sw - 6]) { px(bx2, ry + 12, 5, 1, "#ff8a1f"); px(bx2, ry + 13, 5, 1, "#f2f2f2"); px(bx2, ry + 14, 1, 2, "#8a8a8a"); px(bx2 + 4, ry + 14, 1, 2, "#8a8a8a"); }
+          // the grill, smoke drifting off it; a folding table of food; the speakers
+          const gx = sx + 3, gy = ry + 3;
+          px(gx, gy, 6, 3, "#1a1a1a"); px(gx + 1, gy + 1, 4, 1, "#ff6a1a"); px(gx + 1, gy + 3, 1, 2, "#3a3a3a"); px(gx + 4, gy + 3, 1, 2, "#3a3a3a");
+          person(px, gx + 7, gy - 1, "#f2f2f2", "#e0302f", "#2a2a3a", "#8a5a3a");
+          live.push({ k: "fn", fn: (f, t, c) => { for (let k = 0; k < 8; k++) { const u = (t * 0.25 + k / 8) % 1; c.globalAlpha = 0.5 * (1 - u); f(gx + 2 + u * 10 + Math.sin(u * 7 + k) * 2, gy - 2 - u * 12, 2 + Math.floor(u * 3), 2, "#d8d8dc"); c.globalAlpha = 1; } } });
+          const tx = sx + 14; px(tx, ry + 4, 12, 3, "#f2f2f2");
+          for (let k = 0; k < 5; k++) px(tx + 1 + k * 2, ry + 4, 1, 1, ["#ffd23f", "#e0302f", "#2faa4a", "#8a5a2a", "#ff8a1f"][k]);
+          const spx = sx + sw - 5;
+          live.push({ k: "fn", fn: (f, t) => { const b = Math.floor(t * 4) % 2; for (const yy of [ry + 2, ry + 20]) { f(spx, yy, 4, 6, "#1a1a1a"); f(spx + 1, yy + 1 - b, 2, 2 + b, "#5a5a5a"); f(spx + 1, yy + 4, 2, 1, "#3a3a3a"); } } });
+          // dancers: bachata, a whole line of them, and kids with a jump rope
           live.push({ k: "fn", fn: (f, t) => {
-            const fx0 = sx + 10, fw = sw - 20, fy0 = sy + 11;
-            const bx = fx0 + fw / 2 + Math.sin(t * 1.3) * (fw / 2 - 1), by = fy0 + 13 + Math.sin(t * 0.9) * 11;
-            for (let k = 0; k < 8; k++) {
-              const px2 = bx + Math.sin(t * 1.1 + k * 1.7) * (3 + k), py2 = by + Math.cos(t * 0.8 + k * 2.3) * (4 + k);
-              f(Math.max(fx0, Math.min(fx0 + fw - 2, px2)), Math.max(fy0, Math.min(fy0 + 26, py2)), 2, 2, k % 2 ? "#e0302f" : "#2a3a8a");
+            for (let k = 0; k < 6; k++) {
+              const bx2 = sx + 6 + (k % 3) * 9 + Math.round(Math.sin(t * 3 + k) * 2), by2 = ry + 10 + Math.floor(k / 3) * 8 + Math.round(Math.cos(t * 6 + k) * 0.6);
+              f(bx2, by2, 2, 1, HAIR[k % HAIR.length]); f(bx2, by2 + 1, 2, 1, SKIN[(k * 2) % SKIN.length]); f(bx2, by2 + 2, 2, 2, SHIRT[(k * 3 + 1) % SHIRT.length]);
+              const st = Math.floor(t * 6 + k) % 2; f(bx2 + st, by2 + 4, 1, 1, "#2a2a3a"); f(bx2 + 1 - st, by2 + 4, 1, 1, "#2a2a3a");
             }
-            f(bx, by, 1, 1, "#ffffff");
+            const jx = sx + 4, jy = ry + 22, a = t * 7;                   // double dutch
+            f(jx, jy, 1, 3, "#c08a5a"); f(jx + 12, jy, 1, 3, "#8a5a3a");
+            for (let x = 1; x < 12; x++) f(jx + x, jy + 1 + Math.round(Math.sin((x / 12) * Math.PI) * 3 * Math.cos(a)), 1, 1, "#ffd23f");
+            f(jx + 5, jy - Math.max(0, Math.round(Math.sin(a) * 2)), 2, 3, "#ff5ad1");
           } });
-          // fans in the stands
-          live.push({ k: "fn", fn: (f, t) => { for (let k = 0; k < 30; k++) { const x = sx + 4 + Math.floor(hash(k * 7) * (sw - 8)), y = sy + 5 + Math.floor(hash(k * 11) * 3) + (hash(k) > 0.5 ? 34 : 0); f(x, y - (Math.floor(t * 4 + k) % 6 === 0 ? 1 : 0), 1, 1, SHIRT[k % SHIRT.length]); } } });
         }
-        // row houses with laundry lines below the stadium
+        // row houses with laundry lines below the party
         const hy0 = y0 + 68;
         for (let k = 0; k < 4; k++) {
           const hx = sx + k * 9; if (hx + 8 > W - 1) break;
@@ -267,10 +282,29 @@ export const SC_PATERSON: Partial<Record<string, SceneMod>> = {
           for (let r = y + 2; r < y + hh; r += 4) px(x, r, w, 1, "#8a3222");
         };
         const bx = rx + 8, bw = Math.min(mw - 8, 46);
-        mill(bx, my, bw, 20);
-        sign(px, bx + 3, my + 7, bw - 6, "SILK CITY", "#f2f2f2", "#5a2a1a");
-        px(bx + bw - 5, my - 7, 4, 8, "#7a2a1a"); px(bx + bw - 5, my - 7, 4, 1, "#3a1a10"); for (let r = my - 5; r < my; r += 3) px(bx + bw - 5, r, 4, 1, "#8a3a26");   // smokestack
-        live.push({ k: "fn", fn: (f, t, c) => { for (let k = 0; k < 10; k++) { const u = (t * 0.15 + k / 10) % 1; c.globalAlpha = 0.5 * (1 - u); f(bx + bw - 4 + u * 12 + Math.sin(u * 6 + k) * 2, my - 9 - u * 14, 3, 3, "#c8c8cc"); c.globalAlpha = 1; } } });
+        // the old mill lot: a blacktop court, pickup game going, a mural on the mill wall behind it
+        { const cy0 = my - 6, cw = bw - 2;
+          px(bx, cy0, cw, 26, "#3a3a40"); px(bx + 1, cy0 + 1, cw - 2, 24, "#4a4a52");
+          px(bx + 1, cy0 + 12, cw - 2, 1, "#e8e8e8"); px(bx + 1, cy0 + 1, cw - 2, 1, "#e8e8e8"); px(bx + 1, cy0 + 24, cw - 2, 1, "#e8e8e8");
+          for (const [hy, d] of [[cy0 + 2, 1], [cy0 + 23, -1]] as const) { const hx = bx + Math.floor(cw / 2) - 3; px(hx, hy, 7, 1, "#f2f2f2"); px(hx + 2, hy + d, 3, 1, "#ff6a1a"); for (let r = 0; r < 4; r++) px(hx + 1 + (r % 2), hy + d * (2 + r), 5 - (r % 2) * 2, 1, "#e8e8e8"); }
+          // the mural: a big painted sun and a face, all color
+          const my2 = cy0 - 14, mx2 = Math.max(bx, Ra(my2 - 1, my2 + 14));
+          const mw2 = bx + cw - mx2;
+          px(mx2, my2, mw2, 13, "#9a3a26"); px(mx2, my2, mw2, 1, "#6a2418");
+          const MC = ["#ffd23f", "#ff5ad1", "#2ac8c0", "#ff8a1f", "#7a3ad8", "#2faa4a"];
+          for (let x = 1; x < mw2 - 1; x++) px(mx2 + x, my2 + 9 + Math.round(Math.sin(x / 3) * 1.5), 1, 3, MC[Math.floor(x / 5) % MC.length]);
+          for (let a = 0; a < 12; a++) { const th = (a / 12) * Math.PI * 2; px(mx2 + 8 + Math.round(Math.cos(th) * 4), my2 + 6 + Math.round(Math.sin(th) * 4), 1, 1, "#ffd23f"); }
+          px(mx2 + 6, my2 + 4, 5, 5, "#ff8a1f"); px(mx2 + 7, my2 + 5, 1, 1, "#1a1a1a"); px(mx2 + 9, my2 + 5, 1, 1, "#1a1a1a");
+          px(mx2 + mw2 - 16, my2 + 2, 8, 7, "#8a5a3a"); px(mx2 + mw2 - 16, my2 + 2, 8, 2, "#1a1a1a"); px(mx2 + mw2 - 14, my2 + 5, 1, 1, "#f2f2f2"); px(mx2 + mw2 - 11, my2 + 5, 1, 1, "#f2f2f2"); px(mx2 + mw2 - 14, my2 + 7, 4, 1, "#e0302f");
+          live.push({ k: "fn", fn: (f, t) => {                                  // five on five-ish, the ball going up
+            const bxx = bx + cw / 2 + Math.sin(t * 0.9) * (cw / 2 - 5), byy = cy0 + 12 + Math.sin(t * 0.6) * 9;
+            for (let k = 0; k < 8; k++) {
+              const x = Math.max(bx + 2, Math.min(bx + cw - 4, bxx + Math.sin(t * 1.3 + k * 1.9) * (4 + k))), y = Math.max(cy0 + 2, Math.min(cy0 + 20, byy + Math.cos(t + k * 2.1) * (3 + k * 0.7)));
+              f(x, y, 2, 1, "#1a1a1a"); f(x, y + 1, 2, 2, k % 2 ? "#f2f2f2" : "#e0302f"); f(x + (Math.floor(t * 6 + k) % 2), y + 3, 1, 1, SKIN[k % SKIN.length]);
+            }
+            const up = Math.abs(Math.sin(t * 3)) * 4; f(bxx, byy - up, 2, 2, "#ff7a1a");
+          } });
+        }
         // the bell-tower mill
         const tx = bx + bw - 9, ty = my + 38;
         mill(bx, ty, bw - 10, 20, "#a8442a");
@@ -334,23 +368,26 @@ export const SC_PATERSON: Partial<Record<string, SceneMod>> = {
       }
 
       /* ===== 4. downtown (rows 200-312): City Hall, Lambert Castle up the hill, Main Street across the road ===== */
-      // City Hall, left of the road: white, columns, the clock tower, the flag up top
-      { const cL = L(200, 244), cw = Math.min(44, cL - 4), cx = Math.max(2, Math.floor((cL - cw) / 2)), cy = y0 + 214;
-        px(cx - 3, cy + 22, cw + 6, 9, "#b8b8b0");                                   // the plaza
-        for (let x = cx - 3; x < cx + cw + 3; x += 4) px(x, cy + 22 + (x % 8 ? 2 : 5), 2, 1, "#a8a8a0");
-        px(cx, cy + 8, cw, 14, "#ece8e0"); px(cx, cy + 8, cw, 1, "#c8c2b6");         // the hall: white stone, a colonnade
-        px(cx, cy + 10, cw, 1, "#d8d2c6"); px(cx, cy + 20, cw, 2, "#c8c2b6");
-        for (let x = cx + 2; x < cx + cw - 2; x += 3) { px(x, cy + 11, 1, 9, "#ffffff"); px(x + 1, cy + 11, 1, 9, "#bab4a8"); }
-        for (const ex of [cx, cx + cw - 6]) { px(ex, cy + 6, 6, 16, "#f2eee6"); px(ex, cy + 5, 6, 1, "#c8c2b6"); px(ex + 2, cy + 8, 2, 3, "#5a6a7a"); px(ex + 2, cy + 14, 2, 3, "#5a6a7a"); }   // end pavilions
-        const tx = cx + Math.floor(cw / 2) - 4;
-        for (let r = 0; r < 4; r++) px(tx - 2 - r, cy + 7 - r + 3, 13 + 2 * r, 1, r === 0 ? "#f2eee6" : "#e8e2d6");   // pediment
-        px(tx, cy - 8, 9, 14, "#f2eee6"); px(tx, cy - 8, 1, 14, "#d8d2c6"); px(tx + 1, cy - 12, 7, 4, "#e8e2d6"); px(tx + 2, cy - 16, 5, 4, "#8aa8a0"); px(tx + 4, cy - 19, 1, 3, "#ffd23f");
-        px(tx + 3, cy - 6, 3, 1, "#2a2a2a"); px(tx + 2, cy - 5, 5, 3, "#2a2a2a"); px(tx + 3, cy - 2, 3, 1, "#2a2a2a"); px(tx + 3, cy - 5, 3, 3, "#f8f8f0"); px(tx + 4, cy - 5, 1, 2, "#111"); px(tx + 5, cy - 4, 1, 1, "#111");      // the clock
-        px(tx + 3, cy + 15, 3, 7, "#4a3a2a");
-        sign(px, cx + Math.floor((cw - 39) / 2), cy + 23, 39, "CITY HALL", "#f2f2f2", "#2a3a5a");
-        px(tx + 9, cy - 8, 1, 10, "#cfcfcf");
-        live.push({ k: "fn", fn: (f, t) => waving(f, t, tx + 10, cy - 8, 9, 5, "us", 1) });
-        walkers.push(folk(cx - 2, cy + 23, cx + 2, cy + 30), folk(cx + cw - 2, cy + 22, cx + cw - 2, cy + 29, true));
+      // the food trucks, left of the road: chimi, anticuchos on the grill, a halal cart; picnic tables, a line
+      { const cL = L(200, 244), cw = Math.min(54, cL - 4), cx = Math.max(2, cL - cw - 1), cy = y0 + 206;
+        px(cx - 1, cy, cw + 2, 34, "#8a8a86"); for (let x = cx; x < cx + cw; x += 6) px(x, cy + 15, 3, 1, "#e8e8e8");
+        const TRUCKS: [string, string, string][] = [["CHIMI", "#ffd23f", "#2a5ad8"], ["TACOS", "#f2f2f2", "#d8102a"], ["HALAL", "#f2f2f2", "#0a6a3a"]];
+        TRUCKS.forEach(([nm, fg, bg], k) => {
+          const tx = cx + 1 + k * 23; if (tx + 21 > cx + cw) return;
+          px(tx, cy + 2, 21, 11, bg); px(tx, cy + 2, 21, 1, shadeC(bg)); px(tx + 16, cy + 3, 5, 4, "#9ad0f0");
+          px(tx + 1, cy + 7, 10, 4, "#2a2a2a"); px(tx + 2, cy + 8, 8, 2, "#ffe9a0");                      // the serving window
+          sign(px, tx, cy - 5, 21, nm, fg, "#1a1a1a");
+          px(tx + 2, cy + 13, 3, 2, "#1a1a1a"); px(tx + 15, cy + 13, 3, 2, "#1a1a1a");
+          live.push({ k: "fn", fn: (f, t, c) => { for (let q = 0; q < 5; q++) { const u = (t * 0.3 + q / 5 + k * 0.3) % 1; c.globalAlpha = 0.45 * (1 - u); f(tx + 4 + u * 4 + Math.sin(u * 6 + q) * 2, cy + 1 - u * 10, 2, 2, "#e8e8ec"); c.globalAlpha = 1; } } });
+          for (let q = 0; q < 3; q++) walkers.push({ ...folk(tx + 2 + q * 4, cy + 17, tx + 3 + q * 4, cy + 19, q === 2, q === 0 ? "#f2f2f2" : undefined), sp: 0.4 });   // the line
+        });
+        for (let k = 0; k * 13 + 10 <= cw; k++) {                                      // picnic tables, people eating
+          const px2 = cx + 2 + k * 13, py2 = cy + 26;
+          px(px2, py2, 10, 3, "#8a5a32"); px(px2, py2 - 1, 10, 1, "#a06a3a"); px(px2 + 1, py2 + 3, 1, 1, "#5a3a1a"); px(px2 + 8, py2 + 3, 1, 1, "#5a3a1a");
+          px(px2 + 2, py2 + 1, 2, 1, "#f2f2f2"); px(px2 + 6, py2 + 1, 2, 1, "#ffd23f");
+          person(px, px2 - 1, py2 - 6, SHIRT[(k * 4) % SHIRT.length], HAIR[k % HAIR.length], "#2a2a3a", SKIN[(k * 3) % SKIN.length]);
+          person(px, px2 + 7, py2 - 6, SHIRT[(k * 4 + 2) % SHIRT.length], HAIR[(k + 2) % HAIR.length], "#2a2a3a", SKIN[(k * 3 + 1) % SKIN.length]);
+        }
       }
       // Garret Mountain + Lambert Castle, right of the road
       { const gx = Rt(204, 244), gw = W - 1 - gx, gy = y0 + 204;
@@ -365,7 +402,6 @@ export const SC_PATERSON: Partial<Record<string, SceneMod>> = {
         px(cx - 3, cy - 6, 7, 19, "#9a9a92"); for (let x = cx - 3; x < cx + 4; x += 2) px(x, cy - 7, 1, 1, "#9a9a92");
         px(cx - 1, cy - 2, 2, 3, "#2a2a3a"); for (const wx of [6, 12, 17]) px(cx + wx, cy + 4, 2, 3, "#2a2a3a");
         px(cx + 8, cy + 8, 4, 5, "#4a3a2a");
-        px(cx + 1, cy - 14, 1, 8, "#cfcfcf"); live.push({ k: "fn", fn: (f, t) => waving(f, t, cx + 2, cy - 14, 6, 4, "us", 2) });
         walkers.push(folk(W - 7, cy - 4, W - 7, cy + 10));
       }
 
@@ -488,6 +524,19 @@ export const SC_PATERSON: Partial<Record<string, SceneMod>> = {
         }
       }
 
+      // the Jehovah's Witnesses' literature cart on the corner, and what they told us
+      { const jy = stY + 38, jx = La(jy - 2, jy + 12) - 18;
+        if (jx > 40) {
+          px(jx + 3, jy, 7, 9, "#5a6a8a"); px(jx + 4, jy + 1, 5, 7, "#f2f2f2");
+          for (let r = 0; r < 3; r++) px(jx + 4, jy + 2 + r * 2, 5, 1, ["#2a7ab8", "#e8b830", "#2faa4a"][r]);
+          px(jx + 3, jy + 9, 1, 2, "#3a3a3a"); px(jx + 9, jy + 9, 1, 2, "#3a3a3a"); px(jx + 2, jy + 10, 2, 1, "#1a1a1a"); px(jx + 9, jy + 10, 2, 1, "#1a1a1a");
+          person(px, jx - 2, jy + 1, "#2a2a3a", "#8a8a8a", "#2a2a3a", "#e0b090");          // in a suit
+          person(px, jx + 12, jy + 1, "#b89ad8", "#3a2a1a", "#3a3a5a", "#8a5a3a");          // in a lavender dress
+        }
+        says.push({ a: jy - 34, b: jy - 18, who: "us", text: "“If you could ask everyone in America one question, what would you ask?”" });
+        says.push({ a: jy - 18, b: jy + 2, who: "them", text: "“Peace on Earth.”" });
+      }
+
       /* ===== 5. St. John's Cathedral + the market (rows 314-378) ===== */
       { // the cathedral's twin spires, left of the road
         const cL = L(316, 378);
@@ -523,6 +572,9 @@ export const SC_PATERSON: Partial<Record<string, SceneMod>> = {
             person(px, tx + 20, ty + 2, "#ffd23f", "#1a1a1a", "#2a2a3a", "#c08a5a"); person(px, tx + 24, ty + 3, "#e0302f", "#3a2a1a", "#3a5a8a", "#8a5a3a");
             live.push({ k: "fn", fn: (f, t, c) => { for (let k = 0; k < 4; k++) { const u = (t * 0.5 + k / 4) % 1; c.globalAlpha = 1 - u; const nx = tx + 13 + u * 12 + Math.sin(u * 9 + k) * 2, ny = ty + 1 - u * 6; f(nx, ny, 2, 2, "#ff5ad1"); f(nx + 1, ny - 3, 1, 3, "#ff5ad1"); c.globalAlpha = 1; } } });
           }
+          person(px, mx + mww - 6, my2 + 2, "#f2f2f2", "#d8d8d8", "#3a3a4a", "#c8946a");    // the old man with the cap
+          says.push({ a: my2 - 6, b: my2 + 14, who: "them", text: "“No gun, no marijuana. I don't need that.”" });
+          says.push({ a: my2 + 14, b: my2 + 36, who: "them", text: "“Otherwise, this country is beautiful.”" });
           for (let k = 0; k < 9; k++) walkers.push(folk(mx, my2 + 21 + (k % 2) * 17, mx + mww - 4, my2 + 21 + (k % 2) * 17, k % 4 === 2, k % 2 ? pickc(["#f2f2f2", "#2faa4a", "#ff8a1f"]) : undefined));
         }
       }
