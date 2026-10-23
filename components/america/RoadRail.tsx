@@ -4,10 +4,11 @@ import { useEffect, useRef, useState } from "react";
 import { stops } from "@/lib/america";
 import { CW, HH, WW, ROAD_Y, SCENES, drawStrip, fireSpot } from "./pixelTrip";
 
-// The page's scrollbar: an 8-bit road trip pinned along the bottom edge, LA on
-// the left, NYC on the right, one little side-view landscape per stop. Traffic
-// runs both ways on the highway; our white minivan drives east as you scroll.
-// Click or drag to jump.
+// An 8-bit road trip along the bottom of the page, LA on the left, NYC on the
+// right, one little side-view landscape per stop. Traffic runs both ways on the
+// highway; our white minivan drives east on its own. Click or drag to move it.
+
+const TRIP_SECS = 75;   // one full drive, LA to NYC
 
 const CAR_COLORS = ["#e0302f", "#3a6fd8", "#ffd23f", "#2faa4a", "#ff8a1f", "#b04ad8", "#8a8a8a", "#e8e8e8"];
 
@@ -63,28 +64,40 @@ export default function RoadRail() {
     return () => cancelAnimationFrame(raf);
   }, []);
 
-  // follow the page scroll
+  // the van drives itself LA -> NYC while the strip is on screen; drag or click to move it
   useEffect(() => {
-    let raf = 0;
-    const read = () => {
-      raf = 0;
-      const max = document.documentElement.scrollHeight - innerHeight;
-      setP(max > 0 ? Math.min(1, Math.max(0, scrollY / max)) : 0);
-      const b = box.current;
-      if (b) setView({ w: b.clientWidth, scale: b.clientHeight / HH });
+    const b = box.current;
+    if (!b) return;
+    const size = () => setView({ w: b.clientWidth, scale: b.clientHeight / HH });
+    size();
+    addEventListener("resize", size);
+    const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let seen = false, raf = 0, last = 0, hold = 0;
+    const tick = (now: number) => {
+      const dt = last ? Math.min(0.1, (now - last) / 1000) : 0; last = now;
+      if (!drag.current) {
+        if (hold > 0) hold -= dt;
+        else setP((q) => {
+          const n = q + dt / TRIP_SECS;
+          if (n >= 1) { hold = 3; return q >= 1 ? 0 : 1; }   // park in NYC a beat, then back to LA
+          return n;
+        });
+      }
+      if (seen) raf = requestAnimationFrame(tick);
     };
-    const on = () => { if (!raf) raf = requestAnimationFrame(read); };
-    read();
-    addEventListener("scroll", on, { passive: true });
-    addEventListener("resize", on);
-    return () => { removeEventListener("scroll", on); removeEventListener("resize", on); };
+    const io = new IntersectionObserver(([e]) => {
+      seen = e.isIntersecting && !still;
+      cancelAnimationFrame(raf); last = 0;
+      if (seen) raf = requestAnimationFrame(tick);
+    });
+    io.observe(b);
+    return () => { io.disconnect(); cancelAnimationFrame(raf); removeEventListener("resize", size); };
   }, []);
 
   const jump = (clientX: number) => {
     const r = box.current?.getBoundingClientRect();
     if (!r) return;
-    const f = Math.min(1, Math.max(0, (clientX - r.left) / r.width));
-    scrollTo({ top: f * (document.documentElement.scrollHeight - innerHeight) });
+    setP(Math.min(1, Math.max(0, (clientX - r.left) / r.width)));   // the strip's width is the whole trip
   };
 
   // world position of the van, and a strip offset that keeps it on screen

@@ -51,8 +51,6 @@ export default function AmericaPage({ map }: { map: MapData }) {
 
   return (
     <div className="oqa">
-      <RoadRail />
-
       <header className="oqa-top">
         <a href="/">456 Solutions</a>
         <a href={WATCH} target="_blank" rel="noopener noreferrer">YouTube ↗</a>
@@ -197,6 +195,8 @@ export default function AmericaPage({ map }: { map: MapData }) {
           <a href="/book/">They Said You Can&apos;t</a>, the photo book, has a whole section of screenshots from this trip.
         </p>
       </footer>
+
+      <RoadRail />
     </div>
   );
 }

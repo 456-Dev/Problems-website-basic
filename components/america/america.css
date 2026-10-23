@@ -7,7 +7,6 @@
   --sub: #f2f2f2;
   --pin: #4fc3f7;            /* the blue of the map pins in the film's intro */
   background: #000; color: #fff; min-height: 100vh;
-  padding-bottom: calc(var(--rail) + 12px);
   font-family: var(--oqa-font), "Open Sans", "Segoe UI", Arial, sans-serif;
 }
 .oqa *, .oqa *::before, .oqa *::after { box-sizing: border-box; }
@@ -17,9 +16,9 @@
 .oqa :focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
 .oqa h2 { margin: 0; font-weight: 800; font-size: clamp(28px, 3.6vw, 50px); line-height: 1.05; letter-spacing: -.02em; }
 
-/* ---- the rail: a fixed 8-bit road trip along the bottom ---- */
+/* ---- the rail: an 8-bit road trip at the very bottom of the page ---- */
 .oqa-rail {
-  position: fixed; left: 0; right: 0; bottom: 0; height: var(--rail); z-index: 20;
+  position: relative; height: var(--rail);
   background: #000; border-top: 2px solid #fff; display: flex; flex-direction: column;
 }
 .oqa-strip { position: relative; flex: 1; overflow: hidden; cursor: ew-resize; touch-action: none; background: #000; }
