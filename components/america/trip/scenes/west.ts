@@ -1,6 +1,6 @@
 // West: California (Venice, LA, Orange County), Las Vegas, Utah (Bicknell, Moab), Colorado (Vail, the Rockies, Denver).
 // July 4th to July 8th: flags everywhere.
-import { W, HOLDS, STAND, roadX, room, free, roomiest, hash } from "../core";
+import { W, HOLDS, HI, STAND, roadX, room, free, roomiest, hash } from "../core";
 import { palm, peak, stars } from "../kit";
 import { PRIDE } from "../fx";
 import type { SceneMod, Px } from "../kit";
@@ -345,6 +345,7 @@ export const SC_WEST: Partial<Record<string, SceneMod>> = {
       // the Champion: on his bike, flag up, screaming it
       { const y = y0 + 72, x = 96;
         champion(px, live, x, y);
+        STAND[HI.venice] = x > roadX(HOLDS[HI.venice].y) ? { side: 1, x: x + 2 } : { side: -1, x: x + 20 };
         says.push({ a: y - 6, b: y + 24, who: "them", text: "“CHAMPION!”" }); }
     },
   },
@@ -604,7 +605,7 @@ export const SC_WEST: Partial<Record<string, SceneMod>> = {
           live.push({ k: "fn", fn: (f, t, c) => { c.globalAlpha = 0.55 + 0.25 * Math.sin(t * 3); f(cx, y - 9, 1, 9, "#f2f6ff"); c.globalAlpha = 0.2; f(cx - 1, y - 9, 3, 9, "#c8d8ff"); c.globalAlpha = 1; f(cx, y, 1, 1, "#ffffff"); } });
         } }
       // Trump International: gold glass, TRUMP across the top, the street preacher out front
-      { const hy = HOLDS[0].y, y = hy - 46, x = Math.max(free(y, 46, 22, "r"), 76);
+      { const hy = HOLDS[HI.vegas].y, y = hy - 46, x = Math.max(free(y, 46, 22, "r"), 76);
         px(x, y + 2, 22, 44, "#d8a830"); px(x + 15, y + 2, 7, 44, "#b8882a");
         for (let yy = y + 8; yy < y + 45; yy += 2) { px(x + 1, yy, 14, 1, "#f0c850"); px(x + 15, yy, 6, 1, "#a07824"); }
         for (let k = 0; k < 14; k++) px(x + 1 + Math.floor(rnd() * 13), y + 8 + Math.floor(rnd() * 36), 1, 1, "#fff6c8");
@@ -612,7 +613,7 @@ export const SC_WEST: Partial<Record<string, SceneMod>> = {
         px(x - 2, y + 46, 26, 2, "#3a3448"); flag(px, live, x + 11, y - 12, 11, 8, 5);
         // the Serbian couple out on the Strip with their little dog, who want to know: heaven or hell?
         const r = room(hy - 8, 16), q = Math.min(W - 22, Math.ceil(r.hi + 21));
-        STAND[0] = { side: 1, x: q - 1 };
+        STAND[HI.vegas] = { side: 1, x: q - 1 };
         glow.push((g) => { g(q - 3, hy - 16, 24, 22, "#4a3a5a"); });
         // him: dark buzz cut, stubble, black leather jacket, a little Serbian flag (red, blue, white)
         px(q + 1, hy - 12, 5, 1, "#1a1410"); px(q + 1, hy - 11, 5, 4, "#e0b090"); px(q + 2, hy - 10, 1, 1, "#111"); px(q + 4, hy - 10, 1, 1, "#111"); px(q + 1, hy - 8, 5, 1, "#8a6a50");
@@ -771,6 +772,7 @@ export const SC_WEST: Partial<Record<string, SceneMod>> = {
         px(wx + 4, wy + 6, 6, 1, "#6ab8e0"); px(wx + 14, wy + 12, 8, 1, "#6ab8e0");
         for (const [dx, dy] of [[24, -4], [27, -2]]) { px(wx + dx - 1, wy + dy, 5, 3, "#a8432a"); }
         person(px, wx + 23, wy - 12, "#ffd23f", "#3a2a1a", "#3a6fd8"); person(px, wx + 26, wy - 11, "#2faa4a", "#c87a3a", "#1a1a1a");
+        STAND[HI.arches] = { side: 1, x: wx + 23 };
         says.push({ a: y - 10, b: y + 34, who: "them", text: "“Here for a good time, not for a long time.”" });
         live.push({ k: "fn", fn: (f, t) => {
           const P = 4.2, u = (t % P) / P, sk = "#f0c8a0";
@@ -945,7 +947,10 @@ export const SC_WEST: Partial<Record<string, SceneMod>> = {
       // a retired army man and his wife, still sweet on each other. He just turned 80.
       { const y = y0 + 64, x = Math.max(2, free(y, 26, 30, "l"));
         for (let yy = 0; yy < 26; yy++) px(x - 3, y - 8 + yy, 32, 1, (yy + x) % 5 ? "#6aa04a" : "#5f9442");
-        says.push({ a: y - 34, b: y - 8, who: "them", text: "“He just turned 80.”" }, { a: y - 8, b: y + 14, who: "us", text: "“Happy birthday!”" });
+        { const HY = HOLDS[HI.vail].y;
+          STAND[HI.vail] = { side: -1, x: x + 28 };
+          says.push({ a: y - 34, b: HY + 1, who: "them", text: "“He just turned 80.”", hold: HI.vail, u0: 0, u1: 0.5 },
+            { a: HY - 1, b: HY + 1, who: "us", text: "“Happy birthday!”", hold: HI.vail, u0: 0.5, u1: 1.01 }); }
         flag(px, live, x + 24, y - 6, 22, 11, 7);
         px(x + 2, y, 7, 2, "#4a5a2a"); px(x + 2, y + 2, 1, 2, "#c8c8c8"); px(x + 8, y + 2, 1, 2, "#c8c8c8");
         px(x + 3, y + 2, 5, 5, "#f0c8a0"); px(x + 4, y + 3, 1, 1, "#111"); px(x + 6, y + 3, 1, 1, "#111"); px(x + 4, y + 5, 3, 1, "#1a1a1a");
@@ -1075,7 +1080,11 @@ export const SC_WEST: Partial<Record<string, SceneMod>> = {
         px(gx, gy + 6, 6, 8, "#3a6a5a"); px(gx + 1, gy + 8, 4, 1, "#e8f2ee"); px(gx, gy + 14, 2, 5, "#2a2a3a"); px(gx + 4, gy + 14, 2, 5, "#2a2a3a");
         px(gx + 6, gy + 8, 2, 2, "#f0c8a0");
         disc(px, gx + 9, gy + 7, 2, "#d8ecf8"); px(gx + 8, gy + 8, 3, 1, "#3a6a8a"); px(gx + 8, gy + 6, 3, 1, "#3f7a3a"); px(gx + 8, gy + 6, 1, 1, "#ffffff");
-        says.push({ a: gy - 96, b: gy - 64, who: "us", text: "“What's your favorite song?”" }, { a: gy - 64, b: gy - 30, who: "them", text: "“I always say Toto by Africa.”" }, { a: gy - 30, b: gy + 14, who: "them", text: "“It's a glass ball, I got it on Amazon.”" }); }
+        { const HY = HOLDS[HI.lake].y;
+          STAND[HI.lake] = gx < roadX(HY) ? { side: -1, x: gx + 11 } : { side: 1, x: gx - 1 };
+          says.push({ a: gy - 96, b: gy - 64, who: "us", text: "“What's your favorite song?”" },
+            { a: gy - 64, b: HY + 1, who: "them", text: "“I always say Toto by Africa.”", hold: HI.lake, u0: 0, u1: 0.5 },
+            { a: HY - 1, b: HY + 1, who: "them", text: "“It's a glass ball, I got it on Amazon.”", hold: HI.lake, u0: 0.5, u1: 1.01 }); } }
       { const y = y0 + 230, x = Math.max(free(y, 20, 40, "r"), 70);
         for (let k = 0; k < 5; k++) { const ex = x + k * 8, ey = y + (k % 2) * 6 + (k > 2 ? 8 : 0); if (ex + 7 > W) break;
           px(ex + 1, ey + 2, 5, 3, "#8a5a32"); px(ex + 5, ey + 1, 2, 2, "#6a4022"); px(ex + 1, ey + 2, 1, 2, "#e8d8b8");

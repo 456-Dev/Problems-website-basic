@@ -102,11 +102,21 @@ export function vanX(y: number) {
 
 // HOLDS: the van parks at row y while you scroll `len` more rows' worth
 export type Hold = { y: number; len: number };
-export const HOLDS: Hold[] = [
-  { y: top("vegas") + 150, len: 130 },       // the preacher outside Trump's tower: a question, then an answer
-  { y: top("tulsa") + 40, len: 340 },        // the crash: through the Trade Winds bar at night (trip/scare.ts drawSeq)
-  { y: top("graceland") + 128, len: 170 },   // the Pyramid: the Bass Pro guy walks us through the guns
-];
+// in driving order (vanAt walks them in turn); look one up by name with HI
+const HOLD_DEFS = [
+  ["venice", top("venice") + 84, 110],        // the Champion on his bike, screaming it
+  ["vegas", top("vegas") + 150, 130],         // the Serbian couple outside Trump's tower: a question, then an answer
+  ["arches", top("arches") + 84, 110],        // the cliff jumpers: here for a good time
+  ["vail", top("vail") + 70, 120],            // the army man and his wife: he just turned 80
+  ["lake", top("lake") + 270, 150],           // the Glacier hoodie with the glass ball: Toto
+  ["tulsa", top("tulsa") + 40, 340],          // the crash: through the Trade Winds bar at night (trip/scare.ts drawSeq)
+  ["oregon", top("oregon") + 32, 120],        // the jeweler on her bench in Muskogee
+  ["pyramid", top("graceland") + 128, 170],   // the Pyramid: the Bass Pro guy walks us through the guns
+  ["bucees", top("nashville") + 196, 130],    // Dawn at a pump at Buc-ee's
+] as const;
+export type HoldName = (typeof HOLD_DEFS)[number][0];
+export const HOLDS: Hold[] = HOLD_DEFS.map(([, y, len]) => ({ y, len }));
+export const HI = Object.fromEntries(HOLD_DEFS.map(([k], i) => [k, i])) as Record<HoldName, number>;
 export const SCROLL = ROAD_END - 12 + HOLDS.reduce((a, h) => a + h.len, 0);
 // scroll progress (0..1) → the van's row
 export function vanAt(p: number) {
@@ -137,9 +147,9 @@ export function holdAt(p: number): { i: number; u: number } | null {
 }
 // the Kansas → Oklahoma sundown: the ground plane bends away (tilt 0..1) and the light goes (dusk 0..1)
 // until the van crashes into the Trade Winds; after the crash sequence it's morning in Tulsa
-export const SEQ = { hold: 1 };
+export const SEQ = { hold: HI.tulsa };
 export function bendAt(vy: number) {
-  const a = top("silo") + 10, b = HOLDS[1].y;
+  const a = top("silo") + 10, b = HOLDS[HI.tulsa].y;
   if (vy <= a || vy > b) return { tilt: 0, spin: 0, dusk: 0, night: 0 };
   const u = (vy - a) / (b - a);
   // the middle of the trip: the camera slowly swings round (spin) and drops (tilt) until we're looking
@@ -161,8 +171,8 @@ const mcdQ = (() => {
   return lines.map(([who, text], k): Say => ({ a: a + k * step, b: a + (k + 1) * step, who, text }));
 })();
 export const SAYS: Say[] = [
-  { a: HOLDS[0].y - 30, b: HOLDS[0].y + 1, who: "them", text: "“Are you going to heaven or to hell?”", hold: 0, u0: 0, u1: 0.5 },
-  { a: HOLDS[0].y - 1, b: HOLDS[0].y + 1, who: "us", text: "“A little bit of both.”", hold: 0, u0: 0.5, u1: 1.01 },
+  { a: HOLDS[HI.vegas].y - 30, b: HOLDS[HI.vegas].y + 1, who: "them", text: "“Are you going to heaven or to hell?”", hold: HI.vegas, u0: 0, u1: 0.5 },
+  { a: HOLDS[HI.vegas].y - 1, b: HOLDS[HI.vegas].y + 1, who: "us", text: "“A little bit of both.”", hold: HI.vegas, u0: 0.5, u1: 1.01 },
   { a: TRAIL.a - 20, b: TRAIL.b + 6, who: "us", text: "“hey Jason, turn right onto this trail”" },
   { a: Y0[SUN] + 60, b: Y0[SUN] + 160, who: "us", text: "“Michael! Trump got shot in Pennsylvania!”" },
   ...mcdQ,

@@ -14,7 +14,7 @@ export type Pop =
   | { k: "bin"; x: number; y: number; r: number; h: number; c: string; cone?: string }
   | { k: "cross"; x: number; y: number; h: number }
   | { k: "tower"; x: number; y: number; h: number; c: string; cap: string }
-  | { k: "sign"; x: number; y: number; w: number; h: number; lift: number; bg: string; lines: [string, string][] };
+  | { k: "sign"; x: number; y: number; w: number; h: number; lift: number; bg: string; lines: [string, string][]; lit?: boolean };
 // filled by the scene modules while the strip is drawn (drawStrip clears it first)
 export const POP: Pop[] = [];
 // every wind turbine's light (x, y on the map), flat or 3D: at night they're all you can see
@@ -38,7 +38,8 @@ type Prim =
   | { d: number; k: "poly"; p: number[]; fill: string; line?: string; lw?: number; a?: number }
   | { d: number; k: "line"; p: number[]; line: string; lw: number }
   | { d: number; k: "dot"; p: number[]; r: number; fill: string; line?: string }
-  | { d: number; k: "text"; p: number[]; bg: string; lines: [string, string][]; ratio: number };
+  | { d: number; k: "text"; p: number[]; bg: string; lines: [string, string][]; ratio: number; lit?: number }
+  | { d: number; k: "beam"; p: number[]; a: number };
 
 const clamp = (u: number) => Math.min(1, Math.max(0, u));
 const smooth = (u: number) => { const v = clamp(u); return v * v * (3 - 2 * v); };
@@ -207,7 +208,19 @@ export function render3D(ctx: CanvasRenderingContext2D, v: View) {
         const ax = -fy, ay = fx, hw = o.w / 2, z0 = o.lift * g, z1 = z0 + o.h * g;
         for (const s of [-0.6, 0.6]) seg([o.x + ax * hw * s, o.y + ay * hw * s, 0], [o.x + ax * hw * s, o.y + ay * hw * s, z0], "#6a4a2a", 1.6);
         const a = pr(o.x + ax * hw, o.y + ay * hw, z1), b = pr(o.x - ax * hw, o.y - ay * hw, z1), c = pr(o.x + ax * hw, o.y + ay * hw, z0), d = pr(o.x - ax * hw, o.y - ay * hw, z0);
-        if (a && b && c && d && g > 0.3) P.push({ d: (a[2] + b[2] + c[2] + d[2]) / 4, k: "text", p: [a[0], a[1], b[0], b[1], c[0], c[1], d[0], d[1]], bg: o.bg, lines: o.lines, ratio: o.h / o.w });
+        const flick = o.lit ? ((t * 1.7) % 6 < 0.12 ? 0.25 : (t * 1.7) % 6 < 0.22 ? 1 : (t * 1.7) % 6 < 0.3 ? 0.4 : 1) : 0;
+        if (a && b && c && d && g > 0.3) P.push({ d: (a[2] + b[2] + c[2] + d[2]) / 4, k: "text", p: [a[0], a[1], b[0], b[1], c[0], c[1], d[0], d[1]], bg: o.bg, lines: o.lines, ratio: o.h / o.w, lit: flick * Math.max(0.35, v.night, v.dusk) });
+        if (o.lit && a && b && c && d && g > 0.3) {
+          // two floodlights in the grass in front of it, blasting up its face; they stutter now and then
+          const k = Math.max(0.35, v.night, v.dusk) * flick;
+          for (const sd of [-0.55, 0.55]) {
+            const L = pr(o.x + ax * hw * sd + fx * 5, o.y + ay * hw * sd + fy * 5, 0);
+            if (!L) continue;
+            const top = sd < 0 ? [b, a] : [a, b];
+            P.push({ d: (a[2] + b[2]) / 2 + 0.002, k: "beam", p: [L[0], L[1], top[0][0], top[0][1], top[1][0], top[1][1], (top[1][0] + L[0]) / 2, L[1] + 2], a: 0.32 * k });
+            P.push({ d: L[2] - 0.01, k: "beam", p: [L[0] - 6, L[1] - 3, L[0] + 6, L[1] - 3, L[0] + 6, L[1] + 3, L[0] - 6, L[1] + 3], a: 0.6 * k });
+          }
+        }
         break;
       }
     }
@@ -313,9 +326,21 @@ export function render3D(ctx: CanvasRenderingContext2D, v: View) {
     } else if (q.k === "dot") {
       ctx.beginPath(); ctx.arc(q.p[0], q.p[1], q.r, 0, 6.283); ctx.fillStyle = dim(q.fill); ctx.fill();
       if (q.line) { ctx.strokeStyle = q.line; ctx.lineWidth = 1; ctx.stroke(); }
+    } else if (q.k === "beam") {
+      // a floodlight's beam: added light, fading out as it climbs
+      const p = q.p, gr = ctx.createLinearGradient(p[0], p[1], (p[2] + p[4]) / 2, (p[3] + p[5]) / 2);
+      gr.addColorStop(0, `rgba(255,236,170,${q.a})`); gr.addColorStop(1, `rgba(255,236,170,${q.a * 0.25})`);
+      ctx.save(); ctx.globalCompositeOperation = "lighter";
+      ctx.beginPath(); ctx.moveTo(p[0], p[1]); for (let i = 2; i < p.length; i += 2) ctx.lineTo(p[i], p[i + 1]); ctx.closePath();
+      ctx.fillStyle = gr; ctx.fill(); ctx.restore();
     } else {
       // a billboard: the board, then its words mapped onto it (affine is plenty at this size)
       const [ax, ay, bx, by, cx, cy, dx, dy] = q.p;
+      if (q.lit) {                                                   // lit up: a hot halo round the board
+        ctx.save(); ctx.shadowColor = `rgba(255,226,140,${0.9 * q.lit})`; ctx.shadowBlur = 26 * q.lit;
+        ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.lineTo(dx, dy); ctx.lineTo(cx, cy); ctx.closePath();
+        ctx.fillStyle = q.bg; ctx.fill(); ctx.restore();
+      }
       ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.lineTo(dx, dy); ctx.lineTo(cx, cy); ctx.closePath();
       ctx.fillStyle = q.bg; ctx.fill(); ctx.strokeStyle = "#111"; ctx.lineWidth = 1.5; ctx.stroke();
       const U = 100, V = U * q.ratio;

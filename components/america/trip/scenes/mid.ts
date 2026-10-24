@@ -1,6 +1,6 @@
 // The middle of the country: Kansas on a dead-straight I-70 (wheat, then green), Tulsa, Muskogee,
 // Little Rock, the Horseshoe and Hernando, Graceland and Memphis, Nashville and Buc-ee's.
-import { W, HOLDS, STAND, roadX, room, free, beside, hash, top, bottom } from "../core";
+import { W, HOLDS, HI, STAND, roadX, room, free, beside, hash, top, bottom } from "../core";
 import type { SceneMod, Px } from "../kit";
 import { pine, bldg, stars, river, person, cowboy, pivot, word, wordW, pick, usFlag, flagPole,
   eTree, eDogwood, eHouse, eRock, eCow, eSunflower, eHay } from "../kit";
@@ -427,7 +427,7 @@ export const SC_MID: Partial<Record<string, SceneMod>> = {
       y = y0 + h - 70; x = beside(y, 16, 44, "r", 3);
       no(x + 6, y + 10, 1, 7, "#7a5a3a"); no(x + 36, y + 10, 1, 7, "#7a5a3a"); no(x, y, 44, 11, "#f2f2f2"); no(x + 1, y + 1, 42, 9, "#1f4a8a");
       word(no, x + 3, y + 2, "OKLAHOMA", "#f2f2f2", null);
-      POP.push({ k: "sign", x: x + 22, y: y + 16, w: 44, h: 11, lift: 6, bg: "#1f4a8a", lines: [["WELCOME TO", "#f2f2f2"], ["OKLAHOMA", "#f2f2f2"]] });
+      POP.push({ k: "sign", x: x + 22, y: y + 16, w: 44, h: 11, lift: 6, bg: "#1f4a8a", lines: [["WELCOME TO", "#f2f2f2"], ["OKLAHOMA", "#f2f2f2"]], lit: true });
       y = y0 + 930; x = at(y, 16, 22, "l");
       pad(px, x - 2, y - 2, 24, 18, mix("#6a8a3a", "#4a2a3a", 0.9), mix("#5a7a32", "#3a2230", 0.9));
       no(x, y + 6, 12, 8, "#d8c8b0"); for (let r = 0; r < 4; r++) no(x + 5 - r, y + 2 + r, 2 + 2 * r, 1, "#5a3a3a"); no(x + 3, y + 8, 2, 2, "#ffe070");
@@ -462,7 +462,7 @@ export const SC_MID: Partial<Record<string, SceneMod>> = {
     draw: ({ px, y0, live, says }) => {
       let x = 0, y = 0;
       // the Trade Winds, right where the van ends up in the bar: motel wing, the bar, the sign, neon on
-      const hy = HOLDS[1].y;
+      const hy = HOLDS[HI.tulsa].y;
       y = hy - 26; x = beside(y, 50, 46, "r", 1);
       pad(px, x - 2, y + 18, 50, 32, "#3a3a40", "#2a2a30");
       for (let k = 0; k < 6; k++) px(x + 2 + k * 7, y + 42, 1, 6, "#8a8a8a");                                      // parking stripes
@@ -581,6 +581,7 @@ export const SC_MID: Partial<Record<string, SceneMod>> = {
       for (let k = 0; k < 4; k++) { px(x + 5 + k * 3, y + 18, 2, 1, "#ffd23f"); px(x + 25 + k * 3, y + 17, 2, 1, "#e8f4ff"); }
       live.push({ k: "glint", x: x + 3, y: y + 13, w: 34, h: 7 });
       says.push({ a: y0 - 6, b: y0 + 36, who: "them", text: "“I live in a community with the second highest poverty level in the state.”" });
+      { const hx = roadX(HOLDS[HI.oregon].y); STAND[HI.oregon] = x > hx ? { side: 1, x: x + 4 } : { side: -1, x: x + 36 }; }
       // her: grey hair, dark green tee, on the green bench
       const by = y + 26;
       px(x + 2, by + 3, 14, 1, "#1f4a2a"); px(x + 2, by + 1, 14, 1, "#1f4a2a"); px(x + 3, by + 4, 1, 3, "#1f4a2a"); px(x + 14, by + 4, 1, 3, "#1f4a2a");
@@ -874,8 +875,8 @@ export const SC_MID: Partial<Record<string, SceneMod>> = {
         px(cx - 6, y + PH - 9, 12, 7, "#2a3a4a"); px(cx - 5, y + PH - 8, 10, 1, "#9ad0e8");          // the entrance
         px(cx - 17, y + PH - 18, 34, 7, "#1a3a2a"); word(px, cx - 15, y + PH - 17, "BASS PRO", "#f2f2f2", null);   // the sign over it
         // the Bass Pro guy out front: camo, cap, a rifle held up like a waiter with a wine
-        { const gx = cx + 9, gy = y + PH - 10, hx = roadX(HOLDS[2].y);
-          STAND[2] = { side: gx > hx ? 1 : -1, x: gx > hx ? gx - 1 : gx + 7 };
+        { const gx = cx + 9, gy = y + PH - 10, hx = roadX(HOLDS[HI.pyramid].y);
+          STAND[HI.pyramid] = { side: gx > hx ? 1 : -1, x: gx > hx ? gx - 1 : gx + 7 };
           folk(px, gx, gy, { shirt: "#5a6a3a", cap: "#3a4a2a", pants: "#6a5a3a", skin: "#e0b090" });
           px(gx + 1, gy + 3, 1, 1, "#3a4a2a"); px(gx + 2, gy + 5, 1, 1, "#8a7a4a");
           px(gx + 4, gy + 1, 1, 6, "#3a2a1a"); px(gx + 4, gy - 3, 1, 4, "#5a5a5a"); px(gx + 3, gy + 6, 3, 1, "#6a4a2a"); }
@@ -887,9 +888,9 @@ export const SC_MID: Partial<Record<string, SceneMod>> = {
       // passing the Pyramid: the guided tour of the gun counter, deadpan, one at a time
       { const L = ["Welcome to Bass Pro. Let me walk you through the guns.", "That's a bolt-action rifle.", "That's a semi-auto.", "Lever-action.", "Pump shotgun.", "Over-under.", "Revolver.", "Pistol.", "AR-15.", "Anything else I can help you with?"];
         // the van parks at the Pyramid (HOLDS[2]) while he goes down the list
-        const HY = HOLDS[2].y, n = L.length - 1;
-        says.push({ a: HY - 28, b: HY + 1, who: "them", text: `“${L[0]}”`, hold: 2, u0: 0, u1: 1 / n });
-        L.slice(1).forEach((text, k) => says.push({ a: HY - 0.5, b: HY + 1, who: "them", text: `“${text}”`, hold: 2, u0: (k + 1) / n, u1: k === n - 1 ? 1.01 : (k + 2) / n })); }
+        const HY = HOLDS[HI.pyramid].y, n = L.length - 1;
+        says.push({ a: HY - 28, b: HY + 1, who: "them", text: `“${L[0]}”`, hold: HI.pyramid, u0: 0, u1: 1 / n });
+        L.slice(1).forEach((text, k) => says.push({ a: HY - 0.5, b: HY + 1, who: "them", text: `“${text}”`, hold: HI.pyramid, u0: (k + 1) / n, u1: k === n - 1 ? 1.01 : (k + 2) / n })); }
       // a big MEMPHIS sign on the other side
       y = y0 + 108; x = at(y, 22, 34, "r");
       px(x + 8, y + 12, 1, 10, "#7a7a7a"); px(x + 24, y + 12, 1, 10, "#7a7a7a");
@@ -960,7 +961,10 @@ export const SC_MID: Partial<Record<string, SceneMod>> = {
       for (let k = 0; k * 7 + 9 < bw; k++) px(x + 4 + k * 7, y + 27, 5, 5, "#9ad0e8"); px(x + Math.floor(bw / 2) - 3, y + 30, 6, 7, "#5a3a1a");
       // Dawn at a pump, by her car
       folk(px, x + 18, y + 9, { shirt: "#e85a9a", skin: "#f0c8a0", hair: "#c8a040", pants: "#3a4a6a" });
-      says.push({ a: y - 34, b: y + 2, who: "us", text: "“What's your favorite holiday?”" }, { a: y + 2, b: y + 40, who: "them", text: "“Mine will be Christmas.”" });
+      { const HY = HOLDS[HI.bucees].y;
+        STAND[HI.bucees] = { side: 1, x: x + 18 };
+        says.push({ a: y - 34, b: HY + 1, who: "us", text: "“What's your favorite holiday?”", hold: HI.bucees, u0: 0, u1: 0.45 },
+          { a: HY - 1, b: HY + 1, who: "them", text: "“Mine will be Christmas.”", hold: HI.bucees, u0: 0.45, u1: 1.01 }); }
       // the beaver: a giant round sign on a pole across the road
       { const sx = at(y0 + 186, 40, 32, "l"), cx = sx + 15, cy = y0 + 200, R = 14;
         px(cx - 1, cy + R, 3, 22, "#7a7a7a");
