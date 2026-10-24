@@ -1,6 +1,6 @@
 // The solid bits of the trip: Kansas's windmills, turbines, elevators, crosses and billboards
 // pop up out of their own pixel art as the van gets near, and our white minivan is a real 3D
-// van that turns with the road, Jason driving and me hanging out the passenger window, the two
+// van that turns with the road (a flag and bags on the roof, nobody hanging out the windows), the two
 // of us climbing out when we park for an interview. A tiny painter's-algorithm renderer on a
 // smooth canvas over the pixels; `proj` decides how the map is seen (flat from above with a
 // little lean, or through the CSS tilt of the Kansas sundown).
@@ -260,7 +260,6 @@ export function render3D(ctx: CanvasRenderingContext2D, v: View) {
       face([q(a1, b0, z0), q(a1, b1, z0), q(a1, b1, z1), q(a1, b0, z1)], c, line, 1);
     };
     const spot = (a: number, b: number, z: number, r: number, c: string, line?: string) => { const p = at(a, b, z); dot(p[0], p[1], p[2], r, c, line); };
-    const limb = (p: [number, number, number], q: [number, number, number], c: string, lw = 2.4) => seg(at(...p), at(...q), c, lw);
 
     // the roof rack: the bags strapped down, and a big flag on a pole, whipping in the wind
     vbox(-4.4, -1.2, -2.2, 2.2, 5.1, 6.3, "#3a3a44", "#4a4a56");
@@ -279,59 +278,7 @@ export function render3D(ctx: CanvasRenderingContext2D, v: View) {
       }
     }
 
-    // Jason driving, filming out his window; me riding shotgun, out to the waist, never still
-    const inVan = 1 - smooth(v.out / 0.2);
-    if (inVan > 0.05) {
-      const L_ = inVan, bob = Math.sin(t * 9) * 0.15;
-      // ME (b < 0): grey suit, white tee, beard, shades, tie going sideways in the wind
-      {
-        const s = -1, o = B + 0.1, out = o + 2.6 * L_, zt = 3.6, zs = 6.4 + bob;
-        vbox(-0.2, 2.4, s * o, s * out, zt, zs, "#8a8f99", "#9aa0aa");                                        // the suit
-        vbox(2.35, 2.45, s * (out - 1.7), s * (out - 0.6), zt + 0.6, zs - 0.1, "#f4f4f4", "#f4f4f4", "rgba(0,0,0,.3)");   // the tee under it
-        const neck: [number, number, number] = [1.6, s * (out - 0.8), zs - 0.2];
-        limb(neck, [0.2 - Math.sin(t * 11) * 0.3, s * (out - 0.6 + Math.sin(t * 15) * 0.5), zs - 1.6], "#c8202a", 2);   // the tie
-        const hz = zs + 2.2, hb = s * (out - 1.1);
-        spot(1.3, hb, hz, 2.2, "#f0c8a0", ink);                                                            // head
-        spot(2.3, hb, hz - 0.9, 1.4, "#4a2e1a");                                                           // the beard
-        spot(0.2, hb, hz + 0.9, 1.3, "#4a2e1a");                                                            // hair
-        for (let k = 0; k < 4; k++) { const fl = Math.sin(t * 16 + k * 2) * 0.3; limb([-0.2, hb + (k - 1.5) * 0.5, hz + 1.2], [-2.6 - k * 0.3, hb + (k - 1.5) * 0.7 + fl, hz + 0.9 + fl], "#4a2e1a", 1.6); }
-        limb([2.9, hb - 1.2, hz + 1.0], [2.9, hb + 1.2, hz + 1.0], "#0a0a0a", 3);                     // shades
-        // what my arms are doing: wave, mic out, WOOO, point at whatever's next
-        const sh: [number, number, number] = [1.2, s * (out + 0.1), zs - 0.4], sh2: [number, number, number] = [1.2, s * (o + 0.1), zs - 0.4];
-        const act = Math.floor(t / 2.6) % 4, w = Math.sin(t * 8);
-        if (act === 0) {
-          const e: [number, number, number] = [1.6, s * (out + 2.0), zs + 1.4], h: [number, number, number] = [2.0 + w * 1.1, s * (out + 2.8), zs + 4.4];
-          limb(sh, e, "#8a8f99", 3.2); limb(e, h, "#8a8f99", 2.8); spot(h[0], h[1], h[2], 0.8, "#f0c8a0", ink);
-        } else if (act === 1) {
-          const h: [number, number, number] = [5.6 + w * 0.2, s * (out + 1.4), zs + 0.8];
-          limb(sh, h, "#8a8f99", 2.6); spot(h[0], h[1], h[2], 0.55, "#f0c8a0", ink);
-          limb(h, [h[0] + 1.2, h[1], h[2] + 0.4], "#222", 2.2); spot(h[0] + 1.5, h[1], h[2] + 0.5, 1.0, "#1a1a1a");   // the mic
-        } else if (act === 2) {
-          for (const [p, dz] of [[sh, 0], [sh2, 0.2]] as const) {
-            const h: [number, number, number] = [1.4 + Math.sin(t * 14 + dz * 9) * 0.4, p[1] + s * 2.0, zs + 5.2];
-            limb(p, h, "#8a8f99", 2.4); spot(h[0], h[1], h[2], 0.6, "#f0c8a0", ink);
-          }
-        } else {
-          const h: [number, number, number] = [6.8, s * (out + 2.4 + w * 0.3), zs + 1.6];
-          limb(sh, h, "#8a8f99", 2.6); spot(h[0], h[1], h[2], 0.55, "#f0c8a0", ink); limb(h, [h[0] + 0.9, h[1], h[2] + 0.1], "#f0c8a0", 1.4);
-        }
-      }
-      // JASON (b > 0): green Cummins tee, cap on backwards, the camera on his shoulder, REC blinking
-      {
-        const s = 1, o = B + 0.1, out = o + 1.9 * L_, zt = 3.6, zs = 6.0 - bob;
-        vbox(-0.1, 2.1, s * o, s * out, zt, zs, "#2f8a3a", "#3a9a46");
-        const hz = zs + 2.0, hb = s * (out - 0.9);
-        spot(1.1, hb, hz, 2.0, "#f0c8a0", ink);
-        spot(0.3, hb, hz + 1.0, 1.5, "#2a4a2a");                                                            // the cap
-        limb([-0.2, hb, hz + 1.1], [-2.4, hb, hz + 0.9], "#2a4a2a", 3.2);                                    // its bill, backwards
-        const cx = 1.8, cb = s * (out + 1.4), cz = hz + 0.4;
-        vbox(cx - 2.2, cx + 1.8, cb - 0.9, cb + 0.9, cz - 1.0, cz + 0.9, "#1a1a1e", "#2a2a30");             // the camera
-        vbox(cx + 1.8, cx + 3.0, cb - 0.6, cb + 0.6, cz - 0.6, cz + 0.6, "#111", "#222");                   // the lens
-        spot(cx + 3.1, cb, cz, 0.5, "#5a7aaa");
-        if (Math.floor(t * 2) % 2) spot(cx - 1.4, cb, cz + 1.2, 0.55, "#ff2a1a");
-        limb([1.0, s * (out + 0.1), zs - 0.5], [cx, cb - 0.2, cz - 0.6], "#f0c8a0", 2.2);
-      }
-    }
+    // (nobody hangs out of the windows any more: we only show up when we park and get out)
   }
 
   /* ---------- paint, back to front ---------- */
