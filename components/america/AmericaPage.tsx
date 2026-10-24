@@ -9,6 +9,9 @@ const MAIL = "michaellinares314@gmail.com";
 const embed = (start: number, autoplay: boolean) =>
   `https://www.youtube.com/embed/${VIDEO_ID}?rel=0&playsinline=1&start=${Math.max(0, start)}${autoplay ? "&autoplay=1" : ""}`;
 
+// one per question: ask everyone in America / answer your own / are you happy?
+const QEMOJI = ["🇺🇸", "🪞", "🙂"];
+
 const PLAYLIST = "https://open.spotify.com/playlist/2UalUa7nhW74YeW9MRVKI7";
 
 export default function AmericaPage() {
@@ -34,7 +37,7 @@ export default function AmericaPage() {
             July 4th to 14th, 2024.
           </p>
           <ol className="oqa-qs" aria-label="The three questions">
-            {questions.map((q) => <li key={q}>{q}</li>)}
+            {questions.map((q, n) => <li key={q}><span className="oqa-qn">{n + 1}.</span> <span aria-hidden>{QEMOJI[n]}</span> {q}</li>)}
           </ol>
           <div className="oqa-actions">
             <a className="oqa-btn" href="#trip">Take the 8-bit trip ↓</a>
