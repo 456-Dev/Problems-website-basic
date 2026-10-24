@@ -196,39 +196,39 @@ function ebike(px: Px, live: Live[], x: number, y0: number, y1: number) {
   } });
 }
 
-// LA from above: a grid of intersections, crosswalks, lights, cars waiting
-function laGrid(px: Px, live: Live[], y0: number, h: number) {
-  const XS: number[] = [], YS: number[] = [];
-  for (let x = 4; x < W; x += 18) XS.push(x);
-  for (let y = y0 + 6; y < y0 + h - 4; y += 16) YS.push(y);
-  // blocks: low flat roofs
-  for (let bi = 0; bi < XS.length; bi++) for (let bj = 0; bj < YS.length; bj++) {
-    const bx = XS[bi] + 5, by = YS[bj] + 5;
-    for (let k = 0; k < 4; k++) {
-      const c = ["#d8c8a8", "#c8b898", "#e8d8c0", "#b8a888", "#d0c0a8"][(bi * 3 + bj * 5 + k) % 5];
-      px(bx + (k % 2) * 6, by + Math.floor(k / 2) * 5, 5, 4, c); px(bx + (k % 2) * 6, by + Math.floor(k / 2) * 5 + 3, 5, 1, shadeOf(c, 30));
-    }
+// LA: the road is the 10 freeway here, four lanes jammed both ways, and a slow-speed chase
+// with a news chopper over it (every LA broadcast, ever)
+function laFreeway(px: Px, live: Live[], y0: number, h: number) {
+  const wAt = (y: number) => Math.round(6 + 7 * Math.min(1, (y - y0) / 8, (y0 + h - y) / 8));
+  for (let y = y0; y < y0 + h; y++) {
+    const x = Math.round(roadX(y)), w = wAt(y);
+    px(x - w, y, 2 * w, 1, "#a8a8ae"); px(x - w, y, 1, 1, "#f2f2f2"); px(x + w - 1, y, 1, 1, "#f2f2f2");
+    if (w > 11 && y % 4 < 2) { px(x - 10, y, 1, 1, "#e8e8e8"); px(x + 8, y, 1, 1, "#e8e8e8"); }
   }
-  for (const x of XS) { px(x - 1, y0, 1, h, "#c8c8c8"); px(x, y0, 4, h, "#5a5a60"); px(x + 4, y0, 1, h, "#c8c8c8"); for (let y = y0; y < y0 + h; y += 4) px(x + 2, y, 1, 2, "#e8e8e8"); }
-  for (const y of YS) { px(0, y - 1, W, 1, "#c8c8c8"); px(0, y, W, 4, "#5a5a60"); px(0, y + 4, W, 1, "#c8c8c8"); for (let x = 0; x < W; x += 4) px(x, y + 2, 2, 1, "#e8e8e8"); }
-  for (const x of XS) for (const y of YS) {
-    px(x, y, 4, 4, "#5a5a60");
-    for (let k = 0; k < 4; k++) { px(x + k, y - 2, 1, 1, k % 2 ? "#5a5a60" : "#f2f2f2"); px(x + k, y + 5, 1, 1, k % 2 ? "#5a5a60" : "#f2f2f2"); px(x - 2, y + k, 1, 1, k % 2 ? "#5a5a60" : "#f2f2f2"); px(x + 5, y + k, 1, 1, k % 2 ? "#5a5a60" : "#f2f2f2"); }
-    px(x - 1, y - 1, 1, 1, "#1a1a1a"); px(x + 4, y + 4, 1, 1, "#1a1a1a");
-  }
+  const C = ["#f2f2f2", "#1a1a1a", "#e0302f", "#3a6fd8", "#ffd23f", "#c8ccd2", "#2faa4a", "#8a8f99"];
   live.push({ k: "fn", fn: (f, t) => {
-    const phase = Math.floor(t / 3) % 2;                                                  // the lights switch every 3s
-    for (const x of XS) for (const y of YS) { f(x - 1, y - 1, 1, 1, phase ? "#3af05a" : "#ff3b3b"); f(x + 4, y + 4, 1, 1, phase ? "#ff3b3b" : "#3af05a"); }
-    // cars: going when it's their green, waiting at the line when it's red
-    for (let k = 0; k < 10; k++) {
-      const C = ["#f2f2f2", "#1a1a1a", "#e0302f", "#3a6fd8", "#ffd23f", "#c8ccd2"][k % 6];
-      if (k % 2 === 0) {
-        const y = YS[(k / 2) % YS.length], go = phase === 1, span = W, p = go ? (t * 9 + k * 31) % span : XS[k % XS.length] - 4;
-        f(p, y + 1, 3, 2, C);
-      } else {
-        const x = XS[(k * 3) % XS.length], go = phase === 0, span = h, p = go ? (t * 9 + k * 23) % span : YS[k % YS.length] - y0 - 4;
-        f(x + 1, y0 + p, 2, 3, C);
-      }
+    const span = h - 22;
+    // the jam: everybody crawling, brake lights coming on and off
+    for (let k = 0; k < 16; k++) {
+      const lane = k % 3, up = lane < 2, sp = up ? 0.9 + (k % 4) * 0.15 : 1.6;
+      const p = (t * sp + k * 11.3) % span, y = up ? y0 + h - 11 - p : y0 + 11 + p, x = roadX(y) + (lane === 0 ? -12 : lane === 1 ? -8 : 6);
+      f(x, y, 2, 3, C[k % 8]); f(x, y + 1, 2, 1, "#1a2a3a");
+      if (Math.floor(t * 1.3 + k) % 3 === 0) f(x, up ? y + 2 : y, 2, 1, "#ff2a2a");
+    }
+    // the chase: a white Bronco, cops strung out behind it, lights going
+    const p = (t * 2.4) % (span + 30), y = y0 + 11 + p - 20;
+    if (y > y0 + 4) { const x = roadX(y) + 10; f(x, y, 2, 3, "#f8f8f8"); f(x, y + 2, 2, 1, "#1a2a3a"); }
+    for (let k = 1; k <= 3; k++) {
+      const cy = y - k * 6; if (cy < y0 + 4 || cy > y0 + h - 6) continue;
+      const cx = roadX(cy) + 10, blink = (Math.floor(t * 8) + k) % 2;
+      f(cx, cy, 2, 3, "#1a1a1a"); f(cx, cy + 1, 2, 1, "#f2f2f2"); f(cx, cy + 1, 1, 1, blink ? "#ff2a2a" : "#2a5aff"); f(cx + 1, cy + 1, 1, 1, blink ? "#2a5aff" : "#ff2a2a");
+    }
+    // the news chopper, hanging right over it
+    if (y > y0 + 4 && y < y0 + h - 4) {
+      const hx = roadX(y) + 18 + Math.sin(t * 0.9) * 3, hy = y - 8 + Math.cos(t * 1.1) * 2;
+      f(hx + 2, hy + 6, 4, 2, "rgba(0,0,0,.25)");
+      f(hx, hy, 4, 3, "#2a4a8a"); f(hx + 4, hy + 1, 5, 1, "#2a4a8a"); f(hx + 8, hy, 1, 2, "#2a4a8a"); f(hx, hy + 1, 1, 1, "#9ad0f0");
+      if (Math.floor(t * 12) % 2) f(hx - 3, hy - 1, 10, 1, "#3a3a3a"); else f(hx + 1, hy - 4, 1, 7, "#3a3a3a");
     }
   } });
 }
@@ -350,11 +350,12 @@ export const SC_WEST: Partial<Record<string, SceneMod>> = {
   },
   la: {
     ground: ["#8a9a5a", "#7a8a4f"],
-    under: ({ px, y0, h, live }) => laGrid(px, live, y0, h),
-    draw: ({ px, y0, rnd, live }) => {
+    edge: pick(ePalm),
+    under: ({ px, y0, h, live }) => laFreeway(px, live, y0, h),
+    draw: ({ px, y0, rnd, live, canopy }) => {
 
-      // the downtown skyline, standing up off the street
-      { const base = y0 + 60, x0 = 62;
+      // the downtown skyline, standing up off the street, sitting in its smog
+      { const base = y0 + 56, x0 = 65;
         px(x0 - 2, base, W - x0 + 2, 3, "#6a6a70"); px(x0 - 2, base + 1, W - x0 + 2, 1, "#ffd23f");
         tower(px, x0, base, 7, 26, "#8a9aa8", "#e8f0f8", rnd);
         tower(px, x0 + 8, base, 6, 34, "#5a7a9a", "#cfe8ff", rnd);
@@ -376,36 +377,85 @@ export const SC_WEST: Partial<Record<string, SceneMod>> = {
           for (let yy = base - 14; yy < base - 1; yy += 3) for (let k = 1; k < 9; k += 2) px(x + k, yy, 1, 2, "#b8b8b0");
           flag(px, live, x + 5, base - 42, 9, 6, 4); }
         for (const [dx, hh] of [[66, 18], [6, 14]]) if (x0 + dx + 5 < W) tower(px, x0 + dx, base, 5, hh, "#9a8a7a", "#f2e8c8", rnd);
-        for (let x = x0 + 8; x < W - 2; x += 9) palm2(px, x, base + 4, 9); }
-      // the freeway interchange: two freeways crossing, four cloverleaf loops, traffic on all of it
-      { const x = 2, y = y0 + 2, cx = x + 15, cy = y + 22, R = 6;
-        for (const [qx, qy] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) { ring(px, cx + qx * (R + 2), cy + qy * (R + 2), R, "#b8b8bc", 50); ring(px, cx + qx * (R + 2), cy + qy * (R + 2), R - 1, "#a8a8ac", 44); }
-        px(x, cy - 3, 30, 7, "#c8c8cc"); px(x, cy, 30, 1, "#f2f2f2");
-        px(cx - 3, y, 7, 44, "#d0d0d4"); px(cx, y, 1, 44, "#ffd23f"); px(cx - 4, cy - 4, 9, 1, "#7a7a80"); px(cx - 4, cy + 4, 9, 1, "#7a7a80");
-        live.push({ k: "fn", fn: (f, t) => {
-          for (let k = 0; k < 7; k++) { const u = (t * 0.13 + k / 7) % 1, d = k % 2; f(cx - 2 + d * 3, y + (d ? u : 1 - u) * 41, 2, 3, ["#e0302f", "#f2f2f2", "#3a6fd8", "#ffd23f", "#1a1a1a", "#2faa4a", "#ff8a1f"][k]); }
-          for (let k = 0; k < 6; k++) { const u = (t * 0.1 + k / 6) % 1, d = k % 2; f(x + (d ? u : 1 - u) * 27, cy - 2 + d * 3, 3, 2, ["#b04ad8", "#f2f2f2", "#ff8a1f", "#3a6fd8", "#c8ccd2", "#e0302f"][k]); }
-          for (let k = 0; k < 4; k++) { const th = t * 0.8 + k * 1.7, qx = k % 2 ? 1 : -1, qy = k < 2 ? -1 : 1; f(cx + qx * (R + 2) + Math.cos(th) * (R - 1) - 1, cy + qy * (R + 2) + Math.sin(th) * (R - 1) - 1, 2, 2, ["#ffd23f", "#f2f2f2", "#e0302f", "#3a6fd8"][k]); }
+        for (let x = x0 + 8; x < 90; x += 9) palm2(px, x, base + 4, 9);
+        // the smog: a brown haze sitting on downtown, breathing
+        live.push({ k: "fn", fn: (f, t, c) => {
+          c.globalAlpha = 0.2 + 0.06 * Math.sin(t * 0.7); f(x0 - 2, base - 34, W - x0 + 2, 30, "#b08a5a");
+          c.globalAlpha = 0.12; f(x0 - 2, base - 48, W - x0 + 2, 14, "#c8a070"); c.globalAlpha = 1;
         } }); }
-      // the Hollywood sign on its hills
-      { const y = y0 + 64, x = 2;
-        for (let xx = 0; xx < 46; xx++) { const top = y - 4 + Math.round(3 * Math.sin(xx / 6) + 2 * Math.sin(xx / 2.3)); px(x + xx - 2, top, 1, 22 - (top - y), xx % 5 ? "#8a7a4a" : "#7a6a3a"); }
-        for (let k = 0; k < 12; k++) px(x + Math.floor(rnd() * 40), y + 6 + Math.floor(rnd() * 10), 2, 1, "#5a6a32");
-        T(px, x + 2, y + 2, "HOLLYWOOD", "#f8f8f8"); px(x + 2, y + 7, 35, 1, "#5a4a2a"); }
-      // Griffith Observatory: white, the copper domes, a flag
-      { const y = y0 + 90, x = 6;
-        disc(px, x + 13, y + 10, 13, "#7a8a4a", 0.6); px(x + 1, y + 8, 24, 6, "#ecebe4"); px(x + 1, y + 13, 24, 1, "#c8c8c0");
-        disc(px, x + 13, y + 6, 4, "#5aa890"); disc(px, x + 3, y + 7, 2, "#5aa890"); disc(px, x + 23, y + 7, 2, "#5aa890");
-        px(x + 12, y + 2, 2, 1, "#8ad8c0"); for (let k = 4; k < 24; k += 3) px(x + k, y + 10, 1, 3, "#b8b8b0");
-        flag(px, live, x + 13, y - 8, 7, 6, 4); }
+      // the Hollywood Hills: the sign up top, Griffith Observatory on the ridge, a coyote trotting the fire road
+      { const y = y0 + 1;
+        for (let xx = 0; xx < 38; xx++) {
+          const top = y + 1 + Math.round(1.5 * Math.sin(xx / 5) + Math.sin(xx / 2.1)), bot = y0 + 40 - Math.round(xx * 0.6);
+          px(xx, top, 1, Math.max(0, bot - top), xx % 6 ? "#8a7a4a" : "#7a6a3a");
+        }
+        for (let k = 0; k < 16; k++) { const xx = Math.floor(rnd() * 32), yy = y + 10 + Math.floor(rnd() * (26 - xx * 0.5)); px(xx, yy, 2, 1, "#5a6a32"); }
+        for (let k = 0; k < 14; k++) px(3 + k * 2, y + 22 - Math.round(Math.abs(Math.sin(k / 2.2)) * 5), 1, 1, "#b8a070");   // the fire road
+        for (let k = 0; k < 9; k++) px(1 + k * 4, y + 9, 1, 2, "#5a4a2a");                                                     // the scaffold legs
+        T(px, 1, y + 3, "HOLLYWOOD", "#f8f8f8");
+        // Griffith, small on the ridge: white walls, three copper domes
+        { const gx = 4, gy = y0 + 26;
+          px(gx, gy + 3, 20, 4, "#ecebe4"); px(gx, gy + 6, 20, 1, "#c8c8c0"); for (let k = 2; k < 19; k += 3) px(gx + k, gy + 4, 1, 2, "#b8b8b0");
+          disc(px, gx + 10, gy + 2, 3, "#5aa890"); disc(px, gx + 2, gy + 3, 1, "#5aa890"); disc(px, gx + 17, gy + 3, 1, "#5aa890"); px(gx + 9, gy - 1, 2, 1, "#8ad8c0"); }
+        live.push({ k: "fn", fn: (f, t) => {
+          const u = (t * 0.08) % 1, k = Math.min(12.99, u * 13), i = Math.floor(k), xx = 3 + k * 2, yy = y + 21 - Math.abs(Math.sin(k / 2.2)) * 5;
+          const step = Math.floor(t * 6) % 2;
+          f(xx, yy - 1, 3, 1, "#a87a4a"); f(xx + 2, yy - 2, 2, 1, "#a87a4a"); f(xx + 3, yy - 3, 1, 1, "#a87a4a"); f(xx - 1, yy - 2, 1, 1, "#8a5a3a");
+          f(xx + step, yy, 1, 1, "#6a4a2a"); f(xx + 2 - step, yy, 1, 1, "#6a4a2a"); void i;
+        } }); }
+      // Sunset Blvd: palms down both sides
+      { const y = y0 + 52, e = Math.floor(roadX(y + 2)) - 13;
+        px(0, y, e, 4, "#5a5a60"); px(0, y - 1, e, 1, "#c8c8c8"); px(0, y + 4, e, 1, "#c8c8c8"); for (let x = 1; x < e - 1; x += 4) px(x, y + 2, 2, 1, "#e8e8e8");
+        for (let x = 2; x < e - 3; x += 6) { palm2(px, x, y - 12, 11, -1); palm2(px, x + 3, y + 6, 11, 1); }
+        word(px, 2, y + 8, "SUNSET", "#ffffff", "#1f7a3f"); }
+      // the 10 East gantry over the freeway: this is where the trip starts
+      { const y = y0 + 63, cx = Math.round(roadX(y + 4)), x = cx - 20;
+        canopy.push((px) => {
+        px(x + 1, y + 8, 1, 7, "#7a7a80"); px(x + 39, y + 8, 1, 7, "#7a7a80"); px(x, y + 7, 41, 1, "#8a8a90");
+        px(x + 2, y - 7, 37, 15, "#f2f2f2"); px(x + 3, y - 6, 35, 13, "#1f7a3f");
+        // the interstate shield
+        px(x + 5, y - 5, 7, 6, "#1f4aa8"); px(x + 5, y - 5, 7, 1, "#e0302f"); px(x + 6, y + 1, 5, 1, "#1f4aa8"); px(x + 7, y + 2, 3, 1, "#1f4aa8");
+        T(px, x + 6, y - 3, "10", "#ffffff"); T(px, x + 15, y - 4, "EAST", "#ffffff");
+        T(px, x + 5, y + 2, "NEW YORK", "#ffffff"); }); }
+      // TCL Chinese Theatre with a premiere on: the pagoda roof, red carpet, the crowd, flashbulbs, searchlights
+      { const y = y0 + 70, x = 15;
+        live.push({ k: "fn", fn: (f, t, c) => {
+          for (const [bx, sp, ph] of [[x + 3, 0.9, 0], [x + 30, 0.7, 2]] as const) {
+            const a = -Math.PI / 2 + Math.sin(t * sp + ph) * 0.75;
+            c.globalAlpha = 0.28;
+            for (let r = 2; r < 40; r++) { const wd = 1 + Math.floor(r / 12); f(bx + Math.cos(a) * r, y + 26 + Math.sin(a) * r, wd, 1, "#fff8d0"); }
+            c.globalAlpha = 1;
+          }
+        } });
+        px(x, y + 12, 33, 12, "#b8302a"); px(x, y + 12, 33, 1, "#8a1a1a");
+        px(x + 3, y + 8, 27, 4, "#1f6a4a"); px(x + 1, y + 10, 2, 1, "#1f6a4a"); px(x, y + 9, 1, 1, "#1f6a4a"); px(x + 30, y + 10, 2, 1, "#1f6a4a"); px(x + 32, y + 9, 1, 1, "#1f6a4a");
+        px(x + 8, y + 4, 17, 4, "#2a7a5a"); px(x + 6, y + 6, 2, 1, "#2a7a5a"); px(x + 25, y + 6, 2, 1, "#2a7a5a");
+        px(x + 12, y + 1, 9, 3, "#2a7a5a"); px(x + 16, y - 2, 1, 3, "#ffd23f");
+        px(x + 4, y + 12, 2, 12, "#e04a3a"); px(x + 27, y + 12, 2, 12, "#e04a3a"); px(x + 3, y + 12, 4, 1, "#ffd23f"); px(x + 26, y + 12, 4, 1, "#ffd23f");
+        px(x + 9, y + 17, 15, 7, "#2a1a1a"); px(x + 14, y + 14, 5, 2, "#ffd23f");
+        px(x, y + 24, 33, 8, "#111"); T(px, x + 1, y + 26, "PREMIERE", "#ffd23f");
+        px(x + 13, y + 32, 7, 10, "#d0202a"); px(x + 14, y + 32, 5, 10, "#e0303a");
+        for (let k = 0; k < 4; k++) { px(x + 11, y + 33 + k * 3, 1, 2, "#c8a040"); px(x + 21, y + 33 + k * 3, 1, 2, "#c8a040"); }
+        live.push({ k: "fn", fn: (f, t) => {
+          for (let k = 0; k < 13; k++) if ((Math.floor(t * 8) + k) % 4 === 0) { f(x + 1 + k * 2.5, y + 24, 1, 1, "#fff6c0"); f(x + 1 + k * 2.5, y + 31, 1, 1, "#fff6c0"); }
+          // the stars walking the carpet, the photographers on both sides, flashes going
+          const u = (t * 0.12) % 1, sy = y + 41 - u * 9;
+          f(x + 15, sy, 3, 1, "#1a1a1a"); f(x + 15, sy + 1, 3, 2, "#f0c8a0"); f(x + 15, sy + 3, 3, 3, "#1a1a2a"); f(x + 16, sy + 3, 1, 2, "#f2f2f2");
+          for (let k = 0; k < 4; k++) for (const s of [0, 1]) {
+            const bx = s ? x + 23 : x + 7, by = y + 33 + k * 3;
+            f(bx, by, 2, 1, ["#3a2a1a", "#c8a060", "#1a1a1a", "#8a5a3a"][k]); f(bx, by + 1, 2, 2, ["#3a6fd8", "#e0302f", "#5a5a5a", "#2faa4a"][(k + s) % 4]);
+            if (hash(Math.floor(t * 5) * 13 + k * 3 + s) > 0.82) { f(bx + (s ? -1 : 2), by, 1, 1, "#ffffff"); f(bx + (s ? -2 : 3), by - 1, 1, 1, "#ffffcc"); }
+          }
+        } }); }
       // Randy's Donuts: the giant donut on the roof
-      { const y = y0 + 98, x = 38;
+      { const y = y0 + 100, x = 1;
         px(x, y + 14, 18, 8, "#f2ead8"); px(x, y + 14, 18, 1, "#c8a060"); px(x + 2, y + 16, 5, 4, "#cfe8ff"); px(x + 10, y + 16, 5, 4, "#cfe8ff");
         disc(px, x + 9, y + 7, 7, "#c8823a"); disc(px, x + 9, y + 7, 6, "#d8a058"); disc(px, x + 9, y + 7, 3, "#8a9a5a");
-        px(x + 3, y + 3, 2, 1, "#b06a2a"); px(x + 12, y + 2, 2, 1, "#b06a2a"); px(x + 8, y + 13, 2, 1, "#b06a2a");
+        for (const [dx, dy, c] of [[3, 3, "#ff5ad1"], [12, 2, "#5af0ff"], [8, 13, "#ffd23f"], [14, 9, "#ff5ad1"], [4, 10, "#5af0ff"]] as const) px(x + dx, y + dy, 2, 1, c);   // sprinkles
         T(px, x + 1, y + 23, "RANDYS", "#f2f2f2"); }
+      for (let k = 0; k < 4; k++) palm2(px, 30 + k * 7, y0 + 113 + (k % 2) * 4, 11, k % 2 ? 1 : -1);
       // Capitol Records, the stack of records with the needle, blinking HOLLYWOOD in morse
-      { const y = y0 + 66, x = Math.max(free(y, 30, 12, "r"), 82);
+      { const y = y0 + 64, x = 92;
         for (let s = 0; s < 9; s++) { const ww = 12 - Math.floor(s / 2); px(x + Math.floor((12 - ww) / 2), y + 26 - s * 3, ww, 2, "#ecebe4"); px(x + Math.floor((12 - ww) / 2), y + 28 - s * 3, ww, 1, "#6a7078"); }
         px(x + 5, y - 4, 1, 4, "#d8d8d8"); px(x + 3, y + 29, 6, 2, "#c8c8c0");
         live.push({ k: "fn", fn: (f, t) => { if (".-....--".charAt(Math.floor(t * 3) % 8) === "-" || Math.floor(t * 6) % 2) f(x + 5, y - 5, 1, 1, "#ff3b3b"); } });
@@ -413,13 +463,12 @@ export const SC_WEST: Partial<Record<string, SceneMod>> = {
         px(x + 14, y + 2, W - x - 14, 28, "#3a3a40"); for (let yy = y + 4; yy < y + 28; yy += 6) for (let xx = x + 16; xx < W - 3; xx += 6) { px(xx, yy + 1, 3, 1, "#ff8ab8"); px(xx + 1, yy, 1, 3, "#ff8ab8"); px(xx + 1, yy + 1, 1, 1, "#ffd23f"); }
         vwalk(live, x + 16, y + 3, y + 26, 3, 3); flag(px, live, x + 15, y - 8, 9, 7, 5); }
       // In-N-Out: crossed palms, the yellow arrow, the drive-thru line
-      { const y = y0 + 94, x = Math.max(free(y, 24, 30, "r"), 86);
+      { const y = y0 + 98, x = 95;
         px(x, y + 6, 22, 12, "#f8f8f4"); px(x, y + 9, 22, 2, "#e0302f"); px(x, y + 6, 22, 1, "#d8d8d0"); px(x + 3, y + 12, 6, 5, "#cfe8ff");
         px(x + 24, y, 1, 18, "#9a9a9a"); px(x + 21, y - 3, 8, 5, "#ffd23f"); px(x + 27, y - 4, 2, 7, "#ffd23f"); px(x + 22, y - 2, 4, 3, "#e0302f");
         palm2(px, x + 13, y - 2, 9, -2); palm2(px, x + 15, y - 2, 9, 2);
         for (let k = 0; k < 4; k++) car(px, x + 2 + k * 5, y + 19, ["#f2f2f2", "#1a1a1a", "#e0302f", "#3a6fd8"][k]);
         px(x - 1, y + 25, 33, 7, "#f8f8f4"); T(px, x + 1, y + 26, "IN N OUT", "#e0302f"); }
-      for (let k = 0; k < 5; k++) palm2(px, 5 + k * 7, y0 + 112 + (k % 2) * 5, 11, k % 2 ? 1 : -1);   // a row of palms down the boulevard
     },
   },
   oc: {
@@ -501,7 +550,7 @@ export const SC_WEST: Partial<Record<string, SceneMod>> = {
         px(cx - 1, y + 28, 3, 8, "#cfcfcf");
         live.push({ k: "fn", fn: (f, t) => { for (let a = 0; a < 26; a++) { const s = a < 13 ? a : 26 - a, side = a < 13 ? 1 : -1; if ((a + Math.floor(t * 8)) % 3 === 0) { f(cx + side * (8 + Math.round(s * 0.9)) + side, y + 2 + s, 1, 1, "#ffd23f"); f(cx + side * (8 + Math.round(s * 0.9)) + side, y + 26 - s, 1, 1, "#ffd23f"); } } } }); }
       // the Stratosphere
-      { const y = y0 + 4, x = Math.min(free(y, 56, 14, "l"), 40);
+      { const y = y0 + 40, x = W - 15;
         px(x + 6, y + 14, 2, 42, "#c8c8d8"); px(x + 5, y + 50, 4, 6, "#a8a8b8"); px(x + 4, y + 52, 6, 4, "#8a8aa0");
         px(x + 2, y + 8, 10, 6, "#e8e8f0"); px(x + 1, y + 10, 12, 2, "#d0d0e0"); px(x + 3, y + 9, 8, 1, "#ff5ad1"); px(x + 3, y + 12, 8, 1, "#5af0ff");
         px(x + 6, y, 2, 8, "#d8d8e8"); px(x + 6, y - 6, 1, 6, "#cfcfcf");
@@ -530,7 +579,7 @@ export const SC_WEST: Partial<Record<string, SceneMod>> = {
         px(q - 2, py + 9, 2, 3, "#5a1a1a");                                                                        // the bible
         live.push({ k: "fn", fn: (f, t) => { if (Math.floor(t * 2.5) % 2) f(sx + 1, sy + 1, 23, 7, "rgba(255,255,255,.18)"); } }); }
       // the Flamingo: pink tower, the neon plume, and flamingos strutting round the lawn
-      { const y = y0 + 44, x = Math.min(Math.max(free(y, 36, 38, "r"), 66), W - 39);
+      { const y = y0 + 22, x = Math.max(1, Math.min(Math.floor(room(y - 8, 44).lo - 9) - 38, 6));
         px(x, y, 38, 20, "#ff6fb4"); px(x, y, 38, 1, "#ffb0d8"); for (let r = y + 3; r < y + 19; r += 3) for (let c = x + 2; c < x + 36; c += 3) px(c, r, 2, 1, "#ffd8ec");
         px(x + 1, y - 7, 36, 7, "#1a0a14"); T(px, x + 3, y - 6, "FLAMINGO", "#ff7ac0");
         live.push({ k: "fn", fn: (f, t) => { if (Math.floor(t * 3) % 4) { f(x + 3, y - 7, 32, 1, "#ff4aa8"); f(x + 3, y - 1, 32, 1, "#ff4aa8"); } } });

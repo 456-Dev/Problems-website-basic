@@ -250,32 +250,88 @@ export function render3D(ctx: CanvasRenderingContext2D, v: View) {
       face([at(-5.03, s * 2.2, 1.6), at(-5.03, s * 2.9, 1.6), at(-5.03, s * 2.9, 2.6), at(-5.03, s * 2.2, 2.6)], "#e0302f", ink, 0.8, true);   // tail lights
       face([at(5.03, s * 2.0, 1.7), at(5.03, s * 2.8, 1.7), at(5.03, s * 2.8, 2.4), at(5.03, s * 2.0, 2.4)], "#fff6a0", ink, 0.8, true);       // headlights
     }
-    // Jason driving (left), me riding shotgun: hanging out the windows, hair in the wind
-    const inVan = 1 - smooth(v.out / 0.2);
-    const head = (b: number, shirt: string, hair: string, wave: boolean) => {
-      const lean = inVan, hb = b * (B + 0.3 + 1.2 * lean), hz = 4.3 + 1.2 * lean;
-      if (lean < 0.05) return;
-      const sh = at(1.0, b * (B + 0.2 + 0.6 * lean), 3.9);
-      dot(sh[0], sh[1], sh[2], 0.9, shirt, ink);
-      const h = at(1.1, hb, hz);
-      dot(h[0], h[1], h[2], 1.3, "#f0c8a0", ink);
-      const hr = at(0.5, hb, hz + 0.6);
-      dot(hr[0], hr[1], hr[2], 1.0, hair);
-      for (let k = 0; k < 3; k++) {                                        // hair streaming back
-        const fl = Math.sin(t * 14 + k * 2) * 0.25;
-        seg(at(0.4, hb + (k - 1) * 0.35, hz + 0.6), at(-0.9 - k * 0.2, hb + (k - 1) * 0.4 + fl, hz + 0.55 + fl), hair, 1.1);
-      }
-      if (wave) {                                                          // my arm out, waving at Kansas
-        const w = Math.sin(t * 7) * 0.9;
-        const s0 = at(1.6, b * (B + 0.3), 3.9), hand = at(2.4 + w * 0.4, b * (B + 2.4), 6.4 + w);
-        seg(s0, hand, "#f0c8a0", 2); dot(hand[0], hand[1], hand[2], 0.45, "#f0c8a0", ink);
-      } else {
-        const s0 = at(0.6, b * (B + 0.1), 3.6), hand = at(-0.6, b * (B + 1.0), 3.4);
-        seg(s0, hand, "#2f8a3a", 2);
-      }
+    // a box on the van, in van coordinates (along, across, up)
+    const vbox = (a0: number, a1: number, b0: number, b1: number, z0: number, z1: number, c: string, top = c, line = ink) => {
+      const q = (a: number, b: number, z: number) => at(a, b, z);
+      face([q(a0, b0, z1), q(a1, b0, z1), q(a1, b1, z1), q(a0, b1, z1)], top, line, 1);
+      face([q(a0, b0, z0), q(a1, b0, z0), q(a1, b0, z1), q(a0, b0, z1)], c, line, 1);
+      face([q(a0, b1, z0), q(a1, b1, z0), q(a1, b1, z1), q(a0, b1, z1)], c, line, 1);
+      face([q(a0, b0, z0), q(a0, b1, z0), q(a0, b1, z1), q(a0, b0, z1)], c, line, 1);
+      face([q(a1, b0, z0), q(a1, b1, z0), q(a1, b1, z1), q(a1, b0, z1)], c, line, 1);
     };
-    head(1, "#2f8a3a", "#5a3a1a", false);     // Jason, green Cummins tee
-    head(-1, "#8a8f99", "#4a2e1a", true);     // me, grey suit
+    const spot = (a: number, b: number, z: number, r: number, c: string, line?: string) => { const p = at(a, b, z); dot(p[0], p[1], p[2], r, c, line); };
+    const limb = (p: [number, number, number], q: [number, number, number], c: string, lw = 2.4) => seg(at(...p), at(...q), c, lw);
+
+    // the roof rack: the bags strapped down, and a big flag on a pole, whipping in the wind
+    vbox(-4.4, -1.2, -2.2, 2.2, 5.1, 6.3, "#3a3a44", "#4a4a56");
+    vbox(-1.0, 1.4, -1.8, 0.6, 5.1, 5.9, "#c8562a", "#d86a3a");
+    seg(at(-4.6, -2.4, 5.2), at(1.8, -2.4, 5.2), "#222", 1); seg(at(-4.6, 2.4, 5.2), at(1.8, 2.4, 5.2), "#222", 1);
+    {
+      const pa = -4.8, z1 = 12.6, NX = 7, NY = 7, L = 7.2, Hh = 4.2;
+      seg(at(pa, 0, 5.1), at(pa, 0, z1 + 0.4), "#d8d8d8", 1.4); spot(pa, 0, z1 + 0.6, 0.35, "#ffd23f");
+      const pt = (i: number, j: number): [number, number, number] => {
+        const u = i / NX, w = Math.sin(t * 9 - i * 1.1) * 0.7 * u + Math.sin(t * 13 - i * 1.7) * 0.2 * u;
+        return at(pa - u * L, w, z1 - (j / NY) * Hh - u * u * 0.9 + Math.sin(t * 7 - i) * 0.15 * u);
+      };
+      for (let i = 0; i < NX; i++) for (let j = 0; j < NY; j++) {
+        const blue = i < 3 && j < 4, c = blue ? "#2a3a8a" : j % 2 ? "#f4f4f4" : "#d0202a";
+        face([pt(i, j), pt(i + 1, j), pt(i + 1, j + 1), pt(i, j + 1)], c, blue && (i + j) % 2 ? "rgba(255,255,255,.7)" : "rgba(0,0,0,0)", 0.6);
+      }
+    }
+
+    // Jason driving, filming out his window; me riding shotgun, out to the waist, never still
+    const inVan = 1 - smooth(v.out / 0.2);
+    if (inVan > 0.05) {
+      const L_ = inVan, bob = Math.sin(t * 9) * 0.15;
+      // ME (b < 0): grey suit, white tee, beard, shades, tie going sideways in the wind
+      {
+        const s = -1, o = B + 0.1, out = o + 2.6 * L_, zt = 3.6, zs = 6.4 + bob;
+        vbox(-0.2, 2.4, s * o, s * out, zt, zs, "#8a8f99", "#9aa0aa");                                        // the suit
+        vbox(2.35, 2.45, s * (out - 1.7), s * (out - 0.6), zt + 0.6, zs - 0.1, "#f4f4f4", "#f4f4f4", "rgba(0,0,0,.3)");   // the tee under it
+        const neck: [number, number, number] = [1.6, s * (out - 0.8), zs - 0.2];
+        limb(neck, [0.2 - Math.sin(t * 11) * 0.3, s * (out - 0.6 + Math.sin(t * 15) * 0.5), zs - 1.6], "#c8202a", 2);   // the tie
+        const hz = zs + 2.2, hb = s * (out - 1.1);
+        spot(1.3, hb, hz, 2.2, "#f0c8a0", ink);                                                            // head
+        spot(2.3, hb, hz - 0.9, 1.4, "#4a2e1a");                                                           // the beard
+        spot(0.2, hb, hz + 0.9, 1.3, "#4a2e1a");                                                            // hair
+        for (let k = 0; k < 4; k++) { const fl = Math.sin(t * 16 + k * 2) * 0.3; limb([-0.2, hb + (k - 1.5) * 0.5, hz + 1.2], [-2.6 - k * 0.3, hb + (k - 1.5) * 0.7 + fl, hz + 0.9 + fl], "#4a2e1a", 1.6); }
+        limb([2.9, hb - 1.2, hz + 1.0], [2.9, hb + 1.2, hz + 1.0], "#0a0a0a", 3);                     // shades
+        // what my arms are doing: wave, mic out, WOOO, point at whatever's next
+        const sh: [number, number, number] = [1.2, s * (out + 0.1), zs - 0.4], sh2: [number, number, number] = [1.2, s * (o + 0.1), zs - 0.4];
+        const act = Math.floor(t / 2.6) % 4, w = Math.sin(t * 8);
+        if (act === 0) {
+          const e: [number, number, number] = [1.6, s * (out + 2.0), zs + 1.4], h: [number, number, number] = [2.0 + w * 1.1, s * (out + 2.8), zs + 4.4];
+          limb(sh, e, "#8a8f99", 3.2); limb(e, h, "#8a8f99", 2.8); spot(h[0], h[1], h[2], 0.8, "#f0c8a0", ink);
+        } else if (act === 1) {
+          const h: [number, number, number] = [5.6 + w * 0.2, s * (out + 1.4), zs + 0.8];
+          limb(sh, h, "#8a8f99", 2.6); spot(h[0], h[1], h[2], 0.55, "#f0c8a0", ink);
+          limb(h, [h[0] + 1.2, h[1], h[2] + 0.4], "#222", 2.2); spot(h[0] + 1.5, h[1], h[2] + 0.5, 1.0, "#1a1a1a");   // the mic
+        } else if (act === 2) {
+          for (const [p, dz] of [[sh, 0], [sh2, 0.2]] as const) {
+            const h: [number, number, number] = [1.4 + Math.sin(t * 14 + dz * 9) * 0.4, p[1] + s * 2.0, zs + 5.2];
+            limb(p, h, "#8a8f99", 2.4); spot(h[0], h[1], h[2], 0.6, "#f0c8a0", ink);
+          }
+        } else {
+          const h: [number, number, number] = [6.8, s * (out + 2.4 + w * 0.3), zs + 1.6];
+          limb(sh, h, "#8a8f99", 2.6); spot(h[0], h[1], h[2], 0.55, "#f0c8a0", ink); limb(h, [h[0] + 0.9, h[1], h[2] + 0.1], "#f0c8a0", 1.4);
+        }
+      }
+      // JASON (b > 0): green Cummins tee, cap on backwards, the camera on his shoulder, REC blinking
+      {
+        const s = 1, o = B + 0.1, out = o + 1.9 * L_, zt = 3.6, zs = 6.0 - bob;
+        vbox(-0.1, 2.1, s * o, s * out, zt, zs, "#2f8a3a", "#3a9a46");
+        const hz = zs + 2.0, hb = s * (out - 0.9);
+        spot(1.1, hb, hz, 2.0, "#f0c8a0", ink);
+        spot(0.3, hb, hz + 1.0, 1.5, "#2a4a2a");                                                            // the cap
+        limb([-0.2, hb, hz + 1.1], [-2.4, hb, hz + 0.9], "#2a4a2a", 3.2);                                    // its bill, backwards
+        const cx = 1.8, cb = s * (out + 1.4), cz = hz + 0.4;
+        vbox(cx - 2.2, cx + 1.8, cb - 0.9, cb + 0.9, cz - 1.0, cz + 0.9, "#1a1a1e", "#2a2a30");             // the camera
+        vbox(cx + 1.8, cx + 3.0, cb - 0.6, cb + 0.6, cz - 0.6, cz + 0.6, "#111", "#222");                   // the lens
+        spot(cx + 3.1, cb, cz, 0.5, "#5a7aaa");
+        if (Math.floor(t * 2) % 2) spot(cx - 1.4, cb, cz + 1.2, 0.55, "#ff2a1a");
+        limb([1.0, s * (out + 0.1), zs - 0.5], [cx, cb - 0.2, cz - 0.6], "#f0c8a0", 2.2);
+      }
+    }
   }
 
   /* ---------- paint, back to front ---------- */
