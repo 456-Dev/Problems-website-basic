@@ -84,8 +84,10 @@
 .oqa-credit { margin: 0 0 14px; font-size: 17px; color: #d9d9d9; }
 .oqa-log { margin: 0 0 14px; font-size: 18px; line-height: 1.4; max-width: 36ch; }
 .oqa-qs { margin: 0 0 20px; padding: 0; list-style: none; font-size: 18px; font-weight: 600; line-height: 1.35; }
-.oqa-qs li { padding: 2px 0; }
+.oqa-qs li { padding: 3px 0; display: flex; align-items: flex-start; gap: .45em; }
 .oqa-qn { color: #8a8a8a; font-weight: 400; }
+.oqa-qn { flex: none; min-width: 1em; }
+.oqa-qi { flex: none; display: inline-block; width: 1.15em; height: 1.15em; margin-top: .1em; color: #fff; }
 .oqa-actions { display: flex; flex-wrap: wrap; justify-content: flex-start; gap: 12px; margin: 0 0 16px; }
 .oqa-btn { display: inline-block; background: #fff; color: #000 !important; font-weight: 800; font-size: 17px;
   padding: 15px 22px; border-radius: 3px; text-decoration: none; border: 2px solid #fff; transition: transform .12s; }

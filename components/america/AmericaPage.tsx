@@ -2,6 +2,7 @@
 
 import RoadRail from "./RoadRail";
 import Chip from "./Chip";
+import { Ask, Flip, Happy } from "./Icons";
 import { VIDEO_ID, questions } from "@/lib/america";
 
 const WATCH = `https://www.youtube.com/watch?v=${VIDEO_ID}`;
@@ -9,8 +10,8 @@ const MAIL = "michaellinares314@gmail.com";
 const embed = (start: number, autoplay: boolean) =>
   `https://www.youtube.com/embed/${VIDEO_ID}?rel=0&playsinline=1&start=${Math.max(0, start)}${autoplay ? "&autoplay=1" : ""}`;
 
-// one per question: ask everyone in America / answer your own / are you happy?
-const QEMOJI = ["🇺🇸", "🪞", "🙂"];
+// the film's own side-rail marks: ? = ask everyone, the flip arrows = answer your own, the smiley = are you happy?
+const QICON = [Ask, Flip, Happy];
 
 const PLAYLIST = "https://open.spotify.com/playlist/2UalUa7nhW74YeW9MRVKI7";
 
@@ -37,7 +38,7 @@ export default function AmericaPage() {
             July 4th to 14th, 2024.
           </p>
           <ol className="oqa-qs" aria-label="The three questions">
-            {questions.map((q, n) => <li key={q}><span className="oqa-qn">{n + 1}.</span> <span aria-hidden>{QEMOJI[n]}</span> {q}</li>)}
+            {questions.map((q, n) => <li key={q}><span className="oqa-qn">{n + 1}.</span>{(() => { const I = QICON[n]; return <I className="oqa-qi" />; })()}<span>{q}</span></li>)}
           </ol>
           <div className="oqa-actions">
             <a className="oqa-btn" href="#trip">Take the 8-bit trip ↓</a>
