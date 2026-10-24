@@ -15,10 +15,6 @@ export default function AmericaPage() {
   return (
     <div className="oqa">
       <Chip />
-      {/* behind everything, in 8-bit */}
-      <div className="oqa-bgword" aria-hidden>
-        {Array.from({ length: 4 }, (_, k) => <p key={k}>i deserve a little bit more</p>)}
-      </div>
       <header className="oqa-top">
         <a href="/">456 Solutions</a>
         <a href={WATCH} target="_blank" rel="noopener noreferrer">YouTube ↗</a>
@@ -37,9 +33,11 @@ export default function AmericaPage() {
             Three questions. Over 200 strangers. Eleven days in a car from Los Angeles to New York City,
             July 4th to 14th, 2024.
           </p>
+          <ol className="oqa-qs" aria-label="The three questions">
+            {questions.map((q) => <li key={q}>{q}</li>)}
+          </ol>
           <div className="oqa-actions">
-            <a className="oqa-btn" href="#film">▶ Watch the film</a>
-            <a className="oqa-btn ghost" href="#trip">Take the trip ↓</a>
+            <a className="oqa-btn" href="#trip">Take the 8-bit trip ↓</a>
             <a className="oqa-btn ghost" href={PLAYLIST} target="_blank" rel="noopener noreferrer">♫ The playlist</a>
           </div>
           <div className="oqa-runtime">
@@ -59,22 +57,6 @@ export default function AmericaPage() {
                   referrerPolicy="strict-origin-when-cross-origin" allowFullScreen />
         </div>
         <p className="oqa-hint">75 minutes · free · <a href={WATCH} target="_blank" rel="noopener noreferrer">Open on YouTube ↗</a></p>
-      </section>
-
-      {/* ---------------- the three questions ---------------- */}
-      <section className="oqa-three">
-        <h2><span>Everyone got the same</span> <span>three questions</span></h2>
-        <ol>
-          {questions.map((q, n) => {
-            return (
-              <li key={q}>
-                <span className="oqa-q-num">{String(n + 1).padStart(2, "0")}</span>
-                <p>{q}</p>
-              </li>
-            );
-          })}
-        </ol>
-        <p className="oqa-three-foot">Over 200 people answered. We&apos;re not telling you what they said.</p>
       </section>
 
       {/* ---------------- credits ---------------- */}
@@ -112,7 +94,7 @@ export default function AmericaPage() {
           <h2>“One Question for America”</h2>
           <p>Eleven days, LA to New York, over 200 strangers, three questions. 75 minutes, free.</p>
           <div className="oqa-actions">
-            <a className="oqa-btn" href="#film">▶ Watch the film</a>
+            <a className="oqa-btn" href="#film">Watch the film</a>
             <a className="oqa-btn ghost" href={PLAYLIST} target="_blank" rel="noopener noreferrer">♫ Spotify playlist</a>
           </div>
         </div>

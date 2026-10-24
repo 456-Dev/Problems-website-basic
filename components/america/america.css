@@ -18,13 +18,7 @@
   --film: "Segoe UI", Selawik, sans-serif;
   font-family: var(--film);
 }
-/* "i deserve a little bit more", huge and faint in 8-bit, fixed behind the whole page */
 .oqa { position: relative; }
-.oqa-bgword { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; display: flex; flex-direction: column; justify-content: space-around;
-  font-family: var(--oqa-pixel), monospace; font-size: clamp(26px, 6.4vw, 92px); line-height: 1.35; color: rgba(255, 255, 255, .075); text-transform: lowercase; }
-.oqa-bgword p { margin: 0; padding: 0 3vw; white-space: normal; }
-.oqa-bgword p:nth-child(even) { text-align: right; color: rgba(178, 34, 52, .16); }
-.oqa > :not(.oqa-bgword) { position: relative; z-index: 1; }
 .oqa *, .oqa *::before, .oqa *::after { box-sizing: border-box; }
 .oqa a { color: inherit; }
 .oqa button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
@@ -80,15 +74,17 @@
 .oqa-top a:hover { color: #fff; }
 
 /* ---- hero ---- */
-.oqa-hero { display: flex; flex-direction: column; align-items: flex-start; gap: 36px; text-align: left;
-  padding: 18px 28px 60px; max-width: 1320px; margin: 0 auto; }
+.oqa-hero { display: flex; flex-direction: column; align-items: flex-start; gap: 22px; text-align: left;
+  padding: 10px 28px 36px; max-width: 1320px; margin: 0 auto; }
 .oqa-poster { width: min(100%, 760px); }
 .oqa-hero-text { max-width: 760px; }
-.oqa-poster img { display: block; width: 100%; max-height: 82vh; object-fit: contain; object-position: left; }
-.oqa-hero h1 { margin: 0 0 18px; font-family: var(--film); font-weight: 700; font-size: clamp(38px, 5.2vw, 76px); line-height: 1; letter-spacing: -.02em; }
+.oqa-poster img { display: block; width: 100%; max-height: 58vh; object-fit: contain; object-position: left; }
+.oqa-hero h1 { margin: 0 0 10px; font-family: var(--film); font-weight: 700; font-size: clamp(32px, 4.2vw, 58px); line-height: 1; letter-spacing: -.02em; }
 .oqa-hero h1 span { display: inline-block; background: #fff; color: #000; padding: .04em .16em .1em; margin: 0 0 .12em; }
-.oqa-credit { margin: 0 0 22px; font-size: 19px; color: #d9d9d9; }
-.oqa-log { margin: 0 0 30px; font-size: 21px; line-height: 1.45; max-width: 30ch; }
+.oqa-credit { margin: 0 0 14px; font-size: 17px; color: #d9d9d9; }
+.oqa-log { margin: 0 0 14px; font-size: 18px; line-height: 1.4; max-width: 36ch; }
+.oqa-qs { margin: 0 0 20px; padding: 0; list-style: none; font-size: 18px; font-weight: 600; line-height: 1.35; }
+.oqa-qs li { padding: 2px 0; }
 .oqa-actions { display: flex; flex-wrap: wrap; justify-content: flex-start; gap: 12px; margin: 0 0 16px; }
 .oqa-btn { display: inline-block; background: #fff; color: #000 !important; font-weight: 800; font-size: 17px;
   padding: 15px 22px; border-radius: 3px; text-decoration: none; border: 2px solid #fff; transition: transform .12s; }
@@ -102,15 +98,6 @@
 /* subtitles, wherever a person speaks */
 .oqa-sub { margin: 0; color: var(--sub); font-size: 21px; line-height: 1.35; }
 
-/* ---- three questions, no answers ---- */
-.oqa-three { max-width: 1200px; margin: 0 auto; padding: 60px 28px 70px; }
-.oqa-three ol { list-style: none; margin: 34px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 0;
-  border-top: 1px solid #333; }
-.oqa-three li { padding: 26px 28px 30px 0; border-bottom: 1px solid #333; }
-.oqa-three li + li { padding-left: 28px; border-left: 1px solid #333; }
-.oqa-q-num { display: block; color: #8a8a8a; font-size: 15px; font-weight: 600; letter-spacing: .12em; }
-.oqa-three li p { margin: 12px 0 0; font-size: 28px; font-weight: 600; line-height: 1.2; }
-.oqa-three-foot { margin: 34px 0 0; color: #bdbdbd; font-size: 19px; }
 
 /* ---- the film ---- */
 .oqa-film { max-width: 1320px; margin: 0 auto; padding: 50px 28px 70px; }
@@ -135,16 +122,13 @@
 
 /* ---- small screens ---- */
 @media (max-width: 900px) {
-  .oqa-top, .oqa-hero, .oqa-three, .oqa-film, .oqa-credits { padding-left: 14px; padding-right: 14px; }
-  .oqa-hero { gap: 26px; }
-  .oqa-three ol { grid-template-columns: 1fr; gap: 0; }
-  .oqa-three li, .oqa-three li + li { padding: 22px 0; border-left: 0; }
-  .oqa-three li p { font-size: 24px; }
+  .oqa-top, .oqa-hero, .oqa-film, .oqa-credits { padding-left: 14px; padding-right: 14px; }
+  .oqa-hero { gap: 18px; }
 }
 
 /* wide screens: poster left, title and copy beside it */
 @media (min-width: 901px) {
-  .oqa-hero { flex-direction: row; align-items: center; gap: 56px; }
+  .oqa-hero { flex-direction: row; align-items: center; gap: 40px; }
   .oqa-poster { flex: 0 0 52%; }
   .oqa-hero-text { flex: 1; }
 }
