@@ -2,11 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 
-// "I Deserve A Little Bit More" in 8-bit, playing front to back under the whole page.
+// The Grooms, "I Deserve A Little Bit More" (the original recording), playing front to back under the whole page.
 // Browsers won't play sound until you touch the page, so it starts on your first tap or key.
 // Any .oqa-music button toggles it (they send "oqa-music"; we answer with "oqa-music-state").
 
-export const SONG = "/assets/america/deserve-8bit.mp3";
+export const SONG = "/assets/america/deserve.mp3";
 
 export default function Chip() {
   const a = useRef<HTMLAudioElement>(null);
